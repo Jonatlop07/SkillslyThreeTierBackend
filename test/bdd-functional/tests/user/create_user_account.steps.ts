@@ -6,41 +6,49 @@ defineFeature(feature, (test) => {
   test('Create user account', ({ given, and, when, then }) => {
     let email: string;
     let password: string;
+    let name: string;
+    let date_of_birth;
 
     let exception: CreateUserAccountException;
 
     let createUserAccountService: CreateUserAccountService;
     let output: CreateUserAccountOutputModel;
 
-    function createUserAccount(email: string, password: string) {
+    function createUserAccount(input: CreateUserAccountInputModel) {
       try {
-        createUserAccountService.execute(new CreateUserAccountInputModel(email, password));
+        output = createUserAccountService.execute(input);
       } catch (e: CreateUserAccountException) {
         exception = e;
       }
     }
 
-    given(/^the user provides the credentials: email being "([^"]*)" and password being "([^"]*)"$/,
+    given(/^the user provides the credentials: "([^"]*)" and "([^"]*)"$/,
       (input_email: string, input_password: string) => {
         email = input_email;
         password = input_password;
       });
 
-    const givenAccountAlreadyExistsRegularExpression = new RegExp(
-      [
-        '^there already exists an account identified by the email "([^"]*)" ',
-        'and the user provides the email with the password "<Password>"$'
-      ].join('')
-    );
+    and(/the data of the account to create: "([^"]*)", "([^"]*)"/, (input_name, input_date_of_birth) => {
+      name = input_name;
+      date_of_birth = input_date_of_birth;
+    });
 
-    given(givenAccountAlreadyExistsRegularExpression, (input_email, input_password) => {
-      email = input_email;
-      password = input_password;
-      createUserAccount(email, password);
+    and('there already exists an account identified by the email provided by the user', () => {
+      createUserAccount({
+        email,
+        password,
+        name,
+        date_of_birth
+      });
     });
 
     when('the user tries to create an account', () => {
-      createUserAccount(email, password);
+      createUserAccount({
+        email,
+        password,
+        name,
+        date_of_birth
+      });
     });
 
     then('an account is then created with user information and login credentials', () => {
@@ -48,8 +56,8 @@ defineFeature(feature, (test) => {
       expect( output.email ).toEqual( expectedOutput.email );
     });
 
-    then('an error occurs: the credentials provided by the user are in an invalid format', () => {
-      expect(typeof exception === CreateAccountInvalidCredentialsFormatException).toBeTruthy();
+    then('an error occurs: the credentials and data provided by the user are in an invalid format', () => {
+      expect(typeof exception === CreateAccountInvalidDataFormatException).toBeTruthy();
     });
 
     then('an error occurs: an account with the email provided by the user already exists', () => {
