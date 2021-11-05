@@ -12,7 +12,7 @@ export class UserController {
 
   @Post('account')
   @HttpCode(HttpStatus.CREATED)
-  public async createUserAccount(@Body() body) {
+  public async createUserAccount(@Body() body: CreateUserAccountAdapter) {
     return await this.createUserAccountInteractor.execute(await CreateUserAccountAdapter.new({
       email: body.email,
       password: body.password,
