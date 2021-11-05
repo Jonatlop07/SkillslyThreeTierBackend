@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Inject, Post } from '@nestjs/common';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
-import { CreateUserAccountAdapter } from '@application/api/http-rest/controller/user/create_user_account.adapter';
+import { CreateUserAccountAdapter } from '@infrastructure/adapter/use-case/user/create_user_account.adapter';
 
 @Controller('users')
 export class UserController {
