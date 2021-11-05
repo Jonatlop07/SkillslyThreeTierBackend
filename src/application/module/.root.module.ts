@@ -6,4 +6,4 @@ import { UserModule } from '@application/module/user.module';
     UserModule
   ],
 })
-export class AppModule {}
+export class RootModule {}
