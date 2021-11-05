@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
 import CreateUserAccountGateway from '@core/domain/user/use-case/gateway/create_user_account.gateway';
 import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
@@ -6,13 +7,16 @@ import {
   CreateUserAccountAlreadyExistsException,
   CreateUserAccountInvalidDataFormatException
 } from '@core/service/user/create_user_account.exception';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { User } from '@core/domain/user/entity/user';
-
 
 export class CreateUserAccountService implements CreateUserAccountInteractor {
   private static readonly MAX_NAME_LENGTH = 30;
 
-  constructor(private gateway: CreateUserAccountGateway) {}
+  constructor(
+    @Inject(UserDITokens.UserRepository)
+    private gateway: CreateUserAccountGateway
+  ) {}
 
   async execute(input?: CreateUserAccountInputModel): Promise<CreateUserAccountOutputModel> {
     const { email, password, name, date_of_birth } = input;

@@ -1,4 +1,5 @@
 import { loadFeature, defineFeature } from 'jest-cucumber';
+import { Test, TestingModule } from '@nestjs/testing';
 import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
 import CreateUserAccountOutputModel from '@core/domain/user/use-case/output-model/create_user_account.output_model';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
@@ -8,6 +9,7 @@ import {
   CreateUserAccountAlreadyExistsException
 } from '@core/service/user/create_user_account.exception';
 import { UserInMemoryRepository } from '@infrastructure/persistence/user_in_memory.repository';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 
 const feature = loadFeature('test/bdd-functional/features/user/create_user_account.feature');
 
@@ -17,7 +19,7 @@ defineFeature(feature, (test) => {
   let name: string;
   let date_of_birth;
 
-  const createUserAccountService = new CreateUserAccountService(new UserInMemoryRepository(new Map()));
+  let createUserAccountService: CreateUserAccountService;
   let output: CreateUserAccountOutputModel;
   let exception: CreateUserAccountException = undefined;
 
@@ -54,6 +56,24 @@ defineFeature(feature, (test) => {
       });
     });
   }
+
+  beforeAll(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        {
+          provide: UserDITokens.CreateUserAccountInteractor,
+          useFactory: (gateway) => new CreateUserAccountService(gateway),
+          inject: [UserDITokens.UserRepository]
+        },
+        {
+          provide: UserDITokens.UserRepository,
+          useFactory: () => new UserInMemoryRepository(new Map())
+        },
+      ]
+    }).compile();
+
+    createUserAccountService = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
+  });
 
   beforeEach(() => {
     exception = undefined;

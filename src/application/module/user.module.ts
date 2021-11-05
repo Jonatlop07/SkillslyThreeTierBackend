@@ -14,7 +14,8 @@ const persistence_providers: Provider[] = [
 const use_case_providers: Provider[] = [
   {
     provide: UserDITokens.CreateUserAccountInteractor,
-    useFactory: (gateway) => new CreateUserAccountService(gateway)
+    useFactory: (gateway) => new CreateUserAccountService(gateway),
+    inject: [UserDITokens.UserRepository]
   }
 ];
 
