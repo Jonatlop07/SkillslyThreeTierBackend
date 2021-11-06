@@ -8,7 +8,7 @@ import {
   CreateUserAccountInvalidDataFormatException,
   CreateUserAccountAlreadyExistsException
 } from '@core/service/user/create_user_account.exception';
-import { UserInMemoryRepository } from '@infrastructure/persistence/user_in_memory.repository';
+import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 
 const feature = loadFeature('test/bdd-functional/features/user/create_user_account.feature');
