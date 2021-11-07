@@ -1,30 +1,32 @@
 import CreateUserAccountGateway from '@core/domain/user/use-case/gateway/create_user_account.gateway';
-import { User } from '@core/domain/user/entity/user';
+import { UserDTO } from '../../../core/domain/user/use-case/persistence-dto/user.dto';
+import * as moment from 'moment';
 
 export class UserInMemoryRepository implements CreateUserAccountGateway {
-  private currently_available_user_id: number;
+  private currently_available_user_id: string;
 
-  constructor( private readonly users: Map<number, User>) {
-    this.currently_available_user_id = 1;
+  constructor( private readonly users: Map<string, UserDTO>) {
+    this.currently_available_user_id = '1';
   }
 
-  create(user: User): User {
-    const new_user = new User({
+  async create(user: UserDTO): Promise<UserDTO> {
+    const new_user: UserDTO = {
       id: this.currently_available_user_id,
       email: user.email,
       password: user.password,
       name: user.name,
-      date_of_birth: user.date_of_birth
-    });
+      date_of_birth: user.date_of_birth,
+      created_at: moment().format('DD/MM/YYYY')
+    };
     this.users.set(this.currently_available_user_id, new_user);
-    this.currently_available_user_id++;
-    return new_user;
+    this.currently_available_user_id = `${Number(this.currently_available_user_id) + 1}`;
+    return Promise.resolve(new_user);
   }
 
-  exists(user: User): boolean {
+  async exists(user: UserDTO): Promise<boolean> {
     for (const _user of this.users.values())
       if (_user.email === user.email)
-        return true;
-    return false;
+        return Promise.resolve(true);
+    return Promise.resolve(false);
   }
 }

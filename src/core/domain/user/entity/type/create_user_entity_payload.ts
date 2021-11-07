@@ -1,7 +1,7 @@
 export type CreateUserEntityPayload = {
   email: string,
   password: string,
-  id?: number,
+  id?: string,
   name: string,
   date_of_birth: string
 };

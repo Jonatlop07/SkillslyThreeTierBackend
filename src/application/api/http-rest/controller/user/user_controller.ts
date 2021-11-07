@@ -29,10 +29,13 @@ export class UserController {
         })
       );
     } catch (e) {
+      this.logger.error(e.message);
       if (e instanceof CreateUserAccountInvalidDataFormatException) {
         throw new HttpException('Invalid sign up data format', HttpStatus.FORBIDDEN);
       } else if (e instanceof CreateUserAccountAlreadyExistsException) {
         throw new HttpException('Account already exists', HttpStatus.CONFLICT);
+      } else {
+        throw new HttpException('Internal database error', HttpStatus.BAD_GATEWAY);
       }
     }
   }

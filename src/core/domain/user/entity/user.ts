@@ -1,7 +1,7 @@
 import { Entity } from '@core/common/entity/entity';
 import { CreateUserEntityPayload } from '@core/domain/user/entity/type/create_user_entity_payload';
 
-export class User extends Entity<number> {
+export class User extends Entity<string> {
   private readonly _email: string;
   private readonly _password: string;
   private readonly _name: string;
@@ -14,7 +14,7 @@ export class User extends Entity<number> {
     this._password = password;
     this._name = name;
     this._date_of_birth = date_of_birth;
-    this.id = payload.id || 0;
+    this._id = payload.id || '';
   }
 
   get email(): string {

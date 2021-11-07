@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { Inject, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
 import CreateUserAccountGateway from '@core/domain/user/use-case/gateway/create_user_account.gateway';
 import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
@@ -9,14 +9,15 @@ import {
   CreateUserAccountInvalidDataFormatException
 } from '@core/service/user/create_user_account.exception';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { User } from '@core/domain/user/entity/user';
 import {
   isValidEmail,
   isValidPassword,
   isValidName,
   isValidDateOfBirth
 } from '@core/common/util/account_data.validators';
+import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 
+@Injectable()
 export class CreateUserAccountService implements CreateUserAccountInteractor {
   private readonly logger: Logger = new Logger(CreateUserAccountService.name);
 
@@ -32,10 +33,10 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
       throw new CreateUserAccountInvalidDataFormatException();
     const salt_rounds = 10;
     const hashed_password = await bcrypt.hash(password, salt_rounds);
-    const user = new User({ email, password: hashed_password, name, date_of_birth });
-    if (this.gateway.exists(user))
+    const user: UserDTO = { email, password: hashed_password, name, date_of_birth };
+    if (await this.gateway.exists(user))
       throw new CreateUserAccountAlreadyExistsException();
-    const createdUser: User = await this.gateway.create(user);
-    return Promise.resolve({ email: createdUser.email });
+    const createdUser: UserDTO = await this.gateway.create(user);
+    return { email: createdUser.email };
   }
 }

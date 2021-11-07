@@ -1,19 +1,23 @@
 import { Global, Module } from '@nestjs/common';
-import { Neo4jModule, Neo4jScheme } from 'nest-neo4j/dist';
-import { Neo4jConfiguration } from '@infrastructure/config/neo4j.config';
+import { Neo4jModule } from '@application/module/neo4j.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import Neo4jConfig from '@infrastructure/adapter/persistence/neo4j/types/neo4j_config.interface';
 
 @Global()
 @Module({
   imports: [
     Neo4jModule.forRootAsync({
-      scheme: Neo4jConfiguration.NEO4J_SCHEME as Neo4jScheme,
-      host: Neo4jConfiguration.NEO4J_HOST,
-      port: Neo4jConfiguration.NEO4J_PORT,
-      username: Neo4jConfiguration.NEO4J_USERNAME,
-      password: Neo4jConfiguration.NEO4J_PASSWORD,
-      database: Neo4jConfiguration.NEO4J_DATABASE
-    })
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config_service: ConfigService): Neo4jConfig => ({
+        scheme: config_service.get('DATABASE_SCHEME'),
+        host: config_service.get('DATABASE_HOST'),
+        port: config_service.get('DATABASE_PORT'),
+        username: config_service.get('DATABASE_USERNAME'),
+        password: config_service.get('DATABASE_PASSWORD'),
+        database: config_service.get('DATABASE_DATABASE'),
+      })
+    }),
   ]
 })
-export class InfrastructureModule {
-}
+export class InfrastructureModule {}
