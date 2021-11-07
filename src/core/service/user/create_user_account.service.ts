@@ -26,7 +26,7 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
     private gateway: CreateUserAccountGateway
   ) {}
 
-  async execute(input?: CreateUserAccountInputModel): Promise<CreateUserAccountOutputModel> {
+  async execute(input: CreateUserAccountInputModel): Promise<CreateUserAccountOutputModel> {
     const { email, password, name, date_of_birth } = input;
     if (!isValidEmail(email) || !isValidPassword(password)
         || !isValidName(name) || !isValidDateOfBirth(date_of_birth))

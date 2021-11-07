@@ -1,8 +1,17 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
 import { Test, TestingModule } from '@nestjs/testing';
+import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
+import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
+import { AuthenticationService } from '@core/service/authentication/authentication.service';
+import LogIntoAccountOutputModel from '@core/domain/user/use-case/output-model/log_into_account.output_model';
+import {
+  LogIntoAccountException,
+  LogIntoAccountInvalidCredentialsException,
+  LogIntoAccountNonExistentException
+} from '@core/service/authentication/log_into_account.exception';
+import { AuthenticationDITokens } from '@core/service/authentication/di/authentication_di_tokens';
 
 const feature = loadFeature('test/bdd-functional/features/authentication/account_login.feature');
 
