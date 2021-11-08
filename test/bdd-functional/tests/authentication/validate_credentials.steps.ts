@@ -4,31 +4,30 @@ import { CreateUserAccountService } from '@core/service/user/create_user_account
 import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
-import { AuthenticationService } from '@core/service/authentication/authentication.service';
-import LogIntoAccountOutputModel from '@core/domain/user/use-case/output-model/log_into_account.output_model';
 import {
-  LogIntoAccountException,
-  LogIntoAccountInvalidCredentialsException,
-  LogIntoAccountNonExistentException
-} from '@core/service/authentication/log_into_account.exception';
-import { AuthenticationDITokens } from '@core/service/authentication/di/authentication_di_tokens';
+  ValidateCredentialsException,
+  ValidateCredentialsInvalidCredentialsException,
+  ValidateCredentialsNonExistentAccountException
+} from '@core/service/user/validate_credentials.exception';
+import { ValidateCredentialsService } from '@core/service/user/validate_credentials.service';
+import ValidateCredentialsOutputModel from '@core/domain/user/use-case/output-model/validate_credentials.output_model';
 
-const feature = loadFeature('test/bdd-functional/features/authentication/account_login.feature');
+const feature = loadFeature('test/bdd-functional/features/authentication/validate_credentials.feature');
 
 defineFeature(feature, (test) => {
   let email: string;
   let password: string;
 
   let create_user_account_service: CreateUserAccountService;
-  let authentication_service: AuthenticationService;
-  let output: LogIntoAccountOutputModel;
-  let exception: LogIntoAccountException;
+  let validate_credentials_service: ValidateCredentialsService;
+  let output: ValidateCredentialsOutputModel;
+  let exception: ValidateCredentialsException;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
       await create_user_account_service.execute(input);
     } catch (e) {
-      console.log(exception);
+      console.log(e);
     }
   }
 
@@ -54,10 +53,10 @@ defineFeature(feature, (test) => {
     );
   }
 
-  function whenUserTriesToLogIntoAccount(when) {
-    when('the user tries to log into the account', async () => {
+  function whenUserTriesToValidateTheirCredentials(when) {
+    when('the user tries to validate their credentials', async () => {
       try {
-        output = await authentication_service.login({
+        output = await validate_credentials_service.execute({
           email,
           password,
         });
@@ -67,9 +66,10 @@ defineFeature(feature, (test) => {
     });
   }
 
-  beforeAll(async () => {
-    const user_module: TestingModule = await Test.createTestingModule({
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
       providers: [
+
         {
           provide: UserDITokens.CreateUserAccountInteractor,
           useFactory: (gateway) => new CreateUserAccountService(gateway),
@@ -79,52 +79,51 @@ defineFeature(feature, (test) => {
           provide: UserDITokens.UserRepository,
           useFactory: () => new UserInMemoryRepository(new Map())
         },
+        {
+          provide: UserDITokens.ValidateCredentialsInteractor,
+          useFactory: (gateway) => new ValidateCredentialsService(gateway),
+          inject: [UserDITokens.UserRepository]
+        }
       ]
     }).compile();
-    const authentication_module: TestingModule = await Test.createTestingModule({
-      providers: []
-    }).compile();
 
-    create_user_account_service = user_module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
-    authentication_service = authentication_module.get<AuthenticationService>(AuthenticationDITokens.AuthenticationProvider);
-  });
-
-  beforeEach(() => {
+    create_user_account_service = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
+    validate_credentials_service = module.get<ValidateCredentialsService>(UserDITokens.ValidateCredentialsInteractor);
     exception = undefined;
   });
 
-  test('A user that has an account logs in successfully',
+  test('A user that has an account validates their credentials in successfully',
     ({ given, and, when, then }) => {
       givenUserProvidesCredentials(given);
       andAccountExists(and);
-      whenUserTriesToLogIntoAccount(when);
+      whenUserTriesToValidateTheirCredentials(when);
 
-      then('the user receives a token that autenticates them', () => {
+      then('the user gets the id of their account', () => {
         expect(output).toBeDefined();
-        expect(output.user).toBeDefined();
+        expect(output.id).toBeDefined();
       });
     }
   );
 
-  test('A user has an account and tries to log in with invalid credentials',
+  test('A user that has an account cannot validate their credentials due to invalid ones',
     ({ given, and, when, then }) => {
       givenUserProvidesCredentials(given);
       andAccountExists(and);
-      whenUserTriesToLogIntoAccount(when);
+      whenUserTriesToValidateTheirCredentials(when);
 
       then('an error occurs: the credentials provided by the user are not valid', () => {
-        expect(exception).toBeInstanceOf(LogIntoAccountInvalidCredentialsException);
+        expect(exception).toBeInstanceOf(ValidateCredentialsInvalidCredentialsException);
       });
     }
   );
 
-  test('A user tries log in to an account that does not exist',
+  test('A user tries to validate credentials of an account that does not exist',
     ({ given, when, then }) => {
       givenUserProvidesCredentials(given);
-      whenUserTriesToLogIntoAccount(when);
+      whenUserTriesToValidateTheirCredentials(when);
 
       then('an error occurs: the email provided by the user does not match an account', () => {
-        expect(exception).toBeInstanceOf(LogIntoAccountNonExistentException);
+        expect(exception).toBeInstanceOf(ValidateCredentialsNonExistentAccountException);
       });
     }
   );

@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import { Neo4jTokens } from '@infrastructure/adapter/persistence/neo4j/di/neo4j.tokens';
 import Neo4jConfig from '@infrastructure/adapter/persistence/neo4j/types/neo4j_config.interface';
-import { createDriver } from '../../infrastructure/adapter/persistence/neo4j/utils/create_driver';
+import { createDriver } from '@infrastructure/adapter/persistence/neo4j/utils/create_driver';
 
 @Module({
   providers: [Neo4jService]

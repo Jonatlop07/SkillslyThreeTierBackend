@@ -1,8 +1,10 @@
 import CreateUserAccountGateway from '@core/domain/user/use-case/gateway/create_user_account.gateway';
-import { UserDTO } from '../../../core/domain/user/use-case/persistence-dto/user.dto';
+import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import * as moment from 'moment';
+import ValidateCredentialsGateway from '@core/domain/user/use-case/gateway/validate_credentials.gateway';
+import { Optional } from '@core/common/type/common_types';
 
-export class UserInMemoryRepository implements CreateUserAccountGateway {
+export class UserInMemoryRepository implements CreateUserAccountGateway, ValidateCredentialsGateway {
   private currently_available_user_id: string;
 
   constructor( private readonly users: Map<string, UserDTO>) {
@@ -11,7 +13,7 @@ export class UserInMemoryRepository implements CreateUserAccountGateway {
 
   async create(user: UserDTO): Promise<UserDTO> {
     const new_user: UserDTO = {
-      id: this.currently_available_user_id,
+      user_id: this.currently_available_user_id,
       email: user.email,
       password: user.password,
       name: user.name,
@@ -28,5 +30,12 @@ export class UserInMemoryRepository implements CreateUserAccountGateway {
       if (_user.email === user.email)
         return Promise.resolve(true);
     return Promise.resolve(false);
+  }
+
+  findOneByParam(param: string, value: any): Promise<Optional<UserDTO>> {
+    for (const _user of this.users.values())
+      if (_user[param] === value)
+        return Promise.resolve(_user);
+    return Promise.resolve(undefined);
   }
 }

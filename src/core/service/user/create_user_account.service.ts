@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
 import CreateUserAccountGateway from '@core/domain/user/use-case/gateway/create_user_account.gateway';
@@ -31,8 +31,10 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
     if (!isValidEmail(email) || !isValidPassword(password)
         || !isValidName(name) || !isValidDateOfBirth(date_of_birth))
       throw new CreateUserAccountInvalidDataFormatException();
-    const salt_rounds = 10;
-    const hashed_password = await bcrypt.hash(password, salt_rounds);
+
+    const SALT_ROUNDS = 10;
+    const salt = bcrypt.genSaltSync(SALT_ROUNDS);
+    const hashed_password = bcrypt.hashSync(password, salt);
     const user: UserDTO = { email, password: hashed_password, name, date_of_birth };
     if (await this.gateway.exists(user))
       throw new CreateUserAccountAlreadyExistsException();

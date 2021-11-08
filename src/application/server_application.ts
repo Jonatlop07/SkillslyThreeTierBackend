@@ -65,7 +65,7 @@ export class ServerApplication {
       .build();
 
     const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('documentation', app, document);
+    SwaggerModule.setup('api', app, document);
   }
 
   public static new(): ServerApplication {

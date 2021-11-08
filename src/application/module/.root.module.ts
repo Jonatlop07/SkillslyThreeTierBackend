@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { setEnvironment } from '@application/environments';
 import { UserModule } from '@application/module/user.module';
 import { InfrastructureModule } from '@application/module/infrastructure.module';
+import { AuthenticationModule } from './authentication.module';
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import { InfrastructureModule } from '@application/module/infrastructure.module'
       envFilePath: `env/${setEnvironment()}`
     }),
     InfrastructureModule,
-    UserModule
-  ],
+    UserModule,
+    AuthenticationModule
+  ]
 })
 export class RootModule {}
