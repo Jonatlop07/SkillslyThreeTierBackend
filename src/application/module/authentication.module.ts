@@ -2,11 +2,13 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { UserModule } from '@application/module/user.module';
 import { HttpAuthenticationService } from '@application/api/http-rest/authentication/http_authentication.service';
 import { HttpLocalStrategy } from '@application/api/http-rest/authentication/passport/http_local.strategy';
 import { HttpJwtStrategy } from '@application/api/http-rest/authentication/passport/http_jwt.strategy';
 import { AuthenticationController } from '@application/api/http-rest/controller/authentication.controller';
+import { HttpJwtAuthenticationGuard } from '@application/api/http-rest/authentication/guard/http_jwt_authentication.guard';
 
 @Module({
   controllers: [
@@ -30,7 +32,11 @@ import { AuthenticationController } from '@application/api/http-rest/controller/
   providers: [
     HttpAuthenticationService,
     HttpLocalStrategy,
-    HttpJwtStrategy
+    HttpJwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: HttpJwtAuthenticationGuard,
+    },
   ]
 })
 export class AuthenticationModule {}

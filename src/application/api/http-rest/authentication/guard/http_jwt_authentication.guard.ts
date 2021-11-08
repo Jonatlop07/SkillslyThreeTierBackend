@@ -1,5 +1,5 @@
 import { AuthGuard } from '@nestjs/passport';
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '@application/api/http-rest/authentication/decorator/public';
 
@@ -18,5 +18,22 @@ export class HttpJwtAuthenticationGuard extends AuthGuard('jwt') {
       return true;
     }
     return super.canActivate(context);
+  }
+
+  handleRequest(err, user, info) {
+    if (err || !user) {
+      if (err) {
+        Logger.error(err);
+        throw new HttpException({
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Internal server error'
+        }, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      throw new HttpException({
+        status: HttpStatus.UNAUTHORIZED,
+        error: info.message
+      }, HttpStatus.UNAUTHORIZED);
+    }
+    return user;
   }
 }
