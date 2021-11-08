@@ -4,7 +4,7 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   HttpJwtPayload,
-  HttpUserPayload
+  HttpUserPayload,
 } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { HttpAuthenticationService } from '@application/api/http-rest/authentication/http_authentication.service';
 
@@ -14,7 +14,7 @@ export class HttpJwtStrategy extends PassportStrategy(Strategy) {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly authService: HttpAuthenticationService
+    private readonly authService: HttpAuthenticationService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -30,7 +30,7 @@ export class HttpJwtStrategy extends PassportStrategy(Strategy) {
     }
     return {
       id: user.user_id,
-      email: user.email
+      email: user.email,
     };
   }
 }

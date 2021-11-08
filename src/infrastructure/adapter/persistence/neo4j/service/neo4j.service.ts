@@ -9,9 +9,8 @@ export class Neo4jService {
     @Inject(Neo4jTokens.Neo4jOptions)
     private readonly config: Neo4jConfig,
     @Inject(Neo4jTokens.Neo4jDriver)
-    private readonly driver: Driver
-  ) {
-  }
+    private readonly driver: Driver,
+  ) {}
 
   getDriver(): Driver {
     return this.driver;
@@ -24,14 +23,14 @@ export class Neo4jService {
   getReadSession(database?: string): Session {
     return this.driver.session({
       database: database || this.config.database,
-      defaultAccessMode: session.READ
+      defaultAccessMode: session.READ,
     });
   }
 
   getWriteSession(database?: string): Session {
     return this.driver.session({
       database: database || this.config.database,
-      defaultAccessMode: session.WRITE
+      defaultAccessMode: session.WRITE,
     });
   }
 
@@ -40,7 +39,11 @@ export class Neo4jService {
     return session.run(cypher, params);
   }
 
-  write(cypher: string, params: Record<string, any>, database?: string): Result {
+  write(
+    cypher: string,
+    params: Record<string, any>,
+    database?: string,
+  ): Result {
     const session = this.getWriteSession(database);
     return session.run(cypher, params);
   }

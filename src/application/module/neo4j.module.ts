@@ -6,7 +6,7 @@ import Neo4jConfig from '@infrastructure/adapter/persistence/neo4j/types/neo4j_c
 import { createDriver } from '@infrastructure/adapter/persistence/neo4j/utils/create_driver';
 
 @Module({
-  providers: [Neo4jService]
+  providers: [Neo4jService],
 })
 export class Neo4jModule {
   public static forRoot(config: Neo4jConfig): DynamicModule {
@@ -16,18 +16,16 @@ export class Neo4jModule {
       providers: [
         {
           provide: Neo4jTokens.Neo4jOptions,
-          useValue: config
+          useValue: config,
         },
         {
           provide: Neo4jTokens.Neo4jDriver,
           inject: [Neo4jTokens.Neo4jDriver],
-          useFactory: async (config: Neo4jConfig) => createDriver(config)
+          useFactory: async (config: Neo4jConfig) => createDriver(config),
         },
         Neo4jService,
       ],
-      exports: [
-        Neo4jService
-      ]
+      exports: [Neo4jService],
     };
   }
 
@@ -39,7 +37,7 @@ export class Neo4jModule {
       providers: [
         {
           provide: Neo4jTokens.Neo4jOptions,
-          ...configProvider
+          ...configProvider,
         } as Provider<any>,
         {
           provide: Neo4jTokens.Neo4jDriver,
@@ -48,9 +46,7 @@ export class Neo4jModule {
         },
         Neo4jService,
       ],
-      exports: [
-        Neo4jService,
-      ]
+      exports: [Neo4jService],
     };
   }
 }

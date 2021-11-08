@@ -7,12 +7,14 @@ import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user
 import {
   ValidateCredentialsException,
   ValidateCredentialsInvalidCredentialsException,
-  ValidateCredentialsNonExistentAccountException
+  ValidateCredentialsNonExistentAccountException,
 } from '@core/service/user/validate_credentials.exception';
 import { ValidateCredentialsService } from '@core/service/user/validate_credentials.service';
 import ValidateCredentialsOutputModel from '@core/domain/user/use-case/output-model/validate_credentials.output_model';
 
-const feature = loadFeature('test/bdd-functional/features/authentication/validate_credentials.feature');
+const feature = loadFeature(
+  'test/bdd-functional/features/authentication/validate_credentials.feature',
+);
 
 defineFeature(feature, (test) => {
   let email: string;
@@ -32,24 +34,26 @@ defineFeature(feature, (test) => {
   }
 
   function givenUserProvidesCredentials(given) {
-    given(/^a user provides the credentials: "([^"]*)" and "([^"]*)"$/,
+    given(
+      /^a user provides the credentials: "([^"]*)" and "([^"]*)"$/,
       (provided_email: string, provided_password: string) => {
         email = provided_email;
         password = provided_password;
-      }
+      },
     );
   }
 
   function andAccountExists(and) {
-    and(/^an account exist with credentials: "([^"]*)" and "([^"]*)"$/,
+    and(
+      /^an account exist with credentials: "([^"]*)" and "([^"]*)"$/,
       async (email, password) => {
         await createUserAccount({
           email,
           password,
           name: 'User',
-          date_of_birth: '01/01/2000'
+          date_of_birth: '01/01/2000',
         });
-      }
+      },
     );
   }
 
@@ -69,62 +73,83 @@ defineFeature(feature, (test) => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-
         {
           provide: UserDITokens.CreateUserAccountInteractor,
           useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
+          inject: [UserDITokens.UserRepository],
         },
         {
           provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map())
+          useFactory: () => new UserInMemoryRepository(new Map()),
         },
         {
           provide: UserDITokens.ValidateCredentialsInteractor,
           useFactory: (gateway) => new ValidateCredentialsService(gateway),
-          inject: [UserDITokens.UserRepository]
-        }
-      ]
+          inject: [UserDITokens.UserRepository],
+        },
+      ],
     }).compile();
 
-    create_user_account_service = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
-    validate_credentials_service = module.get<ValidateCredentialsService>(UserDITokens.ValidateCredentialsInteractor);
+    create_user_account_service = module.get<CreateUserAccountService>(
+      UserDITokens.CreateUserAccountInteractor,
+    );
+    validate_credentials_service = module.get<ValidateCredentialsService>(
+      UserDITokens.ValidateCredentialsInteractor,
+    );
     exception = undefined;
   });
 
-  test('A user that has an account validates their credentials in successfully',
-    ({ given, and, when, then }) => {
-      givenUserProvidesCredentials(given);
-      andAccountExists(and);
-      whenUserTriesToValidateTheirCredentials(when);
+  test('A user that has an account validates their credentials in successfully', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenUserProvidesCredentials(given);
+    andAccountExists(and);
+    whenUserTriesToValidateTheirCredentials(when);
 
-      then('the user gets the id of their account', () => {
-        expect(output).toBeDefined();
-        expect(output.id).toBeDefined();
-      });
-    }
-  );
+    then('the user gets the id of their account', () => {
+      expect(output).toBeDefined();
+      expect(output.id).toBeDefined();
+    });
+  });
 
-  test('A user that has an account cannot validate their credentials due to invalid ones',
-    ({ given, and, when, then }) => {
-      givenUserProvidesCredentials(given);
-      andAccountExists(and);
-      whenUserTriesToValidateTheirCredentials(when);
+  test('A user that has an account cannot validate their credentials due to invalid ones', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenUserProvidesCredentials(given);
+    andAccountExists(and);
+    whenUserTriesToValidateTheirCredentials(when);
 
-      then('an error occurs: the credentials provided by the user are not valid', () => {
-        expect(exception).toBeInstanceOf(ValidateCredentialsInvalidCredentialsException);
-      });
-    }
-  );
+    then(
+      'an error occurs: the credentials provided by the user are not valid',
+      () => {
+        expect(exception).toBeInstanceOf(
+          ValidateCredentialsInvalidCredentialsException,
+        );
+      },
+    );
+  });
 
-  test('A user tries to validate credentials of an account that does not exist',
-    ({ given, when, then }) => {
-      givenUserProvidesCredentials(given);
-      whenUserTriesToValidateTheirCredentials(when);
+  test('A user tries to validate credentials of an account that does not exist', ({
+    given,
+    when,
+    then,
+  }) => {
+    givenUserProvidesCredentials(given);
+    whenUserTriesToValidateTheirCredentials(when);
 
-      then('an error occurs: the email provided by the user does not match an account', () => {
-        expect(exception).toBeInstanceOf(ValidateCredentialsNonExistentAccountException);
-      });
-    }
-  );
+    then(
+      'an error occurs: the email provided by the user does not match an account',
+      () => {
+        expect(exception).toBeInstanceOf(
+          ValidateCredentialsNonExistentAccountException,
+        );
+      },
+    );
+  });
 });
