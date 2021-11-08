@@ -10,10 +10,11 @@ export class ServerApplication {
   private readonly host: string = APIServerConfiguration.HOST;
   private readonly port: number = APIServerConfiguration.PORT;
   private readonly enable_log: boolean = APIServerConfiguration.ENABLE_LOG;
+  private readonly origin: string = APIServerConfiguration.ORIGIN;
 
   public async run(): Promise<void> {
     try {
-      const options = { cors: false };
+      const options = {};
       if (!this.enable_log) {
         options['logger'] = false;
       }
@@ -22,6 +23,9 @@ export class ServerApplication {
         RootModule,
         options,
       );
+      app.enableCors({
+        origin: this.origin
+      });
       app.setGlobalPrefix('api/v1');
 
       this.buildAPIDocumentation(app);
