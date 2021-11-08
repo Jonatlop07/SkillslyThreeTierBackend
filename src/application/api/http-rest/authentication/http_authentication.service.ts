@@ -24,12 +24,10 @@ export class HttpAuthenticationService {
   ) {}
 
   public async validateUser(username: string, password: string): Promise<Nullable<HttpUserPayload>> {
-    this.logger.log(username, password);
-    const result = await this.validate_credentials_interactor.execute({
+    return await this.validate_credentials_interactor.execute({
       email: username,
       password,
     });
-    return result;
   }
 
   public login(user: HttpUserPayload): HttpLoggedInUser {

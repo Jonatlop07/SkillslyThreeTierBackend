@@ -8,7 +8,6 @@ import {
   CreateUserAccountInvalidDataFormatException
 } from '@core/service/user/create_user_account.exception';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { HttpAuth } from '@application/api/http-rest/authentication/decorator/http_auth';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 
@@ -36,19 +35,26 @@ export class UserController {
         })
       );
     } catch (e) {
-      this.logger.error(e.stack);
       if (e instanceof CreateUserAccountInvalidDataFormatException) {
-        throw new HttpException('Invalid sign up data format', HttpStatus.FORBIDDEN);
+        throw new HttpException({
+          status: HttpStatus.FORBIDDEN,
+          error: 'Invalid sign up data format'
+        }, HttpStatus.FORBIDDEN);
       } else if (e instanceof CreateUserAccountAlreadyExistsException) {
-        throw new HttpException('Account already exists', HttpStatus.CONFLICT);
+        throw new HttpException({
+          status: HttpStatus.CONFLICT,
+          error: 'Account already exists'
+        }, HttpStatus.CONFLICT);
       } else {
-        throw new HttpException('Internal database error', HttpStatus.BAD_GATEWAY);
+        throw new HttpException({
+          status: HttpStatus.BAD_GATEWAY,
+          error: 'Internal database error'
+        }, HttpStatus.BAD_GATEWAY);
       }
     }
   }
 
   @Get()
-  @HttpAuth()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public getAccountInformation(@HttpUser() http_user: HttpUserPayload) {

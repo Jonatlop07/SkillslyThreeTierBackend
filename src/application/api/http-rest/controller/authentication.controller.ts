@@ -1,4 +1,12 @@
-import { Controller, HttpCode, HttpException, HttpStatus, Logger, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Post,
+  Req,
+  UseGuards
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { HttpAuthenticationService } from '@application/api/http-rest/authentication/http_authentication.service';
 import { HttpLocalAuthenticationGuard } from '@application/api/http-rest/authentication/guard/http_local_authentication.guard';
@@ -6,6 +14,7 @@ import {
   HttpLoggedInUser,
   HttpRequestWithUser
 } from '@application/api/http-rest/authentication/types/http_authentication_types';
+import { Public } from '@application/api/http-rest/authentication/decorator/public';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -14,15 +23,11 @@ export class AuthenticationController {
 
   constructor(private readonly authentication_service: HttpAuthenticationService) {}
 
+  @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(HttpLocalAuthenticationGuard)
   public login(@Req() request: HttpRequestWithUser): HttpLoggedInUser {
-    try {
-      return this.authentication_service.login(request.user);
-    } catch (e) {
-      this.logger.error(e.stack);
-      throw new HttpException('Internal database error', HttpStatus.BAD_GATEWAY);
-    }
+    return this.authentication_service.login(request.user);
   }
 }
