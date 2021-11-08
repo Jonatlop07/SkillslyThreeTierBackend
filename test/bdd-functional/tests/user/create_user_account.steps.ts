@@ -8,7 +8,7 @@ import {
   CreateUserAccountInvalidDataFormatException,
   CreateUserAccountAlreadyExistsException
 } from '@core/service/user/create_user_account.exception';
-import { UserInMemoryRepository } from '@infrastructure/persistence/user_in_memory.repository';
+import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 
 const feature = loadFeature('test/bdd-functional/features/user/create_user_account.feature');
@@ -19,13 +19,13 @@ defineFeature(feature, (test) => {
   let name: string;
   let date_of_birth;
 
-  let createUserAccountService: CreateUserAccountService;
+  let create_user_account_service: CreateUserAccountService;
   let output: CreateUserAccountOutputModel;
   let exception: CreateUserAccountException = undefined;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
-      output = await createUserAccountService.execute(input);
+      output = await create_user_account_service.execute(input);
     } catch (e) {
       exception = e;
     }
@@ -40,7 +40,7 @@ defineFeature(feature, (test) => {
   }
 
   function andUserProvidesDataOfAccount(and) {
-    and(/the data of the account to create: "([^"]*)", "([^"]*)"/, (input_name, input_date_of_birth) => {
+    and(/^the data of the account to create: "([^"]*)", "([^"]*)"$/, (input_name, input_date_of_birth) => {
       name = input_name;
       date_of_birth = input_date_of_birth;
     });
@@ -72,7 +72,7 @@ defineFeature(feature, (test) => {
       ]
     }).compile();
 
-    createUserAccountService = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
+    create_user_account_service = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
   });
 
   beforeEach(() => {
@@ -86,9 +86,9 @@ defineFeature(feature, (test) => {
       whenUserTriesToCreateAccount(when);
 
       then('an account is then created with user information and login credentials', () => {
-        const expectedOutput: CreateUserAccountOutputModel = { email };
+        const expected_output: CreateUserAccountOutputModel = { email };
         expect(output).toBeDefined();
-        expect( output.email ).toEqual( expectedOutput.email );
+        expect(output.email).toEqual(expected_output.email);
       });
     });
 

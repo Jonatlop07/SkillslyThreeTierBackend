@@ -1,0 +1,57 @@
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Logger, Post } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Public } from '@application/api/http-rest/authentication/decorator/public';
+import { CreateUserAccountAdapter } from '@infrastructure/adapter/use-case/user/create_user_account.adapter';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
+import {
+  CreateUserAccountAlreadyExistsException,
+  CreateUserAccountInvalidDataFormatException
+} from '@core/service/user/create_user_account.exception';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { HttpAuth } from '@application/api/http-rest/authentication/decorator/http_auth';
+import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
+import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
+
+@Controller('users/account')
+@ApiTags('user')
+export class UserController {
+  private readonly logger: Logger = new Logger(UserController.name);
+
+  constructor(
+    @Inject(UserDITokens.CreateUserAccountInteractor)
+    private readonly create_user_account_interactor: CreateUserAccountInteractor
+  ) {}
+
+  @Public()
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  public async createUserAccount(@Body() body) {
+    try {
+      return await this.create_user_account_interactor.execute(
+        await CreateUserAccountAdapter.new({
+          email: body.email,
+          password: body.password,
+          name: body.name,
+          date_of_birth: body.date_of_birth
+        })
+      );
+    } catch (e) {
+      this.logger.error(e.stack);
+      if (e instanceof CreateUserAccountInvalidDataFormatException) {
+        throw new HttpException('Invalid sign up data format', HttpStatus.FORBIDDEN);
+      } else if (e instanceof CreateUserAccountAlreadyExistsException) {
+        throw new HttpException('Account already exists', HttpStatus.CONFLICT);
+      } else {
+        throw new HttpException('Internal database error', HttpStatus.BAD_GATEWAY);
+      }
+    }
+  }
+
+  @Get()
+  @HttpAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  public getAccountInformation(@HttpUser() http_user: HttpUserPayload) {
+    return http_user.id;
+  }
+}

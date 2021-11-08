@@ -1,7 +1,7 @@
 import Create from '@core/common/persistence/create';
-import { User } from '@core/domain/user/entity/user';
 import Exists from '@core/common/persistence/exists';
+import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 
 export default interface CreateUserAccountGateway
-  extends Create<User>, Exists<User> {
+  extends Create<UserDTO>, Exists<UserDTO> {
 }
