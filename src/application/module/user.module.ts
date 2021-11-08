@@ -3,6 +3,7 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
 import { UserController } from '@application/api/http-rest/controller/user_controller';
 import { UserNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/user/neo4j_user_repository.adapter';
+import { ValidateCredentialsService } from '@core/service/user/validate_credentials.service';
 
 const persistence_providers: Provider[] = [
   {
@@ -17,6 +18,11 @@ const use_case_providers: Provider[] = [
     useFactory: (gateway) => new CreateUserAccountService(gateway),
     inject: [UserDITokens.UserRepository]
   },
+  {
+    provide: UserDITokens.ValidateCredentialsInteractor,
+    useFactory: (gateway) => new ValidateCredentialsService(gateway),
+    inject: [UserDITokens.UserRepository]
+  }
 ];
 
 @Module({
@@ -28,7 +34,8 @@ const use_case_providers: Provider[] = [
     ...use_case_providers
   ],
   exports: [
-    UserDITokens.UserRepository
+    UserDITokens.UserRepository,
+    UserDITokens.ValidateCredentialsInteractor
   ]
 })
 export class UserModule {}

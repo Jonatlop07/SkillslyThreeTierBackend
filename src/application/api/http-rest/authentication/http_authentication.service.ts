@@ -29,7 +29,6 @@ export class HttpAuthenticationService {
       email: username,
       password,
     });
-    this.logger.log(result);
     return result;
   }
 

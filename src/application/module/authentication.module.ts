@@ -7,9 +7,6 @@ import { HttpAuthenticationService } from '@application/api/http-rest/authentica
 import { HttpLocalStrategy } from '@application/api/http-rest/authentication/passport/http_local.strategy';
 import { HttpJwtStrategy } from '@application/api/http-rest/authentication/passport/http_jwt.strategy';
 import { AuthenticationController } from '@application/api/http-rest/controller/authentication.controller';
-import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { ValidateCredentialsService } from '@core/service/user/validate_credentials.service';
-import { UserNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/user/neo4j_user_repository.adapter';
 
 @Module({
   controllers: [
@@ -33,16 +30,7 @@ import { UserNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/
   providers: [
     HttpAuthenticationService,
     HttpLocalStrategy,
-    HttpJwtStrategy,
-    {
-      provide: UserDITokens.ValidateCredentialsInteractor,
-      useFactory: (gateway) => new ValidateCredentialsService(gateway),
-      inject: [UserDITokens.UserRepository]
-    },
-    {
-      provide: UserDITokens.UserRepository,
-      useClass: UserNeo4jRepositoryAdapter
-    }
+    HttpJwtStrategy
   ]
 })
 export class AuthenticationModule {}
