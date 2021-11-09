@@ -1,6 +1,6 @@
-import { PostException } from '@core/service/post/post.exception';
+import { Permanent_postException } from '@core/service/post/permanent_post.exception';
 
-abstract class UpdatePermanentPostException extends PostException {}
+abstract class UpdatePermanentPostException extends Permanent_postException {}
 
 export {
   UpdatePermanentPostException

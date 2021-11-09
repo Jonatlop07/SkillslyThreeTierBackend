@@ -1,5 +1,5 @@
-import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import { Optional } from '@core/common/type/common_types';
+import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/user.repository';
 import * as moment from 'moment';
 
@@ -17,7 +17,7 @@ export class UserInMemoryRepository implements UserRepository {
       password: user.password,
       name: user.name,
       date_of_birth: user.date_of_birth,
-      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
+      created_at: moment().format('DD/MM/YYYY')
     };
     this.users.set(this.currently_available_user_id, new_user);
     this.currently_available_user_id = `${Number(this.currently_available_user_id) + 1}`;

@@ -1,7 +1,9 @@
 import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_content_post_element';
 
-export default interface UpdatePermanentPostInputModel {
-  id: string;
+export interface PermanentPostDTO {
+  post_id?: string;
   content: PermanentPostContentElement[];
   user_id: string;
+  created_at?: string,
+  updated_at?: string
 }

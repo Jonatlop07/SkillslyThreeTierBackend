@@ -16,13 +16,13 @@ import { Public } from '@application/api/http-rest/authentication/decorator/publ
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { CreateUserAccountAdapter } from '@infrastructure/adapter/use-case/user/create_user_account.adapter';
-import { UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import {
   CreateUserAccountAlreadyExistsException,
   CreateUserAccountInvalidDataFormatException
 } from '@core/service/user/create_user_account.exception';
-import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
 import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/update_user_account.interactor';
 import { QueryUserAccountInteractor } from '@core/domain/user/use-case/query_user_account.interactor';
 
@@ -38,8 +38,7 @@ export class UserController {
     private readonly update_user_account_interactor: UpdateUserAccountInteractor,
     @Inject(UserDITokens.QueryUserAccountInteractor)
     private readonly query_user_account_interactor: QueryUserAccountInteractor
-  ) {
-  }
+  ) {}
 
   @Public()
   @Post('account')
@@ -65,11 +64,12 @@ export class UserController {
           status: HttpStatus.CONFLICT,
           error: 'Account already exists'
         }, HttpStatus.CONFLICT);
+      } else {
+        throw new HttpException({
+          status: HttpStatus.BAD_GATEWAY,
+          error: 'Internal database error'
+        }, HttpStatus.BAD_GATEWAY);
       }
-      throw new HttpException({
-        status: HttpStatus.BAD_GATEWAY,
-        error: 'Internal database error'
-      }, HttpStatus.BAD_GATEWAY);
     }
   }
 

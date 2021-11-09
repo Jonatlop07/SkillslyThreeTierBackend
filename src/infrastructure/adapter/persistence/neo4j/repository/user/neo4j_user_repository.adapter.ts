@@ -10,17 +10,17 @@ import * as moment from 'moment';
 export class UserNeo4jRepositoryAdapter implements UserRepository {
   private readonly logger: Logger = new Logger(UserNeo4jRepositoryAdapter.name);
 
-  constructor(private readonly neo4jService: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) {}
 
   public async create(user: UserDTO): Promise<UserDTO> {
     const user_key = 'new_user';
-    const createUserStatement = `
+    const create_user_statement = `
         CREATE (${user_key}: User)
         SET ${user_key} += $properties, ${user_key}.user_id = randomUUID()
         RETURN ${user_key}
     `;
-    const result: QueryResult = await this.neo4jService.write(
-      createUserStatement,
+    const result: QueryResult = await this.neo4j_service.write(
+      create_user_statement,
       {
         properties: {
           email: user.email,
@@ -30,13 +30,13 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
           created_at: moment().local().format('YYYY-MM-DD HH:mm:ss')
         }
       });
-    return this.neo4jService.getSingleResultProperties(result, user_key) as UserDTO;
+    return this.neo4j_service.getSingleResultProperties(result, user_key) as UserDTO;
   }
 
   public async exists(user: UserDTO): Promise<boolean> {
     const user_key = 'user';
     const exists_user_query = `MATCH (${user_key}: User { email: $email }) RETURN ${user_key}`;
-    const result: QueryResult = await this.neo4jService.read(
+    const result: QueryResult = await this.neo4j_service.read(
       exists_user_query,
       { email: user.email }
     );
@@ -50,8 +50,8 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       MATCH (${user_key}: User { ${param}: ${formatted_value} })
       RETURN ${user_key}
     `;
-    return this.neo4jService.getSingleResultProperties(
-      await this.neo4jService.read(
+    return this.neo4j_service.getSingleResultProperties(
+      await this.neo4j_service.read(
         find_user_query,
         {}
       ),
