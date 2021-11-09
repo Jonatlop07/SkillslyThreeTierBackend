@@ -13,7 +13,7 @@ export class ServerApplication {
 
   public async run(): Promise<void> {
     try {
-      const options = { cors: false };
+      const options = { cors: true };
       if (!this.enable_log) {
         options['logger'] = false;
       }

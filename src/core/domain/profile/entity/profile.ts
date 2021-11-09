@@ -1,35 +1,49 @@
 import { Entity } from '@core/common/entity/entity';
-import { CreateUserEntityPayload } from '@core/domain/user/entity/type/create_user_entity_payload';
+import { CreateProfileEntityPayload } from '@core/domain/profile/entity/type/create_profile_entity_payload';
 
-export class User extends Entity<number> {
-  private readonly _email: string;
-  private readonly _password: string;
-  private readonly _name: string;
-  private readonly _date_of_birth: string;
+export class Profile extends Entity<number> {
 
-  constructor(payload: CreateUserEntityPayload) {
+  private readonly _resume: string;
+  private readonly _knowledge: Array<string>;
+  private readonly _talents: Array<string>;
+  private readonly _activities: Array<string>;
+  private readonly _interests: Array<string>;
+  private readonly _userID: number;
+
+
+  constructor(payload: CreateProfileEntityPayload) {
     super();
-    const { email, password, name, date_of_birth } = payload;
-    this._email = email;
-    this._password = password;
-    this._name = name;
-    this._date_of_birth = date_of_birth;
+    this._resume = payload.resume;
+    this._knowledge = payload.knowledge;
+    this._talents = payload.talents;
+    this._activities = payload.activities;
+    this._interests = payload.interests;
     this.id = payload.id || 0;
   }
 
-  get email(): string {
-    return this._email;
+
+  get resume(): string {
+    return this._resume;
   }
 
-  get password(): string {
-    return this._password;
+  get knowledge(): Array<string> {
+    return this._knowledge;
   }
 
-  get name (): string {
-    return this._name;
+  get talents(): Array<string> {
+    return this._talents;
   }
 
-  get date_of_birth (): string {
-    return this._date_of_birth;
+  get activities(): Array<string> {
+    return this._activities;
+  }
+
+  get interests(): Array<string> {
+    return this._interests;
+  }
+
+
+  get userID(): number {
+    return this._userID;
   }
 }

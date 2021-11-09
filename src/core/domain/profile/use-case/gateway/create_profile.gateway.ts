@@ -1,7 +1,6 @@
 import Create from '@core/common/persistence/create';
-import { User } from '@core/domain/user/entity/user';
-import Exists from '@core/common/persistence/exists';
+import { Profile } from '@core/domain/profile/entity/profile';
 
-export default interface CreateUserAccountGateway
-  extends Create<User>, Exists<User> {
+export default interface CreateProfileGateway
+  extends Create<Profile> {
 }
