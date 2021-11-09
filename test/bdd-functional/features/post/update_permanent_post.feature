@@ -34,7 +34,7 @@ Feature: Update permanent post
     And the user provides the post identified by "1"
     And the user provides the new content of the post being:
       | description         | reference | reference_type |
-      | This is my new post |           | none           |
+      | This is my new post |           |                |
     When the user tries to update the post
     Then the post is updated with the new content provided
 

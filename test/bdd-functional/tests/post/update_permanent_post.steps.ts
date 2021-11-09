@@ -4,6 +4,16 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
 import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
 import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
+import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/update_permanent_post.interactor';
+import { UpdatePermanentPostOutputModel } from '@core/domain/post/use-case/output-model/update_permanent_post.output_model';
+import { UpdatePermanentPostException } from '@core/service/post/update_permanent_post.exception';
+import { UpdatePermanentPostService } from '@core/service/post/update_permanent_post.service';
+import {
+  EmptyPermanentPostContentException,
+  NonExistentPermanentPostException, UnauthorizedPermanentPostContentException
+} from '@core/service/post/post.exception';
+import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 
 const feature = loadFeature('test/bdd-functional/features/post/update_permanent_post.feature');
 
@@ -20,22 +30,22 @@ defineFeature(feature, (test) => {
     email: 'newuser_124@test.com'
   };
 
-  type PostContentRow = {
-    description: string,
-    reference: string,
-    reference_type: string
+  type PostContentElement = {
+    description?: string,
+    reference?: string,
+    reference_type?: string
   };
 
   let user_id: string;
   let owner_id: string;
   let post_to_update_id: string;
-  let post_new_content: PostContentRow[];
+  let post_new_content: PostContentElement[];
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_permanent_post_interactor: CreatePermanentPostInteractor;
   let update_permanent_post_interactor: UpdatePermanentPostInteractor;
   let output: UpdatePermanentPostOutputModel;
-  let exception:UpdatePermanentPostException = undefined;
+  let exception: UpdatePermanentPostException = undefined;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
@@ -133,8 +143,8 @@ defineFeature(feature, (test) => {
       ]
     }).compile();
 
-    create_user_account_interactor = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
-    update_permanent_post_interactor = module.get<UpdatePermanentPostService>(PostDITokens.UpdatePermanentPostInteractor);
+    create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
+    update_permanent_post_interactor = module.get<UpdatePermanentPostInteractor>(PostDITokens.UpdatePermanentPostInteractor);
   });
 
   beforeEach(() => {
