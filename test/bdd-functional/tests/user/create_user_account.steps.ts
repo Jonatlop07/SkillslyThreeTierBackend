@@ -6,12 +6,14 @@ import { CreateUserAccountService } from '@core/service/user/create_user_account
 import {
   CreateUserAccountException,
   CreateUserAccountInvalidDataFormatException,
-  CreateUserAccountAlreadyExistsException
+  CreateUserAccountAlreadyExistsException,
 } from '@core/service/user/create_user_account.exception';
 import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 
-const feature = loadFeature('test/bdd-functional/features/user/create_user_account.feature');
+const feature = loadFeature(
+  'test/bdd-functional/features/user/create_user_account.feature',
+);
 
 defineFeature(feature, (test) => {
   let email: string;
@@ -32,18 +34,23 @@ defineFeature(feature, (test) => {
   }
 
   function givenUserProvidesCredentials(given) {
-    given(/^the user provides the credentials: "([^"]*)" and "([^"]*)"$/,
+    given(
+      /^the user provides the credentials: "([^"]*)" and "([^"]*)"$/,
       (input_email: string, input_password: string) => {
         email = input_email;
         password = input_password;
-      });
+      },
+    );
   }
 
   function andUserProvidesDataOfAccount(and) {
-    and(/^the data of the account to create: "([^"]*)", "([^"]*)"$/, (input_name, input_date_of_birth) => {
-      name = input_name;
-      date_of_birth = input_date_of_birth;
-    });
+    and(
+      /^the data of the account to create: "([^"]*)", "([^"]*)"$/,
+      (input_name, input_date_of_birth) => {
+        name = input_name;
+        date_of_birth = input_date_of_birth;
+      },
+    );
   }
 
   function whenUserTriesToCreateAccount(when) {
@@ -52,7 +59,7 @@ defineFeature(feature, (test) => {
         email,
         password,
         name,
-        date_of_birth
+        date_of_birth,
       });
     });
   }
@@ -63,64 +70,94 @@ defineFeature(feature, (test) => {
         {
           provide: UserDITokens.CreateUserAccountInteractor,
           useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
+          inject: [UserDITokens.UserRepository],
         },
         {
           provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map())
+          useFactory: () => new UserInMemoryRepository(new Map()),
         },
-      ]
+      ],
     }).compile();
 
-    create_user_account_service = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
+    create_user_account_service = module.get<CreateUserAccountService>(
+      UserDITokens.CreateUserAccountInteractor,
+    );
   });
 
   beforeEach(() => {
     exception = undefined;
   });
 
-  test('A user tries to create an account with credentials and account data in a valid format',
-    ({ given, and, when, then }) => {
-      givenUserProvidesCredentials(given);
-      andUserProvidesDataOfAccount(and);
-      whenUserTriesToCreateAccount(when);
+  test('A user tries to create an account with credentials and account data in a valid format', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenUserProvidesCredentials(given);
+    andUserProvidesDataOfAccount(and);
+    whenUserTriesToCreateAccount(when);
 
-      then('an account is then created with user information and login credentials', () => {
+    then(
+      'an account is then created with user information and login credentials',
+      () => {
         const expected_output: CreateUserAccountOutputModel = { email };
         expect(output).toBeDefined();
         expect(output.email).toEqual(expected_output.email);
-      });
-    });
+      },
+    );
+  });
 
-  test('A user attempts to create an account with the credentials and data in an invalid format',
-    ({ given, and, when, then }) => {
-      givenUserProvidesCredentials(given);
-      andUserProvidesDataOfAccount(and);
-      whenUserTriesToCreateAccount(when);
+  test('A user attempts to create an account with the credentials and data in an invalid format', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenUserProvidesCredentials(given);
+    andUserProvidesDataOfAccount(and);
+    whenUserTriesToCreateAccount(when);
 
-      then('an error occurs: the credentials and data provided by the user are in an invalid format', () => {
-        expect(exception).toBeInstanceOf(CreateUserAccountInvalidDataFormatException);
-      });
-    });
+    then(
+      'an error occurs: the credentials and data provided by the user are in an invalid format',
+      () => {
+        expect(exception).toBeInstanceOf(
+          CreateUserAccountInvalidDataFormatException,
+        );
+      },
+    );
+  });
 
-  test('A user fails to create an account because there already exists an account with the email provided',
-    ({ given, and, when, then }) => {
-      givenUserProvidesCredentials(given);
-      andUserProvidesDataOfAccount(and);
+  test('A user fails to create an account because there already exists an account with the email provided', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenUserProvidesCredentials(given);
+    andUserProvidesDataOfAccount(and);
 
-      and('there already exists an account identified by the email provided by the user', async () => {
+    and(
+      'there already exists an account identified by the email provided by the user',
+      async () => {
         await createUserAccount({
           email,
           password,
           name,
-          date_of_birth
+          date_of_birth,
         });
-      });
+      },
+    );
 
-      whenUserTriesToCreateAccount(when);
+    whenUserTriesToCreateAccount(when);
 
-      then('an error occurs: an account with the email provided by the user already exists', () => {
-        expect(exception).toBeInstanceOf(CreateUserAccountAlreadyExistsException);
-      });
-    });
+    then(
+      'an error occurs: an account with the email provided by the user already exists',
+      () => {
+        expect(exception).toBeInstanceOf(
+          CreateUserAccountAlreadyExistsException,
+        );
+      },
+    );
+  });
 });
