@@ -28,8 +28,10 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
 
   async execute(input: CreateUserAccountInputModel): Promise<CreateUserAccountOutputModel> {
     const { email, password, name, date_of_birth } = input;
-    if (!isValidEmail(email) || !isValidPassword(password)
-        || !isValidName(name) || !isValidDateOfBirth(date_of_birth))
+    const is_a_valid_input = email && password && name && date_of_birth
+      && isValidEmail(email) && isValidPassword(password)
+      && isValidName(name) && isValidDateOfBirth(date_of_birth);
+    if (!is_a_valid_input)
       throw new CreateUserAccountInvalidDataFormatException();
 
     const SALT_ROUNDS = 10;
