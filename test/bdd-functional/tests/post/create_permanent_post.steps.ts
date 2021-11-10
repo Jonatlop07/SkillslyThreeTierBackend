@@ -130,6 +130,7 @@ defineFeature(feature, (test) => {
       'a post is then created with the content text and references provided',
       () => {
         const expected_output: CreatePermanentPostOutputModel = {
+          post_id: '1',
           user_id: user_id,
           content: post_content,
         };
@@ -171,6 +172,7 @@ defineFeature(feature, (test) => {
 
     then('a post is then created with the text provided', () => {
       const expected_output: CreatePermanentPostOutputModel = {
+        post_id: '1',
         user_id: user_id,
         content: post_content,
       };
@@ -191,6 +193,7 @@ defineFeature(feature, (test) => {
     whenUserTriesToCreateNewPost(when);
     then('a post is then created with the images provided', () => {
       const expected_output: CreatePermanentPostOutputModel = {
+        post_id: '1',
         user_id: user_id,
         content: post_content,
       };
