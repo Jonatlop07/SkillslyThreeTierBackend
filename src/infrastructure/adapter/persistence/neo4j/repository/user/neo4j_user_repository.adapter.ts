@@ -14,7 +14,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     return result.records[0]?.get(key).properties;
   };
 
-  constructor(private readonly neo4jService: Neo4jService) {}
+  constructor(private readonly neo4jService: Neo4jService) { }
 
   public async create(user: UserDTO): Promise<UserDTO> {
     const user_key = 'new_user';
@@ -53,10 +53,8 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     value: any,
   ): Promise<Optional<UserDTO>> {
     const user_key = 'user';
-    const formatted_value =
-      typeof value === 'string' || value instanceof String
-        ? `'${value}'`
-        : value;
+    const formatted_value = typeof value === 'string' || value instanceof String ? `'${value}'` : value;
+    this.logger.log(formatted_value);
     const find_user_query = `
       MATCH (${user_key}: User { ${param}: ${formatted_value} })
       RETURN ${user_key}
@@ -65,5 +63,29 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       await this.neo4jService.read(find_user_query, {}),
       user_key,
     );
+  }
+
+  async update(user: UserDTO): Promise<UserDTO> {
+    const user_key = 'user';
+    const update_user_statement = `
+      MATCH (${user_key}: User)
+      WHERE ${user_key}.user_id = '${user.user_id}'
+      SET ${user_key} += $properties
+      RETURN ${user_key}
+    `;
+    const result: QueryResult = await this.neo4jService.write(
+      update_user_statement,
+      {
+        properties: {
+          user_id: user.user_id,
+          email: user.email,
+          password: user.password,
+          name: user.name,
+          date_of_birth: user.date_of_birth,
+          updated_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
+        }
+      }
+    );
+    return this.getSingleResultProperties(result, user_key) as UserDTO;
   }
 }
