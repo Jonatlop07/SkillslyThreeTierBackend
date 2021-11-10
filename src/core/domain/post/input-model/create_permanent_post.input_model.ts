@@ -1,5 +1,7 @@
+import { PermanentPostContentElement } from '../entity/type/permanent_post_content_element';
+
 export default interface CreatePermanentPostInputModel {
-  post_description?: string;
-  post_references?: string[];
-  post_reference_types?: string[];
+  id?: string;
+  content: PermanentPostContentElement[];
+  user_id: string;
 }

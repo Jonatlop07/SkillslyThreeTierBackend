@@ -8,7 +8,7 @@ import {
   CreateUserAccountInvalidDataFormatException,
   CreateUserAccountAlreadyExistsException,
 } from '@core/service/user/create_user_account.exception';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
+import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 
 const feature = loadFeature(
@@ -101,7 +101,10 @@ defineFeature(feature, (test) => {
     then(
       'an account is then created with user information and login credentials',
       () => {
-        const expected_output: CreateUserAccountOutputModel = { email };
+        const expected_output: CreateUserAccountOutputModel = {
+          id: '1',
+          email,
+        };
         expect(output).toBeDefined();
         expect(output.email).toEqual(expected_output.email);
       },

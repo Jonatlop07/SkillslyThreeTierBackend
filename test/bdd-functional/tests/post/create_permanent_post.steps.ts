@@ -4,7 +4,10 @@ import CreatePermanentPostInputModel from '@core/domain/post/input-model/create_
 import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-model/create_permanent_post.output_model';
 
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/create_permanent_post.interactor';
-import { CreatePermanentPostEmptyContentException, CreatePermanentPostException } from '@core/service/post/create_permanent_post.exception';
+import {
+  CreatePermanentPostEmptyContentException,
+  CreatePermanentPostException,
+} from '@core/service/post/create_permanent_post.exception';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
 import { CreatePermanentPostService } from '@core/service/post/create_permanent_post.service';
 import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
@@ -12,26 +15,33 @@ import CreateUserAccountInputModel from '@core/domain/user/input-model/create_us
 import { PostDITokens } from '@core/domain/post/di/permanent_post_di_tokens';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
+import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
+import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_post_content_element';
+import { PermanentPostInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/permanent_post_in_memory.repository';
 
 const feature = loadFeature(
   'test/bdd-functional/features/posts/create_permanent_post.feature',
 );
 
 defineFeature(feature, (test) => {
-
-  let post_description: string;
-  let post_references: string[];
-  let post_reference_types: string[];
+  let post_content: PermanentPostContentElement[];
   let create_user_account_interactor: CreateUserAccountInteractor;
-  let user_id : string;
+  let user_id: string;
   let output: CreatePermanentPostOutputModel;
   let create_permanent_post_interactor: CreatePermanentPostInteractor;
   let exception: CreatePermanentPostException;
 
+  const user_1 = {
+    email: 'newuser_123@test.com',
+    password: 'Abc123_tr',
+    name: 'Juan',
+    date_of_birth: '01/01/2000',
+  };
+
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
-      await create_user_account_interactor.execute(input);
+      const { id } = await create_user_account_interactor.execute(input);
+      user_id = id;
     } catch (e) {
       console.log(e);
     }
@@ -60,115 +70,134 @@ defineFeature(feature, (test) => {
         {
           provide: PostDITokens.CreatePermanentPostInteractor,
           useFactory: (gateway) => new CreatePermanentPostService(gateway),
-          inject: [PostDITokens.PostRepository],
+          inject: [PostDITokens.PermanentPostRepository],
         },
         {
-          provide: PostDITokens.PostRepository,
-          useFactory: () => new PostInMemoryRepository(new Map()),
-        }
+          provide: PostDITokens.PermanentPostRepository,
+          useFactory: () => new PermanentPostInMemoryRepository(new Map()),
+        },
       ],
     }).compile();
 
-    create_user_account_interactor = module.get<CreateUserAccountService>(
+    create_user_account_interactor = module.get<CreateUserAccountInteractor>(
       UserDITokens.CreateUserAccountInteractor,
+    );
+    create_permanent_post_interactor = module.get<CreatePermanentPostInteractor>(
+      PostDITokens.CreatePermanentPostInteractor,
     );
     exception = undefined;
   });
 
-
-  function givenUserWithIdExists(given){
-    given(/^a user with the id "1" exists$/,
-      (input_user_id: string) => {
-        user_id = '1';
-      });
-  }
-
-  function andUserProvidesTheContentOfThePost(and){
-    and(/^the data of the account to create: "([^"]*)","([^"]*)","([^"]*)"$/, (input_post_description, input_post_reference,input_post_reference_type) => {
-      post_description = input_post_description;
-      post_references = input_post_reference;
-      post_reference_types = input_post_reference_type;
+  function givenAUserExists(given) {
+    given(/^a user exists$/, async () => {
+      await createUserAccount(user_1);
     });
   }
 
-  function whenUserTriesToCreateNewPost (when){
-    when('the user tries to create a new post'), async () => {
-    try{
-      output = await createPost({
-        post_description,
-        post_references,
-        post_reference_types
-      });
-    }catch(e){
-      console.log(e);
+  function andUserProvidesTheContentOfThePost(and) {
+    and(
+      'the user provides the content of the post being:',
+      (post_content_table: PermanentPostContentElement[]) => {
+        post_content = post_content_table;
+      },
+    );
+  }
+
+  function whenUserTriesToCreateNewPost(when) {
+    when('the user tries to create a new post'),
+    async () => {
+      try {
+        output = await createPost({
+          id: '1',
+          content: post_content,
+          user_id,
+        });
+      } catch (e) {
+        console.log(e);
+      }
     };
   }
 
-
   test('A logged in user creates a permanent post successfully', ({
-    given,and,when,then,
+    given,
+    and,
+    when,
+    then,
   }) => {
-    givenUserWithIdExists(given);
+    givenAUserExists(given);
     andUserProvidesTheContentOfThePost(and);
     whenUserTriesToCreateNewPost(when);
 
     then(
       'a post is then created with the content text and references provided',
       () => {
-        const expected_output: CreatePermanentPostOutputModel = { post_description, post_references, post_reference_types };
+        const expected_output: CreatePermanentPostOutputModel = {
+          user_id: user_id,
+          content: post_content,
+        };
         expect(output).toBeDefined();
-        expect(output.post_description).toEqual(expected_output.post_description);
-        expect(output.post_references).toEqual(expected_output.post_references);
-        expect(output.post_reference_types).toEqual(expected_output.post_reference_types);
-      });
-    });
+        expect(output.content).toEqual(expected_output.content);
+      },
+    );
+  });
 
-  test('A logged in user tries to create a permanent post without any content',({
-    given,when,then,
+  test('A logged in user tries to create a permanent post without any content', ({
+    given,
+    when,
+    then,
   }) => {
-      givenUserWithIdExists(given);
-      whenUserTriesToCreateNewPost(when);
+    givenAUserExists(given);
+    whenUserTriesToCreateNewPost(when);
 
-      then(
-        'an error occurs: the post to create needs to have some kind of content',
-        () => {
-          expect(exception).toBeInstanceOf(CreatePermanentPostEmptyContentException);
-      });
-    });
+    then(
+      'an error occurs: the post to create needs to have some kind of content',
+      () => {
+        expect(exception).toBeInstanceOf(
+          CreatePermanentPostEmptyContentException,
+        );
+      },
+    );
+  });
 
   test('A logged in user tries to create a permanent post composed of only text', ({
-    given,and,when,then,
+    given,
+    and,
+    when,
+    then,
   }) => {
-    givenUserWithIdExists(given);
+    givenAUserExists(given);
     andUserProvidesTheContentOfThePost(and);
     whenUserTriesToCreateNewPost(when);
 
-    then(
-      'a post is then created with the text provided',
-      () => {
-        const expected_output: CreatePermanentPostOutputModel = { post_description: post_description };
-        expect(output).toBeDefined();
-        expect(output.post_description).toEqual(expected_output.post_description)
-        // expect(output.post_references).toBeNull();
-      });
+    then('a post is then created with the text provided', () => {
+      const expected_output: CreatePermanentPostOutputModel = {
+        user_id: user_id,
+        content: post_content,
+      };
+      expect(output).toBeDefined();
+      expect(output.user_id).toEqual(expected_output.user_id);
+      expect(output.content).toEqual(expected_output.content);
+      // expect(output.post_references).toBeNull();
     });
+  });
 
   test('A logged in user tries to create a permanent post composed of only images', ({
-    given,and,when,then,
+    given,
+    and,
+    when,
+    then,
   }) => {
-    givenUserWithIdExists(given);
+    givenAUserExists(given);
     andUserProvidesTheContentOfThePost(and);
     whenUserTriesToCreateNewPost(when);
-    then(
-      'a post is then created with the text provided',
-      () => {
-        const expected_output: CreatePermanentPostOutputModel = { post_references: post_references, post_reference_types: post_reference_types }
-        expect(output).toBeDefined();
-        expect(output.post_references).toEqual(expected_output.post_references);
-        expect(output.post_reference_types).toEqual(expected_output.post_reference_types);
-      });
+    then('a post is then created with the images provided', () => {
+      const expected_output: CreatePermanentPostOutputModel = {
+        user_id: user_id,
+        content: post_content,
+      };
+      expect(output).toBeDefined();
+      expect(output.user_id).toEqual(expected_output.user_id);
+      expect(output.content).toEqual(expected_output.content);
     });
-
-  }
-
-
+  });
+});

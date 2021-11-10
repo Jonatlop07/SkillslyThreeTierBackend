@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Driver, Result, session, Session } from 'neo4j-driver';
+import { Driver, QueryResult, Result, session, Session } from 'neo4j-driver';
 import { Neo4jTokens } from '@infrastructure/adapter/persistence/neo4j/di/neo4j.tokens';
 import Neo4jConfig from '@infrastructure/adapter/persistence/neo4j/types/neo4j_config.interface';
 
@@ -11,6 +11,10 @@ export class Neo4jService {
     @Inject(Neo4jTokens.Neo4jDriver)
     private readonly driver: Driver,
   ) {}
+
+  public getSingleResultProperties = (result: QueryResult, key: string) => {
+    return result.records[0]?.get(key).properties;
+  };
 
   getDriver(): Driver {
     return this.driver;
