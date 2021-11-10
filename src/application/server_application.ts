@@ -23,6 +23,8 @@ export class ServerApplication {
         options
       );
       app.setGlobalPrefix('api/v1');
+      //quitar la de abajo
+      app.enableCors({ origin: 'http://localhost:4200' });
 
       this.buildAPIDocumentation(app);
 
