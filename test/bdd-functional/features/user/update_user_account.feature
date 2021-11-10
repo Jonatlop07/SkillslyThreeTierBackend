@@ -12,8 +12,7 @@ Feature: Update user account
 
   Scenario Outline: A logged in user attempts to update their account with credentials or data in an invalid format
     Given a user exists, is logged in, and has an id of "<UserId>"
-    And the user provides the data to be updated : "<Email>", "<Password>", "<Name>", "<DateOfBirth>"
-    And the data of the account to create: "<Name>", "<DateOfBirth>"
+    And the user provides the data to be updated: "<Email>", "<Password>", "<Name>", "<DateOfBirth>"
     When the user tries to update their account
     Then an error occurs: the credentials or data provided by the user are in an invalid format
 

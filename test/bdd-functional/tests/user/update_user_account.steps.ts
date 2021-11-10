@@ -5,8 +5,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
 import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
+import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/update_user_account.interactor';
+import UpdateUserAccountOutputModel from '@core/domain/user/use-case/output-model/update_user_account.output_model';
+import { UpdateUserAccountService } from '@core/service/user/update_user_account.service';
+import { UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
 
 const feature = loadFeature('test/bdd-functional/features/user/update_user_account.feature');
+
+class UserAccountException {
+}
 
 defineFeature(feature, (test) => {
   const user_mock: CreateUserAccountInputModel = {
@@ -24,7 +31,7 @@ defineFeature(feature, (test) => {
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let update_user_account_interactor: UpdateUserAccountInteractor;
-  let output: UpdateUserAccountInputModel;
+  let output: UpdateUserAccountOutputModel;
   let exception: UserAccountException;
 
   function givenAUserExists(given) {
@@ -119,5 +126,4 @@ defineFeature(feature, (test) => {
       );
     }
   );
-})
-;
+});

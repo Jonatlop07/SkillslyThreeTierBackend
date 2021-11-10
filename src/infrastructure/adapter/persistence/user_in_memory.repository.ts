@@ -1,10 +1,9 @@
-import CreateUserAccountGateway from '@core/domain/user/use-case/gateway/create_user_account.gateway';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
-import * as moment from 'moment';
-import ValidateCredentialsGateway from '@core/domain/user/use-case/gateway/validate_credentials.gateway';
 import { Optional } from '@core/common/type/common_types';
+import UserRepository from '@core/domain/user/use-case/user.repository';
+import * as moment from 'moment';
 
-export class UserInMemoryRepository implements CreateUserAccountGateway, ValidateCredentialsGateway {
+export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
 
   constructor( private readonly users: Map<string, UserDTO>) {
@@ -18,7 +17,7 @@ export class UserInMemoryRepository implements CreateUserAccountGateway, Validat
       password: user.password,
       name: user.name,
       date_of_birth: user.date_of_birth,
-      created_at: moment().format('DD/MM/YYYY')
+      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
     };
     this.users.set(this.currently_available_user_id, new_user);
     this.currently_available_user_id = `${Number(this.currently_available_user_id) + 1}`;
@@ -37,5 +36,17 @@ export class UserInMemoryRepository implements CreateUserAccountGateway, Validat
       if (_user[param] === value)
         return Promise.resolve(_user);
     return Promise.resolve(undefined);
+  }
+
+  update(user: UserDTO): Promise<UserDTO> {
+    const user_to_update: UserDTO = {
+      user_id: user.user_id,
+      password: user.password,
+      email: user.email,
+      name: user.name,
+      date_of_birth: user.date_of_birth
+    };
+    this.users.set(user.user_id, user_to_update);
+    return Promise.resolve(user_to_update);
   }
 }
