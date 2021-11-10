@@ -105,25 +105,25 @@ defineFeature(feature, (test) => {
 
   function whenUserTriesToCreateNewPost(when) {
     when('the user tries to create a new post'),
-    async () => {
-      try {
-        output = await createPost({
-          id: '1',
-          content: post_content,
-          user_id,
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    };
+      async () => {
+        try {
+          output = await createPost({
+            id: '1',
+            content: post_content,
+            user_id,
+          });
+        } catch (e) {
+          console.log(e);
+        }
+      };
   }
 
   test('A logged in user creates a permanent post successfully', ({
-    given,
-    and,
-    when,
-    then,
-  }) => {
+                                                                    given,
+                                                                    and,
+                                                                    when,
+                                                                    then,
+                                                                  }) => {
     givenAUserExists(given);
     andUserProvidesTheContentOfThePost(and);
     whenUserTriesToCreateNewPost(when);
@@ -142,10 +142,10 @@ defineFeature(feature, (test) => {
   });
 
   test('A logged in user tries to create a permanent post without any content', ({
-    given,
-    when,
-    then,
-  }) => {
+                                                                                   given,
+                                                                                   when,
+                                                                                   then,
+                                                                                 }) => {
     givenAUserExists(given);
     whenUserTriesToCreateNewPost(when);
 
@@ -160,11 +160,11 @@ defineFeature(feature, (test) => {
   });
 
   test('A logged in user tries to create a permanent post composed of only text', ({
-    given,
-    and,
-    when,
-    then,
-  }) => {
+                                                                                     given,
+                                                                                     and,
+                                                                                     when,
+                                                                                     then,
+                                                                                   }) => {
     givenAUserExists(given);
     andUserProvidesTheContentOfThePost(and);
     whenUserTriesToCreateNewPost(when);
@@ -182,11 +182,11 @@ defineFeature(feature, (test) => {
   });
 
   test('A logged in user tries to create a permanent post composed of only images', ({
-    given,
-    and,
-    when,
-    then,
-  }) => {
+                                                                                       given,
+                                                                                       and,
+                                                                                       when,
+                                                                                       then,
+                                                                                     }) => {
     givenAUserExists(given);
     andUserProvidesTheContentOfThePost(and);
     whenUserTriesToCreateNewPost(when);
