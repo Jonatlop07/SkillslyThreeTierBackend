@@ -1,7 +1,5 @@
-import { Optional } from '@core/common/type/common_types';
-
 export interface PermanentPostContentElement {
-  description: Optional<string>;
-  reference: Optional<string>;
-  reference_type: Optional<string>;
+  description?: string;
+  reference?: string;
+  reference_type?: string;
 }
