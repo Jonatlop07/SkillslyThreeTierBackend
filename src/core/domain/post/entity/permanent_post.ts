@@ -20,7 +20,8 @@ export class PermanentPost extends Entity<string> {
     return this._content.every(
       (content_element: PermanentPostContentElement) => {
         const { description, reference, reference_type } = content_element;
-        return description && description.length > 0 || reference && reference.length > 0 && reference_type && reference_type.length > 0;
+        return description && description.length > 0 ||
+          reference && reference.length > 0 && reference_type && reference_type.length > 0;
       }
     );
   }
