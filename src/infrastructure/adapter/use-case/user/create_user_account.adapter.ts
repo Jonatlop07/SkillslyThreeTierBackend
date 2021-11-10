@@ -4,7 +4,6 @@ import CreateUserAccountInputModel from '@core/domain/user/input-model/create_us
 
 @Exclude()
 export class CreateUserAccountAdapter implements CreateUserAccountInputModel {
-
   @Expose()
   @IsEmail()
   public email: string;
@@ -21,7 +20,9 @@ export class CreateUserAccountAdapter implements CreateUserAccountInputModel {
   @IsString()
   public date_of_birth: string;
 
-  public static new(payload: CreateUserAccountInputModel): CreateUserAccountAdapter {
+  public static new(
+    payload: CreateUserAccountInputModel,
+  ): CreateUserAccountAdapter {
     return plainToClass(CreateUserAccountAdapter, payload);
   }
 }

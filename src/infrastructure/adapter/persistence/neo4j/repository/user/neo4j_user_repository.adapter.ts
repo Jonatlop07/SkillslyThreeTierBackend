@@ -31,9 +31,10 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
           password: user.password,
           name: user.name,
           date_of_birth: user.date_of_birth,
-          created_at: moment().local().format('YYYY-MM-DD HH:mm:ss')
-        }
-      });
+          created_at: moment().local().format('YYYY-MM-DD HH:mm:ss'),
+        },
+      },
+    );
     return this.getSingleResultProperties(result, user_key) as UserDTO;
   }
 
@@ -42,24 +43,27 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     const exists_user_query = `MATCH (${user_key}: User { email: $email }) RETURN ${user_key}`;
     const result: QueryResult = await this.neo4jService.read(
       exists_user_query,
-      { email: user.email }
+      { email: user.email },
     );
     return result.records.length > 0;
   }
 
-  public async findOneByParam(param: string, value: any): Promise<Optional<UserDTO>> {
+  public async findOneByParam(
+    param: string,
+    value: any,
+  ): Promise<Optional<UserDTO>> {
     const user_key = 'user';
-    const formatted_value = typeof value === 'string' || value instanceof String ? `'${value}'` : value;
+    const formatted_value =
+      typeof value === 'string' || value instanceof String
+        ? `'${value}'`
+        : value;
     const find_user_query = `
       MATCH (${user_key}: User { ${param}: ${formatted_value} })
       RETURN ${user_key}
     `;
     return this.getSingleResultProperties(
-      await this.neo4jService.read(
-        find_user_query,
-        {}
-      ),
-      user_key
+      await this.neo4jService.read(find_user_query, {}),
+      user_key,
     );
   }
 }
