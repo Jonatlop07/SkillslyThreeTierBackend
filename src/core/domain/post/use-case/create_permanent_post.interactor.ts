@@ -4,6 +4,6 @@ import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-mo
 
 export interface CreatePermanentPostInteractor
   extends Interactor<
-    CreatePermanentPostInputModel,
-    CreatePermanentPostOutputModel
+  CreatePermanentPostInputModel,
+  CreatePermanentPostOutputModel
   > {}

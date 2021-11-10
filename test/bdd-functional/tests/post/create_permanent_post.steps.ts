@@ -51,8 +51,36 @@ defineFeature(feature, (test) => {
     try {
       return await create_permanent_post_interactor.execute(input);
     } catch (e) {
+      exception = e;
       console.log(e);
     }
+  }
+
+  function givenAUserExists(given) {
+    given(/^a user exists$/, async () => {
+      await createUserAccount(user_1);
+    });
+  }
+
+  function andUserProvidesTheContentOfThePost(and) {
+    and(
+      'the user provides the content of the post being:',
+      (post_content_table: PermanentPostContentElement[]) => {
+        post_content = post_content_table;
+      },
+    );
+  }
+
+  function whenUserTriesToCreateNewPost(when) {
+    when('the user tries to create a new post',
+      async () => {
+        console.log(post_content);
+        output = await createPost({
+          id: '1',
+          content: post_content,
+          user_id,
+        });
+      });
   }
 
   beforeEach(async () => {
@@ -88,36 +116,6 @@ defineFeature(feature, (test) => {
     exception = undefined;
   });
 
-  function givenAUserExists(given) {
-    given(/^a user exists$/, async () => {
-      await createUserAccount(user_1);
-    });
-  }
-
-  function andUserProvidesTheContentOfThePost(and) {
-    and(
-      'the user provides the content of the post being:',
-      (post_content_table: PermanentPostContentElement[]) => {
-        post_content = post_content_table;
-      },
-    );
-  }
-
-  function whenUserTriesToCreateNewPost(when) {
-    when('the user tries to create a new post'),
-    async () => {
-      try {
-        output = await createPost({
-          id: '1',
-          content: post_content,
-          user_id,
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    };
-  }
-
   test('A logged in user creates a permanent post successfully', ({
     given,
     and,
@@ -143,10 +141,12 @@ defineFeature(feature, (test) => {
 
   test('A logged in user tries to create a permanent post without any content', ({
     given,
+    and,
     when,
     then,
   }) => {
     givenAUserExists(given);
+    andUserProvidesTheContentOfThePost(and);
     whenUserTriesToCreateNewPost(when);
 
     then(
@@ -177,7 +177,6 @@ defineFeature(feature, (test) => {
       expect(output).toBeDefined();
       expect(output.user_id).toEqual(expected_output.user_id);
       expect(output.content).toEqual(expected_output.content);
-      // expect(output.post_references).toBeNull();
     });
   });
 

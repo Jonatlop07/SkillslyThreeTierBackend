@@ -14,6 +14,9 @@ Feature: Create permanent post
 
   Scenario: A logged in user tries to create a permanent post without any content
     Given a user exists
+    And the user provides the content of the post being:
+    | description | reference  | reference_type |
+    |             |            |                |
     When the user tries to create a new post
     Then an error occurs: the post to create needs to have some kind of content
 

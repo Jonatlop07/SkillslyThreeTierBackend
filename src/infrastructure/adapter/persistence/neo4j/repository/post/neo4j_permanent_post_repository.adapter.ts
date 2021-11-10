@@ -48,12 +48,12 @@ implements PermanentPostRepository {
     value: any,
   ): Promise<Optional<PermanentPostDTO>> {
     const post_key = 'post';
-    const find_user_query = `
+    const find_post_query = `
       MATCH (${post_key}: PermanentPost { ${param}: ${value} })
       RETURN ${post_key}
     `;
     return this.neo4j_service.getSingleResultProperties(
-      await this.neo4j_service.read(find_user_query, {}),
+      await this.neo4j_service.read(find_post_query, {}),
       post_key,
     );
   }
