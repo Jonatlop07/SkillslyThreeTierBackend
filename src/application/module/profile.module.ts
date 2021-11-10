@@ -1,14 +1,15 @@
 import { Module, Provider } from '@nestjs/common';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
-import { ProfileInMemoryRepository } from '@infrastructure/persistence/profile_in_memory.repository';
+
 import { CreateProfileService } from '@core/service/profile/create_profile.service';
 import { ProfileController } from '@application/api/http-rest/controller/profile_controller';
+import { ProfileNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/profile/neo4j_profile_respository.adapter';
 
 
 const persistence_providers: Provider[] = [
   {
     provide: ProfileDITokens.ProfileRepository,
-    useFactory: () => new ProfileInMemoryRepository(new Map()),
+    useClass: ProfileNeo4jRepositoryAdapter
   },
 ];
 

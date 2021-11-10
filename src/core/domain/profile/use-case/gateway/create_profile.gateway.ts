@@ -1,6 +1,6 @@
 import Create from '@core/common/persistence/create';
-import { Profile } from '@core/domain/profile/entity/profile';
+import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
 
 export default interface CreateProfileGateway
-  extends Create<Profile> {
+  extends Create<ProfileDTO> {
 }

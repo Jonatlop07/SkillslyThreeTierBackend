@@ -4,6 +4,6 @@ export type CreateProfileEntityPayload = {
   talents: Array<string>,
   activities: Array<string>,
   interests: Array<string>,
-  userID: number;
+  userEmail: string;
   id?: number,
 };

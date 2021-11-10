@@ -18,7 +18,7 @@ export class Profile extends Entity<number> {
     this._talents = payload.talents;
     this._activities = payload.activities;
     this._interests = payload.interests;
-    this.id = payload.id || 0;
+    this._id = payload.id || 0;
   }
 
 

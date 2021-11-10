@@ -1,4 +1,4 @@
-import { IsArray, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
 
 export class CreateProfileDto {
   @IsString() resume: string;
@@ -6,5 +6,5 @@ export class CreateProfileDto {
   @IsArray() talents: Array<string>;
   @IsArray() activities: Array<string>;
   @IsArray() interests: Array<string>;
-  @IsNumber() userID: number;
+  @IsString() userEmail: string;
 }

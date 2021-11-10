@@ -10,12 +10,13 @@ import { ProfileModule } from '@application/module/profile.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `env/${setEnvironment()}`
+      envFilePath: `env/${setEnvironment()}`,
     }),
     InfrastructureModule,
+    ProfileModule,
     UserModule,
-    AuthenticationModule
-  ]
+    AuthenticationModule,
+  ],
 })
 export class RootModule {
 }
