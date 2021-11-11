@@ -49,4 +49,11 @@ export class UserInMemoryRepository implements UserRepository {
     this.users.set(user.user_id, user_to_update);
     return Promise.resolve(user_to_update);
   }
+
+  queryById(id: string): Promise<Optional<UserDTO>> {
+    for (const _user of this.users.values())
+      if (_user.user_id === id)
+        return Promise.resolve(_user);
+    return Promise.resolve(undefined);
+  }
 }

@@ -8,12 +8,9 @@ import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user
 import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/update_user_account.interactor';
 import UpdateUserAccountOutputModel from '@core/domain/user/use-case/output-model/update_user_account.output_model';
 import { UpdateUserAccountService } from '@core/service/user/update_user_account.service';
-import { UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
+import { UserAccountException, UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
 
 const feature = loadFeature('test/bdd-functional/features/user/update_user_account.feature');
-
-class UserAccountException {
-}
 
 defineFeature(feature, (test) => {
   const user_mock: CreateUserAccountInputModel = {

@@ -5,6 +5,7 @@ import { UserController } from '@application/api/http-rest/controller/user_contr
 import { UserNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/user/neo4j_user_repository.adapter';
 import { ValidateCredentialsService } from '@core/service/user/validate_credentials.service';
 import { UpdateUserAccountService } from '@core/service/user/update_user_account.service';
+import { QueryUserAccountService } from '@core/service/user/query_user_account.service';
 
 const persistence_providers: Provider[] = [
   {
@@ -22,6 +23,11 @@ const use_case_providers: Provider[] = [
   {
     provide: UserDITokens.ValidateCredentialsInteractor,
     useFactory: (gateway) => new ValidateCredentialsService(gateway),
+    inject: [UserDITokens.UserRepository]
+  },
+  {
+    provide: UserDITokens.QueryUserAccountInteractor,
+    useFactory: (gateway) => new QueryUserAccountService(gateway),
     inject: [UserDITokens.UserRepository]
   },
   {

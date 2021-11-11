@@ -50,7 +50,6 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   public async findOneByParam(param: string, value: any): Promise<Optional<UserDTO>> {
     const user_key = 'user';
     const formatted_value = typeof value === 'string' || value instanceof String ? `'${value}'` : value;
-    this.logger.log(formatted_value);
     const find_user_query = `
       MATCH (${user_key}: User { ${param}: ${formatted_value} })
       RETURN ${user_key}
@@ -86,5 +85,16 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       }
     );
     return this.getSingleResultProperties(result, user_key) as UserDTO;
+  }
+
+  async queryById(id: string): Promise<UserDTO> {
+    const user_key = 'user';
+    const user_query = `
+      MATCH (${user_key}: User)
+      WHERE ${user_key}.user_id = '${id}'
+      RETURN ${user_key}
+    `;
+    const result: QueryResult = await this.neo4jService.read(user_query, {});
+    return this.getSingleResultProperties(result, user_key);
   }
 }
