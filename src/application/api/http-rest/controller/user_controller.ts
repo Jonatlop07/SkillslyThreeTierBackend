@@ -10,19 +10,23 @@ import {
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
+import { SearchUsersInteractor } from '../../../../core/domain/user/use-case/search_users.interactor';
+import { SearchUsersAdapter } from '@infrastructure/adapter/use-case/user/search_users.adapter';
 
-@Controller('users/account')
+@Controller('users')
 @ApiTags('user')
 export class UserController {
   private readonly logger: Logger = new Logger(UserController.name);
 
   constructor(
     @Inject(UserDITokens.CreateUserAccountInteractor)
-    private readonly create_user_account_interactor: CreateUserAccountInteractor
+    private readonly create_user_account_interactor: CreateUserAccountInteractor,
+    @Inject(UserDITokens.SearchUsersInteractor)
+    private readonly search_users_interator: SearchUsersInteractor
   ) {}
 
   @Public()
-  @Post()
+  @Post('/account')
   @HttpCode(HttpStatus.CREATED)
   public async createUserAccount(@Body() body) {
     try {
@@ -57,7 +61,12 @@ export class UserController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public getAccountInformation(@HttpUser() http_user: HttpUserPayload) {
-    return http_user.id;
+  public async getUsersInformation(@Body() body) {
+    return await this.search_users_interator.execute(
+      await SearchUsersAdapter.new({
+        email: body.email,
+        name: body.name
+      })
+    );
   }
 }

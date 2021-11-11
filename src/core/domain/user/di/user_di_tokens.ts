@@ -4,4 +4,6 @@ export class UserDITokens {
   public static readonly UserRepository: unique symbol  = Symbol('UserRepository');
 
   public static readonly ValidateCredentialsInteractor: unique symbol = Symbol('ValidateCredentialsInteractor');
+
+  public static readonly SearchUsersInteractor: unique symbol = Symbol('SearchUsersInteractor');
 }

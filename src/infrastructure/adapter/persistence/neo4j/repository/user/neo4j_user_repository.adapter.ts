@@ -5,6 +5,7 @@ import UserRepository from '@core/domain/user/use-case/user.repository';
 import { Optional } from '@core/common/type/common_types';
 import { QueryResult } from 'neo4j-driver';
 import * as moment from 'moment';
+import { SearchedUserDTO } from '../../../../../../core/domain/user/use-case/persistence-dto/searched_user.dto';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -61,5 +62,25 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       ),
       user_key
     );
+  }
+
+  public async findAll(params: any): Promise<UserDTO[]> {
+    const { email, name } = params; 
+    const user_key = 'user';
+    const find_user_query = `
+      MATCH (${user_key}: User)
+      WHERE ${user_key}.email = '${email}' OR ${user_key}.name = '${name}' 
+      RETURN ${user_key}
+    `;
+    const users: unknown = await this.neo4jService.read(
+      find_user_query, 
+      {}
+    ).then(
+      (result: QueryResult) => 
+        result.records.map(
+          (record:any) => record._fields[0].properties
+        )
+    );
+    return users as UserDTO[]; 
   }
 }

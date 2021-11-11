@@ -3,8 +3,11 @@ import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import * as moment from 'moment';
 import ValidateCredentialsGateway from '@core/domain/user/use-case/gateway/validate_credentials.gateway';
 import { Optional } from '@core/common/type/common_types';
+import UserRepository from '@core/domain/user/use-case/user.repository';
+import { User } from '../../../core/domain/user/entity/user';
 
-export class UserInMemoryRepository implements CreateUserAccountGateway, ValidateCredentialsGateway {
+
+export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
 
   constructor( private readonly users: Map<string, UserDTO>) {
@@ -37,5 +40,14 @@ export class UserInMemoryRepository implements CreateUserAccountGateway, Validat
       if (_user[param] === value)
         return Promise.resolve(_user);
     return Promise.resolve(undefined);
+  }
+
+  findAll(params: any): Promise<UserDTO[]>{
+    /*const response_users: UserDTO[] = [];
+    for (const _user of this.users.values())
+      //if (_user.email === params.email || _user.name === params.name)
+        response_users.push(_user);
+    return Promise.resolve(response_users);*/
+    return Promise.resolve(Array.from(this.users.values()));
   }
 }
