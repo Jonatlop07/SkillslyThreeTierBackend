@@ -1,20 +1,16 @@
-#Feature: Get a user profile
-#
-#  Scenario Outline: A user tries to get an user profile
-#    Given the user id <"userID"> is provided in a valid format
-#    When user tries to get an user profile
-#    Then the user profile is obtained
-#
-#    Examples:
-#      | userID |
-#      | 1      |
-#
-##  Scenario Outline: A user tries to get an user profile using an id in an invalid format
-##    Given the user id <"userID"> is provided in an invalid format
-##    When user tries to get an user profile
-##    Then an error occurs: provided user id is in an invalid format
-##
-##    Examples:
-##      | userID |
-##      | user   |
-##      | id     |
+Feature: Get an user profile
+
+  Scenario: An user tries to get an user profile
+    Given an existing user
+    And there exists a profile belongs to that user, with content:
+      | resume                      | knowledge    | talents     | activities              | interests     |
+      | This is my profile, welcome | Maths,Python | Music,Piano | Polo,Tennis,Programming | GraphQL,ML,IA |
+    When user tries to get user profile
+    Then the user profile is obtained
+
+
+  Scenario: An user tries to get an user profile that doesn't exist
+    Given an existing user
+    When user tries to get user profile
+    Then an error occurs: there's no profile asociated to the user
+

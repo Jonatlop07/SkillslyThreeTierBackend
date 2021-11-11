@@ -1,10 +1,11 @@
 abstract class GetProfileException extends Error {
 }
 
-class GetProfileInvalidDataFormatException extends GetProfileException {
+class GetProfileNotFoundFormatException extends GetProfileException {
 }
+
 
 export {
   GetProfileException,
-  GetProfileInvalidDataFormatException,
+  GetProfileNotFoundFormatException,
 };

@@ -4,14 +4,18 @@ import CreateProfileOutputModel from '@core/domain/profile/use-case/output-model
 import { CreateProfileInteractor } from '@core/domain/profile/use-case/create_profile.interactor';
 import { CreateProfileInvalidDataFormatException } from '@core/service/profile/create_profile.exception';
 import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 
+@Injectable()
 export class CreateProfileService implements CreateProfileInteractor {
 
-  constructor(private gateway: CreateProfileGateway) {
+  constructor(
+    @Inject(ProfileDITokens.ProfileRepository)
+    private gateway: CreateProfileGateway) {
   }
 
-  async execute(input?: CreateProfileInputModel): Promise<CreateProfileOutputModel> {
-
+  async execute(input: CreateProfileInputModel): Promise<CreateProfileOutputModel> {
     for (const key in input) {
       if (key !== 'resume' && key !== 'userEmail') {
         input[key].forEach((element) => {

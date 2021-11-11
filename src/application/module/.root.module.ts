@@ -13,9 +13,9 @@ import { ProfileModule } from '@application/module/profile.module';
       envFilePath: `env/${setEnvironment()}`,
     }),
     InfrastructureModule,
-    ProfileModule,
     UserModule,
     AuthenticationModule,
+    ProfileModule,
   ],
 })
 export class RootModule {

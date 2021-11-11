@@ -1,6 +1,6 @@
 import Get from '@core/common/persistence/get';
-import { Profile } from '@core/domain/profile/entity/profile';
+import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
 
 export default interface GetProfileGateway
-  extends Get<Profile> {
+  extends Get<ProfileDTO> {
 }

@@ -17,7 +17,6 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   constructor(private readonly neo4jService: Neo4jService) {}
 
   public async create(user: UserDTO): Promise<UserDTO> {
-    console.log(this.neo4jService);
     const user_key = 'new_user';
     const createUserStatement = `
         CREATE (${user_key}: User)

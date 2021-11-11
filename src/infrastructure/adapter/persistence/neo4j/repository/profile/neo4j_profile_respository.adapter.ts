@@ -47,4 +47,16 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
 
     return result;
   }
+
+  public async get(userEmail: string): Promise<ProfileDTO> {
+    const user_key = 'user';
+    const profile_key = 'profile';
+    const getProfileQuery = ` 
+     MATCH (${user_key} {email : '${userEmail}'})--(${profile_key})
+     RETURN ${profile_key}
+     `;
+    const getProfileResult = await this.neo4jService.read(getProfileQuery, {});
+    return this.getSingleResultProperties(getProfileResult, profile_key);
+  }
+
 }
