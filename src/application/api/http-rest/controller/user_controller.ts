@@ -13,19 +13,20 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
+import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
+import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { CreateUserAccountAdapter } from '@infrastructure/adapter/use-case/user/create_user_account.adapter';
+import { UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
 import {
   CreateUserAccountAlreadyExistsException,
   CreateUserAccountInvalidDataFormatException
 } from '@core/service/user/create_user_account.exception';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
-import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/update_user_account.interactor';
-import { UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
+import { QueryUserAccountInteractor } from '@core/domain/user/use-case/query_user_account.interactor';
 
-@Controller('users/account')
+@Controller('users')
 @ApiTags('user')
 export class UserController {
   private readonly logger: Logger = new Logger(UserController.name);
@@ -34,12 +35,14 @@ export class UserController {
     @Inject(UserDITokens.CreateUserAccountInteractor)
     private readonly create_user_account_interactor: CreateUserAccountInteractor,
     @Inject(UserDITokens.UpdateUserAccountInteractor)
-    private readonly update_user_account_interactor: UpdateUserAccountInteractor
+    private readonly update_user_account_interactor: UpdateUserAccountInteractor,
+    @Inject(UserDITokens.QueryUserAccountInteractor)
+    private readonly query_user_account_interactor: QueryUserAccountInteractor
   ) {
   }
 
   @Public()
-  @Post()
+  @Post('account')
   @HttpCode(HttpStatus.CREATED)
   public async createUserAccount(@Body() body) {
     try {
@@ -70,17 +73,26 @@ export class UserController {
     }
   }
 
-  @Get()
+  @Get('account/:user_id')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public getAccountInformation(@HttpUser() http_user: HttpUserPayload) {
-    return http_user.id;
+  public async queryUserAccount(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('user_id') user_id: string
+  ) {
+    if (user_id !== http_user.id)
+      throw new HttpException({
+        status: HttpStatus.UNAUTHORIZED,
+        error: 'Cannot query an account that does not belong to you'
+      }, HttpStatus.UNAUTHORIZED);
+    return await this.query_user_account_interactor.execute({ id: user_id });
   }
 
-  @Put(':user_id')
+  @Put('account/:user_id')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async updateAccount(@HttpUser() http_user: HttpUserPayload,
+  public async updateAccount(
+    @HttpUser() http_user: HttpUserPayload,
     @Param('user_id') user_id: string,
     @Body() body
   ) {

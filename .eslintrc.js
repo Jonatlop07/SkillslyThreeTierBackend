@@ -25,7 +25,7 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': 'error',
     '@typescript-eslint/require-await': 'error',
     '@typescript-eslint/semi': ['error', 'always'],
-    '@typescript-eslint/indent': ['error', 2],
+    '@typescript-eslint/indent': ['warn', 2],
     '@typescript-eslint/quotes': ['error', 'single'],
     '@typescript-eslint/no-useless-constructor': 'error',
     '@typescript-eslint/no-extra-parens': 'warn',
