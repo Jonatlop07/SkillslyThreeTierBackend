@@ -4,7 +4,7 @@ import CreateUserAccountInputModel from '@core/domain/user/input-model/create_us
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
+import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
 import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/update_user_account.interactor';
 import UpdateUserAccountOutputModel from '@core/domain/user/use-case/output-model/update_user_account.output_model';
 import { UpdateUserAccountService } from '@core/service/user/update_user_account.service';

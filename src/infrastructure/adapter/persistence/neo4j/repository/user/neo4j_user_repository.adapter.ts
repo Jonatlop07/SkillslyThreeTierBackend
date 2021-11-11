@@ -27,7 +27,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
           password: user.password,
           name: user.name,
           date_of_birth: user.date_of_birth,
-          created_at: moment().local().format('YYYY-MM-DD HH:mm:ss')
+          created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
         }
       });
     return this.neo4j_service.getSingleResultProperties(result, user_key) as UserDTO;
@@ -57,5 +57,40 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       ),
       user_key
     );
+  }
+
+  async update(user: UserDTO): Promise<UserDTO> {
+    const user_key = 'user';
+    const update_user_statement = `
+      MATCH (${user_key}: User)
+      WHERE ${user_key}.user_id = '${user.user_id}'
+      SET ${user_key} += $properties
+      RETURN ${user_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.write(
+      update_user_statement,
+      {
+        properties: {
+          user_id: user.user_id,
+          email: user.email,
+          password: user.password,
+          name: user.name,
+          date_of_birth: user.date_of_birth,
+          updated_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
+        }
+      }
+    );
+    return this.neo4j_service.getSingleResultProperties(result, user_key) as UserDTO;
+  }
+
+  async queryById(id: string): Promise<UserDTO> {
+    const user_key = 'user';
+    const user_query = `
+      MATCH (${user_key}: User)
+      WHERE ${user_key}.user_id = '${id}'
+      RETURN ${user_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.read(user_query, {});
+    return this.neo4j_service.getSingleResultProperties(result, user_key);
   }
 }

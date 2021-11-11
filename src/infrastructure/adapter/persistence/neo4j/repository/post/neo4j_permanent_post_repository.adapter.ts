@@ -3,7 +3,7 @@ import { QueryResult } from 'neo4j-driver';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import { Optional } from '@core/common/type/common_types';
 import PermanentPostRepository from '@core/domain/post/use-case/permanent_post.repository';
-import { PermanentPostDTO } from '@core/domain/post/use-case/persistence_dto/permanent_post.dto';
+import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import * as moment from 'moment';
 
 @Injectable()
@@ -20,14 +20,13 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     const content = post.content.map((contentElement) => {
       return JSON.stringify(contentElement);
     });
-
     const post_with_content_as_json = {
       ...post,
       content: content
     };
     const createPostStatement = `
-        CREATE (${post_key}: Post)
-        SET ${post_key} += $properties, ${post_key}.post_id = randomUUID()
+        CREATE (${post_key}: PermanentPost)
+        SET ${post_key} = $properties, ${post_key}.post_id = randomUUID()
         WITH (${post_key})
         MATCH (${user_key}: User)
         WHERE ${user_key}.user_id = ${post_key}.user_id
@@ -44,24 +43,25 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
         },
       },
     );
-
     return this.neo4j_service.getSingleResultProperties(result, post_key);
   }
 
   async update(post: PermanentPostDTO): Promise<PermanentPostDTO> {
+    const content = post.content.map((contentElement) => {
+      return JSON.stringify(contentElement);
+    });
     const post_key = 'post';
     const update_permanent_post_query = `
-      MATCH (${post_key}: PermanentPost { post_id: $id })
-      SET ${post_key} = $properties
+      MATCH (${post_key}: PermanentPost)
+      WHERE ${post_key}.post_id = '${post.post_id}'
+      SET ${post_key} += $properties
       RETURN ${post_key}
     `;
     const updated_post = await this.neo4j_service.write(
       update_permanent_post_query,
       {
-        id: post.post_id,
         properties: {
-          post_id: post.post_id,
-          ...post,
+          content: content,
           updated_at: moment().local().format('YYYY-MM-DD HH:mm:ss')
         }
       }
@@ -71,8 +71,9 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
 
   async findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
     const post_key = 'post';
+    const formatted_value = typeof value === 'string' || value instanceof String ? `'${value}'` : value;
     const find_user_query = `
-      MATCH (${post_key}: PermanentPost { ${param}: ${value} })
+      MATCH (${post_key}: PermanentPost { ${param}: ${formatted_value} })
       RETURN ${post_key}
     `;
     return this.neo4j_service.getSingleResultProperties(

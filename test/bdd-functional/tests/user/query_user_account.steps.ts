@@ -2,7 +2,7 @@ import { defineFeature, loadFeature } from 'jest-cucumber';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
 import { QueryUserAccountService } from '@core/service/user/query_user_account.service';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
+import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
 import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
 import { QueryUserAccountInteractor } from '@core/domain/user/use-case/query_user_account.interactor';
 import QueryUserAccountOutputModel from '@core/domain/user/use-case/output-model/query_user_interactor.output_model';

@@ -1,9 +1,9 @@
 import { Module, Provider } from '@nestjs/common';
-import { PostController } from '@application/api/http-rest/controller/post.controller';
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
+import { PermanentPostController } from '@application/api/http-rest/controller/permanent_post.controller';
 import { PermanentPostNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/post/neo4j_permanent_post_repository.adapter';
 import { CreatePermanentPostService } from '@core/service/post/create_permanent_post.service';
 import { UpdatePermanentPostService } from '@core/service/post/update_permanent_post.service';
+import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 
 const persistence_providers: Provider[] = [
   {
@@ -27,7 +27,7 @@ const use_case_providers: Provider[] = [
 
 @Module({
   controllers: [
-    PostController
+    PermanentPostController
   ],
   providers: [
     ...persistence_providers,

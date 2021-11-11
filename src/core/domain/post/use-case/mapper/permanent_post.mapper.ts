@@ -1,4 +1,4 @@
-import { PermanentPostDTO } from '@core/domain/post/use-case/persistence_dto/permanent_post.dto';
+import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import { PermanentPost } from '@core/domain/post/entity/permanent_post';
 
 export class PermanentPostMapper {

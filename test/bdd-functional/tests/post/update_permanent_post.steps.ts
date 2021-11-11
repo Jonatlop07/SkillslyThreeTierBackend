@@ -11,7 +11,7 @@ import { UpdatePermanentPostException } from '@core/service/post/update_permanen
 import { UpdatePermanentPostService } from '@core/service/post/update_permanent_post.service';
 import {
   EmptyPermanentPostContentException,
-  NonExistentPermanentPostException, UnauthorizedPermanentPostContentException
+  NonExistentPermanentPostException
 } from '@core/service/post/permanent_post.exception';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/create_permanent_post.interactor';
@@ -27,11 +27,6 @@ defineFeature(feature, (test) => {
     password: 'Abc123_tr',
     name: 'Juan',
     date_of_birth: '01/01/2000'
-  };
-
-  const user_2_mock: CreateUserAccountInputModel = {
-    ...user_1_mock,
-    email: 'newuser_124@test.com'
   };
 
   let user_id: string;
@@ -112,7 +107,7 @@ defineFeature(feature, (test) => {
     });
   }
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {
@@ -125,13 +120,13 @@ defineFeature(feature, (test) => {
           useFactory: () => new UserInMemoryRepository(new Map())
         },
         {
-          provide: PostDITokens.UpdatePermanentPostInteractor,
-          useFactory: (gateway) => new UpdatePermanentPostService(gateway),
+          provide: PostDITokens.CreatePermanentPostInteractor,
+          useFactory: (gateway) => new CreatePermanentPostService(gateway),
           inject: [PostDITokens.PermanentPostRepository]
         },
         {
-          provide: PostDITokens.CreatePermanentPostInteractor,
-          useFactory: (gateway) => new CreatePermanentPostService(gateway),
+          provide: PostDITokens.UpdatePermanentPostInteractor,
+          useFactory: (gateway) => new UpdatePermanentPostService(gateway),
           inject: [PostDITokens.PermanentPostRepository]
         },
         {
@@ -142,14 +137,12 @@ defineFeature(feature, (test) => {
     }).compile();
 
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
+    create_permanent_post_interactor = module.get<CreatePermanentPostInteractor>(PostDITokens.CreatePermanentPostInteractor);
     update_permanent_post_interactor = module.get<UpdatePermanentPostInteractor>(PostDITokens.UpdatePermanentPostInteractor);
-  });
-
-  beforeEach(() => {
     exception = undefined;
   });
 
-  test('A logged in user updates a permanent post successfully',
+  test('A logged in user tries to update a permanent post with multimedia content and descriptions',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andAPostIdentifiedByIdExists(and);
@@ -159,6 +152,7 @@ defineFeature(feature, (test) => {
       thenThePostIsUpdatedWithTheContentProvided(then);
     }
   );
+
   test('A logged in user tries to create a permanent post without any content',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
@@ -171,6 +165,7 @@ defineFeature(feature, (test) => {
       });
     }
   );
+
   test('A logged in user tries to update a permanent post with only text',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
@@ -181,6 +176,7 @@ defineFeature(feature, (test) => {
       thenThePostIsUpdatedWithTheContentProvided(then);
     }
   );
+
   test('A logged in user tries to update a permanent post with only multimedia content',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
@@ -191,6 +187,7 @@ defineFeature(feature, (test) => {
       thenThePostIsUpdatedWithTheContentProvided(then);
     }
   );
+
   test('A logged in user tries to update a permanent post that does not exist',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
@@ -199,21 +196,6 @@ defineFeature(feature, (test) => {
       whenTheUserTriesToUpdateThePost(when);
       then('an error occurs: the post with the provided id does not exist', () => {
         expect(exception).toBeInstanceOf(NonExistentPermanentPostException);
-      });
-    }
-  );
-  test('A logged in user tries to update a permanent post that does not exist',
-    ({ given, and, when, then }) => {
-      givenAUserExists(given);
-      and(/^another user exists with id "([^"]*)"$/, async (id) => {
-        owner_id = id;
-        await createUserAccount(user_2_mock);
-      });
-      andAPostIdIsProvided(and);
-      andTheUserProvidesNewContentOfThePost(and);
-      whenTheUserTriesToUpdateThePost(when);
-      then('an error occurs: an error occurs: the post with the provided id does not belong to the user', () => {
-        expect(exception).toBeInstanceOf(UnauthorizedPermanentPostContentException);
       });
     }
   );

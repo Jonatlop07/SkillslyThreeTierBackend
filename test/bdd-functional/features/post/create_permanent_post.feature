@@ -29,7 +29,6 @@ Feature: Create permanent post
     When the user tries to create a new post
     Then a post is then created with the text provided
 
-
   Scenario: A logged in user tries to create a permanent post composed of only images
     Given a user exists
     And the user provides the content of the post being:
@@ -40,5 +39,3 @@ Feature: Create permanent post
 
     When the user tries to create a new post
     Then a post is then created with the images provided
-
-

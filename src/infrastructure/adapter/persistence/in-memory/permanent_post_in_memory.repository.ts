@@ -1,7 +1,6 @@
-
 import { Optional } from '@core/common/type/common_types';
 import PermanentPostRepository from '@core/domain/post/use-case/permanent_post.repository';
-import { PermanentPostDTO } from '@core/domain/post/use-case/persistence_dto/permanent_post.dto';
+import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import * as moment from 'moment';
 
 export class PermanentPostInMemoryRepository implements PermanentPostRepository {
@@ -12,15 +11,15 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   }
 
   create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
-    const created_post: PermanentPostDTO = {
+    const new_post: PermanentPostDTO = {
       post_id: this.currently_available_post_id,
       content: post.content,
       user_id: post.user_id,
-      created_at: moment().format('DD/MM/YYYY')
+      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
     };
-    this.posts.set(post.post_id, created_post);
+    this.posts.set(this.currently_available_post_id, new_post);
     this.currently_available_post_id = `${Number(this.currently_available_post_id) + 1}`;
-    return Promise.resolve(created_post);
+    return Promise.resolve(new_post);
   }
 
   findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
@@ -35,7 +34,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
       post_id: post.post_id,
       content: post.content,
       user_id: post.user_id,
-      updated_at: moment().format('DD/MM/YYYY')
+      updated_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
     };
     this.posts.set(post.post_id, post_to_update);
     return Promise.resolve(post_to_update);
