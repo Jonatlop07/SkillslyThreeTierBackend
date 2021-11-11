@@ -14,8 +14,8 @@ import { AuthenticationModule } from './authentication.module';
     }),
     InfrastructureModule,
     UserModule,
-    AuthenticationModule,
     PostModule,
+    AuthenticationModule
   ]
 })
-export class RootModule { }
+export class RootModule {}
