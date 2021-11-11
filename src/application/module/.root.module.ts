@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { setEnvironment } from '@application/environments';
 import { UserModule } from '@application/module/user.module';
+import { PostModule } from '@application/module/post.module';
 import { InfrastructureModule } from '@application/module/infrastructure.module';
 import { AuthenticationModule } from './authentication.module';
 
@@ -13,7 +14,8 @@ import { AuthenticationModule } from './authentication.module';
     }),
     InfrastructureModule,
     UserModule,
-    AuthenticationModule
+    AuthenticationModule,
+    PostModule,
   ]
 })
-export class RootModule {}
+export class RootModule { }

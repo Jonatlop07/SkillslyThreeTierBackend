@@ -21,7 +21,7 @@ export class HttpAuthenticationService {
     private readonly jwt_service: JwtService,
     @Inject(UserDITokens.UserRepository)
     private readonly user_repository: UserRepository
-  ) {}
+  ) { }
 
   public async validateUser(username: string, password: string): Promise<Nullable<HttpUserPayload>> {
     return await this.validate_credentials_interactor.execute({

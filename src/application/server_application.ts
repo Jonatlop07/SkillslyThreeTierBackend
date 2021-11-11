@@ -20,7 +20,7 @@ export class ServerApplication {
 
       const app = await NestFactory.create<NestExpressApplication>(
         RootModule,
-        options
+        options,
       );
       app.setGlobalPrefix('api/v1');
 
@@ -31,20 +31,20 @@ export class ServerApplication {
       Logger.log(
         `Environment: ${chalk
           .hex('#87e8de')
-          .bold(`${process.env.NODE_ENV?.toUpperCase()}`)}`
+          .bold(`${process.env.NODE_ENV?.toUpperCase()}`)}`,
       );
 
       process.env.NODE_ENV === 'production'
         ? Logger.log(
-          `✅  Server ready at http://${this.host}:${chalk
-            .hex('#87e8de')
-            .bold(`${this.port}`)}`,
-        )
+            `✅  Server ready at http://${this.host}:${chalk
+              .hex('#87e8de')
+              .bold(`${this.port}`)}`,
+          )
         : Logger.log(
-          `✅  Server is listening on port ${chalk
-            .hex('#87e8de')
-            .bold(`${this.port}`)}`,
-        );
+            `✅  Server is listening on port ${chalk
+              .hex('#87e8de')
+              .bold(`${this.port}`)}`,
+          );
     } catch (error) {
       Logger.error(`❌  Error starting server, ${error}`);
       process.exit();

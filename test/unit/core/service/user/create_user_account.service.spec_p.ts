@@ -4,14 +4,14 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
 import CreateUserAccountOutputModel from '@core/domain/user/use-case/output-model/create_user_account.output_model';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
+import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
 
 function createServiceInputModel(): CreateUserAccountInputModel {
   return {
     email: 'newuser_123@test.com',
     password: 'Abc123_tr',
     name: v4(),
-    date_of_birth: '01/01/2000'
+    date_of_birth: '01/01/2000',
   };
 }
 
@@ -23,22 +23,27 @@ describe('Create user service', () => {
       providers: [
         {
           provide: UserDITokens.CreateUserAccountInteractor,
-          useFactory: () => new CreateUserAccountService(new UserInMemoryRepository(new Map()))
+          useFactory: () =>
+            new CreateUserAccountService(new UserInMemoryRepository(new Map())),
         },
-      ]
+      ],
     }).compile();
 
-    createUserAccountService = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
+    createUserAccountService = module.get<CreateUserAccountService>(
+      UserDITokens.CreateUserAccountInteractor,
+    );
   });
 
   describe('execute', () => {
     it('should create user account', async () => {
-      const createUserAccountInput: CreateUserAccountInputModel = createServiceInputModel();
-      const createUserAccountOutput: CreateUserAccountOutputModel = { email: createUserAccountInput.email };
-      const resultCreateUserAccountOutput: CreateUserAccountOutputModel = await createUserAccountService
-        .execute(createUserAccountInput);
+      const createUserAccountInput: CreateUserAccountInputModel =
+        createServiceInputModel();
+      const createUserAccountOutput: CreateUserAccountOutputModel = {
+        email: createUserAccountInput.email,
+      };
+      const resultCreateUserAccountOutput: CreateUserAccountOutputModel =
+        await createUserAccountService.execute(createUserAccountInput);
       expect(resultCreateUserAccountOutput).toEqual(createUserAccountOutput);
     });
   });
 });
-
