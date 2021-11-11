@@ -8,18 +8,25 @@ import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/per
 
 @Injectable()
 export class PermanentPostNeo4jRepositoryAdapter
-implements PermanentPostRepository {
+  implements PermanentPostRepository {
   private readonly logger: Logger = new Logger(
     PermanentPostNeo4jRepositoryAdapter.name,
   );
   private static readonly USER_POST_RELATIONSHIP = 'HAS';
 
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) { }
 
   public async create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const post_key = 'post';
     const user_key = 'user';
+    const content = post.content.map((contentElement) => {
+      return JSON.stringify(contentElement);
+    });
 
+    const post_with_content_as_json = {
+      ...post,
+      content: content
+    };
     const createPostStatement = `
         CREATE (${post_key}: Post)
         SET ${post_key} += $properties, ${post_key}.post_id = randomUUID()
@@ -33,14 +40,14 @@ implements PermanentPostRepository {
       createPostStatement,
       {
         properties: {
-          content: post.content,
-          user_id: post.user_id,
+          content: post_with_content_as_json.content,
+          user_id: post_with_content_as_json.user_id,
           created_at: moment().local().format('YYYY-MM-DD HH:mm:ss'),
         },
       },
     );
 
-    return this.neo4j_service.getSingleResultProperties(result, post_key); 
+    return this.neo4j_service.getSingleResultProperties(result, post_key);
   }
 
   async findOneByParam(

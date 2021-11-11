@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import {
   HttpJwtPayload,
   HttpLoggedInUser,
-  HttpUserPayload,
+  HttpUserPayload
 } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { ValidateCredentialsInteractor } from '@core/domain/user/use-case/validate_credentials.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
@@ -20,15 +20,11 @@ export class HttpAuthenticationService {
     private readonly validate_credentials_interactor: ValidateCredentialsInteractor,
     private readonly jwt_service: JwtService,
     @Inject(UserDITokens.UserRepository)
-    private readonly user_repository: UserRepository,
+    private readonly user_repository: UserRepository
   ) { }
 
-  public async validateUser(
-    username: string,
-    password: string,
-  ): Promise<Nullable<HttpUserPayload>> {
-    this.logger.log(username, password);
-    const result = await this.validate_credentials_interactor.execute({
+  public async validateUser(username: string, password: string): Promise<Nullable<HttpUserPayload>> {
+    return await this.validate_credentials_interactor.execute({
       email: username,
       password,
     });
@@ -38,7 +34,7 @@ export class HttpAuthenticationService {
     const payload: HttpJwtPayload = { id: user.id };
     return {
       id: user.id,
-      access_token: this.jwt_service.sign(payload),
+      access_token: this.jwt_service.sign(payload)
     };
   }
 
