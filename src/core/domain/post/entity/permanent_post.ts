@@ -31,4 +31,5 @@ export class PermanentPost extends Entity<string> {
       }
     );
   }
+  
 }

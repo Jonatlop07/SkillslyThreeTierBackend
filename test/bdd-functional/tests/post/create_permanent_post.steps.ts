@@ -74,7 +74,7 @@ defineFeature(feature, (test) => {
   function whenUserTriesToCreateNewPost(when) {
     when('the user tries to create a new post',
       async () => {
-        console.log(post_content);
+        // console.log(post_content);
         output = await createPost({
           id: '1',
           content: post_content,
@@ -130,10 +130,12 @@ defineFeature(feature, (test) => {
       'a post is then created with the content text and references provided',
       () => {
         const expected_output: CreatePermanentPostOutputModel = {
+          post_id: '1',
           user_id: user_id,
           content: post_content,
         };
         expect(output).toBeDefined();
+        expect(output.post_id).toEqual(expected_output.post_id);
         expect(output.content).toEqual(expected_output.content);
       },
     );
@@ -171,10 +173,13 @@ defineFeature(feature, (test) => {
 
     then('a post is then created with the text provided', () => {
       const expected_output: CreatePermanentPostOutputModel = {
+        post_id: '1',
         user_id: user_id,
         content: post_content,
       };
       expect(output).toBeDefined();
+      // console.log(output.post_id);
+      expect(output.post_id).toEqual(expected_output.post_id);
       expect(output.user_id).toEqual(expected_output.user_id);
       expect(output.content).toEqual(expected_output.content);
     });
@@ -191,10 +196,12 @@ defineFeature(feature, (test) => {
     whenUserTriesToCreateNewPost(when);
     then('a post is then created with the images provided', () => {
       const expected_output: CreatePermanentPostOutputModel = {
+        post_id: '1',
         user_id: user_id,
         content: post_content,
       };
       expect(output).toBeDefined();
+      expect(output.post_id).toEqual(expected_output.post_id);
       expect(output.user_id).toEqual(expected_output.user_id);
       expect(output.content).toEqual(expected_output.content);
     });
