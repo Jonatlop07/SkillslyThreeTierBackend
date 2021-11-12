@@ -3,13 +3,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
 import { QueryUserAccountService } from '@core/service/user/query_user_account.service';
+import { DeleteUserAccountService } from '@core/service/user/delete_user_account.service';
+import { UserAccountException, UserNotFoundException } from '@core/service/user/user_account.exception';
 import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
+import { DeleteUserAccountInteractor } from '@core/domain/user/use-case/delete_user_account.interactor';
 import { QueryUserAccountInteractor } from '@core/domain/user/use-case/query_user_account.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 
 const feature = loadFeature('test/bdd-functional/features/user/delete_user_account.feature');
-
 
 defineFeature(feature, (test) => {
   let user_id: string;
@@ -42,7 +44,7 @@ defineFeature(feature, (test) => {
     when('the user tries to delete their account',
       async () => {
         await delete_user_account_interactor.execute({
-          user_id
+          id: user_id
         });
       }
     );
@@ -50,9 +52,15 @@ defineFeature(feature, (test) => {
 
   function thenTheUserAccountNoLongerExists(then) {
     then('the user account no longer exists', async () => {
-      expect(await query_user_account_interactor.execute({
-        id: user_id
-      })).toThrowError();
+      let exception: UserAccountException;
+      try {
+        await query_user_account_interactor.execute({
+          id: user_id
+        });
+      } catch (e) {
+        exception = e;
+      }
+      expect(exception).toBeInstanceOf(UserNotFoundException);
     });
   }
 
