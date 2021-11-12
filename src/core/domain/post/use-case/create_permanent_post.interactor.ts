@@ -6,4 +6,4 @@ export interface CreatePermanentPostInteractor
   extends Interactor<
   CreatePermanentPostInputModel,
   CreatePermanentPostOutputModel
-  > {}
+  > { }

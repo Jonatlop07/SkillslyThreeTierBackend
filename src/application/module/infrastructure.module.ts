@@ -1,8 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Neo4jModule } from '@application/module/neo4j.module';
-import { NestHttpLoggingInterceptor } from '@application/api/http-rest/interceptor/nest_http_logging.interceptor';
 import Neo4jConfig from '@infrastructure/adapter/persistence/neo4j/types/neo4j_config.interface';
 import { Neo4jScheme } from '@infrastructure/adapter/persistence/neo4j/types/neo4j_scheme';
 
@@ -21,12 +19,6 @@ import { Neo4jScheme } from '@infrastructure/adapter/persistence/neo4j/types/neo
         database: config_service.get<string>('DATABASE_DATABASE'),
       })
     }),
-  ],
-  providers: [
-    {
-      provide : APP_INTERCEPTOR,
-      useClass: NestHttpLoggingInterceptor,
-    }
   ]
 })
 export class InfrastructureModule {}

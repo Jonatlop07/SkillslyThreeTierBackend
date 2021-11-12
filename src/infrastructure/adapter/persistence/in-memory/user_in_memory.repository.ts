@@ -1,38 +1,38 @@
-import CreateUserAccountGateway from '@core/domain/user/use-case/gateway/create_user_account.gateway';
+import { Optional } from '@core/common/type/common_types';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+import UserRepository from '@core/domain/user/use-case/user.repository';
 import * as moment from 'moment';
 import ValidateCredentialsGateway from '@core/domain/user/use-case/gateway/validate_credentials.gateway';
-import { Optional } from '@core/common/type/common_types';
-import userQuery_model from '@core/domain/user/use-case/query-model/user.query_model';
+import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
 
-export class UserInMemoryRepository implements CreateUserAccountGateway, ValidateCredentialsGateway {
+export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
 
-  constructor( private readonly users: Map<string, UserDTO>) {
+  constructor(private readonly users: Map<string, UserDTO>) {
     this.currently_available_user_id = '1';
   }
-  findOne(params: userQuery_model): Promise<UserDTO> {
+  findOne(params: UserQueryModel): Promise<UserDTO> {
     throw new Error('Method not implemented.');
   }
   findAll(param: any): Promise<UserDTO[]> {
     throw new Error('Method not implemented.');
   }
 
-  async create(user: UserDTO): Promise<UserDTO> {
+  create(user: UserDTO): Promise<UserDTO> {
     const new_user: UserDTO = {
       user_id: this.currently_available_user_id,
       email: user.email,
       password: user.password,
       name: user.name,
       date_of_birth: user.date_of_birth,
-      created_at: moment().format('DD/MM/YYYY')
+      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
     };
     this.users.set(this.currently_available_user_id, new_user);
     this.currently_available_user_id = `${Number(this.currently_available_user_id) + 1}`;
     return Promise.resolve(new_user);
   }
 
-  async exists(user: UserDTO): Promise<boolean> {
+  exists(user: UserDTO): Promise<boolean> {
     for (const _user of this.users.values())
       if (_user.email === user.email)
         return Promise.resolve(true);
@@ -44,5 +44,31 @@ export class UserInMemoryRepository implements CreateUserAccountGateway, Validat
       if (_user[param] === value)
         return Promise.resolve(_user);
     return Promise.resolve(undefined);
+  }
+
+  update(user: UserDTO): Promise<UserDTO> {
+    const user_to_update: UserDTO = {
+      user_id: user.user_id,
+      password: user.password,
+      email: user.email,
+      name: user.name,
+      date_of_birth: user.date_of_birth,
+      updated_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
+    };
+    this.users.set(user.user_id, user_to_update);
+    return Promise.resolve(user_to_update);
+  }
+
+  queryById(id: string): Promise<Optional<UserDTO>> {
+    for (const _user of this.users.values())
+      if (_user.user_id === id)
+        return Promise.resolve(_user);
+    return Promise.resolve(undefined);
+  }
+
+  deleteById(id: string): Promise<UserDTO> {
+    const user_to_delete = this.users.get(id);
+    this.users.delete(id);
+    return Promise.resolve(user_to_delete);
   }
 }

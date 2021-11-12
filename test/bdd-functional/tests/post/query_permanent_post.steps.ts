@@ -1,4 +1,3 @@
-import { PostDITokens } from '@core/domain/post/di/permanent_post_di_tokens';
 import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_post_content_element';
 import QueryPermanentPostInputModel from '@core/domain/post/input-model/create_permanent_post.input_model';
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/create_permanent_post.interactor';
@@ -20,6 +19,7 @@ import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-ca
 import { QueryPermanentPostService } from '@core/service/post/query_permanent_post.service';
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/query_permanent_post.interactor';
 import * as moment from 'moment';
+import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 
 const feature = loadFeature(
   'test/bdd-functional/features/posts/query_permanent_post.feature',

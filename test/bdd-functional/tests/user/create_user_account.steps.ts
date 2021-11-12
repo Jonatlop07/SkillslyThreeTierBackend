@@ -99,13 +99,14 @@ defineFeature(feature, (test) => {
     whenUserTriesToCreateAccount(when);
 
     then(
-      'an account is then created with user information and login credentials',
+      'an account is then created with user information and login credentials: id and email are returned',
       () => {
         const expected_output: CreateUserAccountOutputModel = {
           id: '1',
           email,
         };
         expect(output).toBeDefined();
+        expect(output.id).toEqual(expected_output.id);
         expect(output.email).toEqual(expected_output.email);
       },
     );
