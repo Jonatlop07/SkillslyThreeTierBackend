@@ -22,7 +22,7 @@ import * as moment from 'moment';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 
 const feature = loadFeature(
-  'test/bdd-functional/features/posts/query_permanent_post.feature',
+  'test/bdd-functional/features/post/query_permanent_post.feature',
 );
 
 defineFeature(feature, (test) => {
@@ -261,7 +261,7 @@ defineFeature(feature, (test) => {
       'the collection of posts is then returned',
       () => {
         const expected_output: QueryPermanentPostCollectionOutputModel = {
-          posts: [{post_id:'1', content: post1_content, user_id: owner_id, created_at: moment().format('DD/MM/YYYY')}, {post_id:'2', content: post2_content, user_id: owner_id, created_at: moment().format('DD/MM/YYYY')}]
+          posts: [{post_id:'1', content: post1_content, user_id: owner_id, created_at: moment().format('YYYY/MM/DD HH:mm:ss')}, {post_id:'2', content: post2_content, user_id: owner_id, created_at: moment().format('YYYY/MM/DD HH:mm:ss')}]
         };
         expect(output_collection).toBeDefined();
         expect(output_collection.posts).toEqual(expected_output.posts);

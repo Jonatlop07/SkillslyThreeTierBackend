@@ -1,4 +1,4 @@
-import { PostDITokens } from '@core/domain/post/di/permanent_post_di_tokens';
+import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import QueryPermanentPostInputModel from '@core/domain/post/input-model/query_permanent_post.input_model';
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/query_permanent_post.interactor';
 import QueryPermanentPostGateway from '@core/domain/post/use-case/gateway/query_permanent_post.gateway';
