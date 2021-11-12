@@ -5,9 +5,10 @@ import GetProfileOutputModel from '@core/domain/profile/use-case/output-model/ge
 import { isValidEmail } from '@core/common/util/account_data.validators';
 import { CreateUserAccountInvalidDataFormatException } from '@core/service/user/create_user_account.exception';
 import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
-import { GetProfileNotFoundFormatException } from '@core/service/profile/get_profile.exception';
 import { Inject, Injectable } from '@nestjs/common';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
+import { ProfileNotExistsException } from '@core/service/profile/gett_profile.exception';
+
 
 @Injectable()
 export class GetProfileService implements GetProfileInteractor {
@@ -26,8 +27,9 @@ export class GetProfileService implements GetProfileInteractor {
     }
     const profile: ProfileDTO = await this.gateway.get(userEmail);
 
+
     if (!profile) {
-      throw new GetProfileNotFoundFormatException();
+      throw new ProfileNotExistsException();
     }
 
     return {
@@ -36,6 +38,7 @@ export class GetProfileService implements GetProfileInteractor {
       talents: profile.talents,
       activities: profile.activities,
       interests: profile.interests,
+      profileID: profile.profileID,
     };
   }
 }

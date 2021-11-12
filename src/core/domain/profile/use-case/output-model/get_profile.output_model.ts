@@ -4,4 +4,5 @@ export default interface GetProfileOutputModel {
   talents: Array<string>,
   activities: Array<string>,
   interests: Array<string>,
+  profileID?: string
 }

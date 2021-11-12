@@ -5,6 +5,7 @@ import { CreateProfileService } from '@core/service/profile/create_profile.servi
 import { ProfileController } from '@application/api/http-rest/controller/profile_controller';
 import { ProfileNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/profile/neo4j_profile_respository.adapter';
 import { GetProfileService } from '@core/service/profile/get_profile.service';
+import { EditProfileService } from '@core/service/profile/edit_profile.service';
 
 
 const persistence_providers: Provider[] = [
@@ -24,6 +25,11 @@ const use_case_providers: Provider[] = [
     provide: ProfileDITokens.GetProfileInteractor,
     useFactory: (gateway) => new GetProfileService(gateway),
     inject: [ProfileDITokens.ProfileRepository],
+  },
+  {
+    provide: ProfileDITokens.EditProfileInteractor,
+    useFactory: (gateway, getProfileInteractor) => new EditProfileService(gateway, getProfileInteractor),
+    inject: [ProfileDITokens.ProfileRepository, ProfileDITokens.GetProfileInteractor],
   },
 ];
 

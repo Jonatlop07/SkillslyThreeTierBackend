@@ -59,4 +59,24 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     return this.getSingleResultProperties(getProfileResult, profile_key);
   }
 
+  public async update(oldProfile: ProfileDTO, newProfile: Partial<ProfileDTO>) {
+    const profile_key = 'profile';
+    const editProfileDataQuery = `
+      MATCH (${profile_key} : Profile {profileID: "${oldProfile.profileID}"})
+      SET ${profile_key} += $properties
+      RETURN ${profile_key}
+    `;
+
+    const resultEditProfileData = await this.neo4jService.write(
+      editProfileDataQuery,
+      {
+        properties: {
+          ...newProfile,
+        },
+      },
+    );
+
+    return this.getSingleResultProperties(resultEditProfileData, profile_key);
+  }
+
 }

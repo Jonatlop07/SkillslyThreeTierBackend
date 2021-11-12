@@ -12,5 +12,5 @@ Feature: Get an user profile
   Scenario: An user tries to get an user profile that doesn't exist
     Given an existing user
     When user tries to get user profile
-    Then an error occurs: there's no profile asociated to the user
+    Then an error occurs: there's no profile associated to the user
 

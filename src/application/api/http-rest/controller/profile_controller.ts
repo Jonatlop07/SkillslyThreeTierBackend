@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Post, Put, Query } from '@nestjs/common';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 import { CreateProfileInteractor } from '@core/domain/profile/use-case/create_profile.interactor';
 import { CreateProfileAdapter } from '@infrastructure/adapter/use-case/profile/create_profile.adapter';
@@ -9,7 +9,10 @@ import { Public } from '@application/api/http-rest/authentication/decorator/publ
 import { GetProfileInteractor } from '@core/domain/profile/use-case/get_profile.interactor';
 import { GetProfileAdapter } from '@infrastructure/adapter/use-case/profile/get_profile.adapter';
 import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
-import { GetProfileNotFoundFormatException } from '@core/service/profile/get_profile.exception';
+import { EditProfileInteractor } from '@core/domain/profile/use-case/edit_profile.interactor';
+import { GetProfileNotFoundFormatException } from '../../../../../dist/core/service/profile/get_profile.exception';
+import { EditProfileAdapter } from '@infrastructure/adapter/use-case/profile/edit_profile.adapter';
+import { ProfileNotExistsException } from '@core/service/profile/gett_profile.exception';
 
 
 @Controller('profile')
@@ -19,6 +22,8 @@ export class ProfileController {
     private readonly createProfileInteractor: CreateProfileInteractor,
     @Inject(ProfileDITokens.GetProfileInteractor)
     private readonly getProfileInteractor: GetProfileInteractor,
+    @Inject(ProfileDITokens.EditProfileInteractor)
+    private readonly editProfileInteractor: EditProfileInteractor,
   ) {
   }
 
@@ -26,7 +31,6 @@ export class ProfileController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   public async createProfile(@Body(new ValidationPipe()) body: CreateProfileDto) {
-    // console.log(body);
     try {
       return await this.createProfileInteractor.execute(CreateProfileAdapter.new({
         resume: body.resume,
@@ -42,11 +46,10 @@ export class ProfileController {
           status: HttpStatus.BAD_REQUEST,
         }, HttpStatus.BAD_REQUEST);
       } else {
-        console.log(e);
-        // throw new HttpException({
-        //   status: HttpStatus.BAD_GATEWAY,
-        //   error: 'Internal error',
-        // }, HttpStatus.BAD_GATEWAY);
+        throw new HttpException({
+          status: HttpStatus.BAD_GATEWAY,
+          error: 'Internal error',
+        }, HttpStatus.BAD_GATEWAY);
       }
     }
   }
@@ -72,10 +75,45 @@ export class ProfileController {
           error: 'Profile asociated to given profile doesn\'t exist',
         }, HttpStatus.NOT_FOUND);
       } else {
-        console.log(e);
+        throw new HttpException({
+          status: HttpStatus.BAD_GATEWAY,
+          error: 'Internal error',
+        }, HttpStatus.BAD_GATEWAY);
       }
     }
   }
 
+  @Put()
+  @Public()
+  @HttpCode(HttpStatus.ACCEPTED)
+  public async editProfile(@Body(new ValidationPipe()) body: Partial<CreateProfileDto>) {
+    if (Object.keys(body).length === 0) {
+      throw new HttpException({
+        status: HttpStatus.BAD_REQUEST,
+        error: 'Request cannot be empty',
+      }, HttpStatus.BAD_REQUEST);
+    } else if (Object.keys(body).length === 1 && Object.keys(body)[0] === 'userEmail') {
+      throw new HttpException({
+        status: HttpStatus.BAD_REQUEST,
+        error: 'You must provide profile data to edit',
+      }, HttpStatus.BAD_REQUEST);
+    }
+    try {
+      return await this.editProfileInteractor.execute(EditProfileAdapter.new({ ...body }));
+    } catch (e) {
+      if (e instanceof ProfileNotExistsException) {
+        throw new HttpException({
+          status: HttpStatus.NOT_FOUND,
+          error: 'Profile asociated to given user doesn\'t exist',
+        }, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException({
+          status: HttpStatus.BAD_GATEWAY,
+          error: 'Internal error',
+        }, HttpStatus.BAD_GATEWAY);
+      }
+
+    }
+  }
 
 }

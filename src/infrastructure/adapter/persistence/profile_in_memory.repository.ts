@@ -1,8 +1,9 @@
 import CreateProfileGateway from '@core/domain/profile/use-case/gateway/create_profile.gateway';
 import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
 import GetProfileGateway from '@core/domain/profile/use-case/gateway/get_profile.gateway';
+import EditProfileGateway from '@core/domain/profile/use-case/gateway/edit_profile_gateway';
 
-export class ProfileInMemoryRepository implements CreateProfileGateway, GetProfileGateway {
+export class ProfileInMemoryRepository implements CreateProfileGateway, GetProfileGateway, EditProfileGateway {
   private currently_available_profile_id: string;
 
   constructor(private readonly profiles: Map<string, ProfileDTO>) {
@@ -24,7 +25,7 @@ export class ProfileInMemoryRepository implements CreateProfileGateway, GetProfi
     return Promise.resolve(newProfile);
   }
 
-  get(userEmail: string): Promise<ProfileDTO> {
+  async get(userEmail: string): Promise<ProfileDTO> {
     let query: ProfileDTO = undefined;
     this.profiles.forEach((profile) => {
       if (profile.userEmail === userEmail) {
@@ -33,4 +34,9 @@ export class ProfileInMemoryRepository implements CreateProfileGateway, GetProfi
     });
     return Promise.resolve(query);
   }
+
+  async update(oldProfile: ProfileDTO, newProfile: Partial<ProfileDTO>): Promise<ProfileDTO> {
+    return Promise.resolve(Object.assign(oldProfile, newProfile));
+  }
+
 }
