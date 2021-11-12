@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpException,
@@ -25,6 +26,7 @@ import {
 import { UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
 import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/update_user_account.interactor';
 import { QueryUserAccountInteractor } from '@core/domain/user/use-case/query_user_account.interactor';
+import { DeleteUserAccountInteractor } from '@core/domain/user/use-case/delete_user_account.interactor';
 
 @Controller('users')
 @ApiTags('user')
@@ -37,7 +39,9 @@ export class UserController {
     @Inject(UserDITokens.UpdateUserAccountInteractor)
     private readonly update_user_account_interactor: UpdateUserAccountInteractor,
     @Inject(UserDITokens.QueryUserAccountInteractor)
-    private readonly query_user_account_interactor: QueryUserAccountInteractor
+    private readonly query_user_account_interactor: QueryUserAccountInteractor,
+    @Inject(UserDITokens.DeleteUserAccountInteractor)
+    private readonly delete_user_account_interactor: DeleteUserAccountInteractor
   ) {}
 
   @Public()
@@ -122,5 +126,20 @@ export class UserController {
         error: 'Internal database error'
       }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Delete('account/:user_id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  public async deleteUserAccount(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('user_id') user_id: string
+  ) {
+    if (user_id !== http_user.id)
+      throw new HttpException({
+        status: HttpStatus.UNAUTHORIZED,
+        error: 'Cannot update an account that does not belong to you'
+      }, HttpStatus.UNAUTHORIZED);
+    return await this.delete_user_account_interactor.execute({ id: user_id });
   }
 }

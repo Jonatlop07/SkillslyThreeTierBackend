@@ -6,6 +6,7 @@ import { CreateUserAccountService } from '@core/service/user/create_user_account
 import { ValidateCredentialsService } from '@core/service/user/validate_credentials.service';
 import { UpdateUserAccountService } from '@core/service/user/update_user_account.service';
 import { QueryUserAccountService } from '@core/service/user/query_user_account.service';
+import { DeleteUserAccountService } from '@core/service/user/delete_user_account.service';
 
 const persistence_providers: Provider[] = [
   {
@@ -28,6 +29,11 @@ const use_case_providers: Provider[] = [
   {
     provide: UserDITokens.QueryUserAccountInteractor,
     useFactory: (gateway) => new QueryUserAccountService(gateway),
+    inject: [UserDITokens.UserRepository]
+  },
+  {
+    provide: UserDITokens.DeleteUserAccountInteractor,
+    useFactory: (gateway) => new DeleteUserAccountService(gateway),
     inject: [UserDITokens.UserRepository]
   },
   {

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { QueryResult } from 'neo4j-driver';
+import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import { Optional } from '@core/common/type/common_types';
 import PermanentPostRepository from '@core/domain/post/use-case/permanent_post.repository';
@@ -8,8 +9,6 @@ import * as moment from 'moment';
 
 @Injectable()
 export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostRepository {
-  private static readonly USER_POST_RELATIONSHIP = 'HAS';
-
   private readonly logger: Logger = new Logger(PermanentPostNeo4jRepositoryAdapter.name);
 
   constructor(private readonly neo4j_service: Neo4jService) {}
@@ -30,7 +29,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
         WITH (${post_key})
         MATCH (${user_key}: User)
         WHERE ${user_key}.user_id = ${post_key}.user_id
-        CREATE (${user_key})-[:${PermanentPostNeo4jRepositoryAdapter.USER_POST_RELATIONSHIP}]->(${post_key})
+        CREATE (${user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key})
         RETURN ${post_key}
     `;
     const result: QueryResult = await this.neo4j_service.write(

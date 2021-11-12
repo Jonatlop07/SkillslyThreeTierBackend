@@ -57,4 +57,10 @@ export class UserInMemoryRepository implements UserRepository {
         return Promise.resolve(_user);
     return Promise.resolve(undefined);
   }
+
+  deleteById(id: string): Promise<UserDTO> {
+    const user_to_delete = this.users.get(id);
+    this.users.delete(id);
+    return Promise.resolve(user_to_delete);
+  }
 }

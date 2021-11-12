@@ -5,6 +5,7 @@ import UserRepository from '@core/domain/user/use-case/user.repository';
 import { Optional } from '@core/common/type/common_types';
 import { QueryResult } from 'neo4j-driver';
 import * as moment from 'moment';
+import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -91,6 +92,20 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       RETURN ${user_key}
     `;
     const result: QueryResult = await this.neo4j_service.read(user_query, {});
+    return this.neo4j_service.getSingleResultProperties(result, user_key);
+  }
+
+  async deleteById(id: string): Promise<UserDTO> {
+    const user_key = 'user';
+    const post_key = 'post';
+    const user_query = `
+      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
+      WHERE ${user_key}.user_id = '${id}'
+      DETACH DELETE ${post_key}
+      DETACH DELETE ${user_key}
+      RETURN ${user_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.write(user_query, {});
     return this.neo4j_service.getSingleResultProperties(result, user_key);
   }
 }
