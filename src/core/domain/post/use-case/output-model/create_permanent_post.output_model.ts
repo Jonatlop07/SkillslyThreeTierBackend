@@ -3,5 +3,5 @@ import { PermanentPostContentElement } from '../../entity/type/permanent_post_co
 export default interface CreatePermanentPostOutputModel {
   post_id: string;
   user_id: string;
-  content: PermanentPostContentElement[];
+  content: Array<PermanentPostContentElement>;
 }

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DeleteUserAccountInteractor } from '@core/domain/user/use-case/delete_user_account.interactor';
-import DeleteUserAccountInputModel from '@core/domain/user/input-model/delete_user_account.input_model';
+import { DeleteUserAccountInteractor } from '@core/domain/user/use-case/interactor/delete_user_account.interactor';
+import DeleteUserAccountInputModel from '@core/domain/user/use-case/input-model/delete_user_account.input_model';
 import DeleteUserAccountOutputModel from '@core/domain/user/use-case/output-model/delete_user_account.output_model';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import DeleteUserAccountGateway from '@core/domain/user/use-case/gateway/delete_user_account.gateway';

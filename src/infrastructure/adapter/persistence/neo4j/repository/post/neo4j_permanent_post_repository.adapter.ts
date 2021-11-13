@@ -3,7 +3,7 @@ import { QueryResult } from 'neo4j-driver';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import { Optional } from '@core/common/type/common_types';
-import PermanentPostRepository from '@core/domain/post/use-case/permanent_post.repository';
+import PermanentPostRepository from '@core/domain/post/use-case/repository/permanent_post.repository';
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import * as moment from 'moment';
 
@@ -16,14 +16,14 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
   public async create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const post_key = 'post';
     const user_key = 'user';
-    const content = post.content.map((contentElement) => {
-      return JSON.stringify(contentElement);
+    const content = post.content.map((content_element) => {
+      return JSON.stringify(content_element);
     });
     const post_with_content_as_json = {
       ...post,
-      content: content
+      content
     };
-    const createPostStatement = `
+    const create_post_statement = `
         CREATE (${post_key}: PermanentPost)
         SET ${post_key} = $properties, ${post_key}.post_id = randomUUID()
         WITH (${post_key})
@@ -33,7 +33,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
         RETURN ${post_key}
     `;
     const result: QueryResult = await this.neo4j_service.write(
-      createPostStatement,
+      create_post_statement,
       {
         properties: {
           content: post_with_content_as_json.content,
@@ -46,8 +46,8 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
   }
 
   async update(post: PermanentPostDTO): Promise<PermanentPostDTO> {
-    const content = post.content.map((contentElement) => {
-      return JSON.stringify(contentElement);
+    const content = post.content.map((content_element) => {
+      return JSON.stringify(content_element);
     });
     const post_key = 'post';
     const update_permanent_post_query = `
@@ -60,7 +60,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
       update_permanent_post_query,
       {
         properties: {
-          content: content,
+          content,
           updated_at: moment().local().format('YYYY-MM-DD HH:mm:ss')
         }
       }

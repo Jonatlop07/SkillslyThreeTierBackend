@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
-import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
-import UserRepository from '@core/domain/user/use-case/user.repository';
-import { Optional } from '@core/common/type/common_types';
 import { QueryResult } from 'neo4j-driver';
-import * as moment from 'moment';
+import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
+import { Optional } from '@core/common/type/common_types';
+import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+import UserRepository from '@core/domain/user/use-case/repository/user.repository';
+import * as moment from 'moment';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {

@@ -13,18 +13,18 @@ export class HttpJwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger: Logger = new Logger(HttpJwtStrategy.name);
 
   constructor(
-    private readonly configService: ConfigService,
-    private readonly authService: HttpAuthenticationService,
+    private readonly config_service: ConfigService,
+    private readonly auth_service: HttpAuthenticationService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET'),
+      secretOrKey: config_service.get<string>('JWT_SECRET'),
     });
   }
 
   public async validate(payload: HttpJwtPayload): Promise<HttpUserPayload> {
-    const user = await this.authService.getUser(payload.id);
+    const user = await this.auth_service.getUser(payload.id);
     if (!user) {
       throw new UnauthorizedException();
     }

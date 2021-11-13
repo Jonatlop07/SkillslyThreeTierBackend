@@ -1,13 +1,13 @@
 import * as bcrypt from 'bcryptjs';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import CreateUserAccountGateway from '@core/domain/user/use-case/gateway/create_user_account.gateway';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import CreateUserAccountOutputModel from '@core/domain/user/use-case/output-model/create_user_account.output_model';
 import {
-  CreateUserAccountAlreadyExistsException,
-  CreateUserAccountInvalidDataFormatException,
-} from '@core/service/user/create_user_account.exception';
+  UserAccountAlreadyExistsException,
+  UserAccountInvalidDataFormatException
+} from '@core/domain/user/use-case/exception/user_account.exception';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import {
   isValidEmail,
@@ -16,6 +16,7 @@ import {
   isValidDateOfBirth,
 } from '@core/common/util/account_data.validators';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+
 
 @Injectable()
 export class CreateUserAccountService implements CreateUserAccountInteractor {
@@ -34,7 +35,7 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
       && isValidEmail(email) && isValidPassword(password)
       && isValidName(name) && isValidDateOfBirth(date_of_birth);
     if (!is_a_valid_input)
-      throw new CreateUserAccountInvalidDataFormatException();
+      throw new UserAccountInvalidDataFormatException();
     const SALT_ROUNDS = 10;
     const salt = bcrypt.genSaltSync(SALT_ROUNDS);
     const hashed_password = bcrypt.hashSync(password, salt);
@@ -45,7 +46,7 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
       date_of_birth,
     };
     if (await this.gateway.exists(user))
-      throw new CreateUserAccountAlreadyExistsException();
+      throw new UserAccountAlreadyExistsException();
     const createdUser: UserDTO = await this.gateway.create(user);
     return { id: createdUser.user_id, email: createdUser.email };
   }

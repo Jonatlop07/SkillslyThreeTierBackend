@@ -4,5 +4,5 @@ export default interface CreateProfileInputModel {
   talents: Array<string>,
   activities: Array<string>,
   interests: Array<string>,
-  userEmail: string;
+  user_email: string;
 }

@@ -4,6 +4,6 @@ export interface ProfileDTO {
   talents: Array<string>;
   activities: Array<string>;
   interests: Array<string>;
-  userEmail?: string;
-  profileID?: string;
+  user_email?: string;
+  profile_id?: string;
 }

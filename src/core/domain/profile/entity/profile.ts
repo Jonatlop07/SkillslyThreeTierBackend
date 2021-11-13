@@ -2,14 +2,12 @@ import { Entity } from '@core/common/entity/entity';
 import { CreateProfileEntityPayload } from '@core/domain/profile/entity/type/create_profile_entity_payload';
 
 export class Profile extends Entity<number> {
-
   private readonly _resume: string;
   private readonly _knowledge: Array<string>;
   private readonly _talents: Array<string>;
   private readonly _activities: Array<string>;
   private readonly _interests: Array<string>;
-  private readonly _userID: number;
-
+  private readonly _user_id: number;
 
   constructor(payload: CreateProfileEntityPayload) {
     super();
@@ -20,7 +18,6 @@ export class Profile extends Entity<number> {
     this._interests = payload.interests;
     this._id = payload.id || 0;
   }
-
 
   get resume(): string {
     return this._resume;
@@ -42,8 +39,7 @@ export class Profile extends Entity<number> {
     return this._interests;
   }
 
-
-  get userID(): number {
-    return this._userID;
+  get user_id(): number {
+    return this._user_id;
   }
 }

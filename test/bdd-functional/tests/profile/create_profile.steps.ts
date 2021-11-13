@@ -1,25 +1,22 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import CreateProfileOutputModel from '@core/domain/profile/use-case/output-model/create_profile.output_model';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { CreateProfileService } from '@core/service/profile/create_profile.service';
-import {
-  CreateProfileException,
-  CreateProfileInvalidDataFormatException,
-} from '@core/service/profile/create_profile.exception';
-import CreateProfileInputModel from '@core/domain/profile/input-model/create_profile.input_model';
-import { Test, TestingModule } from '@nestjs/testing';
+import CreateProfileOutputModel from '@core/domain/profile/use-case/output-model/create_profile.output_model';
+import CreateProfileInputModel from '@core/domain/profile/use-case/input-model/create_profile.input_model';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
-import { ProfileInMemoryRepository } from '@infrastructure/adapter/persistence/profile_in_memory.repository';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
-import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
+import { CreateProfileInteractor } from '@core/domain/profile/use-case/interactor/create_profile.interactor';
+import {
+  ProfileException,
+  ProfileInvalidDataFormatException
+} from '@core/domain/profile/use-case/exception/profile.exception';
 
 const feature = loadFeature('test/bdd-functional/features/profile/create_profile.feature');
 
 defineFeature(feature, (test) => {
-
-  const userMock1: CreateUserAccountInputModel = {
+  const user_mock_1: CreateUserAccountInputModel = {
     email: 'newuser_123@test.com',
     password: 'Abc123_tr',
     name: 'Juan',
@@ -31,17 +28,17 @@ defineFeature(feature, (test) => {
   let talents: Array<string>;
   let activities: Array<string>;
   let interests: Array<string>;
-  let userEmail: string;
+  let user_email: string;
 
-  let createUserAccountInteractor: CreateUserAccountInteractor;
-  let createProfileService: CreateProfileService;
+  let create_user_account_interactor: CreateUserAccountInteractor;
+  let create_profile_interactor: CreateProfileInteractor;
   let output: CreateProfileOutputModel;
-  let exception: CreateProfileException = undefined;
+  let exception: ProfileException = undefined;
 
   const createUserAccount = async (input: CreateUserAccountInputModel) => {
     try {
-      const { email } = await createUserAccountInteractor.execute(input);
-      userEmail = email;
+      const { email } = await create_user_account_interactor.execute(input);
+      user_email = email;
     } catch (e) {
       // console.log(e);
     }
@@ -49,7 +46,7 @@ defineFeature(feature, (test) => {
 
   const createProfileAccount = async (input: CreateProfileInputModel) => {
     try {
-      output = await createProfileService.execute(input);
+      output = await create_profile_interactor.execute(input);
     } catch (e) {
       exception = e;
     }
@@ -57,18 +54,18 @@ defineFeature(feature, (test) => {
 
   const givenUserProvidesProfileData = (given) => {
     given('a existing user', async () => {
-      await createUserAccount(userMock1);
+      await createUserAccount(user_mock_1);
     });
   };
 
   const andUserProvidesProfileData = (and) => {
     and(/^the user provides profile data: "([^"]*)", "([^"]*)", "([^"]*)", "([^"]*)" and "([^"]*)"$/,
-      (inputResume, inputKnowledge, inputTalents, inputActivities, inputInterests) => {
-        resume = inputResume;
-        knowledge = inputKnowledge.split(',');
-        talents = inputTalents.split(',');
-        activities = inputActivities.split(',');
-        interests = inputInterests.split(',');
+      (input_resume, input_knowledge, input_talents, input_activities, input_interests) => {
+        resume = input_resume;
+        knowledge = input_knowledge.split(',');
+        talents = input_talents.split(',');
+        activities = input_activities.split(',');
+        interests = input_interests.split(',');
       });
   };
 
@@ -81,41 +78,16 @@ defineFeature(feature, (test) => {
           talents,
           activities,
           interests,
-          userEmail,
+          user_email,
         },
       );
     });
   };
 
-  beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: UserDITokens.CreateUserAccountInteractor,
-          useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository],
-        },
-        {
-          provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map()),
-        },
-        {
-          provide: ProfileDITokens.CreateProfileInteractor,
-          useFactory: (gateway) => new CreateProfileService(gateway),
-          inject: [ProfileDITokens.ProfileRepository],
-        },
-        {
-          provide: ProfileDITokens.ProfileRepository,
-          useFactory: () => new ProfileInMemoryRepository(new Map()),
-        },
-      ],
-    }).compile();
-    createUserAccountInteractor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
-    createProfileService = module.get<CreateProfileService>(ProfileDITokens.CreateProfileInteractor);
-  });
-
-
-  beforeEach(() => {
+  beforeEach(async () => {
+    const module = await createTestModule();
+    create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
+    create_profile_interactor = module.get<CreateProfileService>(ProfileDITokens.CreateProfileInteractor);
     exception = undefined;
   });
 
@@ -124,27 +96,25 @@ defineFeature(feature, (test) => {
     andUserProvidesProfileData(and);
     whenUserTriesToCreateAnUserProfile(when);
     then('the profile is created with the data provided', () => {
-      const expectedOutput: CreateProfileOutputModel = {
+      const expected_output: CreateProfileOutputModel = {
         resume,
         knowledge,
         talents,
         activities,
         interests,
-        userEmail,
+        user_email,
       };
       expect(output).toBeDefined();
-      expect(output).toEqual(expectedOutput);
+      expect(output).toEqual(expected_output);
     });
   });
-
 
   test('A user tries to create an user profile with data in an invalid format', ({ given, and, when, then }) => {
     givenUserProvidesProfileData(given);
     andUserProvidesProfileData(and);
     whenUserTriesToCreateAnUserProfile(when);
     then('an error occurs: provided profile information are in an invalid format', () => {
-      expect(exception).toBeInstanceOf(CreateProfileInvalidDataFormatException);
+      expect(exception).toBeInstanceOf(ProfileInvalidDataFormatException);
     });
   });
-
 });

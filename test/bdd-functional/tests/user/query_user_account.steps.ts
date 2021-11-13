@@ -1,12 +1,9 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import { Test, TestingModule } from '@nestjs/testing';
-import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import { QueryUserAccountService } from '@core/service/user/query_user_account.service';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
-import { QueryUserAccountInteractor } from '@core/domain/user/use-case/query_user_account.interactor';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import { QueryUserAccountInteractor } from '@core/domain/user/use-case/interactor/query_user_account.interactor';
 import QueryUserAccountOutputModel from '@core/domain/user/use-case/output-model/query_user_interactor.output_model';
-import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 
 const feature = loadFeature('test/bdd-functional/features/user/query_user_account.feature');
@@ -18,7 +15,9 @@ defineFeature(feature, (test) => {
     name: 'Juan',
     date_of_birth: '01/01/2000'
   };
+
   let user_id: string;
+
   let create_user_account_interactor: CreateUserAccountInteractor;
   let query_user_account_interactor: QueryUserAccountInteractor;
   let output: QueryUserAccountOutputModel;
@@ -49,25 +48,7 @@ defineFeature(feature, (test) => {
   }
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: UserDITokens.CreateUserAccountInteractor,
-          useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.QueryUserAccountInteractor,
-          useFactory: (gateway) => new QueryUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map())
-        }
-      ]
-    }).compile();
-
+    const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
     query_user_account_interactor = module.get<QueryUserAccountInteractor>(UserDITokens.QueryUserAccountInteractor);
   });

@@ -1,14 +1,14 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
-import { Test, TestingModule } from '@nestjs/testing';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
-import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/update_user_account.interactor';
+import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/interactor/update_user_account.interactor';
 import UpdateUserAccountOutputModel from '@core/domain/user/use-case/output-model/update_user_account.output_model';
-import { UpdateUserAccountService } from '@core/service/user/update_user_account.service';
-import { UserAccountException, UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
+import {
+  UserAccountException,
+  UserAccountInvalidDataFormatException
+} from '@core/domain/user/use-case/exception/user_account.exception';
 
 const feature = loadFeature('test/bdd-functional/features/user/update_user_account.feature');
 
@@ -28,6 +28,7 @@ defineFeature(feature, (test) => {
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let update_user_account_interactor: UpdateUserAccountInteractor;
+
   let output: UpdateUserAccountOutputModel;
   let exception: UserAccountException;
 
@@ -77,25 +78,7 @@ defineFeature(feature, (test) => {
   }
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: UserDITokens.CreateUserAccountInteractor,
-          useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.UpdateUserAccountInteractor,
-          useFactory: (gateway) => new UpdateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map())
-        }
-      ]
-    }).compile();
-
+    const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
     update_user_account_interactor = module.get<UpdateUserAccountInteractor>(UserDITokens.UpdateUserAccountInteractor);
     exception = undefined;
@@ -111,6 +94,7 @@ defineFeature(feature, (test) => {
       });
     }
   );
+
   test('A logged in user attempts to update their account with credentials or data in an invalid format',
     ({ given, and, when, then }) => {
       givenAUserExists(given);

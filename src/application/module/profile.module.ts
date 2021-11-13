@@ -1,21 +1,19 @@
 import { Module, Provider } from '@nestjs/common';
-import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
-
-import { CreateProfileService } from '@core/service/profile/create_profile.service';
 import { ProfileController } from '@application/api/http-rest/controller/profile_controller';
 import { ProfileNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/profile/neo4j_profile_respository.adapter';
+import { CreateProfileService } from '@core/service/profile/create_profile.service';
 import { GetProfileService } from '@core/service/profile/get_profile.service';
 import { EditProfileService } from '@core/service/profile/edit_profile.service';
+import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 
-
-const persistence_providers: Provider[] = [
+const persistence_providers: Array<Provider> = [
   {
     provide: ProfileDITokens.ProfileRepository,
     useClass: ProfileNeo4jRepositoryAdapter,
   },
 ];
 
-const use_case_providers: Provider[] = [
+const use_case_providers: Array<Provider> = [
   {
     provide: ProfileDITokens.CreateProfileInteractor,
     useFactory: (gateway) => new CreateProfileService(gateway),
@@ -28,7 +26,7 @@ const use_case_providers: Provider[] = [
   },
   {
     provide: ProfileDITokens.EditProfileInteractor,
-    useFactory: (gateway, getProfileInteractor) => new EditProfileService(gateway, getProfileInteractor),
+    useFactory: (gateway, get_profile_interactor) => new EditProfileService(gateway, get_profile_interactor),
     inject: [ProfileDITokens.ProfileRepository, ProfileDITokens.GetProfileInteractor],
   },
 ];
@@ -37,10 +35,8 @@ const use_case_providers: Provider[] = [
   controllers: [ProfileController],
   providers: [...persistence_providers, ...use_case_providers],
   exports: [
-    ProfileDITokens.ProfileRepository,
-    // ProfileDITokens.CreateProfileInteractor,
+    ProfileDITokens.ProfileRepository
   ],
 })
 
-export class ProfileModule {
-}
+export class ProfileModule {}

@@ -6,5 +6,5 @@ export class CreateProfileDto {
   @IsArray() talents: Array<string>;
   @IsArray() activities: Array<string>;
   @IsArray() interests: Array<string>;
-  @IsString() userEmail: string;
+  @IsString() user_email: string;
 }

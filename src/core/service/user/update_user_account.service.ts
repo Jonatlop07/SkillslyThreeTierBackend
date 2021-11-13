@@ -1,5 +1,5 @@
-import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/update_user_account.interactor';
-import UpdateUserAccountInputModel from '@core/domain/user/input-model/update_user_account.input_model';
+import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/interactor/update_user_account.interactor';
+import UpdateUserAccountInputModel from '@core/domain/user/use-case/input-model/update_user_account.input_model';
 import UpdateUserAccountOutputModel from '@core/domain/user/use-case/output-model/update_user_account.output_model';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
@@ -10,8 +10,8 @@ import {
   isValidName,
   isValidPassword
 } from '@core/common/util/account_data.validators';
-import { UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+import { UserAccountInvalidDataFormatException } from '@core/domain/user/use-case/exception/user_account.exception';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()

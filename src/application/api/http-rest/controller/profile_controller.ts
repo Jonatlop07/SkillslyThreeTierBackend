@@ -1,29 +1,30 @@
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Post, Put, Query } from '@nestjs/common';
-import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
-import { CreateProfileInteractor } from '@core/domain/profile/use-case/create_profile.interactor';
-import { CreateProfileAdapter } from '@infrastructure/adapter/use-case/profile/create_profile.adapter';
-import { CreateProfileInvalidDataFormatException } from '@core/service/profile/create_profile.exception';
 import { ValidationPipe } from '@application/api/http-rest/profile/pipes/validation.pipe';
 import { CreateProfileDto } from '@application/api/http-rest/profile/dtos/http_create_profile.dto';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
-import { GetProfileInteractor } from '@core/domain/profile/use-case/get_profile.interactor';
-import { GetProfileAdapter } from '@infrastructure/adapter/use-case/profile/get_profile.adapter';
-import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
-import { EditProfileInteractor } from '@core/domain/profile/use-case/edit_profile.interactor';
-import { GetProfileNotFoundFormatException } from '../../../../../dist/core/service/profile/get_profile.exception';
 import { EditProfileAdapter } from '@infrastructure/adapter/use-case/profile/edit_profile.adapter';
-import { ProfileNotExistsException } from '@core/service/profile/gett_profile.exception';
+import { CreateProfileAdapter } from '@infrastructure/adapter/use-case/profile/create_profile.adapter';
+import { GetProfileAdapter } from '@infrastructure/adapter/use-case/profile/get_profile.adapter';
+import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
+import { CreateProfileInteractor } from '@core/domain/profile/use-case/interactor/create_profile.interactor';
+import { GetProfileInteractor } from '@core/domain/profile/use-case/interactor/get_profile.interactor';
+import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
+import { EditProfileInteractor } from '@core/domain/profile/use-case/interactor/edit_profile.interactor';
+import {
+  ProfileInvalidDataFormatException,
+  ProfileNotFoundException
+} from '@core/domain/profile/use-case/exception/profile.exception';
 
 
 @Controller('profile')
 export class ProfileController {
   constructor(
     @Inject(ProfileDITokens.CreateProfileInteractor)
-    private readonly createProfileInteractor: CreateProfileInteractor,
+    private readonly create_profile_interactor: CreateProfileInteractor,
     @Inject(ProfileDITokens.GetProfileInteractor)
-    private readonly getProfileInteractor: GetProfileInteractor,
+    private readonly get_profile_interactor: GetProfileInteractor,
     @Inject(ProfileDITokens.EditProfileInteractor)
-    private readonly editProfileInteractor: EditProfileInteractor,
+    private readonly edit_profile_interactor: EditProfileInteractor,
   ) {
   }
 
@@ -32,16 +33,16 @@ export class ProfileController {
   @HttpCode(HttpStatus.CREATED)
   public async createProfile(@Body(new ValidationPipe()) body: CreateProfileDto) {
     try {
-      return await this.createProfileInteractor.execute(CreateProfileAdapter.new({
+      return await this.create_profile_interactor.execute(CreateProfileAdapter.new({
         resume: body.resume,
         interests: body.interests,
         activities: body.activities,
         knowledge: body.knowledge,
         talents: body.talents,
-        userEmail: body.userEmail,
+        user_email: body.user_email,
       }));
     } catch (e) {
-      if (e instanceof CreateProfileInvalidDataFormatException) {
+      if (e instanceof ProfileInvalidDataFormatException) {
         throw new HttpException({
           status: HttpStatus.BAD_REQUEST,
         }, HttpStatus.BAD_REQUEST);
@@ -65,11 +66,11 @@ export class ProfileController {
       }, HttpStatus.BAD_REQUEST);
     }
     try {
-      return await this.getProfileInteractor.execute(GetProfileAdapter.new({
-        userEmail: queryParams['userEmail'],
+      return await this.get_profile_interactor.execute(GetProfileAdapter.new({
+        user_email: queryParams['user_email'],
       }));
     } catch (e) {
-      if (e instanceof GetProfileNotFoundFormatException) {
+      if (e instanceof ProfileNotFoundException) {
         throw new HttpException({
           status: HttpStatus.NOT_FOUND,
           error: 'Profile asociated to given profile doesn\'t exist',
@@ -99,9 +100,9 @@ export class ProfileController {
       }, HttpStatus.BAD_REQUEST);
     }
     try {
-      return await this.editProfileInteractor.execute(EditProfileAdapter.new({ ...body }));
+      return await this.edit_profile_interactor.execute(EditProfileAdapter.new({ ...body }));
     } catch (e) {
-      if (e instanceof ProfileNotExistsException) {
+      if (e instanceof ProfileNotFoundException) {
         throw new HttpException({
           status: HttpStatus.NOT_FOUND,
           error: 'Profile asociated to given user doesn\'t exist',
@@ -115,5 +116,4 @@ export class ProfileController {
 
     }
   }
-
 }

@@ -17,16 +17,15 @@ import { Public } from '@application/api/http-rest/authentication/decorator/publ
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { CreateUserAccountAdapter } from '@infrastructure/adapter/use-case/user/create_user_account.adapter';
-import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/interactor/update_user_account.interactor';
+import { QueryUserAccountInteractor } from '@core/domain/user/use-case/interactor/query_user_account.interactor';
+import { DeleteUserAccountInteractor } from '@core/domain/user/use-case/interactor/delete_user_account.interactor';
 import {
-  CreateUserAccountAlreadyExistsException,
-  CreateUserAccountInvalidDataFormatException
-} from '@core/service/user/create_user_account.exception';
-import { UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
-import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/update_user_account.interactor';
-import { QueryUserAccountInteractor } from '@core/domain/user/use-case/query_user_account.interactor';
-import { DeleteUserAccountInteractor } from '@core/domain/user/use-case/delete_user_account.interactor';
+  UserAccountAlreadyExistsException,
+  UserAccountInvalidDataFormatException
+} from '@core/domain/user/use-case/exception/user_account.exception';
 
 @Controller('users')
 @ApiTags('user')
@@ -58,12 +57,12 @@ export class UserController {
         })
       );
     } catch (e) {
-      if (e instanceof CreateUserAccountInvalidDataFormatException) {
+      if (e instanceof UserAccountInvalidDataFormatException) {
         throw new HttpException({
           status: HttpStatus.FORBIDDEN,
           error: 'Invalid sign up data format'
         }, HttpStatus.FORBIDDEN);
-      } else if (e instanceof CreateUserAccountAlreadyExistsException) {
+      } else if (e instanceof UserAccountAlreadyExistsException) {
         throw new HttpException({
           status: HttpStatus.CONFLICT,
           error: 'Account already exists'
