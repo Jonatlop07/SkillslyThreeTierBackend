@@ -35,7 +35,6 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
       && isValidName(name) && isValidDateOfBirth(date_of_birth);
     if (!is_a_valid_input)
       throw new CreateUserAccountInvalidDataFormatException();
-
     const SALT_ROUNDS = 10;
     const salt = bcrypt.genSaltSync(SALT_ROUNDS);
     const hashed_password = bcrypt.hashSync(password, salt);

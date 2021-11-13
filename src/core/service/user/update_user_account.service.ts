@@ -12,6 +12,7 @@ import {
 } from '@core/common/util/account_data.validators';
 import { UserAccountInvalidDataFormatException } from '@core/service/user/user_account.exception';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UpdateUserAccountService implements UpdateUserAccountInteractor {
@@ -24,16 +25,27 @@ export class UpdateUserAccountService implements UpdateUserAccountInteractor {
   }
 
   async execute(input: UpdateUserAccountInputModel): Promise<UpdateUserAccountOutputModel> {
-    const { email, password, name, date_of_birth } = input;
-    const is_a_valid_update = email && password && name && date_of_birth
-      && isValidEmail(email) && isValidPassword(password)
-      && isValidName(name) && isValidDateOfBirth(date_of_birth);
+    const { id, email, password, name, date_of_birth } = input;
+    const password_does_not_change = !password ;
+    const is_a_valid_update = email && name && date_of_birth
+      && (password_does_not_change || password && isValidPassword(password))
+      && isValidEmail(email) && isValidName(name)
+      && isValidDateOfBirth(date_of_birth);
     if (!is_a_valid_update)
       throw new UserAccountInvalidDataFormatException();
+    let password_to_update: string;
+    if (password_does_not_change) {
+      const user: UserDTO = await this.gateway.findOneByParam('user_id', id);
+      password_to_update = user.password;
+    } else {
+      const SALT_ROUNDS = 10;
+      const salt = bcrypt.genSaltSync(SALT_ROUNDS);
+      password_to_update = bcrypt.hashSync(password, salt);
+    }
     const updated_user: UserDTO = await this.gateway.update({
-      user_id: input.id,
+      user_id: id,
       email,
-      password,
+      password: password_to_update,
       name,
       date_of_birth
     });

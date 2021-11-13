@@ -4,12 +4,12 @@ import { ValidateCredentialsInteractor } from '@core/domain/user/use-case/valida
 import ValidateCredentialsInputModel from '@core/domain/user/input-model/validate_credentials.input_model';
 import ValidateCredentialsOutputModel from '@core/domain/user/use-case/output-model/validate_credentials.output_model';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+import ValidateCredentialsGateway from '@core/domain/user/use-case/gateway/validate_credentials.gateway';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import {
   ValidateCredentialsInvalidCredentialsException,
   ValidateCredentialsNonExistentAccountException
 } from '@core/service/user/validate_credentials.exception';
-import ValidateCredentialsGateway from '@core/domain/user/use-case/gateway/validate_credentials.gateway';
-import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 
 @Injectable()
 export class ValidateCredentialsService implements ValidateCredentialsInteractor {
