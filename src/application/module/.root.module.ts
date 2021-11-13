@@ -5,6 +5,7 @@ import { UserModule } from '@application/module/user.module';
 import { PostModule } from '@application/module/post.module';
 import { InfrastructureModule } from '@application/module/infrastructure.module';
 import { AuthenticationModule } from './authentication.module';
+import { ProfileModule } from '@application/module/profile.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { AuthenticationModule } from './authentication.module';
     InfrastructureModule,
     UserModule,
     PostModule,
-    AuthenticationModule
+    AuthenticationModule,
+    ProfileModule
   ]
 })
 export class RootModule {}
