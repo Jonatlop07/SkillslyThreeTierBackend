@@ -1,33 +1,29 @@
 import { loadFeature, defineFeature } from 'jest-cucumber';
-import { Test, TestingModule } from '@nestjs/testing';
-import CreatePermanentPostInputModel from '@core/domain/post/input-model/create_permanent_post.input_model';
-import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-model/create_permanent_post.output_model';
-
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/create_permanent_post.interactor';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import {
-  CreatePermanentPostEmptyContentException,
-  CreatePermanentPostException
-} from '@core/service/post/create_permanent_post.exception';
-import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
-import { CreatePermanentPostService } from '@core/service/post/create_permanent_post.service';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
-
+  EmptyPermanentPostContentException,
+  PermanentPostException
+} from '@core/domain/post/use-case/exception/permanent_post.exception';
+import CreatePermanentPostInputModel from '@core/domain/post/use-case/input-model/create_permanent_post.input_model';
+import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-model/create_permanent_post.output_model';
+import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
 import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_post_content_element';
-import { PermanentPostInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/permanent_post_in_memory.repository';
 
 const feature = loadFeature('test/bdd-functional/features/post/create_permanent_post.feature');
 
 defineFeature(feature, (test) => {
-  let post_content: PermanentPostContentElement[];
-  let create_user_account_interactor: CreateUserAccountInteractor;
   let user_id: string;
-  let output: CreatePermanentPostOutputModel;
+  let post_content: Array<PermanentPostContentElement>;
+
+  let create_user_account_interactor: CreateUserAccountInteractor;
   let create_permanent_post_interactor: CreatePermanentPostInteractor;
-  let exception: CreatePermanentPostException;
+
+  let output: CreatePermanentPostOutputModel;
+  let exception: PermanentPostException;
 
   const user_1 = {
     email: 'newuser_123@test.com',
@@ -62,7 +58,7 @@ defineFeature(feature, (test) => {
   function andUserProvidesTheContentOfThePost(and) {
     and(
       'the user provides the content of the post being:',
-      (post_content_table: PermanentPostContentElement[]) => {
+      (post_content_table: Array<PermanentPostContentElement>) => {
         post_content = post_content_table;
       }
     );
@@ -80,29 +76,7 @@ defineFeature(feature, (test) => {
   }
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: UserDITokens.CreateUserAccountInteractor,
-          useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map())
-        },
-        {
-          provide: PostDITokens.CreatePermanentPostInteractor,
-          useFactory: (gateway) => new CreatePermanentPostService(gateway),
-          inject: [PostDITokens.PermanentPostRepository]
-        },
-        {
-          provide: PostDITokens.PermanentPostRepository,
-          useFactory: () => new PermanentPostInMemoryRepository(new Map())
-        }
-      ]
-    }).compile();
-
+    const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(
       UserDITokens.CreateUserAccountInteractor
     );
@@ -142,9 +116,7 @@ defineFeature(feature, (test) => {
       then(
         'an error occurs: the post to create needs to have some kind of content',
         () => {
-          expect(exception).toBeInstanceOf(
-            CreatePermanentPostEmptyContentException
-          );
+          expect(exception).toBeInstanceOf(EmptyPermanentPostContentException);
         }
       );
     }

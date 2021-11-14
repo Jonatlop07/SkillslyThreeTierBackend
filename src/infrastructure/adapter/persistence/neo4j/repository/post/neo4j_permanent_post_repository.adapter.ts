@@ -3,7 +3,7 @@ import { QueryResult } from 'neo4j-driver';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import { Optional } from '@core/common/type/common_types';
-import PermanentPostRepository from '@core/domain/post/use-case/permanent_post.repository';
+import PermanentPostRepository from '@core/domain/post/use-case/repository/permanent_post.repository';
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import * as moment from 'moment';
 
@@ -16,71 +16,89 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
   public async create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const post_key = 'post';
     const user_key = 'user';
-    const content = post.content.map((contentElement) => {
-      return JSON.stringify(contentElement);
+    const content = post.content.map((content_element) => {
+      return JSON.stringify(content_element);
     });
     const post_with_content_as_json = {
       ...post,
-      content: content
+      content
     };
-    const createPostStatement = `
-        CREATE (${post_key}: PermanentPost)
-        SET ${post_key} = $properties, ${post_key}.post_id = randomUUID()
-        WITH (${post_key})
-        MATCH (${user_key}: User)
-        WHERE ${user_key}.user_id = ${post_key}.user_id
-        CREATE (${user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key})
-        RETURN ${post_key}
+    const create_post_statement = `
+      MATCH (${user_key}: User { user_id: '${post.user_id}' })
+      CREATE (${post_key}: PermanentPost)
+      SET ${post_key} += $properties, ${post_key}.post_id = randomUUID()
+      CREATE (${user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key})
+      RETURN ${post_key}
     `;
     const result: QueryResult = await this.neo4j_service.write(
-      createPostStatement,
+      create_post_statement,
       {
         properties: {
           content: post_with_content_as_json.content,
-          user_id: post_with_content_as_json.user_id,
           created_at: moment().local().format('YYYY-MM-DD HH:mm:ss'),
         },
       },
     );
-    return this.neo4j_service.getSingleResultProperties(result, post_key);
+    const created_post = this.neo4j_service.getSingleResultProperties(result, post_key);
+    return {
+      post_id: created_post.post_id,
+      content: created_post.content,
+      user_id: post.user_id,
+      created_at: created_post.created_at
+    };
   }
 
   async update(post: PermanentPostDTO): Promise<PermanentPostDTO> {
-    const content = post.content.map((contentElement) => {
-      return JSON.stringify(contentElement);
+    const content = post.content.map((content_element) => {
+      return JSON.stringify(content_element);
     });
     const post_key = 'post';
     const update_permanent_post_query = `
-      MATCH (${post_key}: PermanentPost)
-      WHERE ${post_key}.post_id = '${post.post_id}'
+      MATCH (${post_key}: PermanentPost { post_id: '${post.post_id}' })
       SET ${post_key} += $properties
       RETURN ${post_key}
     `;
-    const updated_post = await this.neo4j_service.write(
+    const result = await this.neo4j_service.write(
       update_permanent_post_query,
       {
         properties: {
-          content: content,
+          content,
           updated_at: moment().local().format('YYYY-MM-DD HH:mm:ss')
         }
       }
     );
-    return this.neo4j_service.getSingleResultProperties(updated_post, 'post');
+    const updated_post = this.neo4j_service.getSingleResultProperties(result, 'post');
+    return {
+      post_id: updated_post.post_id,
+      content: updated_post.content,
+      user_id: post.user_id,
+      created_at: updated_post.created_at,
+      updated_at: updated_post.updated_at
+    };
   }
 
   async findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
+    const user_key = 'user';
     const post_key = 'post';
+    const user_id_key = 'user_id';
     const formatted_value = typeof value === 'string' || value instanceof String ? `'${value}'` : value;
     const find_user_query = `
-      MATCH (${post_key}: PermanentPost { ${param}: ${formatted_value} })
-      RETURN ${post_key}
+      MATCH (${post_key}: PermanentPost { ${param}: ${formatted_value} }),
+      (${user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key})
+      RETURN ${post_key}, ${user_key} AS ${user_id_key}
     `;
-    return this.neo4j_service.getSingleResultProperties(
-      await this.neo4j_service.read(
-        find_user_query,
-        {}
-      ),
-      post_key
+    const result: QueryResult = await this.neo4j_service.read(
+      find_user_query,
+      {}
     );
+    const post = this.neo4j_service.getSingleResultProperties(result, post_key);
+    const user_id = result.records[0]?.get(user_id_key);
+    return {
+      post_id: post.post_id,
+      content: post.content,
+      user_id,
+      created_at: post.created_at,
+      updated_at: post.updated_at
+    };
   }
 }

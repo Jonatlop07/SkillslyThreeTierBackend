@@ -1,6 +1,6 @@
 import { Optional } from '@core/common/type/common_types';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
-import UserRepository from '@core/domain/user/use-case/user.repository';
+import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import * as moment from 'moment';
 
 export class UserInMemoryRepository implements UserRepository {

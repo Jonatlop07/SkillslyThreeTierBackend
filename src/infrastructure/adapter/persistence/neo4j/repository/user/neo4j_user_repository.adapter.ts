@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
-import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
-import UserRepository from '@core/domain/user/use-case/user.repository';
-import { Optional } from '@core/common/type/common_types';
 import { QueryResult } from 'neo4j-driver';
-import * as moment from 'moment';
+import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
+import { Optional } from '@core/common/type/common_types';
+import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+import UserRepository from '@core/domain/user/use-case/repository/user.repository';
+import * as moment from 'moment';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -16,9 +16,9 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   public async create(user: UserDTO): Promise<UserDTO> {
     const user_key = 'new_user';
     const create_user_statement = `
-        CREATE (${user_key}: User)
-        SET ${user_key} += $properties, ${user_key}.user_id = randomUUID()
-        RETURN ${user_key}
+      CREATE (${user_key}: User)
+      SET ${user_key} += $properties, ${user_key}.user_id = randomUUID()
+      RETURN ${user_key}
     `;
     const result: QueryResult = await this.neo4j_service.write(
       create_user_statement,
@@ -63,8 +63,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   async update(user: UserDTO): Promise<UserDTO> {
     const user_key = 'user';
     const update_user_statement = `
-      MATCH (${user_key}: User)
-      WHERE ${user_key}.user_id = '${user.user_id}'
+      MATCH (${user_key}: User { user_id: '${user.user_id}' })
       SET ${user_key} += $properties
       RETURN ${user_key}
     `;
@@ -87,8 +86,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   async queryById(id: string): Promise<UserDTO> {
     const user_key = 'user';
     const user_query = `
-      MATCH (${user_key}: User)
-      WHERE ${user_key}.user_id = '${id}'
+      MATCH (${user_key}: User { user_id: '${id}' })
       RETURN ${user_key}
     `;
     const result: QueryResult = await this.neo4j_service.read(user_query, {});
@@ -98,14 +96,19 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   async deleteById(id: string): Promise<UserDTO> {
     const user_key = 'user';
     const post_key = 'post';
-    const user_query = `
-      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
-      WHERE ${user_key}.user_id = '${id}'
+    const profile_key = 'profile';
+    const delete_user_statement = `
+      MATCH (${user_key}: User { user_id: '${id}' })
+      WITH ${user_key}
+      OPTIONAL MATCH (${user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
       DETACH DELETE ${post_key}
+      WITH ${user_key}
+      OPTIONAL MATCH (${user_key})-[:${Relationships.USER_PROFILE_RELATIONSHIP}]->(${profile_key}: Profile)
+      DETACH DELETE ${profile_key}
       DETACH DELETE ${user_key}
       RETURN ${user_key}
     `;
-    const result: QueryResult = await this.neo4j_service.write(user_query, {});
+    const result: QueryResult = await this.neo4j_service.write(delete_user_statement, {});
     return this.neo4j_service.getSingleResultProperties(result, user_key);
   }
 }

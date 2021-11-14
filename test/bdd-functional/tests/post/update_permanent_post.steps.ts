@@ -1,23 +1,18 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import { Test, TestingModule } from '@nestjs/testing';
-import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
-import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
-import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/update_permanent_post.interactor';
-import { UpdatePermanentPostOutputModel } from '@core/domain/post/use-case/output-model/update_permanent_post.output_model';
-import { UpdatePermanentPostException } from '@core/service/post/update_permanent_post.exception';
-import { UpdatePermanentPostService } from '@core/service/post/update_permanent_post.service';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import {
+  PermanentPostException,
   EmptyPermanentPostContentException,
   NonExistentPermanentPostException
-} from '@core/service/post/permanent_post.exception';
+} from '@core/domain/post/use-case/exception/permanent_post.exception';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/update_permanent_post.interactor';
+import { UpdatePermanentPostOutputModel } from '@core/domain/post/use-case/output-model/update_permanent_post.output_model';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/create_permanent_post.interactor';
-import { CreatePermanentPostService } from '@core/service/post/create_permanent_post.service';
+import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
 import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_content_post_element';
-import { PermanentPostInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/permanent_post_in_memory.repository';
 
 const feature = loadFeature('test/bdd-functional/features/post/update_permanent_post.feature');
 
@@ -32,13 +27,14 @@ defineFeature(feature, (test) => {
   let user_id: string;
   let owner_id: string;
   let post_to_update_id: string;
-  let post_new_content: PermanentPostContentElement[];
+  let post_new_content: Array<PermanentPostContentElement>;
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_permanent_post_interactor: CreatePermanentPostInteractor;
   let update_permanent_post_interactor: UpdatePermanentPostInteractor;
+
   let output: UpdatePermanentPostOutputModel;
-  let exception: UpdatePermanentPostException = undefined;
+  let exception: PermanentPostException = undefined;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
@@ -108,34 +104,7 @@ defineFeature(feature, (test) => {
   }
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: UserDITokens.CreateUserAccountInteractor,
-          useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map())
-        },
-        {
-          provide: PostDITokens.CreatePermanentPostInteractor,
-          useFactory: (gateway) => new CreatePermanentPostService(gateway),
-          inject: [PostDITokens.PermanentPostRepository]
-        },
-        {
-          provide: PostDITokens.UpdatePermanentPostInteractor,
-          useFactory: (gateway) => new UpdatePermanentPostService(gateway),
-          inject: [PostDITokens.PermanentPostRepository]
-        },
-        {
-          provide: PostDITokens.PermanentPostRepository,
-          useFactory: () => new PermanentPostInMemoryRepository(new Map())
-        },
-      ]
-    }).compile();
-
+    const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
     create_permanent_post_interactor = module.get<CreatePermanentPostInteractor>(PostDITokens.CreatePermanentPostInteractor);
     update_permanent_post_interactor = module.get<UpdatePermanentPostInteractor>(PostDITokens.UpdatePermanentPostInteractor);

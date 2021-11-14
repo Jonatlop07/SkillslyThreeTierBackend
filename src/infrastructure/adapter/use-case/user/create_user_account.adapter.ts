@@ -1,6 +1,6 @@
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsEmail, IsString } from 'class-validator';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 
 @Exclude()
 export class CreateUserAccountAdapter implements CreateUserAccountInputModel {
@@ -20,9 +20,7 @@ export class CreateUserAccountAdapter implements CreateUserAccountInputModel {
   @IsString()
   public date_of_birth: string;
 
-  public static new(
-    payload: CreateUserAccountInputModel,
-  ): CreateUserAccountAdapter {
+  public static new(payload: CreateUserAccountInputModel): CreateUserAccountAdapter {
     return plainToClass(CreateUserAccountAdapter, payload);
   }
 }

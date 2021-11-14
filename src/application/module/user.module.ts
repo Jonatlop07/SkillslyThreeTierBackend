@@ -1,21 +1,21 @@
 import { Module, Provider } from '@nestjs/common';
 import { UserController } from '@application/api/http-rest/controller/user.controller';
 import { UserNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/user/neo4j_user_repository.adapter';
-import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
 import { ValidateCredentialsService } from '@core/service/user/validate_credentials.service';
 import { UpdateUserAccountService } from '@core/service/user/update_user_account.service';
 import { QueryUserAccountService } from '@core/service/user/query_user_account.service';
 import { DeleteUserAccountService } from '@core/service/user/delete_user_account.service';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 
-const persistence_providers: Provider[] = [
+const persistence_providers: Array<Provider> = [
   {
     provide: UserDITokens.UserRepository,
     useClass: UserNeo4jRepositoryAdapter
   }
 ];
 
-const use_case_providers: Provider[] = [
+const use_case_providers: Array<Provider> = [
   {
     provide: UserDITokens.CreateUserAccountInteractor,
     useFactory: (gateway) => new CreateUserAccountService(gateway),

@@ -1,5 +1,5 @@
 import { Optional } from '@core/common/type/common_types';
-import PermanentPostRepository from '@core/domain/post/use-case/permanent_post.repository';
+import PermanentPostRepository from '@core/domain/post/use-case/repository/permanent_post.repository';
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import * as moment from 'moment';
 

@@ -1,6 +1,6 @@
 import { Inject, Logger } from '@nestjs/common';
-import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/update_permanent_post.interactor';
-import UpdatePermanentPostInputModel from '@core/domain/post/input-model/update_permanent_post.input_model';
+import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/update_permanent_post.interactor';
+import UpdatePermanentPostInputModel from '@core/domain/post/use-case/input-model/update_permanent_post.input_model';
 import { UpdatePermanentPostOutputModel } from '@core/domain/post/use-case/output-model/update_permanent_post.output_model';
 import { UpdatePermanentPostGateway } from '@core/domain/post/use-case/gateway/update_permanent_post.gateway';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
@@ -8,7 +8,7 @@ import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/per
 import {
   EmptyPermanentPostContentException,
   NonExistentPermanentPostException
-} from '@core/service/post/permanent_post.exception';
+} from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { PermanentPostMapper } from '@core/domain/post/use-case/mapper/permanent_post.mapper';
 import { PermanentPost } from '@core/domain/post/entity/permanent_post';
 

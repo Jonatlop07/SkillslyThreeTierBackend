@@ -37,6 +37,4 @@ const use_case_providers: Provider[] = [
     PostDITokens.PermanentPostRepository
   ]
 })
-export class PostModule {
-
-}
+export class PostModule {}
