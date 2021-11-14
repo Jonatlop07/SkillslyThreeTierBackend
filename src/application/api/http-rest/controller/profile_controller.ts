@@ -16,7 +16,7 @@ import {
 } from '@core/domain/profile/use-case/exception/profile.exception';
 
 
-@Controller('profile')
+@Controller('users/profile')
 export class ProfileController {
   constructor(
     @Inject(ProfileDITokens.CreateProfileInteractor)

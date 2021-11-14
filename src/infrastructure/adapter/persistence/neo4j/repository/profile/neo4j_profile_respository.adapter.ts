@@ -12,11 +12,13 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     const user_key = 'user';
     const profile_key = 'profile';
     const create_profile_query = `
-      CREATE (${profile_key} : Profile)
+      MATCH (${user_key}: User { email: '${profile.user_email}' })
+      CREATE (${profile_key}: Profile)
       SET ${profile_key} += $properties, ${profile_key}.profile_id = randomUUID()
+      CREATE (${user_key})-[:${Relationships.USER_PROFILE_RELATIONSHIP}]->(${profile_key})
       RETURN ${profile_key}
     `;
-    const result_profile_creation = await this.neo4j_service.write(
+    const created_profile = await this.neo4j_service.write(
       create_profile_query,
       {
         properties: {
@@ -28,13 +30,7 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
         },
       },
     );
-    const result = this.neo4j_service.getSingleResultProperties(result_profile_creation, profile_key) as ProfileDTO;
-    const create_relationship_query = `
-      MATCH (${user_key}: User { email: "${profile.user_email}"}), (${profile_key}: Profile { profile_id: "${result.profile_id}" })
-      CREATE (${user_key})-[:${Relationships.USER_PROFILE_RELATIONSHIP}]->(${profile_key})
-    `;
-    await this.neo4j_service.write(create_relationship_query, {});
-    return result;
+    return this.neo4j_service.getSingleResultProperties(created_profile, profile_key) as ProfileDTO;
   }
 
   public async get(user_email: string): Promise<ProfileDTO> {
@@ -51,7 +47,7 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
   public async partialUpdate(old_profile: ProfileDTO, new_profile: Partial<ProfileDTO>): Promise<ProfileDTO> {
     const profile_key = 'profile';
     const edit_profile_data_query = `
-      MATCH (${profile_key}: Profile { profile_id: "${old_profile.profile_id}" })
+      MATCH (${profile_key}: Profile { profile_id: '${old_profile.profile_id}' })
       SET ${profile_key} += $properties
       RETURN ${profile_key}
     `;

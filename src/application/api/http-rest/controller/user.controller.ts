@@ -139,6 +139,14 @@ export class UserController {
         status: HttpStatus.UNAUTHORIZED,
         error: 'Cannot update an account that does not belong to you'
       }, HttpStatus.UNAUTHORIZED);
-    return await this.delete_user_account_interactor.execute({ id: user_id });
+    try {
+      return await this.delete_user_account_interactor.execute({ id: user_id });
+    } catch (e) {
+      throw new HttpException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        error: 'Internal database error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
   }
 }
