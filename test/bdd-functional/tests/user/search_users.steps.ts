@@ -10,7 +10,6 @@ import SearchUsersInputModel from '@core/domain/user/input-model/search_users.in
 import { SearchUsersInteractor } from '@core/domain/user/use-case/search_users.interactor';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import { SearchedUserDTO } from '../../../../src/core/domain/user/use-case/persistence-dto/searched_user.dto';
-import { compareSync } from 'bcryptjs';
 
 const feature = loadFeature('test/bdd-functional/features/user/search_users.feature'); 
 
@@ -79,6 +78,7 @@ defineFeature(feature, (test) =>{
       whenUserTriesToSearchForAnUser(when);
 
       then('the users associated with the parameters entered are returned', () => {
+        console.log(output)
         expect(output).toBeDefined();
         expect(output).toEqual({users:expected_searched_users});
       });

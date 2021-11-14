@@ -12,6 +12,7 @@ export class UserInMemoryRepository implements UserRepository {
 
   constructor( private readonly users: Map<string, UserDTO>) {
     this.currently_available_user_id = '1';
+    console.log(users.values());
   }
 
   async create(user: UserDTO): Promise<UserDTO> {
@@ -43,11 +44,10 @@ export class UserInMemoryRepository implements UserRepository {
   }
 
   findAll(params: any): Promise<UserDTO[]>{
-    /*const response_users: UserDTO[] = [];
-    for (const _user of this.users.values())
-      //if (_user.email === params.email || _user.name === params.name)
+    const response_users: UserDTO[] = [];
+    for (const _user of this.users.values()) 
+      if (_user.email === params.email || _user.name === params.name)
         response_users.push(_user);
-    return Promise.resolve(response_users);*/
-    return Promise.resolve(Array.from(this.users.values()));
+    return Promise.resolve(response_users);
   }
 }

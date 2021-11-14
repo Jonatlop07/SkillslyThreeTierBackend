@@ -8,8 +8,6 @@ import {
   CreateUserAccountInvalidDataFormatException
 } from '@core/service/user/create_user_account.exception';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
-import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { SearchUsersInteractor } from '../../../../core/domain/user/use-case/search_users.interactor';
 import { SearchUsersAdapter } from '@infrastructure/adapter/use-case/user/search_users.adapter';
 
@@ -58,7 +56,7 @@ export class UserController {
     }
   }
 
-  @Get()
+  @Post('/search')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async getUsersInformation(@Body() body) {
