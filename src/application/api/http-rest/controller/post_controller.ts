@@ -1,8 +1,4 @@
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/create_permanent_post.interactor';
-import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/query_permanent_post.interactor';
-import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/query_permanent_post_collection.interactor';
-import { CreatePermanentPostEmptyContentException } from '@core/service/post/create_permanent_post.exception';
 import { QueryPermanentPostUnexistingPostException, QueryPermanentPostUnexistingUserException } from '@core/service/post/query_permanent_post.exception';
 import { CreatePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/create_permanent_post.adapter';
 import { QueryPermanentPostAdapter } from '@infrastructure/adapter/use-case/post/query_permanent_post.adapter';
@@ -12,6 +8,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { HttpUser } from '../authentication/decorator/http_user';
 import { Public } from '../authentication/decorator/public';
 import { HttpUserPayload } from '../authentication/types/http_authentication_types';
+import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
+import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post_collection.interactor';
+import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
+import { NonExistentPermanentPostException } from '@core/domain/post/use-case/exception/permanent_post.exception';
 
 @Controller('posts')
 @ApiTags('posts')
@@ -27,7 +27,7 @@ export class PostController{
   ){}
 
   @Post()
-  @HttpCode(HttpStatus.OK)  
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async createPermanentPost(@HttpUser() http_user: HttpUserPayload, @Body() body){
     if (body.user_id !== http_user.id){
@@ -46,7 +46,7 @@ export class PostController{
       );
     } catch (e){
       this.logger.error(e.stack);
-      if (e instanceof CreatePermanentPostEmptyContentException){
+      if (e instanceof NonExistentPermanentPostException) {
         throw new HttpException('Empty post content', HttpStatus.LENGTH_REQUIRED);
       }
       throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -63,7 +63,7 @@ export class PostController{
           user_id: body.user_id
         })
       );
-    } catch (e){ 
+    } catch (e){
       this.logger.error(e.stack);
       if (e instanceof QueryPermanentPostUnexistingUserException){
         throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
@@ -83,7 +83,7 @@ export class PostController{
           id: post_id
         })
       );
-    } catch (e){ 
+    } catch (e){
       this.logger.error(e.stack);
       if (e instanceof QueryPermanentPostUnexistingUserException){
         throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
