@@ -6,6 +6,7 @@ import { CreateUserAccountService } from '@core/service/user/create_user_account
 import { QueryUserAccountService } from '@core/service/user/query_user_account.service';
 import { UpdateUserAccountService } from '@core/service/user/update_user_account.service';
 import { DeleteUserAccountService } from '@core/service/user/delete_user_account.service';
+import { SearchUsersService } from '@core/service/user/search_users.service';
 import { ValidateCredentialsService } from '@core/service/user/validate_credentials.service';
 import { CreateProfileService } from '@core/service/profile/create_profile.service';
 import { GetProfileService } from '@core/service/profile/get_profile.service';
@@ -39,6 +40,11 @@ export async function createTestModule() {
       {
         provide: UserDITokens.DeleteUserAccountInteractor,
         useFactory: (gateway) => new DeleteUserAccountService(gateway),
+        inject: [UserDITokens.UserRepository]
+      },
+      {
+        provide: UserDITokens.SearchUsersInteractor,
+        useFactory: (gateway) => new SearchUsersService(gateway),
         inject: [UserDITokens.UserRepository]
       },
       {

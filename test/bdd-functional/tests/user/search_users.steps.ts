@@ -75,9 +75,8 @@ defineFeature(feature, (test) =>{
       andAccountsExistsWithParameters(and);
       whenUserTriesToSearchForAnUser(when);
       then('the users associated with the parameters entered are returned', () => {
-        console.log(output);
         expect(output).toBeDefined();
-        expect(output).toEqual({users:expected_searched_users});
+        expect(output).toEqual({ users: expected_searched_users });
       });
     });
 });
