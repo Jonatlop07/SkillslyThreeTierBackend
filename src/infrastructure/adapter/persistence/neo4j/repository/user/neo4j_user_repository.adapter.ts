@@ -6,12 +6,23 @@ import { Optional } from '@core/common/type/common_types';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import * as moment from 'moment';
+import userQuery_model from '@core/domain/user/use-case/query-model/user.query_model';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
   private readonly logger: Logger = new Logger(UserNeo4jRepositoryAdapter.name);
 
   constructor(private readonly neo4j_service: Neo4jService) {}
+
+  public findAll(params: userQuery_model): Promise<UserDTO[]> {
+    params;
+    throw new Error('Method not implemented.');
+  }
+
+  public findOne(params: userQuery_model): Promise<UserDTO> {
+    params;
+    throw new Error('Method not implemented.');
+  }
 
   public async create(user: UserDTO): Promise<UserDTO> {
     const user_key = 'new_user';
