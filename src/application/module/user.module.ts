@@ -7,6 +7,7 @@ import { UpdateUserAccountService } from '@core/service/user/update_user_account
 import { QueryUserAccountService } from '@core/service/user/query_user_account.service';
 import { DeleteUserAccountService } from '@core/service/user/delete_user_account.service';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { SearchUsersService } from '@core/service/user/search_users.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -39,6 +40,11 @@ const use_case_providers: Array<Provider> = [
   {
     provide: UserDITokens.UpdateUserAccountInteractor,
     useFactory: (gateway) => new UpdateUserAccountService(gateway),
+    inject: [UserDITokens.UserRepository]
+  },
+  {
+    provide: UserDITokens.SearchUsersInteractor,
+    useFactory: (gateway) => new SearchUsersService(gateway),
     inject: [UserDITokens.UserRepository]
   }
 ];
