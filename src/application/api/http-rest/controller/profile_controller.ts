@@ -1,7 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Post, Put, Query } from '@nestjs/common';
 import { ValidationPipe } from '@application/api/http-rest/profile/pipes/validation.pipe';
 import { CreateProfileDto } from '@application/api/http-rest/profile/dtos/http_create_profile.dto';
-import { Public } from '@application/api/http-rest/authentication/decorator/public';
 import { EditProfileAdapter } from '@infrastructure/adapter/use-case/profile/edit_profile.adapter';
 import { CreateProfileAdapter } from '@infrastructure/adapter/use-case/profile/create_profile.adapter';
 import { GetProfileAdapter } from '@infrastructure/adapter/use-case/profile/get_profile.adapter';
@@ -29,7 +28,6 @@ export class ProfileController {
   }
 
   @Post()
-  @Public()
   @HttpCode(HttpStatus.CREATED)
   public async createProfile(@Body(new ValidationPipe()) body: CreateProfileDto) {
     try {
@@ -56,7 +54,6 @@ export class ProfileController {
   }
 
   @Get()
-  @Public()
   @HttpCode(HttpStatus.OK)
   public async getProfile(@Query() queryParams): Promise<ProfileDTO> {
     if (Object.keys(queryParams).length === 0) {
@@ -85,7 +82,6 @@ export class ProfileController {
   }
 
   @Put()
-  @Public()
   @HttpCode(HttpStatus.ACCEPTED)
   public async editProfile(@Body(new ValidationPipe()) body: Partial<CreateProfileDto>) {
     if (Object.keys(body).length === 0) {

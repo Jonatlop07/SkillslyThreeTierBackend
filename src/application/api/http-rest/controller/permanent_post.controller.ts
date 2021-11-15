@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Get,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -13,14 +13,19 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
+import { Public } from '@application/api/http-rest/authentication/decorator/public';
 import { CreatePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/create_permanent_post.adapter';
+import { QueryPermanentPostAdapter } from '@infrastructure/adapter/use-case/post/query_permanent_post.adapter';
+import { QueryPermanentPostCollectionAdapter } from '@infrastructure/adapter/use-case/post/query_permanent_post_collection.adapter';
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
 import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/update_permanent_post.interactor';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import {
   EmptyPermanentPostContentException,
-  NonExistentPermanentPostException
+  NonExistentPermanentPostException, NonExistentUserException
 } from '@core/domain/post/use-case/exception/permanent_post.exception';
+import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post_collection.interactor';
+import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
 
 @Controller('permanent-posts')
 @ApiTags('permanent-post')
@@ -31,9 +36,12 @@ export class PermanentPostController {
     @Inject(PostDITokens.CreatePermanentPostInteractor)
     private readonly create_permanent_post_interactor: CreatePermanentPostInteractor,
     @Inject(PostDITokens.UpdatePermanentPostInteractor)
-    private readonly update_permanent_post_interactor: UpdatePermanentPostInteractor
-  ) {
-  }
+    private readonly update_permanent_post_interactor: UpdatePermanentPostInteractor,
+    @Inject(PostDITokens.QueryPermanentPostCollectionInteractor)
+    private readonly query_permanent_post_collection_interactor: QueryPermanentPostCollectionInteractor,
+    @Inject(PostDITokens.QueryPermanentPostInteractor)
+    private readonly query_permanent_post_interactor: QueryPermanentPostInteractor
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -95,6 +103,49 @@ export class PermanentPostController {
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         error: 'Internal server error'
       }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Public()
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  public async queryPermanentPostCollection(@Body() body){
+    try {
+      return await this.query_permanent_post_collection_interactor.execute(
+        await QueryPermanentPostCollectionAdapter.new({
+          user_id: body.user_id
+        })
+      );
+    } catch (e){
+      this.logger.error(e.stack);
+      if (e instanceof NonExistentUserException) {
+        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
+  @Public()
+  @Get(':post_id')
+  @HttpCode(HttpStatus.OK)
+  public async queryPermanentPost(@Param('post_id') post_id: string, @Body() body){
+    try {
+      return await this.query_permanent_post_interactor.execute(
+        await QueryPermanentPostAdapter.new({
+          user_id: body.user_id,
+          id: post_id
+        })
+      );
+    } catch (e){
+      this.logger.error(e.stack);
+      if (e instanceof NonExistentUserException) {
+        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
+      }
+      if (e instanceof NonExistentPermanentPostException) {
+        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts'}, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

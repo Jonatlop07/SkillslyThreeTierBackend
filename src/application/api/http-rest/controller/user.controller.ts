@@ -147,6 +147,5 @@ export class UserController {
         error: 'Internal database error'
       }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
   }
 }

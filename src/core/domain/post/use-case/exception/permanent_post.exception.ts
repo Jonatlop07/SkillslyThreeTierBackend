@@ -4,8 +4,11 @@ class EmptyPermanentPostContentException extends PermanentPostException {}
 
 class NonExistentPermanentPostException extends PermanentPostException {}
 
+class NonExistentUserException extends PermanentPostException {}
+
 export {
   PermanentPostException,
   EmptyPermanentPostContentException,
-  NonExistentPermanentPostException
+  NonExistentPermanentPostException,
+  NonExistentUserException
 };
