@@ -44,9 +44,12 @@ export class UserInMemoryRepository implements UserRepository {
     throw new Error('Method not implemented.');
   }
 
-  public findAll(param: any): Promise<UserDTO[]> {
-    param;
-    throw new Error('Method not implemented.');
+  public findAll(params: any): Promise<Array<UserDTO>>{
+    const response_users: Array<UserDTO> = [];
+    for (const _user of this.users.values())
+      if (_user.email === params.email || _user.name === params.name)
+        response_users.push(_user);
+    return Promise.resolve(response_users);
   }
 
   public update(user: UserDTO): Promise<UserDTO> {

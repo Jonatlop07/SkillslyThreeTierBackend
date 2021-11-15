@@ -5,8 +5,8 @@ import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constan
 import { Optional } from '@core/common/type/common_types';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
+import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
 import * as moment from 'moment';
-import userQuery_model from '@core/domain/user/use-case/query-model/user.query_model';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -14,12 +14,26 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
 
   constructor(private readonly neo4j_service: Neo4jService) {}
 
-  public findAll(params: userQuery_model): Promise<UserDTO[]> {
-    params;
-    throw new Error('Method not implemented.');
+  public async findAll(params: UserQueryModel): Promise<Array<UserDTO>> {
+    const { email, name } = params;
+    const user_key = 'user';
+    const find_user_query = `
+      MATCH (${user_key}: User)
+      WHERE ${user_key}.email = '${email}' OR ${user_key}.name = '${name}' 
+      RETURN ${user_key}
+    `;
+    return await this.neo4j_service.read(
+      find_user_query,
+      {}
+    ).then(
+      (result: QueryResult) =>
+        result.records.map(
+          (record:any) => record._fields[0].properties
+        )
+    );
   }
 
-  public findOne(params: userQuery_model): Promise<UserDTO> {
+  public findOne(params: UserQueryModel): Promise<UserDTO> {
     params;
     throw new Error('Method not implemented.');
   }

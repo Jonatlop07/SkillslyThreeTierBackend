@@ -17,11 +17,13 @@ import { Public } from '@application/api/http-rest/authentication/decorator/publ
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { CreateUserAccountAdapter } from '@infrastructure/adapter/use-case/user/create_user_account.adapter';
+import { SearchUsersAdapter } from '@infrastructure/adapter/use-case/user/search_users.adapter';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/interactor/update_user_account.interactor';
 import { QueryUserAccountInteractor } from '@core/domain/user/use-case/interactor/query_user_account.interactor';
 import { DeleteUserAccountInteractor } from '@core/domain/user/use-case/interactor/delete_user_account.interactor';
+import { SearchUsersInteractor } from '@core/domain/user/use-case/interactor/search_users.interactor';
 import {
   UserAccountAlreadyExistsException,
   UserAccountInvalidDataFormatException
@@ -40,7 +42,9 @@ export class UserController {
     @Inject(UserDITokens.QueryUserAccountInteractor)
     private readonly query_user_account_interactor: QueryUserAccountInteractor,
     @Inject(UserDITokens.DeleteUserAccountInteractor)
-    private readonly delete_user_account_interactor: DeleteUserAccountInteractor
+    private readonly delete_user_account_interactor: DeleteUserAccountInteractor,
+    @Inject(UserDITokens.SearchUsersInteractor)
+    private readonly search_users_interactor: SearchUsersInteractor,
   ) {}
 
   @Public()
@@ -147,5 +151,16 @@ export class UserController {
         error: 'Internal database error'
       }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  public async searchUsers(@Body() body) {
+    return await this.search_users_interactor.execute(
+      await SearchUsersAdapter.new({
+        email: body.email,
+        name: body.name
+      })
+    );
   }
 }
