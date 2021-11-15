@@ -2,9 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { QueryResult } from 'neo4j-driver';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
-import { Optional } from '@core/common/type/common_types';
 import PermanentPostRepository from '@core/domain/post/use-case/repository/permanent_post.repository';
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
+import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
+import { Optional } from '@core/common/type/common_types';
 import * as moment from 'moment';
 
 @Injectable()
@@ -48,7 +49,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     };
   }
 
-  async update(post: PermanentPostDTO): Promise<PermanentPostDTO> {
+  public async update(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const content = post.content.map((content_element) => {
       return JSON.stringify(content_element);
     });
@@ -77,7 +78,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     };
   }
 
-  async findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
+  public async findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
     const user_key = 'user';
     const post_key = 'post';
     const user_id_key = 'user_id';
@@ -100,5 +101,42 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
       created_at: post.created_at,
       updated_at: post.updated_at
     };
+  }
+
+  public async findOne( params: PermanentPostQueryModel ): Promise<PermanentPostDTO> {
+    const { user_id, post_id } = params;
+    const user_key = 'user';
+    const post_key = 'post';
+    const find_post_query = `
+      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: Post)
+      WHERE ${user_key}.user_id = ${user_id}
+      AND ${post_key}.post_id = ${post_id}
+      RETURN ${post_key}
+    `;
+    return this.neo4j_service.getSingleResultProperties(
+      await this.neo4j_service.read(find_post_query, {}),
+      post_key
+    );
+  }
+
+  public async findAll( params: PermanentPostQueryModel ): Promise<PermanentPostDTO[]> {
+    const { user_id } = params;
+    const user_key = 'user';
+    const post_key = 'post';
+    const find_post_collection_query = `
+      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: Post)
+      WHERE ${user_key}.user_id = ${user_id}
+      RETURN ${post_key}
+    `;
+    return await this.neo4j_service
+      .read(
+        find_post_collection_query,
+        {}
+      ).then(
+        (result: QueryResult) =>
+          result.records.map(
+            (record:any) => record._fields[0].properties
+          )
+      );
   }
 }

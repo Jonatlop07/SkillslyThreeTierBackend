@@ -11,6 +11,8 @@ import { CreateProfileService } from '@core/service/profile/create_profile.servi
 import { GetProfileService } from '@core/service/profile/get_profile.service';
 import { EditProfileService } from '@core/service/profile/edit_profile.service';
 import { CreatePermanentPostService } from '@core/service/post/create_permanent_post.service';
+import { QueryPermanentPostService } from '@core/service/post/query_permanent_post.service';
+import { QueryPermanentPostCollectionService } from '@core/service/post/query_permanent_post_collection.service';
 import { UpdatePermanentPostService } from '@core/service/post/update_permanent_post.service';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
@@ -63,6 +65,16 @@ export async function createTestModule() {
         provide: PostDITokens.CreatePermanentPostInteractor,
         useFactory: (gateway) => new CreatePermanentPostService(gateway),
         inject: [PostDITokens.PermanentPostRepository]
+      },
+      {
+        provide: PostDITokens.QueryPermanentPostInteractor,
+        useFactory: (post_gateway, user_gateway) => new QueryPermanentPostService(post_gateway, user_gateway),
+        inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: PostDITokens.QueryPermanentPostCollectionInteractor,
+        useFactory: (post_gateway, user_gateway) => new QueryPermanentPostCollectionService(post_gateway, user_gateway),
+        inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
       },
       {
         provide: PostDITokens.UpdatePermanentPostInteractor,

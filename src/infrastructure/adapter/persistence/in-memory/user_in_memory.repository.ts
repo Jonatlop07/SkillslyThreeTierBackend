@@ -2,6 +2,7 @@ import { Optional } from '@core/common/type/common_types';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import * as moment from 'moment';
+import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
 
 export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
@@ -10,7 +11,7 @@ export class UserInMemoryRepository implements UserRepository {
     this.currently_available_user_id = '1';
   }
 
-  create(user: UserDTO): Promise<UserDTO> {
+  public create(user: UserDTO): Promise<UserDTO> {
     const new_user: UserDTO = {
       user_id: this.currently_available_user_id,
       email: user.email,
@@ -24,21 +25,31 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve(new_user);
   }
 
-  exists(user: UserDTO): Promise<boolean> {
+  public exists(user: UserDTO): Promise<boolean> {
     for (const _user of this.users.values())
       if (_user.email === user.email)
         return Promise.resolve(true);
     return Promise.resolve(false);
   }
 
-  findOneByParam(param: string, value: any): Promise<Optional<UserDTO>> {
+  public findOneByParam(param: string, value: any): Promise<Optional<UserDTO>> {
     for (const _user of this.users.values())
       if (_user[param] === value)
         return Promise.resolve(_user);
     return Promise.resolve(undefined);
   }
 
-  update(user: UserDTO): Promise<UserDTO> {
+  public findOne(params: UserQueryModel): Promise<UserDTO> {
+    params;
+    throw new Error('Method not implemented.');
+  }
+
+  public findAll(param: any): Promise<UserDTO[]> {
+    param;
+    throw new Error('Method not implemented.');
+  }
+
+  public update(user: UserDTO): Promise<UserDTO> {
     const user_to_update: UserDTO = {
       user_id: user.user_id,
       password: user.password,
@@ -51,14 +62,14 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve(user_to_update);
   }
 
-  queryById(id: string): Promise<Optional<UserDTO>> {
+  public queryById(id: string): Promise<Optional<UserDTO>> {
     for (const _user of this.users.values())
       if (_user.user_id === id)
         return Promise.resolve(_user);
     return Promise.resolve(undefined);
   }
 
-  deleteById(id: string): Promise<UserDTO> {
+  public deleteById(id: string): Promise<UserDTO> {
     const user_to_delete = this.users.get(id);
     this.users.delete(id);
     return Promise.resolve(user_to_delete);
