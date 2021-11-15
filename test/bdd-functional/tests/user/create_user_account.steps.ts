@@ -1,15 +1,14 @@
 import { loadFeature, defineFeature } from 'jest-cucumber';
-import { Test, TestingModule } from '@nestjs/testing';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import CreateUserAccountOutputModel from '@core/domain/user/use-case/output-model/create_user_account.output_model';
-import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import {
-  CreateUserAccountException,
-  CreateUserAccountInvalidDataFormatException,
-  CreateUserAccountAlreadyExistsException
-} from '@core/service/user/create_user_account.exception';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import {
+  UserAccountAlreadyExistsException,
+  UserAccountException,
+  UserAccountInvalidDataFormatException
+} from '@core/domain/user/use-case/exception/user_account.exception';
 
 const feature = loadFeature('test/bdd-functional/features/user/create_user_account.feature');
 
@@ -19,31 +18,36 @@ defineFeature(feature, (test) => {
   let name: string;
   let date_of_birth;
 
-  let create_user_account_service: CreateUserAccountService;
+  let create_user_account_interactor: CreateUserAccountInteractor;
   let output: CreateUserAccountOutputModel;
-  let exception: CreateUserAccountException = undefined;
+  let exception: UserAccountException = undefined;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
-      output = await create_user_account_service.execute(input);
+      output = await create_user_account_interactor.execute(input);
     } catch (e) {
       exception = e;
     }
   }
 
   function givenUserProvidesCredentials(given) {
-    given(/^the user provides the credentials: "([^"]*)" and "([^"]*)"$/,
+    given(
+      /^the user provides the credentials: "([^"]*)" and "([^"]*)"$/,
       (input_email: string, input_password: string) => {
         email = input_email;
         password = input_password;
-      });
+      },
+    );
   }
 
   function andUserProvidesDataOfAccount(and) {
-    and(/^the data of the account to create: "([^"]*)", "([^"]*)"$/, (input_name, input_date_of_birth) => {
-      name = input_name;
-      date_of_birth = input_date_of_birth;
-    });
+    and(
+      /^the data of the account to create: "([^"]*)", "([^"]*)"$/,
+      (input_name, input_date_of_birth) => {
+        name = input_name;
+        date_of_birth = input_date_of_birth;
+      },
+    );
   }
 
   function whenUserTriesToCreateAccount(when) {
@@ -52,30 +56,14 @@ defineFeature(feature, (test) => {
         email,
         password,
         name,
-        date_of_birth
+        date_of_birth,
       });
     });
   }
 
-  beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: UserDITokens.CreateUserAccountInteractor,
-          useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map())
-        },
-      ]
-    }).compile();
-
-    create_user_account_service = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
-  });
-
-  beforeEach(() => {
+  beforeEach(async () => {
+    const module = await createTestModule();
+    create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
     exception = undefined;
   });
 
@@ -84,43 +72,57 @@ defineFeature(feature, (test) => {
       givenUserProvidesCredentials(given);
       andUserProvidesDataOfAccount(and);
       whenUserTriesToCreateAccount(when);
-
-      then('an account is then created with user information and login credentials', () => {
-        const expected_output: CreateUserAccountOutputModel = { email };
-        expect(output).toBeDefined();
-        expect(output.email).toEqual(expected_output.email);
-      });
-    });
+      then(
+        'an account is then created with user information and login credentials: id and email are returned',
+        () => {
+          const expected_output: CreateUserAccountOutputModel = {
+            id: '1',
+            email,
+          };
+          expect(output).toBeDefined();
+          expect(output.id).toEqual(expected_output.id);
+          expect(output.email).toEqual(expected_output.email);
+        },
+      );
+    }
+  );
 
   test('A user attempts to create an account with the credentials and data in an invalid format',
     ({ given, and, when, then }) => {
       givenUserProvidesCredentials(given);
       andUserProvidesDataOfAccount(and);
       whenUserTriesToCreateAccount(when);
-
-      then('an error occurs: the credentials and data provided by the user are in an invalid format', () => {
-        expect(exception).toBeInstanceOf(CreateUserAccountInvalidDataFormatException);
-      });
-    });
+      then(
+        'an error occurs: the credentials and data provided by the user are in an invalid format',
+        () => {
+          expect(exception).toBeInstanceOf(UserAccountInvalidDataFormatException);
+        },
+      );
+    }
+  );
 
   test('A user fails to create an account because there already exists an account with the email provided',
     ({ given, and, when, then }) => {
       givenUserProvidesCredentials(given);
       andUserProvidesDataOfAccount(and);
-
-      and('there already exists an account identified by the email provided by the user', async () => {
-        await createUserAccount({
-          email,
-          password,
-          name,
-          date_of_birth
-        });
-      });
-
+      and(
+        'there already exists an account identified by the email provided by the user',
+        async () => {
+          await createUserAccount({
+            email,
+            password,
+            name,
+            date_of_birth,
+          });
+        },
+      );
       whenUserTriesToCreateAccount(when);
-
-      then('an error occurs: an account with the email provided by the user already exists', () => {
-        expect(exception).toBeInstanceOf(CreateUserAccountAlreadyExistsException);
-      });
-    });
+      then(
+        'an error occurs: an account with the email provided by the user already exists',
+        () => {
+          expect(exception).toBeInstanceOf(UserAccountAlreadyExistsException);
+        },
+      );
+    }
+  );
 });

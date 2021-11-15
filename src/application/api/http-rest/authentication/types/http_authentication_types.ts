@@ -13,5 +13,6 @@ export type HttpJwtPayload = {
 
 export type HttpLoggedInUser = {
   id: string,
+  email: string,
   access_token: string,
 };

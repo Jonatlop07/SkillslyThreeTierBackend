@@ -1,6 +1,6 @@
-import SearchUsersInputModel from '@core/domain/user/input-model/search_users.input_model';
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsEmail, IsString } from 'class-validator';
+import SearchUsersInputModel from '@core/domain/user/use-case/input-model/search_users.input_model';
 
 @Exclude()
 export class SearchUsersAdapter implements SearchUsersInputModel {

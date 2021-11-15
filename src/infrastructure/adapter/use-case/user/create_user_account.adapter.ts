@@ -1,10 +1,9 @@
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsEmail, IsString } from 'class-validator';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 
 @Exclude()
 export class CreateUserAccountAdapter implements CreateUserAccountInputModel {
-
   @Expose()
   @IsEmail()
   public email: string;

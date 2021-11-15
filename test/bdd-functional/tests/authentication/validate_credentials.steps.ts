@@ -1,55 +1,58 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import { Test, TestingModule } from '@nestjs/testing';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
-import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/user_in_memory.repository';
-import {
-  ValidateCredentialsException,
-  ValidateCredentialsInvalidCredentialsException,
-  ValidateCredentialsNonExistentAccountException
-} from '@core/service/user/validate_credentials.exception';
 import { ValidateCredentialsService } from '@core/service/user/validate_credentials.service';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import ValidateCredentialsOutputModel from '@core/domain/user/use-case/output-model/validate_credentials.output_model';
+import {
+  UserAccountException,
+  UserAccountInvalidCredentialsException,
+  UserAccountNotFoundException
+} from '@core/domain/user/use-case/exception/user_account.exception';
 
-const feature = loadFeature('test/bdd-functional/features/authentication/validate_credentials.feature');
+const feature = loadFeature(
+  'test/bdd-functional/features/authentication/validate_credentials.feature',
+);
 
 defineFeature(feature, (test) => {
   let email: string;
   let password: string;
 
-  let create_user_account_service: CreateUserAccountService;
+  let create_user_account_interactor: CreateUserAccountService;
   let validate_credentials_service: ValidateCredentialsService;
   let output: ValidateCredentialsOutputModel;
-  let exception: ValidateCredentialsException;
+  let exception: UserAccountException;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
-      await create_user_account_service.execute(input);
+      await create_user_account_interactor.execute(input);
     } catch (e) {
       console.log(e);
     }
   }
 
   function givenUserProvidesCredentials(given) {
-    given(/^a user provides the credentials: "([^"]*)" and "([^"]*)"$/,
+    given(
+      /^a user provides the credentials: "([^"]*)" and "([^"]*)"$/,
       (provided_email: string, provided_password: string) => {
         email = provided_email;
         password = provided_password;
-      }
+      },
     );
   }
 
   function andAccountExists(and) {
-    and(/^an account exist with credentials: "([^"]*)" and "([^"]*)"$/,
+    and(
+      /^an account exist with credentials: "([^"]*)" and "([^"]*)"$/,
       async (email, password) => {
         await createUserAccount({
           email,
           password,
           name: 'User',
-          date_of_birth: '01/01/2000'
+          date_of_birth: '01/01/2000',
         });
-      }
+      },
     );
   }
 
@@ -67,27 +70,8 @@ defineFeature(feature, (test) => {
   }
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-
-        {
-          provide: UserDITokens.CreateUserAccountInteractor,
-          useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map())
-        },
-        {
-          provide: UserDITokens.ValidateCredentialsInteractor,
-          useFactory: (gateway) => new ValidateCredentialsService(gateway),
-          inject: [UserDITokens.UserRepository]
-        }
-      ]
-    }).compile();
-
-    create_user_account_service = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
+    const module = await createTestModule();
+    create_user_account_interactor = module.get<CreateUserAccountService>(UserDITokens.CreateUserAccountInteractor);
     validate_credentials_service = module.get<ValidateCredentialsService>(UserDITokens.ValidateCredentialsInteractor);
     exception = undefined;
   });
@@ -97,7 +81,6 @@ defineFeature(feature, (test) => {
       givenUserProvidesCredentials(given);
       andAccountExists(and);
       whenUserTriesToValidateTheirCredentials(when);
-
       then('the user gets the id of their account', () => {
         expect(output).toBeDefined();
         expect(output.id).toBeDefined();
@@ -110,10 +93,12 @@ defineFeature(feature, (test) => {
       givenUserProvidesCredentials(given);
       andAccountExists(and);
       whenUserTriesToValidateTheirCredentials(when);
-
-      then('an error occurs: the credentials provided by the user are not valid', () => {
-        expect(exception).toBeInstanceOf(ValidateCredentialsInvalidCredentialsException);
-      });
+      then(
+        'an error occurs: the credentials provided by the user are not valid',
+        () => {
+          expect(exception).toBeInstanceOf(UserAccountInvalidCredentialsException);
+        },
+      );
     }
   );
 
@@ -121,10 +106,14 @@ defineFeature(feature, (test) => {
     ({ given, when, then }) => {
       givenUserProvidesCredentials(given);
       whenUserTriesToValidateTheirCredentials(when);
-
-      then('an error occurs: the email provided by the user does not match an account', () => {
-        expect(exception).toBeInstanceOf(ValidateCredentialsNonExistentAccountException);
-      });
+      then(
+        'an error occurs: the email provided by the user does not match an account',
+        () => {
+          expect(exception).toBeInstanceOf(
+            UserAccountNotFoundException,
+          );
+        },
+      );
     }
   );
 });

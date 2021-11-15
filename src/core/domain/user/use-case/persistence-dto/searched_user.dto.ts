@@ -1,4 +1,4 @@
 export interface SearchedUserDTO {
-  email: string, 
+  email: string,
   name: string
 }

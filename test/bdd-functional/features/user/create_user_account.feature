@@ -4,7 +4,7 @@ Feature: Create user account
     Given the user provides the credentials: "<Email>" and "<Password>"
     And the data of the account to create: "<Name>", "<DateOfBirth>"
     When the user tries to create an account
-    Then an account is then created with user information and login credentials
+    Then an account is then created with user information and login credentials: id and email are returned
 
     Examples:
       | Email                | Password  | Name | DateOfBirth |
