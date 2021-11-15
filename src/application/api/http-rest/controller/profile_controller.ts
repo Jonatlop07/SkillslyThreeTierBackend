@@ -89,7 +89,7 @@ export class ProfileController {
         status: HttpStatus.BAD_REQUEST,
         error: 'Request cannot be empty',
       }, HttpStatus.BAD_REQUEST);
-    } else if (Object.keys(body).length === 1 && Object.keys(body)[0] === 'userEmail') {
+    } else if (Object.keys(body).length === 1 && Object.keys(body)[0] === 'user_email') {
       throw new HttpException({
         status: HttpStatus.BAD_REQUEST,
         error: 'You must provide profile data to edit',
