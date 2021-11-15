@@ -1,27 +1,26 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import { Test, TestingModule } from '@nestjs/testing';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
-import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import { QueryUserAccountService } from '@core/service/user/query_user_account.service';
-import { DeleteUserAccountService } from '@core/service/user/delete_user_account.service';
-import { UserAccountException, UserNotFoundException } from '@core/service/user/user_account.exception';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
-import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
-import { DeleteUserAccountInteractor } from '@core/domain/user/use-case/delete_user_account.interactor';
-import { QueryUserAccountInteractor } from '@core/domain/user/use-case/query_user_account.interactor';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import { DeleteUserAccountInteractor } from '@core/domain/user/use-case/interactor/delete_user_account.interactor';
+import { QueryUserAccountInteractor } from '@core/domain/user/use-case/interactor/query_user_account.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import {
+  UserAccountException,
+  UserAccountNotFoundException
+} from '@core/domain/user/use-case/exception/user_account.exception';
 
 const feature = loadFeature('test/bdd-functional/features/user/delete_user_account.feature');
 
 defineFeature(feature, (test) => {
-  let user_id: string;
-
   const user_mock: CreateUserAccountInputModel = {
     email: 'newuser_123@test.com',
     password: 'Abc123_tr',
     name: 'Juan',
     date_of_birth: '01/01/2000'
   };
+
+  let user_id: string;
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let delete_user_account_interactor: DeleteUserAccountInteractor;
@@ -60,35 +59,12 @@ defineFeature(feature, (test) => {
       } catch (e) {
         exception = e;
       }
-      expect(exception).toBeInstanceOf(UserNotFoundException);
+      expect(exception).toBeInstanceOf(UserAccountNotFoundException);
     });
   }
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: UserDITokens.CreateUserAccountInteractor,
-          useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.DeleteUserAccountInteractor,
-          useFactory: (gateway) => new DeleteUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.QueryUserAccountInteractor,
-          useFactory: (gateway) => new QueryUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository]
-        },
-        {
-          provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map())
-        }
-      ]
-    }).compile();
-
+    const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
     delete_user_account_interactor = module.get<DeleteUserAccountInteractor>(UserDITokens.DeleteUserAccountInteractor);
     query_user_account_interactor = module.get<QueryUserAccountInteractor>(UserDITokens.QueryUserAccountInteractor);

@@ -1,7 +1,7 @@
-import { PermanentPostContentElement } from '../../entity/type/permanent_post_content_element';
+import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_post_content_element';
 
 export default interface QueryPermanentPostOutputModel {
   post_id: string;
   user_id: string;
-  content: PermanentPostContentElement[];
+  content: Array<PermanentPostContentElement>;
 }

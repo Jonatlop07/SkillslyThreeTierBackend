@@ -9,7 +9,7 @@ import { UserNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/
 import { QueryPermanentPostCollectionService } from '@core/service/post/query_permanent_post_collection.service';
 import { QueryPermanentPostService } from '@core/service/post/query_permanent_post.service';
 
-const persistence_providers: Provider[] = [
+const persistence_providers: Array<Provider> = [
   {
     provide: PostDITokens.PermanentPostRepository,
     useClass: PermanentPostNeo4jRepositoryAdapter
@@ -20,7 +20,7 @@ const persistence_providers: Provider[] = [
   }
 ];
 
-const use_case_providers: Provider[] = [
+const use_case_providers: Array<Provider> = [
   {
     provide: PostDITokens.CreatePermanentPostInteractor,
     useFactory: (gateway) => new CreatePermanentPostService(gateway),
@@ -55,6 +55,4 @@ const use_case_providers: Provider[] = [
     PostDITokens.PermanentPostRepository
   ]
 })
-export class PostModule {
-
-}
+export class PostModule {}

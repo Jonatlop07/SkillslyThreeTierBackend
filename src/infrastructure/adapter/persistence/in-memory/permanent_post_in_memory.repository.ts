@@ -1,5 +1,5 @@
 import { Optional } from '@core/common/type/common_types';
-import PermanentPostRepository from '@core/domain/post/use-case/permanent_post.repository';
+import PermanentPostRepository from '@core/domain/post/use-case/repository/permanent_post.repository';
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
 import * as moment from 'moment';
@@ -11,28 +11,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     this.currently_available_post_id = '1';
   }
 
-  findAll(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
-    const user_posts: PermanentPostDTO[] = [];
-    for (const post of this.posts.values()){
-      if (Object.keys(params).every( (key: string) => {
-        return params[key] === post[key];
-      })){
-        user_posts.push(post);
-      }
-    }
-    return Promise.resolve(user_posts);
-  }
-
-  findOne(params: PermanentPostQueryModel): Promise<Optional<PermanentPostDTO>> {
-    for (const post of this.posts.values()){
-      if (Object.keys(params).every( (key: string) => params[key] === post[key])){
-        return Promise.resolve(post);
-      }
-    }
-    return Promise.resolve(undefined);
-  }
-  
-  create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
+  public create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const new_post: PermanentPostDTO = {
       post_id: this.currently_available_post_id,
       content: post.content,
@@ -44,14 +23,35 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve(new_post);
   }
 
-  findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
+  public findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
     for (const _post of this.posts.values())
       if (_post[param] === value)
         return Promise.resolve(_post);
     return Promise.resolve(undefined);
   }
 
-  update(post: PermanentPostDTO): Promise<PermanentPostDTO> {
+  public findAll(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
+    const user_posts: PermanentPostDTO[] = [];
+    for (const post of this.posts.values()){
+      if (Object.keys(params).every( (key: string) => {
+        return params[key] === post[key];
+      })){
+        user_posts.push(post);
+      }
+    }
+    return Promise.resolve(user_posts);
+  }
+
+  public findOne(params: PermanentPostQueryModel): Promise<Optional<PermanentPostDTO>> {
+    for (const post of this.posts.values()){
+      if (Object.keys(params).every( (key: string) => params[key] === post[key])){
+        return Promise.resolve(post);
+      }
+    }
+    return Promise.resolve(undefined);
+  }
+
+  public update(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const post_to_update: PermanentPostDTO = {
       post_id: post.post_id,
       content: post.content,

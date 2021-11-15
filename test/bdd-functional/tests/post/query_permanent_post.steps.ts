@@ -1,42 +1,44 @@
-import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_post_content_element';
-import QueryPermanentPostInputModel from '@core/domain/post/input-model/create_permanent_post.input_model';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/create_permanent_post.interactor';
-import CreatePermanentPostInputModel from '@core/domain/post/input-model/create_permanent_post.input_model';
-import QueryPermanentPostOutputModel from '@core/domain/post/use-case/output-model/query_permanent_post.output_model';
-import QueryPermanentPostCollectionOutputModel from '@core/domain/post/use-case/output-model/query_permanent_post_collection.output_model';
-import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import CreateUserAccountInputModel from '@core/domain/user/input-model/create_user_account.input_model';
-import { CreateUserAccountInteractor } from '@core/domain/user/use-case/create_user_account.interactor';
-import { CreatePermanentPostService } from '@core/service/post/create_permanent_post.service';
-import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
-import { PermanentPostInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/permanent_post_in_memory.repository';
-import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
-import { Test, TestingModule } from '@nestjs/testing';
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import { QueryPermanentPostException, QueryPermanentPostUnexistingPostException, QueryPermanentPostUnexistingUserException } from '@core/service/post/query_permanent_post.exception';
-import { QueryPermanentPostCollectionService } from '@core/service/post/query_permanent_post_collection.service';
-import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/query_permanent_post_collection.interactor';
-import { QueryPermanentPostService } from '@core/service/post/query_permanent_post.service';
-import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/query_permanent_post.interactor';
-import * as moment from 'moment';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
+import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
+import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post_collection.interactor';
+import QueryPermanentPostOutputModel from '@core/domain/post/use-case/output-model/query_permanent_post.output_model';
+import {
+  NonExistentPermanentPostException,
+  NonExistentUserException,
+  PermanentPostException
+} from '@core/domain/post/use-case/exception/permanent_post.exception';
+import CreatePermanentPostInputModel from '@core/domain/post/use-case/input-model/create_permanent_post.input_model';
+import QueryPermanentPostCollectionOutputModel
+  from '@core/domain/post/use-case/output-model/query_permanent_post_collection.output_model';
+import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_post_content_element';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
+import * as moment from 'moment';
 
 const feature = loadFeature(
   'test/bdd-functional/features/post/query_permanent_post.feature',
 );
 
 defineFeature(feature, (test) => {
-  let create_user_account_interactor: CreateUserAccountInteractor;
   let user_id: string;
-  let create_permanent_post_interactor:CreatePermanentPostInteractor;
   let owner_id: string;
-  let output: QueryPermanentPostOutputModel;
-  let created_post: CreatePermanentPostInputModel;
-  let output_collection: QueryPermanentPostCollectionOutputModel;
   let existing_post_id: string;
-  let exception: QueryPermanentPostException;
+
+  let create_user_account_interactor: CreateUserAccountInteractor;
+  let create_permanent_post_interactor:CreatePermanentPostInteractor;
   let query_permanent_post_interactor: QueryPermanentPostInteractor;
   let query_permanent_post_collection_interactor: QueryPermanentPostCollectionInteractor;
+
+  let output: QueryPermanentPostOutputModel;
+  let exception: PermanentPostException;
+
+  let created_post: CreatePermanentPostInputModel;
+  let output_collection: QueryPermanentPostCollectionOutputModel;
+
   const user_1 = {
     email: 'newuser_123@test.com',
     password: 'Abc123_tr',
@@ -51,9 +53,19 @@ defineFeature(feature, (test) => {
     date_of_birth: '02/01/2000',
   };
 
-  const cont1: PermanentPostContentElement = {description: 'this is first post', reference: 'https://www.gstatic.com/webp/gallery/1.jpg', reference_type: 'jpg'};
-  const cont2: PermanentPostContentElement = {reference: 'https://www.gstatic.com/webp/gallery/2.jpg', reference_type: 'jpg'};
-  const cont3: PermanentPostContentElement = {reference: 'https://www.gstatic.com/webp/gallery/4.jpg', reference_type: 'jpg'};
+  const cont1: PermanentPostContentElement = {
+    description: 'this is first post',
+    reference: 'https://www.gstatic.com/webp/gallery/1.jpg',
+    reference_type: 'jpg'
+  };
+  const cont2: PermanentPostContentElement = {
+    reference: 'https://www.gstatic.com/webp/gallery/2.jpg',
+    reference_type: 'jpg'
+  };
+  const cont3: PermanentPostContentElement = {
+    reference: 'https://www.gstatic.com/webp/gallery/4.jpg',
+    reference_type: 'jpg'
+  };
   const post1_content: PermanentPostContentElement[] = [cont1];
   const post2_content: PermanentPostContentElement[] = [cont2, cont3];
 
@@ -115,14 +127,13 @@ defineFeature(feature, (test) => {
     and(/^there exists a collection of posts that belongs to user "([^"]*)"$/,
       async (post_owner_id) => {
         owner_id = post_owner_id;
-        const posts: CreatePermanentPostInputModel[] = [{ content: post1_content, user_id: owner_id}, {content: post2_content, user_id: owner_id}];
-        await posts.forEach(async (post)=>{
-          try {
-            await createPost(post);
-          } catch (e){
-            console.log(e);
-          }
-        });
+        const posts: CreatePermanentPostInputModel[] = [
+          { content: post1_content, user_id: owner_id },
+          { content: post2_content, user_id: owner_id }
+        ];
+        for (const post of posts) {
+          await createPost(post);
+        }
       },
     );
   }
@@ -154,7 +165,6 @@ defineFeature(feature, (test) => {
           });
         } catch (e){
           exception = e;
-          console.log(e);
         }
       });
   }
@@ -168,45 +178,12 @@ defineFeature(feature, (test) => {
           });
         } catch (e){
           exception = e;
-          console.log(e);
         }
       });
   }
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: UserDITokens.CreateUserAccountInteractor,
-          useFactory: (gateway) => new CreateUserAccountService(gateway),
-          inject: [UserDITokens.UserRepository],
-        },
-        {
-          provide: UserDITokens.UserRepository,
-          useFactory: () => new UserInMemoryRepository(new Map()),
-        },
-        {
-          provide: PostDITokens.CreatePermanentPostInteractor,
-          useFactory: (gateway) => new CreatePermanentPostService(gateway),
-          inject: [PostDITokens.PermanentPostRepository],
-        },
-        {
-          provide: PostDITokens.QueryPermanentPostInteractor,
-          useFactory: (post_gateway, user_gateway) => new QueryPermanentPostService(post_gateway, user_gateway),
-          inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
-        },
-        {
-          provide: PostDITokens.QueryPermanentPostCollectionInteractor,
-          useFactory: (post_gateway, user_gateway) => new QueryPermanentPostCollectionService(post_gateway, user_gateway),
-          inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
-        },
-        {
-          provide: PostDITokens.PermanentPostRepository,
-          useFactory: () => new PermanentPostInMemoryRepository(new Map()),
-        },
-      ],
-    }).compile();
-
+    const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(
       UserDITokens.CreateUserAccountInteractor,
     );
@@ -222,102 +199,101 @@ defineFeature(feature, (test) => {
     exception = undefined;
   });
 
-  test('A logged in user tries to query a specific permanent post', ({
-    given,
-    and,
-    when,
-    then,
-  }) => {
-    givenAUserExists(given);
-    andPostIdentifiedByIdExists(and);
-    andUserProvidesIdOfThePostAndIdOfTheOwner(and);
-    whenUserTriesQueryAPost(when);
-    then(
-      'the post is then returned',
-      () => {
-        const expected_output: QueryPermanentPostInputModel = {
-          content: created_post.content,
-          user_id: created_post.user_id
-        };
-        expect(output).toBeDefined();
-        expect(output.content).toEqual(expected_output.content);
-      },
-    );
-  });
-
-  test('A logged in user tries to query the collection of permanent posts that belong to another user or himself', ({
-    given,
-    and,
-    when,
-    then,
-  }) => {
-    givenAUserExists(given);
-    andUserIdentifiedByIdExists(and);
-    andPostCollectionFromUserIdentifiedByIdExists(and);
-    andUserProvidesIdOfTheOwner(and);
-    whenUserTriesToQueryACollectionOfPosts(when);
-
-    then(
-      'the collection of posts is then returned',
-      () => {
-        const expected_output: QueryPermanentPostCollectionOutputModel = {
-          posts: [{post_id:'1', content: post1_content, user_id: owner_id, created_at: moment().format('YYYY/MM/DD HH:mm:ss')}, {post_id:'2', content: post2_content, user_id: owner_id, created_at: moment().format('YYYY/MM/DD HH:mm:ss')}]
-        };
-        expect(output_collection).toBeDefined();
-        expect(output_collection.posts).toEqual(expected_output.posts);
-      },
-    );
-  });
-
-  test('A logged in user tries to query the collection of permanent posts that belong to another user that does not exist', ({
-    given,
-    and,
-    when,
-    then,
-  }) => {
-    givenAUserExists(given);
-    andUserProvidesIdOfTheOwner(and);
-    whenUserTriesToQueryACollectionOfPosts(when);
-
-    then('an error occurs: the user with the provided id does not exist', () => {
-      expect(exception).toBeInstanceOf(
-        QueryPermanentPostUnexistingUserException
+  test('A logged in user tries to query a specific permanent post',
+    ({ given, and, when, then, }) => {
+      givenAUserExists(given);
+      andPostIdentifiedByIdExists(and);
+      andUserProvidesIdOfThePostAndIdOfTheOwner(and);
+      whenUserTriesQueryAPost(when);
+      then(
+        'the post is then returned',
+        () => {
+          const expected_output: QueryPermanentPostOutputModel = {
+            post_id: created_post.id,
+            content: created_post.content,
+            user_id: created_post.user_id
+          };
+          expect(output).toBeDefined();
+          expect(output.content).toEqual(expected_output.content);
+        },
       );
-    });
-  });
+    }
+  );
 
-  test('A logged in user tries to query a permanent post that does not exist', ({
-    given,
-    and,
-    when,
-    then,
-  }) => {
-    givenAUserExists(given);
-    andUserIdentifiedByIdExists(and);
-    andUserProvidesIdOfThePostAndIdOfTheOwner(and);
-    whenUserTriesQueryAPost(when);
+  test('A logged in user tries to query the collection of permanent posts that belong to another user or himself',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andUserIdentifiedByIdExists(and);
+      andPostCollectionFromUserIdentifiedByIdExists(and);
+      andUserProvidesIdOfTheOwner(and);
+      whenUserTriesToQueryACollectionOfPosts(when);
 
-    then('an error occurs: the post with the provided id does not exist', () => {
-      expect(exception).toBeInstanceOf(
-        QueryPermanentPostUnexistingPostException
+      then(
+        'the collection of posts is then returned',
+        () => {
+          const expected_output: QueryPermanentPostCollectionOutputModel = {
+            posts: [
+              {
+                post_id:'1',
+                content: post1_content,
+                user_id: owner_id,
+                created_at: moment().format('YYYY/MM/DD HH:mm:ss')
+              },
+              {
+                post_id:'2',
+                content: post2_content,
+                user_id: owner_id,
+                created_at: moment().format('YYYY/MM/DD HH:mm:ss')
+              }
+            ]
+          };
+          expect(output_collection).toBeDefined();
+          expect(output_collection.posts).toEqual(expected_output.posts);
+        },
       );
-    });
-  });
+    }
+  );
 
-  test('A logged in user tries to query a permanent post from a user that does not exist', ({
-    given,
-    and,
-    when,
-    then,
-  }) => {
-    givenAUserExists(given);
-    andUserProvidesIdOfThePostAndIdOfTheOwner(and);
-    whenUserTriesQueryAPost(when);
+  test('A logged in user tries to query the collection of permanent posts that belong to another user that does not exist',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andUserProvidesIdOfTheOwner(and);
+      whenUserTriesToQueryACollectionOfPosts(when);
 
-    then('an error occurs: the user with the provided id does not exist', () => {
-      expect(exception).toBeInstanceOf(
-        QueryPermanentPostUnexistingUserException
-      );
-    });
-  });
+      then('an error occurs: the user with the provided id does not exist', () => {
+        expect(exception).toBeInstanceOf(
+          NonExistentUserException
+        );
+      });
+    }
+  );
+
+  test('A logged in user tries to query a permanent post that does not exist',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andUserIdentifiedByIdExists(and);
+      andUserProvidesIdOfThePostAndIdOfTheOwner(and);
+      whenUserTriesQueryAPost(when);
+
+      then('an error occurs: the post with the provided id does not exist', () => {
+        expect(exception).toBeInstanceOf(
+          NonExistentPermanentPostException
+        );
+      });
+    }
+  );
+
+  test('A logged in user tries to query a permanent post from a user that does not exist',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andUserProvidesIdOfThePostAndIdOfTheOwner(and);
+      whenUserTriesQueryAPost(when);
+
+      then('an error occurs: the user with the provided id does not exist', () => {
+        expect(exception).toBeInstanceOf(
+          NonExistentUserException
+        );
+      });
+    }
+  );
 });

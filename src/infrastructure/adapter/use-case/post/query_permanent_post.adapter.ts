@@ -1,10 +1,9 @@
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsString } from 'class-validator';
-import QueryPermanentPostInputModel from '@core/domain/post/input-model/query_permanent_post.input_model';
+import QueryPermanentPostInputModel from '@core/domain/post/use-case/input-model/query_permanent_post.input_model';
 
 @Exclude()
 export class QueryPermanentPostAdapter implements QueryPermanentPostInputModel{
-
   @Expose()
   @IsString()
   public user_id: string;

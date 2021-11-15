@@ -2,6 +2,6 @@ import { PermanentPostContentElement } from './permanent_post_content_element';
 
 export type CreatePermanentPostEntityPayload = {
   id?: string;
-  content: PermanentPostContentElement[];
+  content: Array<PermanentPostContentElement>;
   user_id: string;
 };
