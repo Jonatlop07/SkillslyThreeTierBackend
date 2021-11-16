@@ -28,7 +28,7 @@ import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-ca
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
 
 @Controller('permanent-posts')
-@ApiTags('permanent-post')
+@ApiTags('permanent-posts')
 export class PermanentPostController {
   private readonly logger: Logger = new Logger(PermanentPostController.name);
 
