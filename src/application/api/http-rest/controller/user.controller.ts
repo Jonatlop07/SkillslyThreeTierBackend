@@ -10,7 +10,8 @@ import {
   Logger,
   Param,
   Post,
-  Put
+  Put,
+  Query
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
@@ -155,11 +156,11 @@ export class UserController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  public async searchUsers(@Body() body) {
+  public async searchUsers(@Query() params) {
     return await this.search_users_interactor.execute(
       await SearchUsersAdapter.new({
-        email: body.email,
-        name: body.name
+        email: params['email'],
+        name: params['name']
       })
     );
   }
