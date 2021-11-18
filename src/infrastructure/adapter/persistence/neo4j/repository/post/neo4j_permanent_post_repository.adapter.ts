@@ -84,8 +84,8 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     const user_id_key = 'user_id';
     const formatted_value = typeof value === 'string' || value instanceof String ? `'${value}'` : value;
     const find_user_query = `
-      MATCH (${post_key}: PermanentPost { ${param}: ${formatted_value} }),
-      (${user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key})
+      MATCH (${post_key}:PermanentPost { ${param}: ${formatted_value} }),
+      (${user_key}:User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}:PermanentPost)
       RETURN ${post_key}, ${user_key} AS ${user_id_key}
     `;
     const result: QueryResult = await this.neo4j_service.read(
@@ -94,13 +94,17 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     );
     const post = this.neo4j_service.getSingleResultProperties(result, post_key);
     const user_id = result.records[0]?.get(user_id_key);
-    return {
+    if (!post){
+      return undefined;
+    }
+    const postToReturn = {
       post_id: post.post_id,
       content: post.content,
       user_id,
       created_at: post.created_at,
       updated_at: post.updated_at
     };
+    return postToReturn;
   }
 
   public async findOne( params: PermanentPostQueryModel ): Promise<PermanentPostDTO> {

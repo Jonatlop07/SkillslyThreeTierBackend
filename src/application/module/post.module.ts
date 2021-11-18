@@ -8,6 +8,9 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { UserNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/user/neo4j_user_repository.adapter';
 import { QueryPermanentPostCollectionService } from '@core/service/post/query_permanent_post_collection.service';
 import { QueryPermanentPostService } from '@core/service/post/query_permanent_post.service';
+import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
+import { ReactionNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/reaction/neo4j_reaction_repository.adapter';
+import { AddReactionService } from '@core/service/reaction/add_reaction.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -17,6 +20,10 @@ const persistence_providers: Array<Provider> = [
   {
     provide: UserDITokens.UserRepository,
     useClass: UserNeo4jRepositoryAdapter
+  },
+  {
+    provide: ReactionDITokens.ReactionRepository,
+    useClass: ReactionNeo4jRepositoryAdapter
   }
 ];
 
@@ -40,7 +47,12 @@ const use_case_providers: Array<Provider> = [
     provide: PostDITokens.QueryPermanentPostInteractor,
     useFactory: (post_gateway, user_gateway) => new QueryPermanentPostService(post_gateway, user_gateway),
     inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
-  }
+  },
+  {
+    provide: ReactionDITokens.AddReactionInteractor,
+    useFactory: (reaction_gateway, post_gateway) => new AddReactionService(reaction_gateway, post_gateway),
+    inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository]
+  },
 ];
 
 @Module({
@@ -52,7 +64,8 @@ const use_case_providers: Array<Provider> = [
     ...use_case_providers
   ],
   exports: [
-    PostDITokens.PermanentPostRepository
+    PostDITokens.PermanentPostRepository,
+    ReactionDITokens.ReactionRepository
   ]
 })
 export class PostModule {}

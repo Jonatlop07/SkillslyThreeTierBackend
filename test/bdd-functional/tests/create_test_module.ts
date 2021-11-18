@@ -18,6 +18,9 @@ import { UpdatePermanentPostService } from '@core/service/post/update_permanent_
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
+import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
+import { AddReactionService } from '@core/service/reaction/add_reaction.service';
+import { ReactionInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/reaction_in_memory.repository';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -88,6 +91,11 @@ export async function createTestModule() {
         inject: [PostDITokens.PermanentPostRepository]
       },
       {
+        provide: ReactionDITokens.AddReactionInteractor,
+        useFactory: (gateway, post_gateway) => new AddReactionService(gateway, post_gateway),
+        inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository]
+      },
+      {
         provide: UserDITokens.UserRepository,
         useFactory: () => new UserInMemoryRepository(new Map()),
       },
@@ -98,7 +106,11 @@ export async function createTestModule() {
       {
         provide: PostDITokens.PermanentPostRepository,
         useFactory: () => new PermanentPostInMemoryRepository(new Map())
-      }
+      },
+      {
+        provide: ReactionDITokens.ReactionRepository,
+        useFactory: () => new ReactionInMemoryRepository(new Map()),
+      },
     ],
   }).compile();
 }
