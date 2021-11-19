@@ -78,6 +78,10 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     };
   }
 
+  public async share(){
+    
+  }
+
   public async findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
     const user_key = 'user';
     const post_key = 'post';

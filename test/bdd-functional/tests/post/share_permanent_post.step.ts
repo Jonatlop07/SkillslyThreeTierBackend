@@ -1,6 +1,8 @@
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
+import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
+import SharePermanentPostOutputModel from '@core/domain/post/use-case/output-model/share_permanent_post.output_model';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
@@ -20,7 +22,7 @@ defineFeature(feature, (test) => {
 
   let user_id: string;
   let owner_id: string;
-  let post_to_update_id: string;
+  let post_id: string;
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_permanent_post_interactor: CreatePermanentPostInteractor; 
@@ -62,7 +64,7 @@ defineFeature(feature, (test) => {
   function andAPostIdIsProvided(and) {
     and(/^the user provides the post identified by "([^"]*)"$/,
       (provided_post_id) => {
-        post_to_update_id = provided_post_id;
+        post_id = provided_post_id;
       }
     );
   }
@@ -71,7 +73,7 @@ defineFeature(feature, (test) => {
     when('the user tries to share the post', async () => {
       try {
         output = await share_permanent_post_interactor.execute({
-          id: post_to_update_id,
+          post_id,
           user_id
         });
       } catch (e) {
