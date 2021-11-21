@@ -7,6 +7,7 @@ import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/per
 import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
 import { Optional } from '@core/common/type/common_types';
 import * as moment from 'moment';
+import SharePermanentPostOutputModel from '@core/domain/post/use-case/output-model/share_permanent_post.output_model';
 
 @Injectable()
 export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostRepository {
@@ -78,8 +79,19 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     };
   }
 
-  public async share(){
-    
+  public async share(post: PermanentPostQueryModel){
+    const post_key = 'post';
+    const user_key = 'user';
+    const share_permanent_post_query = `
+      MATCH (${user_key}: User { user_id: '${post.user_id}' })
+      MATCH (${post_key}: PermanentPost { post_id: '${post.post_id}' })
+      CREATE (${user_key})-[:${Relationships.USER_SHARE_RELATIONSHIP}]->(${post_key})
+    `;
+    const result: QueryResult = await this.neo4j_service.write(
+      share_permanent_post_query,
+      {}
+    );
+    return {}; 
   }
 
   public async findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {

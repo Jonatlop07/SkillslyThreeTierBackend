@@ -8,6 +8,7 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { UserNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/user/neo4j_user_repository.adapter';
 import { QueryPermanentPostCollectionService } from '@core/service/post/query_permanent_post_collection.service';
 import { QueryPermanentPostService } from '@core/service/post/query_permanent_post.service';
+import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -39,6 +40,11 @@ const use_case_providers: Array<Provider> = [
   {
     provide: PostDITokens.QueryPermanentPostInteractor,
     useFactory: (post_gateway, user_gateway) => new QueryPermanentPostService(post_gateway, user_gateway),
+    inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
+  }, 
+  {
+    provide: PostDITokens.SharePermanentPostInteractor,
+    useFactory: (post_gateway, user_gateway) => new SharePermanentPostService(post_gateway, user_gateway),
     inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
   }
 ];

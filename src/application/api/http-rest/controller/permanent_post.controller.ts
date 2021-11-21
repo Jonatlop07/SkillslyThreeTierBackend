@@ -26,6 +26,8 @@ import {
 } from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post_collection.interactor';
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
+import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
+import { SharePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/share_permanent_post.adapter';
 
 @Controller('permanent-posts')
 @ApiTags('permanent-posts')
@@ -40,7 +42,9 @@ export class PermanentPostController {
     @Inject(PostDITokens.QueryPermanentPostCollectionInteractor)
     private readonly query_permanent_post_collection_interactor: QueryPermanentPostCollectionInteractor,
     @Inject(PostDITokens.QueryPermanentPostInteractor)
-    private readonly query_permanent_post_interactor: QueryPermanentPostInteractor
+    private readonly query_permanent_post_interactor: QueryPermanentPostInteractor, 
+    @Inject(PostDITokens.SharePermanentPostInteractor)
+    private readonly share_permanent_post_interactor: SharePermanentPostInteractor
   ) {}
 
   @Post()
@@ -138,6 +142,29 @@ export class PermanentPostController {
         })
       );
     } catch (e){
+      this.logger.error(e.stack);
+      if (e instanceof NonExistentUserException) {
+        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
+      }
+      if (e instanceof NonExistentPermanentPostException) {
+        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts'}, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post('share')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  public async sharePermanentPost(@Body() body) {
+    try {
+      return await this.share_permanent_post_interactor.execute(
+        await SharePermanentPostAdapter.new({
+          post_id: body.post_id,
+          user_id: body.user_id
+        })
+      );
+    } catch (e) {
       this.logger.error(e.stack);
       if (e instanceof NonExistentUserException) {
         throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);

@@ -3,6 +3,7 @@ import PermanentPostRepository from '@core/domain/post/use-case/repository/perma
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
 import * as moment from 'moment';
+import SharePermanentPostOutputModel from '@core/domain/post/use-case/output-model/share_permanent_post.output_model';
 
 export class PermanentPostInMemoryRepository implements PermanentPostRepository {
   private currently_available_post_id: string;
@@ -60,5 +61,9 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     };
     this.posts.set(post.post_id, post_to_update);
     return Promise.resolve(post_to_update);
+  }
+
+  public share(post: PermanentPostQueryModel): Promise<SharePermanentPostOutputModel> {
+    return Promise.resolve({}); 
   }
 }
