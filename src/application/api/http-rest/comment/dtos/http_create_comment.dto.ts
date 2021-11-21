@@ -1,7 +1,8 @@
 import { IsString } from 'class-validator';
+import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
 
 export class CreateCommentDto {
-  @IsString() comment: string;
-  @IsString() timestamp: string;
+  @IsString() @ApiModelProperty()comment: string;
+  @IsString() @ApiModelProperty()timestamp: string;
 
 }

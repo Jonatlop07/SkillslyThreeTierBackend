@@ -1,5 +1,5 @@
 import { CreateCommentInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_permanent_post.interactor';
-import { CommentDITokens } from '@core/domain/comment/di/comment_di_tokens';
+import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { Inject } from '@nestjs/common';
 import CreateCommentInPermanentPostGateway
   from '@core/domain/comment/use-case/gateway/create_comment_in_permanent_post.gateway';

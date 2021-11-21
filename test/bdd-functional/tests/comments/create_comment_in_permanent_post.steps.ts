@@ -11,7 +11,7 @@ import CreateCommentInPermanentPostOutputModel
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import { CommentDITokens } from '@core/domain/comment/di/comment_di_tokens';
+import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import {
   CommentException,
   CommentInvalidDataFormatException,

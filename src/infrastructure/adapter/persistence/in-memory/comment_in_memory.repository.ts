@@ -21,4 +21,8 @@ export class CommentInMemoryRepository implements CommentRepository {
     return Promise.resolve(new_comment);
   }
 
+  async get(): Promise<Array<CommentDTO>>{
+    return Promise.resolve(Array.from(this.comments.values()));
+  }
+
 }
