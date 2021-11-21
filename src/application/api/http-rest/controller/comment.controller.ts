@@ -33,13 +33,13 @@ export class CommentController {
   ) {
   }
 
-  @Post('/:id/comment')
+  @Post('/:permanentPostID/comment')
   @ApiCreatedResponse({ description: 'Comment has been sucessfully created' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while creating comment' })
   @ApiBearerAuth()
   async createCommentInPermanentPost(
-    @Param('id') permanentPostID: string,
+    @Param('permanentPostID') permanentPostID: string,
     @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateCommentDto,
   ) {
@@ -65,7 +65,7 @@ export class CommentController {
     }
   }
 
-  @Get('/:id/comments')
+  @Get('/:permanentPostID/comments')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     description: 'Comments has been successfully obtained',
@@ -77,7 +77,7 @@ export class CommentController {
     description: 'Error while obtaining comments',
   })
   @ApiBearerAuth()
-  async getAllCommentsInPermanentPost(@Query() queryParams, @Param('id') permanentPostID: string) {
+  async getAllCommentsInPermanentPost(@Query() queryParams, @Param('permanentPostID') permanentPostID: string) {
     const page = queryParams['page'] ? queryParams['page'] : 0;
     const limit = queryParams['limit'] ? queryParams['limit'] : 2;
     try {
