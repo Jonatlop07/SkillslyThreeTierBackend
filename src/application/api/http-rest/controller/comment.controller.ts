@@ -1,5 +1,12 @@
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Param, Post, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadGatewayResponse,
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse, ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { CreateCommentInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_permanent_post.interactor';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
@@ -27,7 +34,9 @@ export class CommentController {
   }
 
   @Post('/:id/comment')
-  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: 'Comment has been sucessfully created' })
+  @ApiBadRequestResponse({ description: 'Invalid data format' })
+  @ApiBadGatewayResponse({ description: 'Error while creating comment' })
   @ApiBearerAuth()
   async createCommentInPermanentPost(
     @Param('id') permanentPostID: string,
@@ -57,6 +66,16 @@ export class CommentController {
   }
 
   @Get('/:id/comments')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Comments has been successfully obtained',
+  })
+  @ApiNotFoundResponse({
+    description: 'There are no comments',
+  })
+  @ApiBadGatewayResponse({
+    description: 'Error while obtaining comments',
+  })
   @ApiBearerAuth()
   async getAllCommentsInPermanentPost(@Query() queryParams, @Param('id') permanentPostID: string) {
     const page = queryParams['page'] ? queryParams['page'] : 0;
