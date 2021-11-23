@@ -1,3 +1,4 @@
+import { QueryReactionElement } from '@core/domain/reaction/entity/type/queried_reactions_element';
 import { ReactionDTO } from '@core/domain/reaction/use_case/persistence-dto/reaction.dto';
 import ReactionQueryModel from '@core/domain/reaction/use_case/query-model/reaction.query_model';
 import { ReactionRepository } from '@core/domain/reaction/use_case/repository/reaction.repository';
@@ -13,6 +14,7 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
   post_key = 'post';
   valid_types = 'LIKE|INTERESTED|FUN';
   constructor(private neo4jService: Neo4jService){}
+
   async delete(params: ReactionQueryModel): Promise<ReactionDTO> {
     const {reactor_id, post_id} = params;
     const remove_reaction_statement = `
@@ -60,15 +62,37 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
     };
   }
 
+  async queryById(id: string): Promise<QueryReactionElement[]> {
+    const query_reactions_statement = `
+      MATCH (u:User)-[r:${this.valid_types}]->(p:PermanentPost {post_id: "${id}"}) 
+      RETURN type(r) as reaction_type, count(*) as reaction_count, collect({name:u.name, email:u.email}) as reactors
+    `;
+    const query_reactions_result = await this.neo4jService.read(query_reactions_statement, {}).then(
+      (result: QueryResult) => result.records.map((record:any) =>
+        record._fields
+      ));
+    const reactions = [];
+    for (const reaction of query_reactions_result){
+      const result: QueryReactionElement = {
+        reaction_type: reaction[0],
+        reaction_count: reaction[1]['low'],
+        reactors: reaction[2]
+      };
+      reactions.push(result);
+    }
+    return reactions as QueryReactionElement[];
+  }
+
   findOneByParam(param: string, value: any): Promise<ReactionDTO> {
     throw new Error('Method not implemented.');
   }
-  findAll(params: ReactionQueryModel): Promise<ReactionDTO[]> {
-    throw new Error('Method not implemented.');
-  }
+
   deleteById(id: string): Promise<ReactionDTO> {
     throw new Error('Method not implemented.');
   }
 
+  findAll(params: ReactionQueryModel): Promise<ReactionDTO[]> {
+    throw new Error('Method not implemented.');
+  }
   
 }

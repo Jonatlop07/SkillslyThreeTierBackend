@@ -6,6 +6,7 @@ import { PostModule } from './post.module';
 import { InfrastructureModule } from './infrastructure.module';
 import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
+import { ReactionModule } from './reaction.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { ProfileModule } from './profile.module';
     UserModule,
     PostModule,
     AuthenticationModule,
-    ProfileModule
+    ProfileModule,
+    ReactionModule
   ]
 })
 export class RootModule {}

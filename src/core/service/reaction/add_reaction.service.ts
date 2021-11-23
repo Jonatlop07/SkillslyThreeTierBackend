@@ -21,7 +21,6 @@ export class AddReactionService implements AddReactionInteractor{
 
   async execute(input: AddReactionInputModel): Promise<AddReactionOutputModel> {
     const { post_id, reactor_id, reaction_type } = input;
-    console.log(post_id);
     const existing_post = await this.post_gateway.findOneByParam('post_id', post_id);
     if (existing_post == undefined){
       throw new AddReactionUnexistingPostException();
@@ -30,9 +29,11 @@ export class AddReactionService implements AddReactionInteractor{
       throw new AddReactionInvalidTypeException();
     }
     const existing_reaction = await this.gateway.findOne({post_id: post_id, reactor_id: reactor_id});
-    if (existing_reaction.post_id !== undefined){
-      const deleted_reaction = await this.gateway.delete({post_id: existing_reaction.post_id, reactor_id: existing_reaction.reactor_id});
-      return deleted_reaction as AddReactionOutputModel;
+    if (existing_reaction !== undefined){
+      if (existing_reaction.post_id !== undefined){
+        const deleted_reaction = await this.gateway.delete({post_id: existing_reaction.post_id, reactor_id: existing_reaction.reactor_id});
+        return deleted_reaction as AddReactionOutputModel;
+      }
     }
     const reaction: ReactionDTO = {
       post_id: post_id,

@@ -122,7 +122,6 @@ defineFeature(feature, (test) => {
             reactor_id: reactor_id,
             reaction_type: reaction_type
           };
-          console.log(added_or_removed_reaction);
           expect(added_or_removed_reaction).toBeDefined();
           expect(added_or_removed_reaction.post_id).toEqual(expected_output.post_id);
           expect(added_or_removed_reaction.reactor_id).toEqual(expected_output.reactor_id);

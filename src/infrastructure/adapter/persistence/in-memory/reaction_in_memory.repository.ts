@@ -1,4 +1,5 @@
 import { Optional } from '@core/common/type/common_types';
+import { QueryReactionElement } from '@core/domain/reaction/entity/type/queried_reactions_element';
 import { ReactionDTO } from '@core/domain/reaction/use_case/persistence-dto/reaction.dto';
 import ReactionQueryModel from '@core/domain/reaction/use_case/query-model/reaction.query_model';
 import { ReactionRepository } from '@core/domain/reaction/use_case/repository/reaction.repository';
@@ -10,7 +11,6 @@ export class ReactionInMemoryRepository implements ReactionRepository{
   constructor(private reactions: Map<string, ReactionDTO>){
     this.last_added_reaction_id = '1';
   }
-
   public create(reaction: ReactionDTO): Promise<ReactionDTO> {
     const added_reaction: ReactionDTO = {
       reaction_id: this.last_added_reaction_id,
@@ -55,6 +55,21 @@ export class ReactionInMemoryRepository implements ReactionRepository{
       }
     }
     return Promise.resolve(undefined);
+  }
+
+  queryById(id: string): Promise<ReactionDTO[]> {
+    const existing_reactions: ReactionDTO[] = [];
+
+    for (const reaction of this.reactions.keys()){
+      if (this.reactions.get(reaction).post_id === id ){
+        existing_reactions.push({
+          post_id: this.reactions.get(reaction).post_id,
+          reaction_type: this.reactions.get(reaction).reaction_type,
+          reactor_id: this.reactions.get(reaction).reactor_id}
+        );
+      }
+    }
+    return Promise.resolve(existing_reactions);
   }
   
 }

@@ -4,8 +4,11 @@ class AddReactionUnexistingPostException extends ReactionException {}
 
 class AddReactionInvalidTypeException extends ReactionException {}
 
+class QueryReactionsUnexistingPostException extends ReactionException{}
+
 export {
   ReactionException,
   AddReactionUnexistingPostException,
-  AddReactionInvalidTypeException
+  AddReactionInvalidTypeException,
+  QueryReactionsUnexistingPostException
 };

@@ -26,9 +26,6 @@ import {
 } from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post_collection.interactor';
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
-import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
-import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
-import { AddReactionInvalidTypeException, AddReactionUnexistingPostException } from '@core/domain/reaction/use_case/exception/reaction.exception';
 
 @Controller('permanent-posts')
 @ApiTags('permanent-post')
@@ -44,8 +41,6 @@ export class PermanentPostController {
     private readonly query_permanent_post_collection_interactor: QueryPermanentPostCollectionInteractor,
     @Inject(PostDITokens.QueryPermanentPostInteractor)
     private readonly query_permanent_post_interactor: QueryPermanentPostInteractor,
-    @Inject(ReactionDITokens.AddReactionInteractor)
-    private readonly add_reaction_interactor: AddReactionInteractor
   ) {}
 
   @Post()
@@ -151,38 +146,6 @@ export class PermanentPostController {
         throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts'}, HttpStatus.NOT_FOUND);
       }
       throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Post(':post_id/react')
-  @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
-  public async addOrRemoveReaction(@HttpUser() http_user: HttpUserPayload, 
-    @Param('post_id') post_id: string,
-    @Body() body){
-    try {
-      return await this.add_reaction_interactor.execute({
-        post_id: post_id,
-        reactor_id: http_user.id,
-        reaction_type: body.reaction_type
-      });
-    } catch (e){
-      this.logger.error(e);
-      if (e instanceof AddReactionInvalidTypeException){
-        throw new HttpException({
-          status: HttpStatus.FORBIDDEN,
-          error: 'Invalid reaction type'
-        }, HttpStatus.FORBIDDEN);
-      } else if (e instanceof AddReactionUnexistingPostException){
-        throw new HttpException({
-          status: HttpStatus.NOT_FOUND,
-          error: 'Can not react to a post that does not exist'
-        }, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        error: 'Internal server error'
-      }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

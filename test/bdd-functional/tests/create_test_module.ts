@@ -21,6 +21,7 @@ import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionService } from '@core/service/reaction/add_reaction.service';
 import { ReactionInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/reaction_in_memory.repository';
+import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -93,6 +94,11 @@ export async function createTestModule() {
       {
         provide: ReactionDITokens.AddReactionInteractor,
         useFactory: (gateway, post_gateway) => new AddReactionService(gateway, post_gateway),
+        inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository]
+      },
+      {
+        provide: ReactionDITokens.QueryReactionsInteractor,
+        useFactory: (gateway, post_gateway) => new QueryReactionsService(gateway, post_gateway),
         inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository]
       },
       {
