@@ -1,6 +1,6 @@
 import { Module, Provider } from '@nestjs/common';
-import { ProfileController } from '@application/api/http-rest/controller/profile_controller';
-import { ProfileNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/profile/neo4j_profile_respository.adapter';
+import { ProfileController } from '@application/api/http-rest/controller/profile.controller';
+import { ProfileNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/profile/neo4j_profile_repository.adapter';
 import { CreateProfileService } from '@core/service/profile/create_profile.service';
 import { GetProfileService } from '@core/service/profile/get_profile.service';
 import { EditProfileService } from '@core/service/profile/edit_profile.service';

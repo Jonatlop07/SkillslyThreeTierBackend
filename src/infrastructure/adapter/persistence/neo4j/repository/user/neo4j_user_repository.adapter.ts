@@ -69,6 +69,16 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     return result.records.length > 0;
   }
 
+  public async existsById(id: string): Promise<boolean> {
+    const user_key = 'user';
+    const exists_user_query = `MATCH (${user_key}: User { user_id: $id }) RETURN ${user_key}`;
+    const result: QueryResult = await this.neo4j_service.read(
+      exists_user_query,
+      { id: id }
+    );
+    return result.records.length > 0;
+  }
+
   public async findOneByParam(param: string, value: any): Promise<Optional<UserDTO>> {
     const user_key = 'user';
     const formatted_value = typeof value === 'string' || value instanceof String ? `'${value}'` : value;

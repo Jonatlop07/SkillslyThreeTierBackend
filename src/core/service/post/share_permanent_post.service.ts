@@ -5,7 +5,7 @@ import SharePermanentPostInputModel from '@core/domain/post/use-case/input-model
 import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
 import SharePermanentPostOutputModel from '@core/domain/post/use-case/output-model/share_permanent_post.output_model';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import SearchUsersGateway from '@core/domain/user/use-case/gateway/search_users.gateway';
+import ExistsUsersGateway from '@core/domain/user/use-case/gateway/exists_user.gateway';
 import { Inject, Logger } from '@nestjs/common';
 
 export class SharePermanentPostService implements SharePermanentPostInteractor{
@@ -15,19 +15,19 @@ export class SharePermanentPostService implements SharePermanentPostInteractor{
     @Inject(PostDITokens.PermanentPostRepository)
     private readonly gateway: SharePermanentPostGateway,
     @Inject(UserDITokens.UserRepository)
-    private readonly user_gateway: SearchUsersGateway
+    private readonly user_gateway: ExistsUsersGateway
   ) {}
 
   async execute(input: SharePermanentPostInputModel): Promise<SharePermanentPostOutputModel> {
-    const user = await this.user_gateway.findOneByParam('user_id', input.user_id);
-    if (!user){
+    const existsUser = await this.user_gateway.existsById(input.user_id);
+    if (!existsUser){
       throw new NonExistentUserException();
     }
-    const post = await this.gateway.findOneByParam('post_id',input.post_id);
-    if(!post){
+    const existsPost = await this.gateway.existsById(input.post_id);
+    if(!existsPost){
       throw new NonExistentPermanentPostException(); 
     }
-    const result = await this.gateway.share({user_id:user.user_id, post_id: post.post_id});
+    const result = await this.gateway.share({user_id:input.user_id, post_id: input.post_id});
     return result as SharePermanentPostOutputModel; 
   }
 }

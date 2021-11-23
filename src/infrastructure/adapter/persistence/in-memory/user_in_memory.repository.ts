@@ -32,6 +32,13 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve(false);
   }
 
+  public existsById(id: string): Promise<boolean> {
+    for (const _user of this.users.values())
+      if (_user.user_id === id)
+        return Promise.resolve(true);
+    return Promise.resolve(false);
+  }
+
   public findOneByParam(param: string, value: any): Promise<Optional<UserDTO>> {
     for (const _user of this.users.values())
       if (_user[param] === value)

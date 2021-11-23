@@ -10,7 +10,7 @@ import {
   Post,
   Put
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBadGatewayResponse, ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
@@ -28,6 +28,8 @@ import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-ca
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
 import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
 import { SharePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/share_permanent_post.adapter';
+import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
+import { SharePermanentPostDTO } from '@application/api/http-rest/post/dto/share_permanent_post.dto';
 
 @Controller('permanent-posts')
 @ApiTags('permanent-posts')
@@ -153,14 +155,20 @@ export class PermanentPostController {
     }
   }
 
-  @Post('share')
+  @Post(':post_id/share')
   @HttpCode(HttpStatus.OK)
+  @ApiCreatedResponse({ description: 'Post has been sucessfully shared' })
+  @ApiBadRequestResponse({ description: 'Invalid data format' })
+  @ApiBadGatewayResponse({ description: 'Error while sharing post' })
   @ApiBearerAuth()
-  public async sharePermanentPost(@Body() body) {
+  public async sharePermanentPost(
+    @Param('post_id') post_id: string,
+    @Body(new ValidationPipe()) body: SharePermanentPostDTO
+    ) {
     try {
       return await this.share_permanent_post_interactor.execute(
         await SharePermanentPostAdapter.new({
-          post_id: body.post_id,
+          post_id: post_id,
           user_id: body.user_id
         })
       );

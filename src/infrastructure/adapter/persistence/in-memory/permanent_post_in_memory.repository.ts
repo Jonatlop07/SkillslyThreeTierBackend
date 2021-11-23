@@ -24,6 +24,20 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve(new_post);
   }
 
+  public exists(post: PermanentPostDTO): Promise<boolean> {
+    for (const _post of this.posts.values())
+      if (_post.post_id === post.post_id)
+        return Promise.resolve(true);
+    return Promise.resolve(false);
+  }
+
+  public existsById(id: string): Promise<boolean> {
+    for (const _post of this.posts.values())
+      if (_post.post_id === id)
+        return Promise.resolve(true);
+    return Promise.resolve(false);
+  }
+
   public findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
     for (const _post of this.posts.values())
       if (_post[param] === value)
