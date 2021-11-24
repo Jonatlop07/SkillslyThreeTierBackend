@@ -55,6 +55,14 @@ defineFeature(feature, (test) => {
     });
   }
 
+  function thenTheConversationIsCreatedSuccessfully(then) {
+    then('the conversation is created successfully',
+      () => {
+        expect(output).toBeDefined();
+      }
+    );
+  }
+
   beforeEach(async () => {
     const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
@@ -66,10 +74,16 @@ defineFeature(feature, (test) => {
   test('A user tries to create a conversation with other user',
     ({ given, and, when, then }) => {
       givenTheseUsersExists(given);
+      and(/^the user identified by "([^"]*)" wants to initiate a conversation with user "([^"]*)"$/,
+        (user_id: string, partner_id: string) => {
+          conversation_members = [
+            user_id,
+            partner_id
+          ];
+        }
+      );
       whenUserTriesToCreateConversation(when);
-      then(/^$/, () => {
-
-      });
+      thenTheConversationIsCreatedSuccessfully(then);
     }
   );
   test('A user tries to create a conversation with multiple users',
@@ -77,9 +91,7 @@ defineFeature(feature, (test) => {
       givenTheseUsersExists(given);
       andUserWantsToInitiateConversationWithUsers(and);
       whenUserTriesToCreateConversation(when);
-      then(/^$/, () => {
-
-      });
+      thenTheConversationIsCreatedSuccessfully(then);
     }
   );
   test('A user tries to create a conversation but does not indicate other users',
@@ -87,8 +99,9 @@ defineFeature(feature, (test) => {
       givenTheseUsersExists(given);
       andUserWantsToInitiateConversationWithUsers(and);
       whenUserTriesToCreateConversation(when);
-      then(/^$/, () => {
-
+      then('an error occurs: the user did not indicate other participants in the conversation', () => {
+        expect(exception).toBeDefined();
+        expect(exception).toBeInstanceOf(NoParticipantsInConversationChatException);
       });
     }
   );

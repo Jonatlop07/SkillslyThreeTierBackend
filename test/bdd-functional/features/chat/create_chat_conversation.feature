@@ -7,7 +7,7 @@ Feature: Create a chat conversation
       | newuser_1234@test.com | Abc123_tr | John | 01/01/2000    |
     And the user identified by "<UserId>" wants to initiate a conversation with user "<PartnerId>"
     When the user tries to create a conversation
-    Then the conversation of user "<UserId>" with user "<PartnerId>" is created
+    Then the conversation is created successfully
     Examples:
       | UserId | PartnerId |
       | 1      | 2         |
@@ -21,8 +21,7 @@ Feature: Create a chat conversation
     And the user identified by "<UserId>" wants to initiate a conversation with users:
       | 2 | 3 |
     When the user tries to create a conversation
-    Then the conversation of user "<UserId>" with these users is created:
-      | 2 | 3 |
+    Then the conversation is created successfully
     Examples:
       | UserId |
       | 1      |

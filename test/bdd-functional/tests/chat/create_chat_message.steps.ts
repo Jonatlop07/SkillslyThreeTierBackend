@@ -13,6 +13,7 @@ defineFeature(feature, (test) => {
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_chat_conversation_interactor: CreateChatConversationInteractor;
   let create_chat_message_interactor: CreateChatMessageInteractor;
+  let output: CreateChatMessageOutputModel;
   let exception: ChatException;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
@@ -61,7 +62,7 @@ defineFeature(feature, (test) => {
   function whenUserTriesToCreateMessage(when) {
     when('the user tries to create the message', async () => {
       try {
-        await create_chat_message_interactor.execute({
+        output = await create_chat_message_interactor.execute({
           message,
           conversation_id
         });
@@ -86,7 +87,7 @@ defineFeature(feature, (test) => {
       andMessageContentWithConversationIdIsProvided(and);
       whenUserTriesToCreateMessage(when);
       then('the message is successfully created', () => {
-
+        expect(output).toBeDefined();
       });
     }
   );
@@ -98,7 +99,8 @@ defineFeature(feature, (test) => {
       andMessageContentWithConversationIdIsProvided(and);
       whenUserTriesToCreateMessage(when);
       then('an error occurs: the message provided by the user is empty', () => {
-
+        expect(exception).toBeDefined();
+        expect(exception).toBeInstanceOf(EmptyMessageChatException);
       });
     }
   );
@@ -109,7 +111,8 @@ defineFeature(feature, (test) => {
       andMessageContentWithConversationIdIsProvided(and);
       whenUserTriesToCreateMessage(when);
       then(' an error occurs: the conversation does not exist', () => {
-
+        expect(exception).toBeDefined();
+        expect(exception).toBeInstanceOf(NonExistentConversationChatException);
       });
     }
   );
