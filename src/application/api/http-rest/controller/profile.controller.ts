@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ValidationPipe } from '@application/api/http-rest/profile/pipes/validation.pipe';
+import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
 import { CreateProfileDto } from '@application/api/http-rest/profile/dtos/http_create_profile.dto';
 import { EditProfileAdapter } from '@infrastructure/adapter/use-case/profile/edit_profile.adapter';
 import { CreateProfileAdapter } from '@infrastructure/adapter/use-case/profile/create_profile.adapter';
