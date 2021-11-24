@@ -25,9 +25,9 @@ export class QueryPermanentPostCollectionService implements QueryPermanentPostCo
     if (!owner){
       throw new NonExistentUserException();
     }
-    const all_posts = await this.post_gateway.findAll({ user_id: owner_id });
+    const posts = await this.post_gateway.findAll({ user_id: owner_id });
     const post_collection: QueryPermanentPostCollectionOutputModel = {
-      posts: all_posts
+      posts
     };
     return Promise.resolve(post_collection);
   }
