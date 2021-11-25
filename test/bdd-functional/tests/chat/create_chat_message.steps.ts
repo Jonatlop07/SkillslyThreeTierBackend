@@ -3,15 +3,25 @@ import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
+import { CreateChatMessageInteractor } from '@core/domain/chat/use-case/interactor/create_chat_message.interactor';
+import CreateChatMessageOutputModel from '@core/domain/chat/use-case/output-model/create_chat_message.output_model';
+import {
+  ChatException,
+  EmptyMessageChatException,
+  NonExistentConversationChatException
+} from '@core/domain/chat/use-case/exception/chat.exception';
+import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
 
 const feature = loadFeature('test/bdd-functional/features/chat/create_chat_message.feature');
 
 defineFeature(feature, (test) => {
+  let user_id: string;
   let message: string;
   let conversation_id: string;
   let conversation_members: Array<string>;
   let create_user_account_interactor: CreateUserAccountInteractor;
-  let create_chat_conversation_interactor: CreateChatConversationInteractor;
+  let create_chat_conversation_interactor: CreateGroupChatConversationInteractor;
   let create_chat_message_interactor: CreateChatMessageInteractor;
   let output: CreateChatMessageOutputModel;
   let exception: ChatException;
@@ -36,11 +46,12 @@ defineFeature(feature, (test) => {
   }
 
   function andAConversationExists(and) {
-    and(/^a conversation exists and is identified by "([^"]*)"$/,
-      async (provided_conversation_id: string) => {
+    and(/^a conversation named "([^"]*)" exists and is identified by "([^"]*)"$/,
+      async (conversation_name: string, provided_conversation_id: string) => {
         conversation_id = provided_conversation_id;
         try {
           await create_chat_conversation_interactor.execute({
+            conversation_name,
             conversation_members
           });
         } catch (e) {
@@ -51,8 +62,9 @@ defineFeature(feature, (test) => {
   }
 
   function andMessageContentWithConversationIdIsProvided(and) {
-    and(/^the user provides the message "([^"]*)" to be attached to the conversation identified by "([^"]*)"$/,
-      (message_content: string, provided_conversation_id: string) => {
+    and(/^the user identified by "([^"]*)" provides the message "([^"]*)" to be attached to the conversation identified by "([^"]*)"$/,
+      (_user_id: string, message_content: string, provided_conversation_id: string) => {
+        user_id = _user_id;
         message = message_content;
         conversation_id = provided_conversation_id;
       }
@@ -63,7 +75,8 @@ defineFeature(feature, (test) => {
     when('the user tries to create the message', async () => {
       try {
         output = await create_chat_message_interactor.execute({
-          message,
+          user_id,
+          content: message,
           conversation_id
         });
       } catch (e) {
@@ -75,7 +88,7 @@ defineFeature(feature, (test) => {
   beforeEach(async () => {
     const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
-    create_chat_conversation_interactor = module.get<CreateChatConversationInteractor>(ChatDITokens.CreateChatConversationInteractor);
+    create_chat_conversation_interactor = module.get<CreateGroupChatConversationInteractor>(ChatDITokens.CreateGroupChatConversationInteractor);
     create_chat_message_interactor = module.get<CreateChatMessageInteractor>(ChatDITokens.CreateChatMessageInteractor);
     exception = undefined;
   });
@@ -110,7 +123,7 @@ defineFeature(feature, (test) => {
       givenTheseUsersExists(given);
       andMessageContentWithConversationIdIsProvided(and);
       whenUserTriesToCreateMessage(when);
-      then(' an error occurs: the conversation does not exist', () => {
+      then('an error occurs: the conversation does not exist', () => {
         expect(exception).toBeDefined();
         expect(exception).toBeInstanceOf(NonExistentConversationChatException);
       });

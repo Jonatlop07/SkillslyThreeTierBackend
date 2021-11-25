@@ -3,14 +3,30 @@ import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
+import {
+  CreateGroupChatConversationInteractor
+} from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
+import {
+  ChatException,
+  NoMembersInConversationChatException
+} from '@core/domain/chat/use-case/exception/chat.exception';
+import { CreateSimpleChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_simple_chat_conversation.interactor';
+import CreateSimpleChatConversationOutputModel
+  from '@core/domain/chat/use-case/output-model/create_simple_chat_conversation.output_model';
+import CreateGroupChatConversationOutputModel
+  from '@core/domain/chat/use-case/output-model/create_group_chat_conversation.output_model';
 
 const feature = loadFeature('test/bdd-functional/features/chat/create_chat_conversation.feature');
 
 defineFeature(feature, (test) => {
+  let conversation_name: string;
   let conversation_members: Array<string>;
   let create_user_account_interactor: CreateUserAccountInteractor;
-  let create_chat_conversation_interactor: CreateChatConversationInteractor;
-  let output: CreateChatConversationOutputModel;
+  let create_simple_chat_conversation_interactor: CreateSimpleChatConversationInteractor;
+  let create_group_chat_conversation_interactor: CreateGroupChatConversationInteractor;
+  let create_simple_chat_conversation_output: CreateSimpleChatConversationOutputModel;
+  let create_group_chat_conversation_output: CreateGroupChatConversationOutputModel;
   let exception: ChatException;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
@@ -33,20 +49,35 @@ defineFeature(feature, (test) => {
   }
 
   function andUserWantsToInitiateConversationWithUsers(and) {
-    and(/^the user identified by "([^"]*)" wants to initiate a conversation with users:$/,
-      (user_id: string, users: Array<string>) => {
+    and(/^the user identified by "([^"]*)" wants to initiate a conversation named "([^"]*)" with users:$/,
+      (user_id: string, name: string, users: Array<string>) => {
         conversation_members = [
           user_id,
           ...users
         ];
+        conversation_name = name;
       }
     );
   }
 
-  function whenUserTriesToCreateConversation(when) {
+  function whenUserTriesToCreateASimpleConversation(when) {
+    when('the user tries to create a group conversation', async () => {
+      try {
+        create_simple_chat_conversation_output = await create_simple_chat_conversation_interactor.execute({
+          user_id: conversation_members[0],
+          friend_id: conversation_members[1] || undefined
+        });
+      } catch (e) {
+        exception = e;
+      }
+    });
+  }
+
+  function whenUserTriesToCreateAGroupConversation(when) {
     when('the user tries to create a conversation', async () => {
       try {
-        output = await create_chat_conversation_interactor.execute({
+        create_group_chat_conversation_output = await create_group_chat_conversation_interactor.execute({
+          conversation_name,
           conversation_members
         });
       } catch (e) {
@@ -55,18 +86,11 @@ defineFeature(feature, (test) => {
     });
   }
 
-  function thenTheConversationIsCreatedSuccessfully(then) {
-    then('the conversation is created successfully',
-      () => {
-        expect(output).toBeDefined();
-      }
-    );
-  }
-
   beforeEach(async () => {
     const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
-    create_chat_conversation_interactor = module.get<CreateChatConversationInteractor>(ChatDITokens.CreateChatConversationInteractor);
+    create_simple_chat_conversation_interactor = module.get<CreateSimpleChatConversationInteractor>(ChatDITokens.CreateSimpleChatConversationInteractor);
+    create_group_chat_conversation_interactor = module.get<CreateGroupChatConversationInteractor>(ChatDITokens.CreateGroupChatConversationInteractor);
     exception = undefined;
   });
 
@@ -82,26 +106,34 @@ defineFeature(feature, (test) => {
           ];
         }
       );
-      whenUserTriesToCreateConversation(when);
-      thenTheConversationIsCreatedSuccessfully(then);
+      whenUserTriesToCreateASimpleConversation(when);
+      then('the conversation with the other user is created successfully',
+        () => {
+          expect(create_simple_chat_conversation_output).toBeDefined();
+        }
+      );
     }
   );
   test('A user tries to create a conversation with multiple users',
     ({ given, and, when, then }) => {
       givenTheseUsersExists(given);
       andUserWantsToInitiateConversationWithUsers(and);
-      whenUserTriesToCreateConversation(when);
-      thenTheConversationIsCreatedSuccessfully(then);
+      whenUserTriesToCreateAGroupConversation(when);
+      then('the group conversation is created successfully',
+        () => {
+          expect(create_group_chat_conversation_output).toBeDefined();
+        }
+      );
     }
   );
   test('A user tries to create a conversation but does not indicate other users',
     ({ given, and, when, then }) => {
       givenTheseUsersExists(given);
       andUserWantsToInitiateConversationWithUsers(and);
-      whenUserTriesToCreateConversation(when);
+      whenUserTriesToCreateAGroupConversation(when);
       then('an error occurs: the user did not indicate other participants in the conversation', () => {
         expect(exception).toBeDefined();
-        expect(exception).toBeInstanceOf(NoParticipantsInConversationChatException);
+        expect(exception).toBeInstanceOf(NoMembersInConversationChatException);
       });
     }
   );

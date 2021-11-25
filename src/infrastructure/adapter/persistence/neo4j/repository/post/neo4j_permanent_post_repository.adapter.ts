@@ -25,7 +25,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
       content
     };
     const create_post_statement = `
-      MATCH (${user_key}: User { user_id: '${post.user_id}' })
+      MATCH (${user_key}: User { user_id: $user_id })
       CREATE (${post_key}: PermanentPost)
       SET ${post_key} += $properties, ${post_key}.post_id = randomUUID()
       CREATE (${user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key})
@@ -34,6 +34,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     const result: QueryResult = await this.neo4j_service.write(
       create_post_statement,
       {
+        user_id: post.user_id,
         properties: {
           content: post_with_content_as_json.content,
           created_at: moment().local().format('YYYY-MM-DD HH:mm:ss'),
@@ -55,13 +56,14 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     });
     const post_key = 'post';
     const update_permanent_post_query = `
-      MATCH (${post_key}: PermanentPost { post_id: '${post.post_id}' })
+      MATCH (${post_key}: PermanentPost { post_id: $post.post_id })
       SET ${post_key} += $properties
       RETURN ${post_key}
     `;
     const result = await this.neo4j_service.write(
       update_permanent_post_query,
       {
+        post_id: post.post_id,
         properties: {
           content,
           updated_at: moment().local().format('YYYY-MM-DD HH:mm:ss')
@@ -104,17 +106,14 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
   }
 
   public async findOne( params: PermanentPostQueryModel ): Promise<PermanentPostDTO> {
-    const { user_id, post_id } = params;
-    const user_key = 'user';
+    const { post_id } = params;
     const post_key = 'post';
     const find_post_query = `
-      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: Post)
-      WHERE ${user_key}.user_id = ${user_id}
-      AND ${post_key}.post_id = ${post_id}
+      MATCH (${post_key}: Post { post_id: $post_id })
       RETURN ${post_key}
     `;
     return this.neo4j_service.getSingleResultProperties(
-      await this.neo4j_service.read(find_post_query, {}),
+      await this.neo4j_service.read(find_post_query, { post_id }),
       post_key
     );
   }
@@ -125,13 +124,15 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     const post_key = 'post';
     const find_post_collection_query = `
       MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: Post)
-      WHERE ${user_key}.user_id = ${user_id}
+      WHERE ${user_key}.user_id = $user_id
       RETURN ${post_key}
     `;
     return await this.neo4j_service
       .read(
         find_post_collection_query,
-        {}
+        {
+          user_id
+        }
       ).then(
         (result: QueryResult) =>
           result.records.map(

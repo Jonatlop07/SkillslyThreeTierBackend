@@ -2,6 +2,8 @@ import { Test } from '@nestjs/testing';
 import { UserInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/user_in_memory.repository';
 import { ProfileInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/profile_in_memory.repository';
 import { PermanentPostInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/permanent_post_in_memory.repository';
+import { ChatConversationInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/chat_conversation_in_memory.repository';
+import { ChatMessageInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/chat_message_in_memory.repository';
 import { CreateUserAccountService } from '@core/service/user/create_user_account.service';
 import { QueryUserAccountService } from '@core/service/user/query_user_account.service';
 import { UpdateUserAccountService } from '@core/service/user/update_user_account.service';
@@ -15,9 +17,12 @@ import { CreatePermanentPostService } from '@core/service/post/create_permanent_
 import { QueryPermanentPostService } from '@core/service/post/query_permanent_post.service';
 import { QueryPermanentPostCollectionService } from '@core/service/post/query_permanent_post_collection.service';
 import { UpdatePermanentPostService } from '@core/service/post/update_permanent_post.service';
+import { CreateSimpleChatConversationService } from '@core/service/chat/create_simple_chat_conversation.service';
+import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
+import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -98,6 +103,24 @@ export async function createTestModule() {
       {
         provide: PostDITokens.PermanentPostRepository,
         useFactory: () => new PermanentPostInMemoryRepository(new Map())
+      },
+      {
+        provide: ChatDITokens.CreateSimpleChatConversationInteractor,
+        useFactory: (gateway) => new CreateSimpleChatConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.CreateGroupChatConversationInteractor,
+        useFactory: (gateway) => new CreateGroupChatConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.ChatConversationRepository,
+        useFactory: () => new ChatConversationInMemoryRepository(new Map())
+      },
+      {
+        provide: ChatDITokens.ChatMessageRepository,
+        useFactory: () => new ChatMessageInMemoryRepository(new Map())
       }
     ],
   }).compile();
