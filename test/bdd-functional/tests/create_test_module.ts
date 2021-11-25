@@ -22,6 +22,10 @@ import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionService } from '@core/service/reaction/add_reaction.service';
 import { ReactionInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/reaction_in_memory.repository';
 import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
+import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
+import { CreateCommentInPermanentPostService } from '@core/service/comment/create_comment_in_permanent_post.service';
+import { CommentInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/comment_in_memory.repository';
+import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -34,22 +38,22 @@ export async function createTestModule() {
       {
         provide: UserDITokens.QueryUserAccountInteractor,
         useFactory: (gateway) => new QueryUserAccountService(gateway),
-        inject: [UserDITokens.UserRepository]
+        inject: [UserDITokens.UserRepository],
       },
       {
         provide: UserDITokens.UpdateUserAccountInteractor,
         useFactory: (gateway) => new UpdateUserAccountService(gateway),
-        inject: [UserDITokens.UserRepository]
+        inject: [UserDITokens.UserRepository],
       },
       {
         provide: UserDITokens.DeleteUserAccountInteractor,
         useFactory: (gateway) => new DeleteUserAccountService(gateway),
-        inject: [UserDITokens.UserRepository]
+        inject: [UserDITokens.UserRepository],
       },
       {
         provide: UserDITokens.SearchUsersInteractor,
         useFactory: (gateway) => new SearchUsersService(gateway),
-        inject: [UserDITokens.UserRepository]
+        inject: [UserDITokens.UserRepository],
       },
       {
         provide: UserDITokens.ValidateCredentialsInteractor,
@@ -74,7 +78,7 @@ export async function createTestModule() {
       {
         provide: PostDITokens.CreatePermanentPostInteractor,
         useFactory: (gateway) => new CreatePermanentPostService(gateway),
-        inject: [PostDITokens.PermanentPostRepository]
+        inject: [PostDITokens.PermanentPostRepository],
       },
       {
         provide: PostDITokens.QueryPermanentPostInteractor,
@@ -89,7 +93,17 @@ export async function createTestModule() {
       {
         provide: PostDITokens.UpdatePermanentPostInteractor,
         useFactory: (gateway) => new UpdatePermanentPostService(gateway),
-        inject: [PostDITokens.PermanentPostRepository]
+        inject: [PostDITokens.PermanentPostRepository],
+      },
+      {
+        provide: CommentDITokens.CreateCommentInPermanentPostInteractor,
+        useFactory: (gateway) => new CreateCommentInPermanentPostService(gateway),
+        inject: [CommentDITokens.CommentRepository],
+      },
+      {
+        provide: CommentDITokens.GetCommentsInPermamentPostInteractor,
+        useFactory: (gateway) => new GetCommentsInPermanentPostService(gateway),
+        inject: [CommentDITokens.CommentRepository],
       },
       {
         provide: ReactionDITokens.AddReactionInteractor,
@@ -116,6 +130,10 @@ export async function createTestModule() {
       {
         provide: ReactionDITokens.ReactionRepository,
         useFactory: () => new ReactionInMemoryRepository(new Map()),
+      },
+      {
+        provide: CommentDITokens.CommentRepository,
+        useFactory: () => new CommentInMemoryRepository(new Map()),
       },
     ],
   }).compile();

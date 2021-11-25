@@ -7,19 +7,22 @@ import { InfrastructureModule } from './infrastructure.module';
 import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
 import { ReactionModule } from './reaction.module';
+import { CommentModule } from '@application/module/comment.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `env/${setEnvironment()}`
+      envFilePath: `env/${setEnvironment()}`,
     }),
     InfrastructureModule,
     UserModule,
     PostModule,
     AuthenticationModule,
     ProfileModule,
-    ReactionModule
-  ]
+    ReactionModule,
+    CommentModule,
+  ],
 })
-export class RootModule {}
+export class RootModule {
+}

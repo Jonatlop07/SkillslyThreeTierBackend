@@ -12,7 +12,7 @@ import * as moment from 'moment';
 export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostRepository {
   private readonly logger: Logger = new Logger(PermanentPostNeo4jRepositoryAdapter.name);
 
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) { }
 
   public async create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const post_key = 'post';
@@ -107,14 +107,14 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     return postToReturn;
   }
 
-  public async findOne( params: PermanentPostQueryModel ): Promise<PermanentPostDTO> {
+  public async findOne(params: PermanentPostQueryModel): Promise<PermanentPostDTO> {
     const { user_id, post_id } = params;
     const user_key = 'user';
     const post_key = 'post';
     const find_post_query = `
-      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: Post)
-      WHERE ${user_key}.user_id = ${user_id}
-      AND ${post_key}.post_id = ${post_id}
+      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
+      WHERE ${user_key}.user_id = '${user_id}'
+      AND ${post_key}.post_id = '${post_id}'
       RETURN ${post_key}
     `;
     return this.neo4j_service.getSingleResultProperties(
@@ -123,24 +123,30 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     );
   }
 
-  public async findAll( params: PermanentPostQueryModel ): Promise<PermanentPostDTO[]> {
+  public async findAll(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
     const { user_id } = params;
     const user_key = 'user';
     const post_key = 'post';
     const find_post_collection_query = `
-      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: Post)
-      WHERE ${user_key}.user_id = ${user_id}
+      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
+      WHERE ${user_key}.user_id = '${user_id}'
       RETURN ${post_key}
     `;
-    return await this.neo4j_service
+    const result = await this.neo4j_service
       .read(
         find_post_collection_query,
         {}
       ).then(
         (result: QueryResult) =>
           result.records.map(
-            (record:any) => record._fields[0].properties
+            (record: any) => record._fields[0].properties
           )
       );
+    return result.map(post => ({
+      ...post,
+      content: post.content.map(
+        content_element => JSON.parse(content_element),
+      )
+    }));
   }
 }
