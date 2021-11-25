@@ -21,7 +21,7 @@ export class AddReactionService implements AddReactionInteractor{
 
   async execute(input: AddReactionInputModel): Promise<AddReactionOutputModel> {
     const { post_id, reactor_id, reaction_type } = input;
-    const existing_post = await this.post_gateway.findOneByParam('post_id', post_id);
+    const existing_post = await this.post_gateway.findOne({post_id: post_id});
     if (existing_post == undefined){
       throw new AddReactionUnexistingPostException();
     }

@@ -18,7 +18,7 @@ export class QueryReactionsService implements QueryReactionsInteractor{
   ){}
 
   async execute(input: QueryReactionsInputModel): Promise<QueryReactionsOutputModel> {
-    const existing_post = await this.post_gateway.findOneByParam('post_id', input.post_id);
+    const existing_post = await this.post_gateway.findOne({post_id: input.post_id});
     if (existing_post === undefined){
       throw new QueryReactionsUnexistingPostException();
     }
