@@ -13,7 +13,7 @@ export class SharePermanentPostService implements SharePermanentPostInteractor{
 
   constructor(
     @Inject(PostDITokens.PermanentPostRepository)
-    private readonly gateway: SharePermanentPostGateway,
+    private readonly post_gateway: SharePermanentPostGateway,
     @Inject(UserDITokens.UserRepository)
     private readonly user_gateway: ExistsUsersGateway
   ) {}
@@ -23,11 +23,11 @@ export class SharePermanentPostService implements SharePermanentPostInteractor{
     if (!existsUser){
       throw new NonExistentUserException();
     }
-    const existsPost = await this.gateway.existsById(input.post_id);
+    const existsPost = await this.post_gateway.existsById(input.post_id);
     if(!existsPost){
       throw new NonExistentPermanentPostException(); 
     }
-    const result = await this.gateway.share({user_id:input.user_id, post_id: input.post_id});
+    const result = await this.post_gateway.share({user_id:input.user_id, post_id: input.post_id});
     return result as SharePermanentPostOutputModel; 
   }
 }

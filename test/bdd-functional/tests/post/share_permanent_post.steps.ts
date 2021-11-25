@@ -45,13 +45,13 @@ defineFeature(feature, (test) => {
   }
 
   function andAPostIdentifiedByIdExists(and) {
-    and(/^there exists a post identified by "([^"]*)"$/,
-      async (post_id, post_content_table) => {
+    and(/^there exists a post identified by "(.*)" and that belongs to user "(.*)" with content:$/,
+      async (post_id, post_owner_id, post_content_table) => {
         try {
           await create_permanent_post_interactor.execute({
             id: post_id,
             content: post_content_table,
-            user_id: owner_id
+            user_id: post_owner_id
           });
         } catch (e) {
           console.log(e);
