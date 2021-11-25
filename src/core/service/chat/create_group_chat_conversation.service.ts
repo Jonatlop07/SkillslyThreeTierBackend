@@ -11,12 +11,12 @@ import CreateGroupChatConversationGateway
 
 export class CreateGroupChatConversationService implements CreateGroupChatConversationInteractor {
   constructor(
-    @Inject(ChatDITokens.ChatRepository)
+    @Inject(ChatDITokens.ChatConversationRepository)
     private readonly gateway: CreateGroupChatConversationGateway
   ) {}
 
   private readonly throwIfNotEnoughConversationMembers = (conversation_members: Array<string>) => {
-    if (conversation_members.length === 0) {
+    if (conversation_members.length < 2) {
       throw new NoMembersInConversationChatException();
     }
   };

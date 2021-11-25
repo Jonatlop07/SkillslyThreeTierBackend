@@ -77,4 +77,11 @@ export class UserInMemoryRepository implements UserRepository {
     this.users.delete(id);
     return Promise.resolve(user_to_delete);
   }
+
+  public existsById(id: string): Promise<boolean> {
+    for (const _user of this.users.values())
+      if (_user.user_id === id)
+        return Promise.resolve(true);
+    return Promise.resolve(false);
+  }
 }

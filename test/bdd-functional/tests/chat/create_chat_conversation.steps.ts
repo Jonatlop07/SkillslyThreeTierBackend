@@ -20,8 +20,10 @@ import CreateGroupChatConversationOutputModel
 const feature = loadFeature('test/bdd-functional/features/chat/create_chat_conversation.feature');
 
 defineFeature(feature, (test) => {
+  let user_id: string;
+  let other_user_id: string;
   let conversation_name: string;
-  let conversation_members: Array<string>;
+  let conversation_members: Array<string> = [];
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_simple_chat_conversation_interactor: CreateSimpleChatConversationInteractor;
   let create_group_chat_conversation_interactor: CreateGroupChatConversationInteractor;
@@ -41,31 +43,39 @@ defineFeature(feature, (test) => {
     given(/^these users exists:$/,
       (users: Array<CreateUserAccountInputModel>) => {
         users.forEach(async (user: CreateUserAccountInputModel) => {
-          const { id } = await createUserAccount(user);
-          conversation_members.push(id);
+          await createUserAccount(user);
         });
       }
     );
   }
 
+  function andUserWantsToInitiateConversationWithOtherUser(and) {
+    and(/^the user identified by "([^"]*)" wants to initiate a conversation with user "([^"]*)"$/,
+      (provided_user_id: string, provided_other_user_id: string) => {
+        user_id = provided_user_id;
+        other_user_id = provided_other_user_id;
+      }
+    );
+  }
+
   function andUserWantsToInitiateConversationWithUsers(and) {
-    and(/^the user identified by "([^"]*)" wants to initiate a conversation named "([^"]*)" with users:$/,
-      (user_id: string, name: string, users: Array<string>) => {
-        conversation_members = [
-          user_id,
-          ...users
-        ];
+    and(/^the user identified by "([^"]*)" wants to initiate a conversation named "([^"]*)" with the users:$/,
+      (user_id: string, name: string, users: Array<{ user_id: string }>) => {
+        conversation_members = [user_id];
+        if (users) {
+          conversation_members = [...conversation_members, ...users.map((user) => user.user_id)];
+        }
         conversation_name = name;
       }
     );
   }
 
   function whenUserTriesToCreateASimpleConversation(when) {
-    when('the user tries to create a group conversation', async () => {
+    when('the user tries to create a simple conversation', async () => {
       try {
         create_simple_chat_conversation_output = await create_simple_chat_conversation_interactor.execute({
-          user_id: conversation_members[0],
-          friend_id: conversation_members[1] || undefined
+          user_id,
+          friend_id: other_user_id
         });
       } catch (e) {
         exception = e;
@@ -74,7 +84,7 @@ defineFeature(feature, (test) => {
   }
 
   function whenUserTriesToCreateAGroupConversation(when) {
-    when('the user tries to create a conversation', async () => {
+    when('the user tries to create a group conversation', async () => {
       try {
         create_group_chat_conversation_output = await create_group_chat_conversation_interactor.execute({
           conversation_name,
@@ -94,18 +104,10 @@ defineFeature(feature, (test) => {
     exception = undefined;
   });
 
-
   test('A user tries to create a conversation with other user',
     ({ given, and, when, then }) => {
       givenTheseUsersExists(given);
-      and(/^the user identified by "([^"]*)" wants to initiate a conversation with user "([^"]*)"$/,
-        (user_id: string, partner_id: string) => {
-          conversation_members = [
-            user_id,
-            partner_id
-          ];
-        }
-      );
+      andUserWantsToInitiateConversationWithOtherUser(and);
       whenUserTriesToCreateASimpleConversation(when);
       then('the conversation with the other user is created successfully',
         () => {
@@ -122,6 +124,7 @@ defineFeature(feature, (test) => {
       then('the group conversation is created successfully',
         () => {
           expect(create_group_chat_conversation_output).toBeDefined();
+          console.log(create_group_chat_conversation_output);
         }
       );
     }

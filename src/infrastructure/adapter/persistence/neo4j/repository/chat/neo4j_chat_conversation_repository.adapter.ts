@@ -85,4 +85,23 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
     );
     return result.records.length > 0;
   }
+
+  public async exists(conversation: ConversationDTO): Promise<boolean> {
+    return await this.existsById(conversation.conversation_id);
+  }
+
+  public async existsById(id: string): Promise<boolean> {
+    const conversation_key = 'conversation';
+    const exists_conversation_by_id_query = `
+      MATCH (${conversation_key}: Conversation { conversation_id: $conversation_id })
+      RETURN ${conversation_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      exists_conversation_by_id_query,
+      {
+        conversation_id: id
+      }
+    );
+    return result.records.length > 0;
+  }
 }

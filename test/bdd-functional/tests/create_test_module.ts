@@ -23,6 +23,7 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
+import { CreateChatMessageService } from '@core/service/chat/create_chat_message.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -93,6 +94,21 @@ export async function createTestModule() {
         inject: [PostDITokens.PermanentPostRepository]
       },
       {
+        provide: ChatDITokens.CreateSimpleChatConversationInteractor,
+        useFactory: (gateway) => new CreateSimpleChatConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.CreateGroupChatConversationInteractor,
+        useFactory: (gateway) => new CreateGroupChatConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.CreateChatMessageInteractor,
+        useFactory: (gateway, conversation_gateway) => new CreateChatMessageService(gateway, conversation_gateway),
+        inject: [ChatDITokens.ChatMessageRepository, ChatDITokens.ChatConversationRepository]
+      },
+      {
         provide: UserDITokens.UserRepository,
         useFactory: () => new UserInMemoryRepository(new Map()),
       },
@@ -103,16 +119,6 @@ export async function createTestModule() {
       {
         provide: PostDITokens.PermanentPostRepository,
         useFactory: () => new PermanentPostInMemoryRepository(new Map())
-      },
-      {
-        provide: ChatDITokens.CreateSimpleChatConversationInteractor,
-        useFactory: (gateway) => new CreateSimpleChatConversationService(gateway),
-        inject: [ChatDITokens.ChatConversationRepository]
-      },
-      {
-        provide: ChatDITokens.CreateGroupChatConversationInteractor,
-        useFactory: (gateway) => new CreateGroupChatConversationService(gateway),
-        inject: [ChatDITokens.ChatConversationRepository]
       },
       {
         provide: ChatDITokens.ChatConversationRepository,

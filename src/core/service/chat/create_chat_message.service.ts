@@ -4,7 +4,10 @@ import CreateChatMessageOutputModel from '@core/domain/chat/use-case/output-mode
 import { Inject } from '@nestjs/common';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import CreateChatMessageGateway from '@core/domain/chat/use-case/gateway/create_chat_message.gateway';
-import { UserDoesNotBelongToConversationChatException } from '@core/domain/chat/use-case/exception/chat.exception';
+import {
+  EmptyMessageChatException, NonExistentConversationChatException,
+  UserDoesNotBelongToConversationChatException
+} from '@core/domain/chat/use-case/exception/chat.exception';
 import BelongsUserToChatConversationGateway
   from '@core/domain/chat/use-case/gateway/belongs_user_to_chat_conversation.gateway';
 
@@ -16,8 +19,12 @@ export class CreateChatMessageService implements CreateChatMessageInteractor {
     private readonly conversation_gateway: BelongsUserToChatConversationGateway
   ) {}
 
-  async execute(input: CreateChatMessageInputModel): Promise<CreateChatMessageOutputModel> {
+  public async execute(input: CreateChatMessageInputModel): Promise<CreateChatMessageOutputModel> {
     const { user_id, conversation_id, content } = input;
+    if (content.length === 0)
+      throw new EmptyMessageChatException();
+    if (!await this.conversation_gateway.existsById(conversation_id))
+      throw new NonExistentConversationChatException();
     if (!await this.conversation_gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();
     return await this.gateway.create({

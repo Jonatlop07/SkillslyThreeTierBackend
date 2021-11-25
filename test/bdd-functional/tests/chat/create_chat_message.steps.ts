@@ -19,7 +19,7 @@ defineFeature(feature, (test) => {
   let user_id: string;
   let message: string;
   let conversation_id: string;
-  let conversation_members: Array<string>;
+  let conversation_members: Array<string> = [];
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_chat_conversation_interactor: CreateGroupChatConversationInteractor;
   let create_chat_message_interactor: CreateChatMessageInteractor;
@@ -38,16 +38,19 @@ defineFeature(feature, (test) => {
     given(/^these users exists:$/,
       (users: Array<CreateUserAccountInputModel>) => {
         users.forEach(async (user: CreateUserAccountInputModel) => {
-          const { id } = await createUserAccount(user);
-          conversation_members.push(id);
+          await createUserAccount(user);
         });
       }
     );
   }
 
   function andAConversationExists(and) {
-    and(/^a conversation named "([^"]*)" exists and is identified by "([^"]*)"$/,
-      async (conversation_name: string, provided_conversation_id: string) => {
+    and(/^a conversation named "([^"]*)" exists and is identified by "([^"]*)" with the users:$/,
+      async (conversation_name: string, provided_conversation_id: string, users: Array<{ user_id: string }>) => {
+        conversation_members = [user_id];
+        if (users) {
+          conversation_members = [...conversation_members, ...users.map((user) => user.user_id)];
+        }
         conversation_id = provided_conversation_id;
         try {
           await create_chat_conversation_interactor.execute({
@@ -93,7 +96,7 @@ defineFeature(feature, (test) => {
     exception = undefined;
   });
 
-  test('',
+  test('A user creates a message in a conversation',
     ({given, and, when, then}) => {
       givenTheseUsersExists(given);
       andAConversationExists(and);
@@ -105,7 +108,7 @@ defineFeature(feature, (test) => {
     }
   );
 
-  test('',
+  test('A user tries to create an empty message in a conversation',
     ({given, and, when, then}) => {
       givenTheseUsersExists(given);
       andAConversationExists(and);
@@ -118,7 +121,7 @@ defineFeature(feature, (test) => {
     }
   );
 
-  test('',
+  test('A user tries to create a message in a conversation that does not exist',
     ({given, and, when, then}) => {
       givenTheseUsersExists(given);
       andMessageContentWithConversationIdIsProvided(and);

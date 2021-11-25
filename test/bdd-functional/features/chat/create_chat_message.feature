@@ -5,7 +5,9 @@ Feature: Create chat message
       | email                 | password  | name | date_of_birth |
       | newuser_123@test.com  | Abc123_tr | Juan | 01/01/2000    |
       | newuser_1234@test.com | Abc123_tr | John | 01/01/2000    |
-    And a conversation named "<ConversationName>" exists and is identified by "<ConversationId>"
+    And a conversation named "<ConversationName>" exists and is identified by "<ConversationId>" with the users:
+      | user_id |
+      | 2       |
     And the user identified by "<UserId>" provides the message "<Message>" to be attached to the conversation identified by "<ConversationId>"
     When the user tries to create the message
     Then the message is successfully created
@@ -14,12 +16,14 @@ Feature: Create chat message
       | UserId | Message     | ConversationId | ConversationName |
       | 1      | Hello World | 1              | NewConversation  |
 
-  Scenario Outline: A user tries to create an empty message to a conversation
+  Scenario Outline: A user tries to create an empty message in a conversation
     Given these users exists:
       | email                 | password  | name | date_of_birth |
       | newuser_123@test.com  | Abc123_tr | Juan | 01/01/2000    |
       | newuser_1234@test.com | Abc123_tr | John | 01/01/2000    |
-    And a conversation named "<ConversationName>" exists and is identified by "<ConversationId>"
+    And a conversation named "<ConversationName>" exists and is identified by "<ConversationId>" with the users:
+      | user_id |
+      | 2       |
     And the user identified by "<UserId>" provides the message "<Message>" to be attached to the conversation identified by "<ConversationId>"
     When the user tries to create the message
     Then an error occurs: the message provided by the user is empty
