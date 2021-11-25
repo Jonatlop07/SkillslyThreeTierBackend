@@ -1,6 +1,6 @@
 import { GetCommentsInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/get_comments_in_permanent_post.interactor';
 import { Inject } from '@nestjs/common';
-import { CommentDITokens } from '../../../../dist/core/domain/comment/di/comment_di_tokens';
+
 import GetCommentInPermanentPostGateway
   from '@core/domain/comment/use-case/gateway/get_comments_in_permanent_post.gateway';
 import CreateCommentInPermanentPostOutputModel
@@ -12,6 +12,7 @@ import {
   GetCommentsInPermanentPostOutputModel,
   isGetCommentsInPermanentPostOutputModel,
 } from '@core/domain/comment/use-case/output_model/get_comments_in_permanent_post.output_model';
+import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 
 export class GetCommentsInPermanentPostService implements GetCommentsInPermanentPostInteractor {
   constructor(@Inject(CommentDITokens.CommentRepository) private readonly gateway: GetCommentInPermanentPostGateway) {

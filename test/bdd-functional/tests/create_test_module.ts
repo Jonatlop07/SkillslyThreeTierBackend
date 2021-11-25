@@ -22,6 +22,8 @@ import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { CreateCommentInPermanentPostService } from '@core/service/comment/create_comment_in_permanent_post.service';
 import { CommentInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/comment_in_memory.repository';
 import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post';
+import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
+import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -90,6 +92,11 @@ export async function createTestModule() {
         provide: PostDITokens.UpdatePermanentPostInteractor,
         useFactory: (gateway) => new UpdatePermanentPostService(gateway),
         inject: [PostDITokens.PermanentPostRepository],
+      },
+      {
+        provide: PostDITokens.SharePermanentPostInteractor,
+        useFactory: (post_gateway, user_gateway) => new SharePermanentPostService(post_gateway, user_gateway),
+        inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
       },
       {
         provide: CommentDITokens.CreateCommentInPermanentPostInteractor,

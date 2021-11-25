@@ -35,7 +35,7 @@ export class UpdateUserAccountService implements UpdateUserAccountInteractor {
       throw new UserAccountInvalidDataFormatException();
     let password_to_update: string;
     if (password_does_not_change) {
-      const user: UserDTO = await this.gateway.findOneByParam('user_id', id);
+      const user: UserDTO = await this.gateway.findOne({ user_id: id });
       password_to_update = user.password;
     } else {
       const SALT_ROUNDS = 10;
