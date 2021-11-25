@@ -8,7 +8,8 @@ import {
   Logger,
   Param,
   Post,
-  Put
+  Put,
+  Query
 } from '@nestjs/common';
 import { ApiBadGatewayResponse, ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
@@ -115,11 +116,11 @@ export class PermanentPostController {
   @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  public async queryPermanentPostCollection(@Body() body){
+  public async queryPermanentPostCollection(@Query() queryParams){
     try {
       return await this.query_permanent_post_collection_interactor.execute(
         await QueryPermanentPostCollectionAdapter.new({
-          user_id: body.user_id
+          user_id: queryParams.user_id
         })
       );
     } catch (e){
@@ -135,11 +136,11 @@ export class PermanentPostController {
   @Public()
   @Get(':post_id')
   @HttpCode(HttpStatus.OK)
-  public async queryPermanentPost(@Param('post_id') post_id: string, @Body() body){
+  public async queryPermanentPost(@Param('post_id') post_id: string, @Query() queryParams){
     try {
       return await this.query_permanent_post_interactor.execute(
         await QueryPermanentPostAdapter.new({
-          user_id: body.user_id,
+          user_id: queryParams.user_id,
           id: post_id
         })
       );

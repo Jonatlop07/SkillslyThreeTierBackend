@@ -124,7 +124,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     const user_key = 'user';
     const post_key = 'post';
     const find_post_query = `
-      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: Post)
+      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
       WHERE ${user_key}.user_id = '${user_id}'
       AND ${post_key}.post_id = '${post_id}'
       RETURN ${post_key}
@@ -140,11 +140,11 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     const user_key = 'user';
     const post_key = 'post';
     const find_post_collection_query = `
-      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: Post)
+      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
       WHERE ${user_key}.user_id = '${user_id}'
       RETURN ${post_key}
     `;
-    return await this.neo4j_service
+    const result = await this.neo4j_service
       .read(
         find_post_collection_query,
         {}
@@ -154,6 +154,12 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
             (record: any) => record._fields[0].properties
           )
       );
+    return result.map(post => ({
+      ...post,
+      content: post.content.map(
+        content_element => JSON.parse(content_element),
+      )
+    }));
   }
 
   public async exists(post: PermanentPostDTO): Promise<boolean> {  
