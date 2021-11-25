@@ -4,4 +4,5 @@ export class PostDITokens {
   public static readonly PermanentPostRepository: unique symbol = Symbol('PermanentPostRepository');
   public static readonly QueryPermanentPostInteractor: unique symbol = Symbol('QueryPermanentPostInteractor');
   public static readonly QueryPermanentPostCollectionInteractor: unique symbol = Symbol('QueryPermanentPostCollectionInteractor');
+  public static readonly SharePermanentPostInteractor: unique symbol = Symbol('SharePermanentPostInteractor');
 }

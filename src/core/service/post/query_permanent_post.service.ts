@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import QueryPermanentPostInputModel from '@core/domain/post/use-case/input-model/query_permanent_post.input_model';
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
@@ -13,6 +13,8 @@ import {
 } from '@core/domain/post/use-case/exception/permanent_post.exception';
 
 export class QueryPermanentPostService implements QueryPermanentPostInteractor{
+  private readonly logger: Logger = new Logger(QueryPermanentPostService.name);
+
   constructor(
     @Inject(PostDITokens.PermanentPostRepository)
     private readonly gateway: QueryPermanentPostGateway,
@@ -21,7 +23,7 @@ export class QueryPermanentPostService implements QueryPermanentPostInteractor{
   ) {}
 
   async execute(input: QueryPermanentPostInputModel): Promise<QueryPermanentPostOutputModel> {
-    const user = await this.user_gateway.findOneByParam('user_id', input.user_id);
+    const user = await this.user_gateway.findOne({ user_id: input.user_id });
     if (!user){
       throw new NonExistentUserException();
     }
@@ -29,6 +31,7 @@ export class QueryPermanentPostService implements QueryPermanentPostInteractor{
     if (!query_post){
       throw new NonExistentPermanentPostException();
     }
+    this.logger.log(query_post.user_id);
     return query_post as QueryPermanentPostOutputModel;
   }
 }

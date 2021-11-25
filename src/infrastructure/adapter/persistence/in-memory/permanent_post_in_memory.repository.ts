@@ -3,6 +3,7 @@ import PermanentPostRepository from '@core/domain/post/use-case/repository/perma
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
 import * as moment from 'moment';
+import SharePermanentPostOutputModel from '@core/domain/post/use-case/output-model/share_permanent_post.output_model';
 
 export class PermanentPostInMemoryRepository implements PermanentPostRepository {
   private currently_available_post_id: string;
@@ -23,11 +24,18 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve(new_post);
   }
 
-  public findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
+  public exists(post: PermanentPostDTO): Promise<boolean> {
     for (const _post of this.posts.values())
-      if (_post[param] === value)
-        return Promise.resolve(_post);
-    return Promise.resolve(undefined);
+      if (_post.post_id === post.post_id)
+        return Promise.resolve(true);
+    return Promise.resolve(false);
+  }
+
+  public existsById(id: string): Promise<boolean> {
+    for (const _post of this.posts.values())
+      if (_post.post_id === id)
+        return Promise.resolve(true);
+    return Promise.resolve(false);
   }
 
   public findAll(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
@@ -60,5 +68,9 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     };
     this.posts.set(post.post_id, post_to_update);
     return Promise.resolve(post_to_update);
+  }
+
+  public share(post: PermanentPostQueryModel): Promise<SharePermanentPostOutputModel> {
+    return Promise.resolve({});
   }
 }
