@@ -21,7 +21,7 @@ export class QueryPermanentPostCollectionService implements QueryPermanentPostCo
 
   async execute(input: QueryPermanentPostCollectionInputModel): Promise<QueryPermanentPostCollectionOutputModel> {
     const owner_id = input.user_id;
-    const owner = await this.user_gateway.findOneByParam('user_id', owner_id);
+    const owner = await this.user_gateway.findOne({ user_id: owner_id });
     if (!owner){
       throw new NonExistentUserException();
     }

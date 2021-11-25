@@ -21,7 +21,7 @@ export class ValidateCredentialsService implements ValidateCredentialsInteractor
   ) {}
 
   async execute(input: ValidateCredentialsInputModel): Promise<ValidateCredentialsOutputModel> {
-    const resulting_user: UserDTO = await this.gateway.findOneByParam('email', input.email);
+    const resulting_user: UserDTO = await this.gateway.findOne({ email: input.email });
     if (!resulting_user)
       throw new UserAccountNotFoundException();
     if (!bcrypt.compareSync(input.password, resulting_user.password))

@@ -38,13 +38,6 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve(false);
   }
 
-  public findOneByParam(param: string, value: any): Promise<Optional<PermanentPostDTO>> {
-    for (const _post of this.posts.values())
-      if (_post[param] === value)
-        return Promise.resolve(_post);
-    return Promise.resolve(undefined);
-  }
-
   public findAll(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
     const user_posts: PermanentPostDTO[] = [];
     for (const post of this.posts.values()){
@@ -78,6 +71,6 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   }
 
   public share(post: PermanentPostQueryModel): Promise<SharePermanentPostOutputModel> {
-    return Promise.resolve({}); 
+    return Promise.resolve({});
   }
 }
