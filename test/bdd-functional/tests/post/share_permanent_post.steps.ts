@@ -24,10 +24,10 @@ defineFeature(feature, (test) => {
   let post_id: string;
 
   let create_user_account_interactor: CreateUserAccountInteractor;
-  let create_permanent_post_interactor: CreatePermanentPostInteractor; 
-  let share_permanent_post_interactor: SharePermanentPostInteractor; 
+  let create_permanent_post_interactor: CreatePermanentPostInteractor;
+  let share_permanent_post_interactor: SharePermanentPostInteractor;
 
-  let output: SharePermanentPostOutputModel; 
+  let output: SharePermanentPostOutputModel;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
@@ -103,4 +103,4 @@ defineFeature(feature, (test) => {
       thenThePostIsSharedOnTheProfileOfTheUser(then);
     }
   );
-})
+});
