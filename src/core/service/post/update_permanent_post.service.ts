@@ -28,7 +28,7 @@ export class UpdatePermanentPostService implements UpdatePermanentPostInteractor
     });
     if (!post.hasNonEmptyContent())
       throw new EmptyPermanentPostContentException();
-    const matching_post: PermanentPostDTO = await this.gateway.findOneByParam('post_id', input.id);
+    const matching_post: PermanentPostDTO = await this.gateway.findOne({ post_id: input.id });
     if (!matching_post)
       throw new NonExistentPermanentPostException();
     const updated_post: PermanentPostDTO = await this.gateway.update(PermanentPostMapper.toPermanentPostDTO(post));

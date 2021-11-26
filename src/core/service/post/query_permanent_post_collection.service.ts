@@ -21,13 +21,13 @@ export class QueryPermanentPostCollectionService implements QueryPermanentPostCo
 
   async execute(input: QueryPermanentPostCollectionInputModel): Promise<QueryPermanentPostCollectionOutputModel> {
     const owner_id = input.user_id;
-    const owner = await this.user_gateway.findOneByParam('user_id', owner_id);
+    const owner = await this.user_gateway.findOne({ user_id: owner_id });
     if (!owner){
       throw new NonExistentUserException();
     }
-    const all_posts = await this.post_gateway.findAll({ user_id: owner_id });
+    const posts = await this.post_gateway.findAll({ user_id: owner_id });
     const post_collection: QueryPermanentPostCollectionOutputModel = {
-      posts: all_posts
+      posts
     };
     return Promise.resolve(post_collection);
   }

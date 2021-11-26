@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { QueryResult } from 'neo4j-driver';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
-import { Optional } from '@core/common/type/common_types';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
@@ -36,9 +35,22 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     );
   }
 
-  public findOne(params: UserQueryModel): Promise<UserDTO> {
-    params;
-    throw new Error('Method not implemented.');
+  public async findOne(params: UserQueryModel): Promise<UserDTO> {
+    const user_key = 'user';
+    const find_user_query = `
+      MATCH (${user_key}: User)
+      WHERE ALL(k in keys($properties) WHERE $properties[k] = ${user_key}[k])
+      RETURN ${user_key}
+    `;
+    return this.neo4j_service.getSingleResultProperties(
+      await this.neo4j_service.read(
+        find_user_query,
+        {
+          properties: params
+        }
+      ),
+      user_key
+    );
   }
 
   public async create(user: UserDTO): Promise<UserDTO> {
@@ -72,20 +84,14 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     return result.records.length > 0;
   }
 
-  public async findOneByParam(param: string, value: any): Promise<Optional<UserDTO>> {
+  public async existsById(id: string): Promise<boolean> {
     const user_key = 'user';
-    const formatted_value = typeof value === 'string' || value instanceof String ? `'${value}'` : value;
-    const find_user_query = `
-      MATCH (${user_key}: User { ${param}: ${formatted_value} })
-      RETURN ${user_key}
-    `;
-    return this.neo4j_service.getSingleResultProperties(
-      await this.neo4j_service.read(
-        find_user_query,
-        {}
-      ),
-      user_key
+    const exists_user_query = `MATCH (${user_key}: User { user_id: $id }) RETURN ${user_key}`;
+    const result: QueryResult = await this.neo4j_service.read(
+      exists_user_query,
+      { id: id }
     );
+    return result.records.length > 0;
   }
 
   public async update(user: UserDTO): Promise<UserDTO> {
