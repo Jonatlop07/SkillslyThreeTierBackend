@@ -11,9 +11,10 @@ import {
   Param,
   Post,
   Put,
-  Query
+  Query,
+  ValidationPipe
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBadGatewayResponse, ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
@@ -29,6 +30,10 @@ import {
   UserAccountAlreadyExistsException,
   UserAccountInvalidDataFormatException
 } from '@core/domain/user/use-case/exception/user_account.exception';
+import { CreateUserFollowRequestDTO } from '../user/dto/create_user_follow_request.dto';
+import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/create_user_follow_request.interactor';
+import { NonExistentUserException } from '@core/domain/post/use-case/exception/permanent_post.exception';
+import { CreateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/create_user_follow_request.adapter';
 
 @Controller('users')
 @ApiTags('user')
@@ -46,6 +51,8 @@ export class UserController {
     private readonly delete_user_account_interactor: DeleteUserAccountInteractor,
     @Inject(UserDITokens.SearchUsersInteractor)
     private readonly search_users_interactor: SearchUsersInteractor,
+    @Inject(UserDITokens.CreateUserFollowRequestInteractor)
+    private readonly create_user_follow_request_interactor: CreateUserFollowRequestInteractor
   ) {}
 
   @Public()
@@ -163,5 +170,31 @@ export class UserController {
         name: params['name']
       })
     );
+  }
+
+  @Post('follow/:user_id')
+  @HttpCode(HttpStatus.OK)
+  @ApiCreatedResponse({ description: 'Follow Request has been sucessfully created' })
+  @ApiBadRequestResponse({ description: 'Invalid data format' })
+  @ApiBadGatewayResponse({ description: 'Error while cretaing user follow request' })
+  @ApiBearerAuth()
+  public async createUserFollowRequest(
+    @Param('user_id') user_id: string,
+    @Body(new ValidationPipe()) body: CreateUserFollowRequestDTO
+  ){
+    try {
+      return await this.create_user_follow_request_interactor.execute(
+        await CreateUserFollowRequestAdapter.new({
+          user_id,
+          user_destiny_id: body.user_destiny_id
+        })
+      );
+    } catch (e) {
+      this.logger.error(e.stack);
+      if (e instanceof NonExistentUserException) {
+        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t create follow request to or from an unexisting user'}, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

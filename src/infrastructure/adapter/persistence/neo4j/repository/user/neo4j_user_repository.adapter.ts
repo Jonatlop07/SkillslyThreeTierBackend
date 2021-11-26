@@ -6,6 +6,8 @@ import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
 import * as moment from 'moment';
+import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/create_user_follow_request.input_model';
+import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/create_user_follow_request.output_model';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -69,6 +71,21 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
         }
       });
     return this.neo4j_service.getSingleResultProperties(result, user_key) as UserDTO;
+  }
+
+  public async createUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<CreateUserFollowRequestOutputModel> {
+    const user_key = 'user';
+    const user_destiny_key = 'user_destiny'; 
+    const create_user_follow_request_query = ` 
+      MATCH (${user_key}: User { user_id: '${params.user_id}' }) 
+      MATCH (${user_destiny_key}: User { user_id: '${params.user_destiny_id}' })
+      CREATE (${user_key})-[:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+    `;
+    await this.neo4j_service.write(
+      create_user_follow_request_query,
+      {}
+    );
+    return {}; 
   }
 
   public async exists(user: UserDTO): Promise<boolean> {

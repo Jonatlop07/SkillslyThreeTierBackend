@@ -24,6 +24,7 @@ import { CommentInMemoryRepository } from '@infrastructure/adapter/persistence/i
 import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post';
 import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
 import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
+import { CreateUserFollowRequestService } from '@core/service/user/create_user_follow_request.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -56,6 +57,11 @@ export async function createTestModule() {
       {
         provide: UserDITokens.ValidateCredentialsInteractor,
         useFactory: (gateway) => new ValidateCredentialsService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.CreateUserFollowRequestInteractor,
+        useFactory: (gateway) => new CreateUserFollowRequestService(gateway),
         inject: [UserDITokens.UserRepository],
       },
       {

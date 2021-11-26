@@ -3,6 +3,8 @@ import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import * as moment from 'moment';
 import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
+import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/create_user_follow_request.input_model';
+import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/create_user_follow_request.output_model';
 
 export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
@@ -23,6 +25,10 @@ export class UserInMemoryRepository implements UserRepository {
     this.users.set(this.currently_available_user_id, new_user);
     this.currently_available_user_id = `${Number(this.currently_available_user_id) + 1}`;
     return Promise.resolve(new_user);
+  }
+
+  public async createUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<CreateUserFollowRequestOutputModel> {
+    return Promise.resolve({});
   }
 
   public exists(user: UserDTO): Promise<boolean> {
