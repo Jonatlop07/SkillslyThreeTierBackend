@@ -18,6 +18,12 @@ import { UpdatePermanentPostService } from '@core/service/post/update_permanent_
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
+import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
+import { CreateCommentInPermanentPostService } from '@core/service/comment/create_comment_in_permanent_post.service';
+import { CommentInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/comment_in_memory.repository';
+import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post';
+import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
+import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -30,22 +36,22 @@ export async function createTestModule() {
       {
         provide: UserDITokens.QueryUserAccountInteractor,
         useFactory: (gateway) => new QueryUserAccountService(gateway),
-        inject: [UserDITokens.UserRepository]
+        inject: [UserDITokens.UserRepository],
       },
       {
         provide: UserDITokens.UpdateUserAccountInteractor,
         useFactory: (gateway) => new UpdateUserAccountService(gateway),
-        inject: [UserDITokens.UserRepository]
+        inject: [UserDITokens.UserRepository],
       },
       {
         provide: UserDITokens.DeleteUserAccountInteractor,
         useFactory: (gateway) => new DeleteUserAccountService(gateway),
-        inject: [UserDITokens.UserRepository]
+        inject: [UserDITokens.UserRepository],
       },
       {
         provide: UserDITokens.SearchUsersInteractor,
         useFactory: (gateway) => new SearchUsersService(gateway),
-        inject: [UserDITokens.UserRepository]
+        inject: [UserDITokens.UserRepository],
       },
       {
         provide: UserDITokens.ValidateCredentialsInteractor,
@@ -70,7 +76,7 @@ export async function createTestModule() {
       {
         provide: PostDITokens.CreatePermanentPostInteractor,
         useFactory: (gateway) => new CreatePermanentPostService(gateway),
-        inject: [PostDITokens.PermanentPostRepository]
+        inject: [PostDITokens.PermanentPostRepository],
       },
       {
         provide: PostDITokens.QueryPermanentPostInteractor,
@@ -85,7 +91,22 @@ export async function createTestModule() {
       {
         provide: PostDITokens.UpdatePermanentPostInteractor,
         useFactory: (gateway) => new UpdatePermanentPostService(gateway),
-        inject: [PostDITokens.PermanentPostRepository]
+        inject: [PostDITokens.PermanentPostRepository],
+      },
+      {
+        provide: PostDITokens.SharePermanentPostInteractor,
+        useFactory: (post_gateway, user_gateway) => new SharePermanentPostService(post_gateway, user_gateway),
+        inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: CommentDITokens.CreateCommentInPermanentPostInteractor,
+        useFactory: (gateway) => new CreateCommentInPermanentPostService(gateway),
+        inject: [CommentDITokens.CommentRepository],
+      },
+      {
+        provide: CommentDITokens.GetCommentsInPermamentPostInteractor,
+        useFactory: (gateway) => new GetCommentsInPermanentPostService(gateway),
+        inject: [CommentDITokens.CommentRepository],
       },
       {
         provide: UserDITokens.UserRepository,
@@ -97,8 +118,12 @@ export async function createTestModule() {
       },
       {
         provide: PostDITokens.PermanentPostRepository,
-        useFactory: () => new PermanentPostInMemoryRepository(new Map())
-      }
+        useFactory: () => new PermanentPostInMemoryRepository(new Map()),
+      },
+      {
+        provide: CommentDITokens.CommentRepository,
+        useFactory: () => new CommentInMemoryRepository(new Map()),
+      },
     ],
   }).compile();
 }

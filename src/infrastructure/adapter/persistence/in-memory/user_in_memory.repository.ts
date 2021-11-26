@@ -32,16 +32,20 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve(false);
   }
 
-  public findOneByParam(param: string, value: any): Promise<Optional<UserDTO>> {
+  public existsById(id: string): Promise<boolean> {
     for (const _user of this.users.values())
-      if (_user[param] === value)
-        return Promise.resolve(_user);
-    return Promise.resolve(undefined);
+      if (_user.user_id === id)
+        return Promise.resolve(true);
+    return Promise.resolve(false);
   }
 
   public findOne(params: UserQueryModel): Promise<UserDTO> {
-    params;
-    throw new Error('Method not implemented.');
+    for (const user of this.users.values()){
+      if (Object.keys(params).every((key: string) => params[key] === user[key])){
+        return Promise.resolve(user);
+      }
+    }
+    return Promise.resolve(undefined);
   }
 
   public findAll(params: any): Promise<Array<UserDTO>>{
