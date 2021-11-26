@@ -76,7 +76,7 @@ defineFeature(feature, (test) => {
       try {
         create_simple_chat_conversation_output = await create_simple_chat_conversation_interactor.execute({
           user_id,
-          friend_id: other_user_id
+          partner_id: other_user_id
         });
       } catch (e) {
         exception = e;

@@ -153,14 +153,4 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     const result: QueryResult = await this.neo4j_service.write(delete_user_statement, { user_id: id });
     return this.neo4j_service.getSingleResultProperties(result, user_key);
   }
-
-  public async existsById(id: string): Promise<boolean> {
-    const user_key = 'user';
-    const exists_user_query = `MATCH (${user_key}: User { user_id: $user_id }) RETURN ${user_key}`;
-    const result: QueryResult = await this.neo4j_service.read(
-      exists_user_query,
-      { user_id: id }
-    );
-    return result.records.length > 0;
-  }
 }
