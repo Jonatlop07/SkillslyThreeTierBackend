@@ -87,7 +87,6 @@ defineFeature(feature, (test) => {
   function whenUserTriesToCreateAGroupConversation(when) {
     when('the user tries to create a group conversation', async () => {
       try {
-        console.log(conversation_members.length);
         create_group_chat_conversation_output = await create_group_chat_conversation_interactor.execute({
           conversation_name,
           conversation_members

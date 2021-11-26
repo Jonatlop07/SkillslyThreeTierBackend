@@ -24,6 +24,7 @@ import { SharePermanentPostService } from '@core/service/post/share_permanent_po
 import { CreateSimpleChatConversationService } from '@core/service/chat/create_simple_chat_conversation.service';
 import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
 import { CreateChatMessageService } from '@core/service/chat/create_chat_message.service';
+import { GetChatMessageCollectionService } from '@core/service/chat/get_chat_message_collection.service';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
@@ -126,6 +127,11 @@ export async function createTestModule() {
       {
         provide: ChatDITokens.CreateChatMessageInteractor,
         useFactory: (gateway, conversation_gateway) => new CreateChatMessageService(gateway, conversation_gateway),
+        inject: [ChatDITokens.ChatMessageRepository, ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.GetChatMessageCollectionInteractor,
+        useFactory: (gateway, conversation_gateway) => new GetChatMessageCollectionService(gateway, conversation_gateway),
         inject: [ChatDITokens.ChatMessageRepository, ChatDITokens.ChatConversationRepository]
       },
       {

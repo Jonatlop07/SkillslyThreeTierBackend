@@ -21,7 +21,7 @@ export class CreateGroupChatConversationService implements CreateGroupChatConver
     }
   };
 
-  async execute(input: CreateGroupChatConversationInputModel): Promise<CreateGroupChatConversationOutputModel> {
+  public async execute(input: CreateGroupChatConversationInputModel): Promise<CreateGroupChatConversationOutputModel> {
     const { conversation_name, conversation_members } = input;
     this.throwIfNotEnoughConversationMembers(conversation_members);
     return await this.gateway.create({

@@ -16,7 +16,7 @@ export class CreateSimpleChatConversationService implements CreateSimpleChatConv
     private readonly gateway: CreateSimpleChatConversationGateway
   ) {}
 
-  async execute(input: CreateSimpleChatConversationInputModel): Promise<CreateSimpleChatConversationOutputModel> {
+  public async execute(input: CreateSimpleChatConversationInputModel): Promise<CreateSimpleChatConversationOutputModel> {
     const { user_id, partner_id } = input;
     if (await this.gateway.existsSimpleConversationWithUser(user_id, partner_id))
       throw new SimpleConversationAlreadyExistsChatException();

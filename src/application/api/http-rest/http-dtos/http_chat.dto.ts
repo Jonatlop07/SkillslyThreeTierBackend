@@ -22,3 +22,7 @@ export class ChatMessageResponseDTO {
   @IsString() content: string;
   @IsString() created_at: string;
 }
+
+export class ChatMessageCollectionResponseDTO {
+  @IsArray() messages: Array<ChatMessageResponseDTO>;
+}
