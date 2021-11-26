@@ -1,7 +1,7 @@
 import { IsArray, IsString } from 'class-validator';
 
 export class CreateSimpleChatConversationDTO {
-  @IsString() friend_id: string;
+  @IsString() partner_id: string;
 }
 
 export class CreateGroupChatConversationDTO {

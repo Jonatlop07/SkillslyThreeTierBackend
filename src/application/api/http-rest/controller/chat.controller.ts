@@ -5,12 +5,13 @@ import {
   CreateGroupChatConversationDTO,
   CreateSimpleChatConversationDTO
 } from '@application/api/http-rest/profile/dtos/http_chat.dto';
-import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
+import { ChatSocketGateway } from '@application/api/socket-gateway/chat.socket_gateway';
+import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
 import { CreateGroupChatConversationAdapter } from '@infrastructure/adapter/use-case/chat/create_group_chat_conversation.adapter';
 import { CreateSimpleChatConversationAdapter } from '@infrastructure/adapter/use-case/chat/create_simple_chat_conversation.adapter';
+import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { CreateSimpleChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_simple_chat_conversation.interactor';
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
-import { ChatSocketGateway } from '@application/api/socket-gateway/chat.socket_gateway';
 
 @Controller('chat')
 export class ChatController {
@@ -22,7 +23,7 @@ export class ChatController {
     private readonly chat_socket_gateway: ChatSocketGateway
   ) {}
 
-  @Post('simple-conversation')
+  @Post()
   public async createSimpleConversation(
     @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateSimpleChatConversationDTO
@@ -31,15 +32,15 @@ export class ChatController {
       return CreateSimpleChatConversationAdapter.toResponseDTO(
         await this.create_simple_chat_conversation_interactor.execute({
           user_id: http_user.id,
-          friend_id: body.friend_id,
+          partner_id: body.partner_id,
         })
       );
     } catch (e) {
-      throw e;
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
-  @Post('group-conversation')
+  @Post('group')
   public async createGroupConversation(
     @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateGroupChatConversationDTO
@@ -51,7 +52,7 @@ export class ChatController {
         )
       );
     } catch (e) {
-      throw e;
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 }

@@ -17,11 +17,11 @@ export class CreateSimpleChatConversationService implements CreateSimpleChatConv
   ) {}
 
   async execute(input: CreateSimpleChatConversationInputModel): Promise<CreateSimpleChatConversationOutputModel> {
-    const { user_id, friend_id } = input;
-    if (await this.gateway.existsSimpleConversationWithUser(user_id, friend_id))
+    const { user_id, partner_id } = input;
+    if (await this.gateway.existsSimpleConversationWithUser(user_id, partner_id))
       throw new SimpleConversationAlreadyExistsChatException();
     return await this.gateway.create({
-      members: [user_id, friend_id],
+      members: [user_id, partner_id],
       messages: []
     });
   }
