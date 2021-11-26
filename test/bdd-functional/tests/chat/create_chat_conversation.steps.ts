@@ -61,9 +61,10 @@ defineFeature(feature, (test) => {
   function andUserWantsToInitiateConversationWithUsers(and) {
     and(/^the user identified by "([^"]*)" wants to initiate a conversation named "([^"]*)" with the users:$/,
       (user_id: string, name: string, users: Array<{ user_id: string }>) => {
-        conversation_members = [user_id];
         if (users) {
-          conversation_members = [...conversation_members, ...users.map((user) => user.user_id)];
+          conversation_members = [...users.map((user) => user.user_id)];
+        } else {
+          conversation_members = [];
         }
         conversation_name = name;
       }
@@ -86,6 +87,7 @@ defineFeature(feature, (test) => {
   function whenUserTriesToCreateAGroupConversation(when) {
     when('the user tries to create a group conversation', async () => {
       try {
+        console.log(conversation_members.length);
         create_group_chat_conversation_output = await create_group_chat_conversation_interactor.execute({
           conversation_name,
           conversation_members
@@ -124,7 +126,6 @@ defineFeature(feature, (test) => {
       then('the group conversation is created successfully',
         () => {
           expect(create_group_chat_conversation_output).toBeDefined();
-          console.log(create_group_chat_conversation_output);
         }
       );
     }

@@ -23,8 +23,12 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
   }
 
   belongsUserToConversation(user_id: string, conversation_id: string): Promise<boolean> {
-    const conversation = this.conversations.get(conversation_id);
-    return Promise.resolve(user_id in conversation.members);
+    return Promise.resolve(
+      !!this.conversations
+        .get(conversation_id)
+        .members
+        .find((member) => member === user_id)
+    );
   }
 
   existsSimpleConversationWithUser(user_id: string, other_user_id: string): Promise<boolean> {

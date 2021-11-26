@@ -9,7 +9,7 @@ import CreateChatMessageOutputModel from '@core/domain/chat/use-case/output-mode
 import {
   ChatException,
   EmptyMessageChatException,
-  NonExistentConversationChatException
+  NonExistentConversationChatException, UserDoesNotBelongToConversationChatException
 } from '@core/domain/chat/use-case/exception/chat.exception';
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
 
@@ -47,11 +47,10 @@ defineFeature(feature, (test) => {
   function andAConversationExists(and) {
     and(/^a conversation named "([^"]*)" exists and is identified by "([^"]*)" with the users:$/,
       async (conversation_name: string, provided_conversation_id: string, users: Array<{ user_id: string }>) => {
-        conversation_members = [user_id];
-        if (users) {
-          conversation_members = [...conversation_members, ...users.map((user) => user.user_id)];
-        }
         conversation_id = provided_conversation_id;
+        if (users) {
+          conversation_members = [...users.map((user) => user.user_id)];
+        }
         try {
           await create_chat_conversation_interactor.execute({
             conversation_name,
@@ -129,6 +128,19 @@ defineFeature(feature, (test) => {
       then('an error occurs: the conversation does not exist', () => {
         expect(exception).toBeDefined();
         expect(exception).toBeInstanceOf(NonExistentConversationChatException);
+      });
+    }
+  );
+
+  test('A user tries to create a message in a conversation they does not belong to',
+    ({given, and, when, then}) => {
+      givenTheseUsersExists(given);
+      andAConversationExists(and);
+      andMessageContentWithConversationIdIsProvided(and);
+      whenUserTriesToCreateMessage(when);
+      then('an error occurs: the user does not belong to the conversation', () => {
+        expect(exception).toBeDefined();
+        expect(exception).toBeInstanceOf(UserDoesNotBelongToConversationChatException);
       });
     }
   );

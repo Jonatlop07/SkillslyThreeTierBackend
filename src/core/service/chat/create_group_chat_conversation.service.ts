@@ -16,7 +16,7 @@ export class CreateGroupChatConversationService implements CreateGroupChatConver
   ) {}
 
   private readonly throwIfNotEnoughConversationMembers = (conversation_members: Array<string>) => {
-    if (conversation_members.length < 2) {
+    if (conversation_members.length == 0) {
       throw new NoMembersInConversationChatException();
     }
   };
