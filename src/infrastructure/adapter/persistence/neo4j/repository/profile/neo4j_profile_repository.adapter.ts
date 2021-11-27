@@ -12,7 +12,7 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     const user_key = 'user';
     const profile_key = 'profile';
     const create_profile_query = `
-      MATCH (${user_key}: User { email: '${profile.user_email}' })
+      MATCH (${user_key}: User { email: $email })
       CREATE (${profile_key}: Profile)
       SET ${profile_key} += $properties, ${profile_key}.profile_id = randomUUID()
       CREATE (${user_key})-[:${Relationships.USER_PROFILE_RELATIONSHIP}]->(${profile_key})
@@ -21,6 +21,7 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     const created_profile = await this.neo4j_service.write(
       create_profile_query,
       {
+        email: profile.user_email,
         properties: {
           resume: profile.resume,
           knowledge: profile.knowledge,
@@ -37,23 +38,24 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     const user_key = 'user';
     const profile_key = 'profile';
     const get_profile_query = ` 
-      MATCH (${user_key} { email : '${user_email}' })--(${profile_key})
+      MATCH (${user_key} { email : $email })--(${profile_key})
       RETURN ${profile_key}
     `;
-    const get_profile_result = await this.neo4j_service.read(get_profile_query, {});
+    const get_profile_result = await this.neo4j_service.read(get_profile_query, { email: user_email });
     return this.neo4j_service.getSingleResultProperties(get_profile_result, profile_key);
   }
 
   public async partialUpdate(old_profile: ProfileDTO, new_profile: Partial<ProfileDTO>): Promise<ProfileDTO> {
     const profile_key = 'profile';
     const edit_profile_data_query = `
-      MATCH (${profile_key}: Profile { profile_id: '${old_profile.profile_id}' })
+      MATCH (${profile_key}: Profile { profile_id: $profile_id })
       SET ${profile_key} += $properties
       RETURN ${profile_key}
     `;
     const result_edit_profile_data = await this.neo4j_service.write(
       edit_profile_data_query,
       {
+        profile_id: old_profile.profile_id,
         properties: {
           ...new_profile,
         },

@@ -30,7 +30,7 @@ import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interac
 import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
 import { SharePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/share_permanent_post.adapter';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
-import { SharePermanentPostDTO } from '@application/api/http-rest/post/dto/share_permanent_post.dto';
+import { SharePermanentPostDTO } from '@application/api/http-rest/http-dtos/share_permanent_post.dto';
 
 @Controller('permanent-posts')
 @ApiTags('permanent-posts')
@@ -45,7 +45,7 @@ export class PermanentPostController {
     @Inject(PostDITokens.QueryPermanentPostCollectionInteractor)
     private readonly query_permanent_post_collection_interactor: QueryPermanentPostCollectionInteractor,
     @Inject(PostDITokens.QueryPermanentPostInteractor)
-    private readonly query_permanent_post_interactor: QueryPermanentPostInteractor, 
+    private readonly query_permanent_post_interactor: QueryPermanentPostInteractor,
     @Inject(PostDITokens.SharePermanentPostInteractor)
     private readonly share_permanent_post_interactor: SharePermanentPostInteractor
   ) {}
