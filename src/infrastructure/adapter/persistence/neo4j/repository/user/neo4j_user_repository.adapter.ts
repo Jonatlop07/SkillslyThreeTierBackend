@@ -18,7 +18,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     const user_key = 'user';
     const find_user_query = `
       MATCH (${user_key}: User)
-      WHERE ${user_key}.email = '${email}' OR ${user_key}.name = '${name}' 
+      WHERE ${user_key}.email CONTAINS '${email}' OR ${user_key}.name CONTAINS '${name}' 
       RETURN ${user_key}
     `;
     return await this.neo4j_service.read(
