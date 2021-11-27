@@ -127,7 +127,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     const find_post_collection_query = `
       MATCH (${user_key}: User { user_id: $user_id })
         -[:${Relationships.USER_POST_RELATIONSHIP}]
-        ->(${post_key}: Post)
+        ->(${post_key}: PermanentPost)
       RETURN ${post_key}
     `;
     const result = await this.neo4j_service

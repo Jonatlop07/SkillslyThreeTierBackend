@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import SearchUsersGateway from '@core/domain/user/use-case/gateway/search_users.gateway';
@@ -12,6 +12,8 @@ import QueryPermanentPostCollectionInputModel
   from '@core/domain/post/use-case/input-model/query_permanent_post_collection.input_model';
 
 export class QueryPermanentPostCollectionService implements QueryPermanentPostCollectionInteractor {
+  private readonly logger: Logger = new Logger(QueryPermanentPostCollectionService.name);
+
   constructor(
     @Inject(PostDITokens.PermanentPostRepository)
     private readonly post_gateway: QueryPermanentPostCollectionGateway,
@@ -26,9 +28,8 @@ export class QueryPermanentPostCollectionService implements QueryPermanentPostCo
       throw new NonExistentUserException();
     }
     const posts = await this.post_gateway.findAll({ user_id: owner_id });
-    const post_collection: QueryPermanentPostCollectionOutputModel = {
+    return {
       posts
     };
-    return Promise.resolve(post_collection);
   }
 }
