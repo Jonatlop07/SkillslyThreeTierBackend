@@ -108,6 +108,21 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     return result.records.length > 0;
   }
 
+  public async existsUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<boolean> {
+    const user_key = 'user';
+    const user_destiny_key = 'user_destiny'; 
+    const exists_user_follow_request_query = ` 
+      MATCH (${user_key}: User { user_id: '${params.user_id}' }) 
+      MATCH (${user_destiny_key}: User { user_id: '${params.user_destiny_id}' })
+      RETURN (${user_key})-[:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      exists_user_follow_request_query,
+      {}
+    );
+    return result.records.length > 0;
+  }
+
   async update(user: UserDTO): Promise<UserDTO> {
     const user_key = 'user';
     const update_user_statement = `

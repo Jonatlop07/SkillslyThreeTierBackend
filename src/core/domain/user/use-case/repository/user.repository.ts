@@ -5,8 +5,9 @@ import QueryUserAccountGateway from '@core/domain/user/use-case/gateway/query_us
 import DeleteUserAccountGateway from '@core/domain/user/use-case/gateway/delete_user_account.gateway';
 import SearchUsersGateway from '@core/domain/user/use-case/gateway/search_users.gateway';
 import CreateUserFollowRequestGateway from '@core/domain/user/use-case/gateway/create_user_follow_request.gateway';
+import ExistsUserFollowRequest from '@core/domain/user/use-case/persistence/exists_follow_request';
 
 export default interface UserRepository
   extends CreateUserAccountGateway, ValidateCredentialsGateway,
   UpdateUserAccountGateway, QueryUserAccountGateway, DeleteUserAccountGateway,
-  SearchUsersGateway, CreateUserFollowRequestGateway {}
+  SearchUsersGateway, CreateUserFollowRequestGateway, ExistsUserFollowRequest {}

@@ -34,6 +34,7 @@ import { CreateUserFollowRequestDTO } from '../user/dto/create_user_follow_reque
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/create_user_follow_request.interactor';
 import { NonExistentUserException } from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { CreateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/create_user_follow_request.adapter';
+import { UserFollowRequestAlreadyExistsException } from '@core/domain/user/use-case/exception/user_follow_request.exception';
 
 @Controller('users')
 @ApiTags('user')
@@ -190,11 +191,13 @@ export class UserController {
         })
       );
     } catch (e) {
-      this.logger.error(e.stack);
-      if (e instanceof NonExistentUserException) {
+      if (e instanceof UserFollowRequestAlreadyExistsException) {
+        throw new HttpException({status: HttpStatus.CONFLICT, error: 'Can\'t create follow request because it already exists'}, HttpStatus.CONFLICT);
+      } else if (e instanceof NonExistentUserException) {
         throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t create follow request to or from an unexisting user'}, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
       }
-      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

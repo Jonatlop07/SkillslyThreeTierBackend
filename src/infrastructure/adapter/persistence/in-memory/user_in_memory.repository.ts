@@ -9,7 +9,7 @@ import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/outpu
 export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
 
-  constructor(private readonly users: Map<string, UserDTO>) {
+  constructor(public readonly users: Map<string, UserDTO>) {
     this.currently_available_user_id = '1';
   }
 
@@ -27,6 +27,10 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve(new_user);
   }
 
+  public existsUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<boolean> {
+    return Promise.resolve(false); 
+  }
+
   public async createUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<CreateUserFollowRequestOutputModel> {
     return Promise.resolve({});
   }
@@ -41,7 +45,7 @@ export class UserInMemoryRepository implements UserRepository {
   public existsById(id: string): Promise<boolean> {
     for (const _user of this.users.values())
       if (_user.user_id === id)
-        return Promise.resolve(true);
+        return Promise.resolve(true); 
     return Promise.resolve(false);
   }
 

@@ -6,6 +6,8 @@ import CreateUserFollowRequestInputModel from "@core/domain/user/use-case/input-
 import { CreateUserFollowRequestInteractor } from "@core/domain/user/use-case/interactor/create_user_follow_request.interactor";
 import CreateUserFollowRequestOutputModel from "@core/domain/user/use-case/output-model/create_user_follow_request.output_model";
 import { Inject, Injectable, Logger } from "@nestjs/common";
+import { UserFollowRequestAlreadyExistsException } from '@core/domain/user/use-case/exception/user_follow_request.exception';
+
 
 @Injectable()
 export class CreateUserFollowRequestService implements CreateUserFollowRequestInteractor {
@@ -19,15 +21,22 @@ export class CreateUserFollowRequestService implements CreateUserFollowRequestIn
   async execute(
     input: CreateUserFollowRequestInputModel,
   ): Promise<CreateUserFollowRequestOutputModel> {
-    const existsUser = this.user_gateway.existsById(input.user_id);
+    const existsUser = await this.user_gateway.existsById(input.user_id);
+    console.log(existsUser)
     if (!existsUser) {
       throw new NonExistentUserException();
     }
-    const existsDestinyUser = await this.user_gateway.existsById(input.user_id);
+    const existsDestinyUser = await this.user_gateway.existsById(input.user_destiny_id);
     if (!existsDestinyUser){
       throw new NonExistentUserException();
     }
+    const existsUserFollowRequest = await this.user_gateway.existsUserFollowRequest(input);
+    console.log(existsUserFollowRequest)
+    if(existsUserFollowRequest){
+      throw new UserFollowRequestAlreadyExistsException();
+    }
     const result = await this.user_gateway.createUserFollowRequest(input);
+    console.log(result)
     return result; 
   }
 }
