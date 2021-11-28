@@ -39,6 +39,7 @@ describe('Create user service', () => {
       const createUserAccountInput: CreateUserAccountInputModel =
         createServiceInputModel();
       const createUserAccountOutput: CreateUserAccountOutputModel = {
+        id: '2',
         email: createUserAccountInput.email,
       };
       const resultCreateUserAccountOutput: CreateUserAccountOutputModel =

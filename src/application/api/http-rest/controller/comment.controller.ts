@@ -10,13 +10,12 @@ import {
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { CreateCommentInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_permanent_post.interactor';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
-import { CreateCommentDto } from '@application/api/http-rest/comment/dtos/http_create_comment.dto';
+import { CreateCommentDto } from '@application/api/http-rest/http-dtos/http_create_comment.dto';
 import { CreateCommentInPermanentPostAdapter } from '@infrastructure/adapter/use-case/comment/create_comment_in_permanent_post.adapter';
 import {
   CommentInvalidDataFormatException,
   ThereAreNoCommentsException,
 } from '@core/domain/comment/use-case/exception/comment.exception';
-import { Public } from '@application/api/http-rest/authentication/decorator/public';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { GetCommentsInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/get_comments_in_permanent_post.interactor';

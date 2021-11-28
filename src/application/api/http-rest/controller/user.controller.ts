@@ -13,7 +13,7 @@ import {
   Put,
   Query
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBadGatewayResponse, ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
@@ -156,12 +156,23 @@ export class UserController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  public async searchUsers(@Query() params) {
-    return await this.search_users_interactor.execute(
-      await SearchUsersAdapter.new({
-        email: params['email'],
-        name: params['name']
-      })
-    );
+  @ApiCreatedResponse({ description: 'Search has been sucessfully completed' })
+  @ApiBadRequestResponse({ description: 'Invalid data format' })
+  @ApiBadGatewayResponse({ description: 'Error while searching users' })
+  public async searchUsers(
+    @Query('email') email: string,
+    @Query('name') name: string,
+  ) {
+    try{
+      return await this.search_users_interactor.execute(
+        await SearchUsersAdapter.new({
+          email: email,
+          name: name
+        })
+      );
+    } catch (e) {
+      this.logger.error(e.stack);
+      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

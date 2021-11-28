@@ -1,4 +1,4 @@
-import { ReactionController } from '@application/api/http-rest/controller/reaction_controller';
+import { ReactionController } from '@application/api/http-rest/controller/reaction.controller';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionService } from '@core/service/reaction/add_reaction.service';
