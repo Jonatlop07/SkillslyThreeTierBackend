@@ -5,6 +5,7 @@ import { ReactionRepository } from '@core/domain/reaction/use_case/repository/re
 import { Injectable } from '@nestjs/common';
 import * as moment from 'moment';
 import { QueryResult } from 'neo4j-driver-core';
+import { Relationships } from '../../constants/relationships';
 import { Neo4jService } from '../../service/neo4j.service';
 
 @Injectable()
@@ -12,17 +13,19 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
 
   reaction_key = 'reaction';
   post_key = 'post';
-  valid_types = 'LIKE|INTERESTED|FUN';
   constructor(private neo4jService: Neo4jService){}
 
   async delete(params: ReactionQueryModel): Promise<ReactionDTO> {
     const {reactor_id, post_id} = params;
     const remove_reaction_statement = `
-      MATCH (u: User { user_id: "${reactor_id}"})-[r:${this.valid_types}]->(p: PermanentPost{post_id: "${post_id}"}) 
+      MATCH (u: User { user_id: $reactor_id})-[r:${Relationships.REACTION_TYPES_RELATIONSHIP}]->(p: PermanentPost{post_id: $post_id}) 
       DELETE r
       RETURN u.user_id AS reactor_id, p.post_id AS post_id, TYPE(r) AS reaction_type
       `;
-    const remove_result: QueryResult = await this.neo4jService.write(remove_reaction_statement, {});
+    const remove_result: QueryResult = await this.neo4jService.write(remove_reaction_statement, {
+      reactor_id,
+      post_id
+    });
     return {
       post_id: this.neo4jService.getSingleResultProperty(remove_result, 'post_id'),
       reactor_id: this.neo4jService.getSingleResultProperty(remove_result, 'reactor_id'),
@@ -56,7 +59,7 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
   async findOne(params: ReactionQueryModel): Promise<ReactionDTO> {
     const {post_id, reactor_id} = params;
     const exists_reaction_statement = `
-      MATCH (u: User { user_id:$reactor_id})-[r:${this.valid_types}]->(p: PermanentPost{post_id:$post_id}) 
+      MATCH (u: User { user_id:$reactor_id})-[r:${Relationships.REACTION_TYPES_RELATIONSHIP}]->(p: PermanentPost{post_id:$post_id}) 
       RETURN u.user_id AS reactor_id, p.post_id AS post_id, TYPE(r) AS reaction_type
     `;
     const reaction_result: QueryResult = await this.neo4jService.read(exists_reaction_statement, {
@@ -72,7 +75,7 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
 
   async queryById(id: string): Promise<QueryReactionElement[]> {
     const query_reactions_statement = `
-      MATCH (u:User)-[r:${this.valid_types}]->(p:PermanentPost {post_id:$id}) 
+      MATCH (u:User)-[r:${Relationships.REACTION_TYPES_RELATIONSHIP}]->(p:PermanentPost {post_id:$id}) 
       RETURN type(r) as reaction_type, count(*) as reaction_count, collect({name:u.name, email:u.email}) as reactors
     `;
     const query_reactions_result = await this.neo4jService.read(query_reactions_statement, {
