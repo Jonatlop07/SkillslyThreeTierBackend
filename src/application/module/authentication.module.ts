@@ -37,6 +37,9 @@ import { UserModule } from './user.module';
       provide: APP_GUARD,
       useClass: HttpJwtAuthenticationGuard,
     },
+  ],
+  exports: [
+    HttpAuthenticationService
   ]
 })
 export class AuthenticationModule {}

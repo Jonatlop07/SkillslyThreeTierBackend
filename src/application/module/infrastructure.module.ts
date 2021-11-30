@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import Neo4jConfig from '@infrastructure/adapter/persistence/neo4j/types/neo4j_config.interface';
 import { Neo4jScheme } from '@infrastructure/adapter/persistence/neo4j/types/neo4j_scheme';
 import { Neo4jModule } from './neo4j.module';
+import { ChatModule } from '@application/module/chat.module';
 
 @Global()
 @Module({
@@ -19,6 +20,7 @@ import { Neo4jModule } from './neo4j.module';
         database: config_service.get<string>('DATABASE_DATABASE'),
       })
     }),
+    ChatModule
   ]
 })
 export class InfrastructureModule {}
