@@ -44,7 +44,7 @@ export class HttpExceptionMapper {
         .keys(this.http_exceptions)
         .forEach(
           (key) => {
-            if (exception.code in this.http_exceptions[key].mappings)
+            if (this.http_exceptions[key].mappings.has(exception.code))
               return this.getHttpException(
                 this.http_exceptions[key].status_code,
                 exception.message

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Inject, Param, Post, ValidationPipe } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import {
@@ -16,6 +16,7 @@ import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-cas
 import { GetChatMessageCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_message_collection.interactor';
 import { GetConversationMessageCollectionAdapter } from '@infrastructure/adapter/use-case/chat/get_conversation_message_collection.adapter';
 import { SocketDITokens } from '@application/socket-gateway/di/socket_di_tokens';
+import { GetChatConversationCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_conversation_collection.interactor';
 
 @Controller('chat')
 @ApiTags('chat')
@@ -25,6 +26,8 @@ export class ChatController {
     private readonly create_simple_chat_conversation_interactor: CreateSimpleChatConversationInteractor,
     @Inject(ChatDITokens.CreateGroupChatConversationInteractor)
     private readonly create_group_chat_conversation_interactor: CreateGroupChatConversationInteractor,
+    @Inject(ChatDITokens.GetChatConversationCollectionInteractor)
+    private readonly get_chat_conversation_collection_interactor: GetChatConversationCollectionInteractor,
     @Inject(ChatDITokens.GetChatMessageCollectionInteractor)
     private readonly get_chat_message_collection_interactor: GetChatMessageCollectionInteractor,
     @Inject(SocketDITokens.ChatSocketGateway)
@@ -32,6 +35,7 @@ export class ChatController {
   ) {}
 
   @Post()
+  @ApiBearerAuth()
   public async createSimpleConversation(
     @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateSimpleChatConversationDTO
@@ -49,6 +53,7 @@ export class ChatController {
   }
 
   @Post('group')
+  @ApiBearerAuth()
   public async createGroupConversation(
     @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateGroupChatConversationDTO
@@ -64,7 +69,22 @@ export class ChatController {
     }
   }
 
+  @Get()
+  @ApiBearerAuth()
+  public async getChatConversations(
+    @HttpUser() http_user: HttpUserPayload
+  ) {
+    try {
+      return await this.get_chat_conversation_collection_interactor.execute({
+        user_id: http_user.id
+      });
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
   @Get(':conversation_id/messages')
+  @ApiBearerAuth()
   public async getConversationMessageCollection(
     @HttpUser() http_user: HttpUserPayload,
     @Param('conversation_id') conversation_id: string

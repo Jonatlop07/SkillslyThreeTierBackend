@@ -12,6 +12,7 @@ import { ChatMessageNeo4jRepositoryAdapter } from '@infrastructure/adapter/persi
 import { CreateSimpleChatConversationService } from '@core/service/chat/create_simple_chat_conversation.service';
 import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
 import { GetChatMessageCollectionService } from '@core/service/chat/get_chat_message_collection.service';
+import { GetChatConversationCollectionService } from '@core/service/chat/get_chat_conversation_collection.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -33,6 +34,11 @@ const use_case_providers: Array<Provider> = [
   {
     provide: ChatDITokens.CreateGroupChatConversationInteractor,
     useFactory: (gateway) => new CreateGroupChatConversationService(gateway),
+    inject: [ChatDITokens.ChatConversationRepository]
+  },
+  {
+    provide: ChatDITokens.GetChatConversationCollectionInteractor,
+    useFactory: (gateway) => new GetChatConversationCollectionService(gateway),
     inject: [ChatDITokens.ChatConversationRepository]
   },
   {

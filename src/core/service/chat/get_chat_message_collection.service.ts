@@ -27,7 +27,6 @@ export class GetChatMessageCollectionService implements GetChatMessageCollection
     const { user_id, conversation_id } = input;
     if (!await this.conversation_gateway.existsById(conversation_id))
       throw new NonExistentConversationChatException();
-    console.log(user_id);
     if (!await this.conversation_gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();
 

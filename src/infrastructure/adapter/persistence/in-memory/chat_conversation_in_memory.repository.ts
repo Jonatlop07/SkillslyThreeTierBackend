@@ -1,6 +1,9 @@
 import ChatConversationRepository from '@core/domain/chat/use-case/repository/chat_conversation.repository';
 import { ConversationDTO } from '@core/domain/chat/use-case/persistence-dto/conversation.dto';
 import * as moment from 'moment';
+import ConversationQueryModel from '@core/domain/chat/use-case/query-model/conversation.query_model';
+import { ConversationDetailsDTO } from '@core/domain/chat/use-case/persistence-dto/conversation_details.dto';
+import { Optional } from '@core/common/type/common_types';
 
 export class ChatConversationInMemoryRepository implements ChatConversationRepository {
   private currently_available_conversation_id: string;
@@ -48,5 +51,27 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
       if (_conversation.conversation_id === id)
         return Promise.resolve(true);
     return Promise.resolve(false);
+  }
+
+  public async findAll(params: ConversationQueryModel): Promise<ConversationDetailsDTO[]> {
+    const user_conversations: Array<ConversationDetailsDTO> = [];
+    for (const conversation of this.conversations.values()){
+      if (params.conversation_id === conversation.conversation_id) {
+        user_conversations.push({
+          conversation_id: conversation.conversation_id,
+          conversation_name: conversation.name,
+          conversation_members: conversation.members.map((member_id: string) => ({
+            member_id,
+            member_name: ''
+          }))
+        });
+      }
+    }
+    return Promise.resolve(user_conversations);
+  }
+
+  public async findOne(params: ConversationQueryModel): Promise<Optional<ConversationDetailsDTO>> {
+    params;
+    return Promise.resolve(undefined);
   }
 }
