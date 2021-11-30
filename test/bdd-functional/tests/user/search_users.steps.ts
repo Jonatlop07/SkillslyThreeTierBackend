@@ -7,6 +7,7 @@ import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/sear
 import SearchUsersInputModel from '@core/domain/user/use-case/input-model/search_users.input_model';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { identity } from 'rxjs';
 
 const feature = loadFeature('test/bdd-functional/features/user/search_users.feature');
 
@@ -41,7 +42,9 @@ defineFeature(feature, (test) =>{
         .map((user: UserDTO) =>
           ({
             email: user.email,
-            name: user.name
+            name: user.name,
+            date_of_birth: user.date_of_birth,
+            user_id: user.user_id
           })
         );
       users.forEach( async user => {

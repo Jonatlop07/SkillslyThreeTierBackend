@@ -25,7 +25,9 @@ export class SearchUsersService implements SearchUsersInteractor {
         return result.map((user: UserDTO) =>
           ({
             email: user.email,
-            name: user.name
+            name: user.name, 
+            user_id: user.user_id, 
+            date_of_birth: user.date_of_birth
           })
         );
       });

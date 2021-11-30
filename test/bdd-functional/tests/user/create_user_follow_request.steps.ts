@@ -73,7 +73,6 @@ defineFeature( feature, (test) => {
         user_id,
         user_destiny_id
       });
-      console.log(resp)
     });
   }
 
@@ -95,7 +94,7 @@ defineFeature( feature, (test) => {
     }
   );
 
-  /*test('A logged in user fails to request friendship to another existing user because there already exists a friedship request',
+  test('A logged in user fails to request friendship to another existing user because there already exists a friedship request',
     ({ given, and, when, then }) => {
       givenAUserExists(given); 
       andAnotherUserDestinyExists(and); 
@@ -116,5 +115,5 @@ defineFeature( feature, (test) => {
         }
       );
     }
-  );*/
+  );
 })

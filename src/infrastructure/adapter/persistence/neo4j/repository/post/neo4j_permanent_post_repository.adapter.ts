@@ -11,7 +11,7 @@ import * as moment from 'moment';
 export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostRepository {
   private readonly logger: Logger = new Logger(PermanentPostNeo4jRepositoryAdapter.name);
 
-  constructor(private readonly neo4j_service: Neo4jService) { }
+  constructor(private readonly neo4j_service: Neo4jService) {}
 
   public async create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const post_key = 'post';
@@ -24,7 +24,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
       content
     };
     const create_post_statement = `
-      MATCH (${user_key}: User { user_id: '${post.user_id}' })
+      MATCH (${user_key}: User { user_id: $user_id })
       CREATE (${post_key}: PermanentPost)
       SET ${post_key} += $properties, ${post_key}.post_id = randomUUID()
       CREATE (${user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key})
@@ -33,6 +33,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     const result: QueryResult = await this.neo4j_service.write(
       create_post_statement,
       {
+        user_id: post.user_id,
         properties: {
           content: post_with_content_as_json.content,
           created_at: moment().local().format('YYYY-MM-DD HH:mm:ss'),
@@ -54,13 +55,14 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     });
     const post_key = 'post';
     const update_permanent_post_query = `
-      MATCH (${post_key}: PermanentPost { post_id: '${post.post_id}' })
+      MATCH (${post_key}: PermanentPost { post_id: $post_id }) })
       SET ${post_key} += $properties
       RETURN ${post_key}
     `;
     const result = await this.neo4j_service.write(
       update_permanent_post_query,
       {
+        post_id: post.post_id,
         properties: {
           content,
           updated_at: moment().local().format('YYYY-MM-DD HH:mm:ss')
@@ -81,18 +83,21 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     const post_key = 'post';
     const user_key = 'user';
     const share_permanent_post_query = `
-      MATCH (${user_key}: User { user_id: '${post.user_id}' })
-      MATCH (${post_key}: PermanentPost { post_id: '${post.post_id}' })
+      MATCH (${user_key}: User { user_id: $user_id })
+      MATCH (${post_key}: PermanentPost { post_id: $post_id })
       CREATE (${user_key})-[:${Relationships.USER_SHARE_RELATIONSHIP}]->(${post_key})
     `;
     await this.neo4j_service.write(
       share_permanent_post_query,
-      {}
+      {
+        user_id: post.user_id,
+        post_id: post.post_id
+      }
     );
     return {};
   }
 
-  public async findOne(params: PermanentPostQueryModel): Promise<PermanentPostDTO> {
+  public async findOne( params: PermanentPostQueryModel ): Promise<PermanentPostDTO> {
     const { post_id } = params;
     const user_key = 'user';
     const post_key = 'post';
@@ -115,19 +120,22 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     };
   }
 
-  public async findAll(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
+  public async findAll( params: PermanentPostQueryModel ): Promise<PermanentPostDTO[]> {
     const { user_id } = params;
     const user_key = 'user';
     const post_key = 'post';
     const find_post_collection_query = `
-      MATCH (${user_key}: User)-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
-      WHERE ${user_key}.user_id = '${user_id}'
+      MATCH (${user_key}: User { user_id: $user_id })
+        -[:${Relationships.USER_POST_RELATIONSHIP}]
+        ->(${post_key}: PermanentPost)
       RETURN ${post_key}
     `;
     const result = await this.neo4j_service
       .read(
         find_post_collection_query,
-        {}
+        {
+          user_id
+        }
       ).then(
         (result: QueryResult) =>
           result.records.map(
@@ -148,7 +156,10 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
 
   public async existsById(id: string): Promise<boolean> {
     const post_key = 'post';
-    const exists_post_query = `MATCH (${post_key}: PermanentPost { post_id: $id }) RETURN ${post_key}`;
+    const exists_post_query = `
+      MATCH (${post_key}: PermanentPost { post_id: $id })
+      RETURN ${post_key}
+    `;
     const result: QueryResult = await this.neo4j_service.read(
       exists_post_query,
       { id }

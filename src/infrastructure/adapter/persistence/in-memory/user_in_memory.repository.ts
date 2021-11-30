@@ -8,6 +8,7 @@ import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/outpu
 
 export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
+  private currently_available_user_follow_request: string; 
 
   constructor(public readonly users: Map<string, UserDTO>) {
     this.currently_available_user_id = '1';
@@ -28,10 +29,14 @@ export class UserInMemoryRepository implements UserRepository {
   }
 
   public existsUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<boolean> {
+    if(this.currently_available_user_follow_request == params.user_id.concat(params.user_id)){
+      return Promise.resolve(true); 
+    }
     return Promise.resolve(false); 
   }
 
   public async createUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<CreateUserFollowRequestOutputModel> {
+    this.currently_available_user_follow_request = params.user_id.concat(params.user_id);
     return Promise.resolve({});
   }
 

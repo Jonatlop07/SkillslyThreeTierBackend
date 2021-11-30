@@ -22,7 +22,6 @@ export class CreateUserFollowRequestService implements CreateUserFollowRequestIn
     input: CreateUserFollowRequestInputModel,
   ): Promise<CreateUserFollowRequestOutputModel> {
     const existsUser = await this.user_gateway.existsById(input.user_id);
-    console.log(existsUser)
     if (!existsUser) {
       throw new NonExistentUserException();
     }
@@ -31,12 +30,10 @@ export class CreateUserFollowRequestService implements CreateUserFollowRequestIn
       throw new NonExistentUserException();
     }
     const existsUserFollowRequest = await this.user_gateway.existsUserFollowRequest(input);
-    console.log(existsUserFollowRequest)
     if(existsUserFollowRequest){
       throw new UserFollowRequestAlreadyExistsException();
     }
     const result = await this.user_gateway.createUserFollowRequest(input);
-    console.log(result)
     return result; 
   }
 }

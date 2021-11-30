@@ -30,11 +30,12 @@ import {
   UserAccountAlreadyExistsException,
   UserAccountInvalidDataFormatException
 } from '@core/domain/user/use-case/exception/user_account.exception';
-import { CreateUserFollowRequestDTO } from '../user/dto/create_user_follow_request.dto';
+import { CreateUserFollowRequestDTO } from '../http-dtos/http_user_follow_request.dto';
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/create_user_follow_request.interactor';
 import { NonExistentUserException } from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { CreateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/create_user_follow_request.adapter';
 import { UserFollowRequestAlreadyExistsException } from '@core/domain/user/use-case/exception/user_follow_request.exception';
+import { HttpExceptionMapper } from '../exception/http_exception.mapper';
 
 @Controller('users')
 @ApiTags('user')
@@ -164,40 +165,45 @@ export class UserController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  public async searchUsers(@Query() params) {
-    return await this.search_users_interactor.execute(
-      await SearchUsersAdapter.new({
-        email: params['email'],
-        name: params['name']
-      })
-    );
+  @ApiCreatedResponse({ description: 'Search has been sucessfully completed' })
+  @ApiBadRequestResponse({ description: 'Invalid data format' })
+  @ApiBadGatewayResponse({ description: 'Error while searching users' })
+  public async searchUsers(
+    @Query('email') email: string,
+    @Query('name') name: string,
+  ) {
+    try{
+      return await this.search_users_interactor.execute(
+        await SearchUsersAdapter.new({
+          email: email,
+          name: name
+        })
+      );
+    } catch (e) {
+      this.logger.error(e.stack);
+      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  @Post('follow/:user_id')
+  @Post('follow/:user_destiny_id')
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Request has been sucessfully created' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while cretaing user follow request' })
   @ApiBearerAuth()
   public async createUserFollowRequest(
-    @Param('user_id') user_id: string,
-    @Body(new ValidationPipe()) body: CreateUserFollowRequestDTO
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('user_destiny_id') user_destiny_id: string
   ){
     try {
       return await this.create_user_follow_request_interactor.execute(
         await CreateUserFollowRequestAdapter.new({
-          user_id,
-          user_destiny_id: body.user_destiny_id
+          user_id: http_user.id,
+          user_destiny_id
         })
       );
     } catch (e) {
-      if (e instanceof UserFollowRequestAlreadyExistsException) {
-        throw new HttpException({status: HttpStatus.CONFLICT, error: 'Can\'t create follow request because it already exists'}, HttpStatus.CONFLICT);
-      } else if (e instanceof NonExistentUserException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t create follow request to or from an unexisting user'}, HttpStatus.NOT_FOUND);
-      } else {
-        throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
-      }
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 }
