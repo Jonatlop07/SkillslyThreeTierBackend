@@ -1,8 +1,8 @@
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
-import AddReactionInputModel from '@core/domain/reaction/input-model/add_reaction.input_model';
 import { QueryReactionsUnexistingPostException, ReactionException } from '@core/domain/reaction/use_case/exception/reaction.exception';
+import AddReactionInputModel from '@core/domain/reaction/use_case/input-model/add_reaction.input_model';
 import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
 import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interactor/query_reactions.interactor';
 import { QueryReactionsOutputModel } from '@core/domain/reaction/use_case/output-model/query_reactions.output_model';

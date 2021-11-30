@@ -6,7 +6,6 @@ import { PostModule } from './post.module';
 import { InfrastructureModule } from './infrastructure.module';
 import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
-import { ReactionModule } from './reaction.module';
 import { CommentModule } from '@application/module/comment.module';
 
 @Module({
@@ -20,7 +19,6 @@ import { CommentModule } from '@application/module/comment.module';
     PostModule,
     AuthenticationModule,
     ProfileModule,
-    ReactionModule,
     CommentModule,
   ],
 })
