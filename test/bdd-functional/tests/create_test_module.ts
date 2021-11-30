@@ -28,6 +28,10 @@ import { GetChatMessageCollectionService } from '@core/service/chat/get_chat_mes
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
+import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
+import { AddReactionService } from '@core/service/reaction/add_reaction.service';
+import { ReactionInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/reaction_in_memory.repository';
+import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 
@@ -110,6 +114,16 @@ export async function createTestModule() {
         inject: [CommentDITokens.CommentRepository],
       },
       {
+        provide: ReactionDITokens.AddReactionInteractor,
+        useFactory: (gateway, post_gateway) => new AddReactionService(gateway, post_gateway),
+        inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository]
+      },
+      {
+        provide: ReactionDITokens.QueryReactionsInteractor,
+        useFactory: (gateway, post_gateway) => new QueryReactionsService(gateway, post_gateway),
+        inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository]
+      },
+      {
         provide: PostDITokens.SharePermanentPostInteractor,
         useFactory: (post_gateway, user_gateway) => new SharePermanentPostService(post_gateway, user_gateway),
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
@@ -145,6 +159,10 @@ export async function createTestModule() {
       {
         provide: PostDITokens.PermanentPostRepository,
         useFactory: () => new PermanentPostInMemoryRepository(new Map())
+      },
+      {
+        provide: ReactionDITokens.ReactionRepository,
+        useFactory: () => new ReactionInMemoryRepository(new Map()),
       },
       {
         provide: CommentDITokens.CommentRepository,

@@ -31,6 +31,10 @@ import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interac
 import { SharePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/share_permanent_post.adapter';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
 import { SharePermanentPostDTO } from '@application/api/http-rest/http-dtos/share_permanent_post.dto';
+import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
+import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
+import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interactor/query_reactions.interactor';
+import { HttpExceptionMapper } from '../exception/http_exception.mapper';
 
 @Controller('permanent-posts')
 @ApiTags('permanent-posts')
@@ -47,7 +51,11 @@ export class PermanentPostController {
     @Inject(PostDITokens.QueryPermanentPostInteractor)
     private readonly query_permanent_post_interactor: QueryPermanentPostInteractor,
     @Inject(PostDITokens.SharePermanentPostInteractor)
-    private readonly share_permanent_post_interactor: SharePermanentPostInteractor
+    private readonly share_permanent_post_interactor: SharePermanentPostInteractor,
+    @Inject(ReactionDITokens.AddReactionInteractor)
+    private readonly add_reaction_interactor: AddReactionInteractor,
+    @Inject(ReactionDITokens.QueryReactionsInteractor)
+    private readonly query_reactions_interactor: QueryReactionsInteractor
   ) {}
 
   @Post()
@@ -80,7 +88,7 @@ export class PermanentPostController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async updatePermanentPost(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('post_id') post_id: string,
     @Body() body) {
     if (body.user_id !== http_user.id)
@@ -163,9 +171,9 @@ export class PermanentPostController {
   @ApiBadGatewayResponse({ description: 'Error while sharing post' })
   @ApiBearerAuth()
   public async sharePermanentPost(
-    @Param('post_id') post_id: string,
+  @Param('post_id') post_id: string,
     @Body(new ValidationPipe()) body: SharePermanentPostDTO
-    ) {
+  ) {
     try {
       return await this.share_permanent_post_interactor.execute(
         await SharePermanentPostAdapter.new({
@@ -182,6 +190,37 @@ export class PermanentPostController {
         throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts'}, HttpStatus.NOT_FOUND);
       }
       throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post(':post_id/react')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  public async addOrRemoveReaction(@HttpUser() http_user: HttpUserPayload, 
+    @Param('post_id') post_id: string,
+    @Body() body){
+    try {
+      return await this.add_reaction_interactor.execute({
+        post_id: post_id,
+        reactor_id: http_user.id,
+        reaction_type: body.reaction_type
+      });
+    } catch (e){
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
+  @Get(':post_id/reactions')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  public async queryReactions(@HttpUser() http_user: HttpUserPayload, 
+    @Param('post_id') post_id: string){
+    try {
+      return await this.query_reactions_interactor.execute({
+        post_id: post_id,
+      });
+    } catch (e){
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 }
