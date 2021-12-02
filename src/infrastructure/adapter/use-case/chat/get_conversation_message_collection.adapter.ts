@@ -11,7 +11,8 @@ export class GetConversationMessageCollectionAdapter {
     return {
       user_id: message.user_id,
       content: message.content,
-      created_at: message.created_at
+      created_at: message.created_at,
+      message_id: message.message_id
     };
   }
 

@@ -76,7 +76,12 @@ defineFeature(feature, (test) =>{
       whenUserTriesToSearchForAnUser(when);
       then('the users associated with the parameters entered are returned', () => {
         expect(output).toBeDefined();
-        expect(output).toEqual({users:expected_searched_users});
+        output.users.forEach(
+          (user, index) => {
+            expect(user.name).toEqual(expected_searched_users[index].name);
+            expect(user.email).toEqual(expected_searched_users[index].email);
+          }
+        );
       });
     });
 });

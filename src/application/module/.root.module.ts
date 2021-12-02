@@ -6,7 +6,8 @@ import { PostModule } from './post.module';
 import { InfrastructureModule } from './infrastructure.module';
 import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
-import { CommentModule } from '@application/module/comment.module';
+import { CommentModule } from './comment.module';
+import { ChatModule } from './chat.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CommentModule } from '@application/module/comment.module';
     AuthenticationModule,
     ProfileModule,
     CommentModule,
+    ChatModule
   ],
 })
 export class RootModule {
