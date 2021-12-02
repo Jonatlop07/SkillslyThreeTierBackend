@@ -32,7 +32,7 @@ export class HttpExceptionMapper {
     },
     forbidden: {
       mappings: new Set([
-        CoreExceptionCodes.INVALID_REACTION_TYPE,
+        CoreExceptionCodes.INVALID_REACTION_TYPE
       ]),
       status_code: HttpStatus.FORBIDDEN
     }
