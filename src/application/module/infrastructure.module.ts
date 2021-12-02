@@ -1,9 +1,9 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SocketModule } from '@application/module/socket.module';
+import { Neo4jModule } from '@application/module/neo4j.module';
 import Neo4jConfig from '@infrastructure/adapter/persistence/neo4j/types/neo4j_config.interface';
 import { Neo4jScheme } from '@infrastructure/adapter/persistence/neo4j/types/neo4j_scheme';
-import { Neo4jModule } from './neo4j.module';
-import { ChatModule } from '@application/module/chat.module';
 
 @Global()
 @Module({
@@ -20,7 +20,7 @@ import { ChatModule } from '@application/module/chat.module';
         database: config_service.get<string>('DATABASE_DATABASE'),
       })
     }),
-    ChatModule
+    SocketModule
   ]
 })
 export class InfrastructureModule {}

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Logger, Param, Post, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
@@ -6,21 +6,21 @@ import {
   CreateGroupChatConversationDTO,
   CreateSimpleChatConversationDTO
 } from '@application/api/http-rest/http-dtos/http_chat.dto';
-import { ChatSocketGateway } from '@application/socket-gateway/chat.socket_gateway';
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
 import { CreateGroupChatConversationAdapter } from '@infrastructure/adapter/use-case/chat/create_group_chat_conversation.adapter';
 import { CreateSimpleChatConversationAdapter } from '@infrastructure/adapter/use-case/chat/create_simple_chat_conversation.adapter';
+import { GetConversationMessageCollectionAdapter } from '@infrastructure/adapter/use-case/chat/get_conversation_message_collection.adapter';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { CreateSimpleChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_simple_chat_conversation.interactor';
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
 import { GetChatMessageCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_message_collection.interactor';
-import { GetConversationMessageCollectionAdapter } from '@infrastructure/adapter/use-case/chat/get_conversation_message_collection.adapter';
-import { SocketDITokens } from '@application/socket-gateway/di/socket_di_tokens';
 import { GetChatConversationCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_conversation_collection.interactor';
 
 @Controller('chat')
 @ApiTags('chat')
 export class ChatController {
+  private readonly logger: Logger = new Logger(ChatController.name);
+
   constructor(
     @Inject(ChatDITokens.CreateSimpleChatConversationInteractor)
     private readonly create_simple_chat_conversation_interactor: CreateSimpleChatConversationInteractor,
@@ -29,9 +29,7 @@ export class ChatController {
     @Inject(ChatDITokens.GetChatConversationCollectionInteractor)
     private readonly get_chat_conversation_collection_interactor: GetChatConversationCollectionInteractor,
     @Inject(ChatDITokens.GetChatMessageCollectionInteractor)
-    private readonly get_chat_message_collection_interactor: GetChatMessageCollectionInteractor,
-    @Inject(SocketDITokens.ChatSocketGateway)
-    private readonly chat_socket_gateway: ChatSocketGateway
+    private readonly get_chat_message_collection_interactor: GetChatMessageCollectionInteractor
   ) {}
 
   @Post()

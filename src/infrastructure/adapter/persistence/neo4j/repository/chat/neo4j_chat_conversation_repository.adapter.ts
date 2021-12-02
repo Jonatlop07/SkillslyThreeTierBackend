@@ -1,22 +1,23 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { QueryResult } from 'neo4j-driver';
+import * as moment from 'moment';
+import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
+import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import ChatConversationRepository from '@core/domain/chat/use-case/repository/chat_conversation.repository';
 import { ConversationDTO } from '@core/domain/chat/use-case/persistence-dto/conversation.dto';
-import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
-import { Logger } from '@nestjs/common';
-import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
-import * as moment from 'moment';
-import { QueryResult } from 'neo4j-driver';
 import ConversationQueryModel from '@core/domain/chat/use-case/query-model/conversation.query_model';
 import { ConversationDetailsDTO } from '@core/domain/chat/use-case/persistence-dto/conversation_details.dto';
 import { Optional } from '@core/common/type/common_types';
-import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 
+@Injectable()
 export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationRepository {
   private readonly conversation_key = 'conversation';
   private readonly user_key = 'user';
 
   private readonly logger: Logger = new Logger(ChatConversationNeo4jRepositoryAdapter.name);
 
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) {
+  }
 
   public async create(conversation: ConversationDTO): Promise<ConversationDTO> {
 
@@ -117,34 +118,43 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
         ->(${this.conversation_key})
       RETURN ${this.conversation_key}, ${this.user_key}
     `;
-    const result: QueryResult = await this.neo4j_service.read(
-      get_all_conversations_by_user_statement,
-      {
-        user_id: params.user_id
-      }
-    );
     const conversation_collection: Array<ConversationDTO> = this.neo4j_service.getMultipleResultByKey(
-      result,
+      await this.neo4j_service.read(
+        get_all_conversations_by_user_statement,
+        {
+          user_id: params.user_id
+        }
+      ),
       this.conversation_key
     );
-    const users_map = new Map<string, UserDTO>();
-    this.neo4j_service
-      .getMultipleResultByKey(result, this.user_key)
-      .forEach((user: UserDTO) => {
-        users_map.set(user.user_id, user);
-      });
-    return conversation_collection.map(
-      (conversation: ConversationDTO) => ({
-        conversation_id: conversation.conversation_id,
-        conversation_name: conversation.name || '',
-        conversation_members: conversation.members.map(
-          (member_id: string) => ({
-            member_id,
-            member_name: users_map.get(member_id).name
-          })
-        )
-      })
-    );
+    const get_conversation_members = `
+      MATCH (${this.user_key}: User)
+        -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
+        ->(${this.conversation_key}: Conversation { conversation_id: $id})
+      RETURN ${this.user_key}
+    `;
+    const result: Array<ConversationDetailsDTO> = [];
+    for (const conversation of conversation_collection) {
+      const conversation_members = this.neo4j_service
+        .getMultipleResultByKey(
+          await this.neo4j_service.read(
+            get_conversation_members,
+            { id: conversation.conversation_id }
+          ).then(),
+          this.user_key
+        ).map((user) => ({
+          member_id: user.user_id,
+          member_name: user.name
+        }));
+      result.push(
+        {
+          conversation_id: conversation.conversation_id,
+          conversation_name: conversation.name,
+          conversation_members
+        }
+      );
+    }
+    return result;
   }
 
   public async findOne(params: ConversationQueryModel): Promise<Optional<ConversationDetailsDTO>> {

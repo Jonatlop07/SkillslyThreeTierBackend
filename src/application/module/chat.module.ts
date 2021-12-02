@@ -1,18 +1,13 @@
-import { Module, Provider } from '@nestjs/common';
-import { ChatSocketGateway } from '@application/socket-gateway/chat.socket_gateway';
+import { Global, Module, Provider } from '@nestjs/common';
 import { ChatController } from '@application/api/http-rest/controller/chat.controller';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthenticationModule } from '@application/module/authentication.module';
-import { SocketDITokens } from '@application/socket-gateway/di/socket_di_tokens';
-import { HttpAuthenticationService } from '@application/api/http-rest/authentication/http_authentication.service';
-import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
-import { CreateChatMessageService } from '@core/service/chat/create_chat_message.service';
 import { ChatConversationNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/chat/neo4j_chat_conversation_repository.adapter';
 import { ChatMessageNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/chat/neo4j_chat_message_repository.adapter';
 import { CreateSimpleChatConversationService } from '@core/service/chat/create_simple_chat_conversation.service';
 import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
 import { GetChatMessageCollectionService } from '@core/service/chat/get_chat_message_collection.service';
 import { GetChatConversationCollectionService } from '@core/service/chat/get_chat_conversation_collection.service';
+import { CreateChatMessageService } from '@core/service/chat/create_chat_message.service';
+import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -53,27 +48,17 @@ const use_case_providers: Array<Provider> = [
   }
 ];
 
+@Global()
 @Module({
   controllers: [
     ChatController
   ],
-  imports: [
-    ConfigModule,
-    AuthenticationModule
-  ],
   providers: [
     ...persistence_providers,
     ...use_case_providers,
-    {
-      provide: SocketDITokens.ChatSocketGateway,
-      useFactory:
-        (config_service, authentication_service, create_chat_message_interactor) =>
-          new ChatSocketGateway(config_service, authentication_service, create_chat_message_interactor),
-      inject: [ConfigService, HttpAuthenticationService, ChatDITokens.CreateChatMessageInteractor]
-    }
   ],
   exports: [
-    SocketDITokens.ChatSocketGateway
+    ChatDITokens.CreateChatMessageInteractor
   ]
 })
 export class ChatModule {}

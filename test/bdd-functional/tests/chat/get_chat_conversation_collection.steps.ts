@@ -1,4 +1,5 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
@@ -6,7 +7,6 @@ import { CreateSimpleChatConversationInteractor } from '@core/domain/chat/use-ca
 import GetChatConversationCollectionOutputModel
   from '@core/domain/chat/use-case/output-model/get_chat_conversation_collection.output_model';
 import { GetChatConversationCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_conversation_collection.interactor';
-import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 

@@ -1,7 +1,7 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
-import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import {

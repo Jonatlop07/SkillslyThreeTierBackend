@@ -1,7 +1,7 @@
+import { Inject } from '@nestjs/common';
 import { CreateChatMessageInteractor } from '@core/domain/chat/use-case/interactor/create_chat_message.interactor';
 import CreateChatMessageInputModel from '@core/domain/chat/use-case/input-model/create_chat_message.input_model';
 import CreateChatMessageOutputModel from '@core/domain/chat/use-case/output-model/create_chat_message.output_model';
-import { Inject } from '@nestjs/common';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import CreateChatMessageGateway from '@core/domain/chat/use-case/gateway/create_chat_message.gateway';
 import {
