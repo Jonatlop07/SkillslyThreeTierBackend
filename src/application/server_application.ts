@@ -2,8 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import * as chalk from 'chalk';
-import { APIServerConfiguration } from '@infrastructure/config/api_server.config';
 import { RootModule } from '@application/module/.root.module';
+import { APIServerConfiguration } from '@infrastructure/config/api_server.config';
 
 export class ServerApplication {
   private readonly host: string = APIServerConfiguration.HOST;
