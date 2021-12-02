@@ -6,7 +6,8 @@ import CreateUserFollowRequestInputModel from "@core/domain/user/use-case/input-
 import { CreateUserFollowRequestInteractor } from "@core/domain/user/use-case/interactor/create_user_follow_request.interactor";
 import CreateUserFollowRequestOutputModel from "@core/domain/user/use-case/output-model/create_user_follow_request.output_model";
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { UserFollowRequestAlreadyExistsException } from '@core/domain/user/use-case/exception/user_follow_request.exception';
+import { UserFollowRequestAlreadyExistsException, UserFollowRequestInvalidDataFormatException } from '@core/domain/user/use-case/exception/user_follow_request.exception';
+import { UserAccountNotFoundException } from "@core/domain/user/use-case/exception/user_account.exception";
 
 
 @Injectable()
@@ -23,16 +24,20 @@ export class CreateUserFollowRequestService implements CreateUserFollowRequestIn
   ): Promise<CreateUserFollowRequestOutputModel> {
     const existsUser = await this.user_gateway.existsById(input.user_id);
     if (!existsUser) {
-      throw new NonExistentUserException();
+      throw new UserAccountNotFoundException();
     }
     const existsDestinyUser = await this.user_gateway.existsById(input.user_destiny_id);
-    if (!existsDestinyUser){
-      throw new NonExistentUserException();
+    if (!existsDestinyUser) {
+      throw new UserAccountNotFoundException();
+    }
+    if (input.user_id == input.user_destiny_id) {
+      throw new UserFollowRequestInvalidDataFormatException();
     }
     const existsUserFollowRequest = await this.user_gateway.existsUserFollowRequest(input);
-    if(existsUserFollowRequest){
+    if(existsUserFollowRequest) {
       throw new UserFollowRequestAlreadyExistsException();
     }
+    console.log(existsUserFollowRequest)
     const result = await this.user_gateway.createUserFollowRequest(input);
     return result; 
   }

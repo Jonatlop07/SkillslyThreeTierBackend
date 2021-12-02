@@ -8,6 +8,10 @@ import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_mo
 import * as moment from 'moment';
 import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/create_user_follow_request.input_model';
 import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/create_user_follow_request.output_model';
+import UpdateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/update_user_follow_request.input_model';
+import UpdateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/update_user_follow_request.output_model';
+import DeleteUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/delete_user_follow_request.input_model';
+import DeleteUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/delete_user_follow_request.output_model';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -84,7 +88,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       MATCH (${user_destiny_key}: User { user_id: '${params.user_destiny_id}' })
       CREATE (${user_key})-[:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
     `;
-    await this.neo4j_service.write(
+    const result: QueryResult = await this.neo4j_service.write(
       create_user_follow_request_query,
       {}
     );
@@ -115,13 +119,36 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     const user_key = 'user';
     const user_destiny_key = 'user_destiny'; 
     const exists_user_follow_request_query = ` 
-      MATCH (${user_key}: User { user_id: '${params.user_id}' }) 
-      MATCH (${user_destiny_key}: User { user_id: '${params.user_destiny_id}' })
-      RETURN (${user_key})-[:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+      MATCH (${user_key}: User { user_id: $user_id }) , 
+      (${user_destiny_key}: User { user_id: $user_destiny_id }), 
+      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+      RETURN r
     `;
     const result: QueryResult = await this.neo4j_service.read(
       exists_user_follow_request_query,
-      {}
+      {
+        user_id: params.user_id,
+        user_destiny_id: params.user_destiny_id
+      }
+    );
+    return result.records.length > 0;
+  }
+
+  public async existsUserFollowRelationship(params: CreateUserFollowRequestInputModel): Promise<boolean> {
+    const user_key = 'user';
+    const user_destiny_key = 'user_destiny'; 
+    const exists_user_follow_request_query = ` 
+      MATCH (${user_key}: User { user_id: $user_id }) , 
+      (${user_destiny_key}: User { user_id: $user_destiny_id }), 
+      (${user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${user_destiny_key})
+      RETURN r
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      exists_user_follow_request_query,
+      {
+        user_id: params.user_id,
+        user_destiny_id: params.user_destiny_id
+      }
     );
     return result.records.length > 0;
   }
@@ -148,6 +175,42 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       }
     );
     return this.neo4j_service.getSingleResultProperties(result, user_key) as UserDTO;
+  }
+
+  public async updateUserFollowRequest(params: UpdateUserFollowRequestInputModel) : Promise<UpdateUserFollowRequestOutputModel> {
+    const user_key = 'user';
+    const user_destiny_key = 'user_destiny'; 
+    const accept_user_follow_request_query = ` 
+      MATCH (${user_key}: User { user_id: $user_id }),
+      (${user_destiny_key}: User { user_id: $user_destiny_id }),
+      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+      DELETE r
+      CREATE (${user_key})-[:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${user_destiny_key})
+    `;
+    const reject_user_follow_request_query = ` 
+      MATCH (${user_key}: User { user_id: $user_id }),
+      (${user_destiny_key}: User { user_id: $user_destiny_id }),
+      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+      DELETE r
+    `;
+    if (params.action == "accept"){
+      await this.neo4j_service.write(
+        accept_user_follow_request_query,
+        {
+          user_id: params.user_id,
+          user_destiny_id: params.user_destiny_id
+        }
+      );
+    } else {
+      await this.neo4j_service.write(
+        reject_user_follow_request_query,
+        {
+          user_id: params.user_id,
+          user_destiny_id: params.user_destiny_id
+        }
+      );
+    }
+    return {}; 
   }
 
   public async queryById(id: string): Promise<UserDTO> {
@@ -184,5 +247,40 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     `;
     const result: QueryResult = await this.neo4j_service.write(delete_user_statement, { user_id: id });
     return this.neo4j_service.getSingleResultProperties(result, user_key);
+  }
+
+  public async deleteUserFollowRequest(params: DeleteUserFollowRequestInputModel) : Promise<DeleteUserFollowRequestOutputModel>{
+    const user_key = 'user';
+    const user_destiny_key = 'user_destiny'; 
+    const delete_user_follow_request_query = ` 
+      MATCH (${user_key}: User { user_id: $user_id }),
+      (${user_destiny_key}: User { user_id: $user_destiny_id }),
+      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+      DELETE r
+    `;
+    const delete_user_follow_relationship_query = ` 
+    MATCH (${user_key}: User { user_id: $user_id }),
+    (${user_destiny_key}: User { user_id: $user_destiny_id }),
+    (${user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${user_destiny_key})
+    DELETE r
+    `;
+    if (params.action == 'request') {
+      await this.neo4j_service.write(
+        delete_user_follow_request_query,
+        {
+          user_id: params.user_id,
+          user_destiny_id: params.user_destiny_id
+        }
+      );
+    } else {
+      await this.neo4j_service.write(
+        delete_user_follow_relationship_query,
+        {
+          user_id: params.user_id,
+          user_destiny_id: params.user_destiny_id
+        }
+      );
+    }
+    return {};
   }
 }

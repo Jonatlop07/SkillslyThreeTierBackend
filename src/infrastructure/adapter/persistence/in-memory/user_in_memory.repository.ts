@@ -5,10 +5,15 @@ import * as moment from 'moment';
 import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
 import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/create_user_follow_request.input_model';
 import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/create_user_follow_request.output_model';
+import UpdateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/update_user_follow_request.input_model';
+import UpdateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/update_user_follow_request.output_model';
+import DeleteUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/delete_user_follow_request.input_model';
+import DeleteUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/delete_user_follow_request.output_model';
 
 export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
   private currently_available_user_follow_request: string; 
+  private currently_available_user_follow_relationship: string;
 
   constructor(public readonly users: Map<string, UserDTO>) {
     this.currently_available_user_id = '1';
@@ -54,6 +59,13 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve(false);
   }
 
+  public existsUserFollowRelationship(params: CreateUserFollowRequestInputModel) {
+    if(this.currently_available_user_follow_relationship == params.user_id.concat(params.user_id)){
+      return Promise.resolve(true); 
+    }
+    return Promise.resolve(false); 
+  }
+
   public findOne(params: UserQueryModel): Promise<UserDTO> {
     for (const user of this.users.values()){
       if (Object.keys(params).every((key: string) => params[key] === user[key])){
@@ -84,6 +96,15 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve(user_to_update);
   }
 
+  public updateUserFollowRequest(params: UpdateUserFollowRequestInputModel): Promise<UpdateUserFollowRequestOutputModel>{
+    if (params.action == 'accept') {
+      this.currently_available_user_follow_relationship = params.user_id.concat(params.user_id);
+    } else {
+      this.currently_available_user_follow_request = '';
+    }
+    return Promise.resolve({}); 
+  }
+
   public queryById(id: string): Promise<Optional<UserDTO>> {
     for (const _user of this.users.values())
       if (_user.user_id === id)
@@ -95,5 +116,14 @@ export class UserInMemoryRepository implements UserRepository {
     const user_to_delete = this.users.get(id);
     this.users.delete(id);
     return Promise.resolve(user_to_delete);
+  }
+
+  public deleteUserFollowRequest(params: DeleteUserFollowRequestInputModel): Promise<DeleteUserFollowRequestOutputModel>{
+    if (params.action == 'relationship') {
+      this.currently_available_user_follow_relationship = '';
+    } else {
+      this.currently_available_user_follow_request = '';
+    }
+    return Promise.resolve({}); 
   }
 }

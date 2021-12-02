@@ -30,12 +30,14 @@ import {
   UserAccountAlreadyExistsException,
   UserAccountInvalidDataFormatException
 } from '@core/domain/user/use-case/exception/user_account.exception';
-import { CreateUserFollowRequestDTO } from '../http-dtos/http_user_follow_request.dto';
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/create_user_follow_request.interactor';
-import { NonExistentUserException } from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { CreateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/create_user_follow_request.adapter';
-import { UserFollowRequestAlreadyExistsException } from '@core/domain/user/use-case/exception/user_follow_request.exception';
 import { HttpExceptionMapper } from '../exception/http_exception.mapper';
+import { DeleteUserFollowRequestDTO, UpdateUserFollowRequestDTO } from '../http-dtos/http_user_follow_request.dto';
+import { UpdateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/update_user_follow_request.adapter';
+import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/update_user_follow_request.interactor';
+import { DeleteUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/delete_user_follow_request.interactor';
+import { DeleteUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/delete_user_follow_request.adapter';
 
 @Controller('users')
 @ApiTags('user')
@@ -54,7 +56,11 @@ export class UserController {
     @Inject(UserDITokens.SearchUsersInteractor)
     private readonly search_users_interactor: SearchUsersInteractor,
     @Inject(UserDITokens.CreateUserFollowRequestInteractor)
-    private readonly create_user_follow_request_interactor: CreateUserFollowRequestInteractor
+    private readonly create_user_follow_request_interactor: CreateUserFollowRequestInteractor,
+    @Inject(UserDITokens.UpdateUserFollowRequestInteractor)
+    private readonly update_user_follow_request_interactor: UpdateUserFollowRequestInteractor,
+    @Inject(UserDITokens.DeleteUserFollowRequestInteractor)
+    private readonly delete_user_follow_request_interactor: DeleteUserFollowRequestInteractor
   ) {}
 
   @Public()
@@ -205,5 +211,53 @@ export class UserController {
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
+  }
+
+  @Put('follow/:user_destiny_id')
+  @HttpCode(HttpStatus.OK)
+  @ApiCreatedResponse({ description: 'Follow Request has been sucessfully updated' })
+  @ApiBadRequestResponse({ description: 'Invalid data format' })
+  @ApiBadGatewayResponse({ description: 'Error while updating user follow request' })
+  @ApiBearerAuth()
+  public async updateUserFollowRequest(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('user_destiny_id') user_destiny_id: string, 
+    @Body() body : UpdateUserFollowRequestDTO
+  ){
+    try {
+      return await this.update_user_follow_request_interactor.execute(
+        await UpdateUserFollowRequestAdapter.new({
+          user_id: user_destiny_id,
+          user_destiny_id: http_user.id, 
+          action: body.action
+        })
+      );
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    } 
+  }
+
+  @Delete('follow/:user_destiny_id')
+  @HttpCode(HttpStatus.OK)
+  @ApiCreatedResponse({ description: 'Follow Request or Relationship has been sucessfully deleted' })
+  @ApiBadRequestResponse({ description: 'Invalid data format' })
+  @ApiBadGatewayResponse({ description: 'Error while deleting user follow request' })
+  @ApiBearerAuth()
+  public async deleteUserFollowRequest(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('user_destiny_id') user_destiny_id: string, 
+    @Body() body : DeleteUserFollowRequestDTO
+  ){
+    try {
+      return await this.delete_user_follow_request_interactor.execute(
+        await DeleteUserFollowRequestAdapter.new({
+          user_id: http_user.id,
+          user_destiny_id, 
+          action: body.action
+        })
+      );
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    } 
   }
 }

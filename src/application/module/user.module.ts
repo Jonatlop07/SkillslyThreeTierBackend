@@ -10,6 +10,8 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { SearchUsersService } from '@core/service/user/search_users.service';
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/create_user_follow_request.interactor';
 import { CreateUserFollowRequestService } from '@core/service/user/create_user_follow_request.service';
+import { UpdateUserFollowRequestService } from '@core/service/user/update_user_follow_request.service';
+import { DeleteUserFollowRequestService } from '@core/service/user/delete_user_follow_request.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -52,6 +54,16 @@ const use_case_providers: Array<Provider> = [
   {
     provide: UserDITokens.CreateUserFollowRequestInteractor,
     useFactory: (gateway) => new CreateUserFollowRequestService(gateway),
+    inject: [UserDITokens.UserRepository]
+  }, 
+  {
+    provide: UserDITokens.UpdateUserFollowRequestInteractor,
+    useFactory: (gateway) => new UpdateUserFollowRequestService(gateway),
+    inject: [UserDITokens.UserRepository]
+  },
+  {
+    provide: UserDITokens.DeleteUserFollowRequestInteractor,
+    useFactory: (gateway) => new DeleteUserFollowRequestService(gateway),
     inject: [UserDITokens.UserRepository]
   }
 ];

@@ -55,7 +55,7 @@ defineFeature( feature, (test) => {
 
   function andAnotherUserDestinyExists(and) {
     and(/^another user destiny exists, and has an id "([^"]*)"$/,
-      async (id:string) => {
+      async (id: string) => {
         user_destiny_id = id;
         try {
           const resp = await create_user_account_interactor.execute(user_mock_1);
@@ -116,4 +116,4 @@ defineFeature( feature, (test) => {
       );
     }
   );
-})
+});

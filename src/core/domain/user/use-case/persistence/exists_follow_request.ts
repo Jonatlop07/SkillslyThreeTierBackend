@@ -2,4 +2,5 @@ import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-
 
 export default interface ExistsUserFollowRequest {
   existsUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<boolean>;
+  existsUserFollowRelationship(params: CreateUserFollowRequestInputModel): Promise<boolean>;
 }
