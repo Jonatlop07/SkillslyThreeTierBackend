@@ -6,7 +6,7 @@ export class HttpExceptionMapper {
   private static http_exceptions = {
     not_found: {
       mappings: new Set([
-        CoreExceptionCodes.NON_EXISTENT_POST,
+        CoreExceptionCodes.REACTION_NON_EXISTENT_POST,
         CoreExceptionCodes.NON_EXISTENT_CONVERSATION_CHAT,
       ]),
       status_code: HttpStatus.NOT_FOUND
