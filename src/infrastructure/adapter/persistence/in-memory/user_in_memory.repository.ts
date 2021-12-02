@@ -10,6 +10,9 @@ export class UserInMemoryRepository implements UserRepository {
   constructor(private readonly users: Map<string, UserDTO>) {
     this.currently_available_user_id = '1';
   }
+  delete(params: string): Promise<UserDTO> {
+    throw new Error('Method not implemented.');
+  }
 
   public create(user: UserDTO): Promise<UserDTO> {
     const new_user: UserDTO = {

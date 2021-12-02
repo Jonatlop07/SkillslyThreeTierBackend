@@ -9,11 +9,18 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { QueryPermanentPostCollectionService } from '@core/service/post/query_permanent_post_collection.service';
 import { QueryPermanentPostService } from '@core/service/post/query_permanent_post.service';
 import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
+import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
+import { AddReactionService } from '@core/service/reaction/add_reaction.service';
+import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
+import { ReactionNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/reaction/neo4j_reaction_repository.adapter';
 
 const persistence_providers: Array<Provider> = [
   {
     provide: PostDITokens.PermanentPostRepository,
-    useClass: PermanentPostNeo4jRepositoryAdapter
+    useClass: PermanentPostNeo4jRepositoryAdapter,
+  }, {
+    provide: ReactionDITokens.ReactionRepository,
+    useClass: ReactionNeo4jRepositoryAdapter,
   }
 ];
 
@@ -42,6 +49,21 @@ const use_case_providers: Array<Provider> = [
     provide: PostDITokens.SharePermanentPostInteractor,
     useFactory: (post_gateway, user_gateway) => new SharePermanentPostService(post_gateway, user_gateway),
     inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
+  },
+  {
+    provide: PostDITokens.SharePermanentPostInteractor,
+    useFactory: (post_gateway, user_gateway) => new SharePermanentPostService(post_gateway, user_gateway),
+    inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
+  },
+  {
+    provide: ReactionDITokens.AddReactionInteractor,
+    useFactory: (reaction_gateway, post_gateway) => new AddReactionService(reaction_gateway, post_gateway),
+    inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository],
+  },
+  {
+    provide: ReactionDITokens.QueryReactionsInteractor,
+    useFactory: (reaction_gateway, post_gateway) => new QueryReactionsService(reaction_gateway, post_gateway),
+    inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository],
   }
 ];
 
@@ -55,7 +77,7 @@ const use_case_providers: Array<Provider> = [
     ...use_case_providers
   ],
   exports: [
-    PostDITokens.PermanentPostRepository
+    PostDITokens.PermanentPostRepository,
   ]
 })
 export class PostModule {}

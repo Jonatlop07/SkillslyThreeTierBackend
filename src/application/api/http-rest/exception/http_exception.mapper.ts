@@ -6,6 +6,7 @@ export class HttpExceptionMapper {
   private static http_exceptions = {
     not_found: {
       mappings: new Set([
+        CoreExceptionCodes.NON_EXISTENT_POST,
         CoreExceptionCodes.NON_EXISTENT_CONVERSATION_CHAT,
       ]),
       status_code: HttpStatus.NOT_FOUND
@@ -17,17 +18,23 @@ export class HttpExceptionMapper {
       ]),
       status_code: HttpStatus.BAD_REQUEST
     },
-    conflict_exceptions: {
+    conflict: {
       mappings: new Set([
         CoreExceptionCodes.SIMPLE_CONVERSATION_ALREADY_EXISTS_CHAT
       ]),
       status_code: HttpStatus.CONFLICT
     },
-    unauthorized_exceptions: {
+    unauthorized: {
       mappings: new Set([
         CoreExceptionCodes.USER_DOES_NOT_BELONG_TO_CONVERSATION_CHAT
       ]),
       status_code: HttpStatus.UNAUTHORIZED
+    },
+    forbidden: {
+      mappings: new Set([
+        CoreExceptionCodes.INVALID_REACTION_TYPE,
+      ]),
+      status_code: HttpStatus.FORBIDDEN
     }
   };
 
@@ -55,3 +62,4 @@ export class HttpExceptionMapper {
     return this.getHttpException(HttpStatus.INTERNAL_SERVER_ERROR, 'Internal server error');
   }
 }
+
