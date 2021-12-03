@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Get,
+  Controller, Delete, Get,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -35,6 +35,8 @@ import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
 import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interactor/query_reactions.interactor';
 import { HttpExceptionMapper } from '../exception/http_exception.mapper';
+import { DeletePermanentPostInteractor } from '@core/domain/post/use-case/interactor/delete_permanent_post.interactor';
+import { DeletePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/delete_permanent_post.adapter';
 
 @Controller('permanent-posts')
 @ApiTags('permanent-posts')
@@ -50,13 +52,15 @@ export class PermanentPostController {
     private readonly query_permanent_post_collection_interactor: QueryPermanentPostCollectionInteractor,
     @Inject(PostDITokens.QueryPermanentPostInteractor)
     private readonly query_permanent_post_interactor: QueryPermanentPostInteractor,
+    @Inject(PostDITokens.DeletePermanentPostInteractor)
+    private readonly delete_permanent_post_interactor: DeletePermanentPostInteractor,
     @Inject(PostDITokens.SharePermanentPostInteractor)
     private readonly share_permanent_post_interactor: SharePermanentPostInteractor,
     @Inject(ReactionDITokens.AddReactionInteractor)
     private readonly add_reaction_interactor: AddReactionInteractor,
     @Inject(ReactionDITokens.QueryReactionsInteractor)
     private readonly query_reactions_interactor: QueryReactionsInteractor
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -88,7 +92,7 @@ export class PermanentPostController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async updatePermanentPost(
-  @HttpUser() http_user: HttpUserPayload,
+    @HttpUser() http_user: HttpUserPayload,
     @Param('post_id') post_id: string,
     @Body() body) {
     if (body.user_id !== http_user.id)
@@ -124,19 +128,19 @@ export class PermanentPostController {
   @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  public async queryPermanentPostCollection(@Query() queryParams){
+  public async queryPermanentPostCollection(@Query() queryParams) {
     try {
       return await this.query_permanent_post_collection_interactor.execute(
         await QueryPermanentPostCollectionAdapter.new({
           user_id: queryParams.user_id
         })
       );
-    } catch (e){
+    } catch (e) {
       this.logger.error(e.stack);
       if (e instanceof NonExistentUserException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
+        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user' }, HttpStatus.NOT_FOUND);
       }
-      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException({ status: HttpStatus.INTERNAL_SERVER_ERROR, error: 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -144,7 +148,7 @@ export class PermanentPostController {
   @Public()
   @Get(':post_id')
   @HttpCode(HttpStatus.OK)
-  public async queryPermanentPost(@Param('post_id') post_id: string, @Query() queryParams){
+  public async queryPermanentPost(@Param('post_id') post_id: string, @Query() queryParams) {
     try {
       return await this.query_permanent_post_interactor.execute(
         await QueryPermanentPostAdapter.new({
@@ -152,15 +156,36 @@ export class PermanentPostController {
           id: post_id
         })
       );
-    } catch (e){
+    } catch (e) {
       this.logger.error(e.stack);
       if (e instanceof NonExistentUserException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
+        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user' }, HttpStatus.NOT_FOUND);
       }
       if (e instanceof NonExistentPermanentPostException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts'}, HttpStatus.NOT_FOUND);
+        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts' }, HttpStatus.NOT_FOUND);
       }
-      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException({ status: HttpStatus.INTERNAL_SERVER_ERROR, error: 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Delete(':post_id/delete')
+  @HttpCode(HttpStatus.OK)
+  @ApiCreatedResponse({ description: 'Post has been sucessfully delete' })
+  @ApiBadRequestResponse({ description: 'Invalid data format' })
+  @ApiBadGatewayResponse({ description: 'Error while deleting post' })
+  @ApiBearerAuth()
+  public async DeletePermanentPost(@Param('post_id') post_id: string) {
+    try {
+      return await this.delete_permanent_post_interactor.execute({ post_id: post_id }
+      );
+    } catch (e) {
+      if (e instanceof NonExistentPermanentPostException) {
+        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts' }, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        error: 'Internal database error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -171,7 +196,7 @@ export class PermanentPostController {
   @ApiBadGatewayResponse({ description: 'Error while sharing post' })
   @ApiBearerAuth()
   public async sharePermanentPost(
-  @Param('post_id') post_id: string,
+    @Param('post_id') post_id: string,
     @Body(new ValidationPipe()) body: SharePermanentPostDTO
   ) {
     try {
@@ -184,28 +209,28 @@ export class PermanentPostController {
     } catch (e) {
       this.logger.error(e.stack);
       if (e instanceof NonExistentUserException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
+        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user' }, HttpStatus.NOT_FOUND);
       }
       if (e instanceof NonExistentPermanentPostException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts'}, HttpStatus.NOT_FOUND);
+        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts' }, HttpStatus.NOT_FOUND);
       }
-      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException({ status: HttpStatus.INTERNAL_SERVER_ERROR, error: 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Post(':post_id/react')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async addOrRemoveReaction(@HttpUser() http_user: HttpUserPayload, 
+  public async addOrRemoveReaction(@HttpUser() http_user: HttpUserPayload,
     @Param('post_id') post_id: string,
-    @Body() body){
+    @Body() body) {
     try {
       return await this.add_reaction_interactor.execute({
         post_id: post_id,
         reactor_id: http_user.id,
         reaction_type: body.reaction_type
       });
-    } catch (e){
+    } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -213,13 +238,13 @@ export class PermanentPostController {
   @Get(':post_id/reactions')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async queryReactions(@HttpUser() http_user: HttpUserPayload, 
-    @Param('post_id') post_id: string){
+  public async queryReactions(@HttpUser() http_user: HttpUserPayload,
+    @Param('post_id') post_id: string) {
     try {
       return await this.query_reactions_interactor.execute({
         post_id: post_id,
       });
-    } catch (e){
+    } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }

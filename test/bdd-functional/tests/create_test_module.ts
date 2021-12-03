@@ -34,6 +34,7 @@ import { ReactionInMemoryRepository } from '@infrastructure/adapter/persistence/
 import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
+import { DeletePermanentPostService } from '@core/service/post/delete_permanent_post.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -92,6 +93,11 @@ export async function createTestModule() {
         provide: PostDITokens.QueryPermanentPostInteractor,
         useFactory: (post_gateway, user_gateway) => new QueryPermanentPostService(post_gateway, user_gateway),
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: PostDITokens.DeletePermanentPostInteractor,
+        useFactory: (post_gateway) => new DeletePermanentPostService(post_gateway),
+        inject: [PostDITokens.PermanentPostRepository],
       },
       {
         provide: PostDITokens.QueryPermanentPostCollectionInteractor,
