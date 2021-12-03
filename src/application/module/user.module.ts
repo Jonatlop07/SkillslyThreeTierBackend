@@ -8,10 +8,10 @@ import { QueryUserAccountService } from '@core/service/user/query_user_account.s
 import { DeleteUserAccountService } from '@core/service/user/delete_user_account.service';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { SearchUsersService } from '@core/service/user/search_users.service';
-import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/create_user_follow_request.interactor';
-import { CreateUserFollowRequestService } from '@core/service/user/create_user_follow_request.service';
-import { UpdateUserFollowRequestService } from '@core/service/user/update_user_follow_request.service';
-import { DeleteUserFollowRequestService } from '@core/service/user/delete_user_follow_request.service';
+import { CreateUserFollowRequestService } from '@core/service/user/follow_request/create_user_follow_request.service';
+import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
+import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
+import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -64,6 +64,11 @@ const use_case_providers: Array<Provider> = [
   {
     provide: UserDITokens.DeleteUserFollowRequestInteractor,
     useFactory: (gateway) => new DeleteUserFollowRequestService(gateway),
+    inject: [UserDITokens.UserRepository]
+  },
+  {
+    provide: UserDITokens.GetUserFollowRequestCollectionInteractor,
+    useFactory: (gateway) => new GetUserFollowRequestCollectionService(gateway),
     inject: [UserDITokens.UserRepository]
   }
 ];

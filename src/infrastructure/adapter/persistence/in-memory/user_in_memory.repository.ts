@@ -3,12 +3,14 @@ import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import * as moment from 'moment';
 import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
-import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/create_user_follow_request.input_model';
-import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/create_user_follow_request.output_model';
-import UpdateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/update_user_follow_request.input_model';
-import UpdateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/update_user_follow_request.output_model';
-import DeleteUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/delete_user_follow_request.input_model';
-import DeleteUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/delete_user_follow_request.output_model';
+import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/create_user_follow_request.input_model';
+import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/create_user_follow_request.output_model';
+import UpdateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/update_user_follow_request.input_model';
+import UpdateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/update_user_follow_request.output_model';
+import DeleteUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/delete_user_follow_request.input_model';
+import DeleteUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/delete_user_follow_request.output_model';
+import GetUserFollowRequestCollectionInputModel from '@core/domain/user/use-case/input-model/follow_request/get_user_follow_request_collection.input_model';
+import GetUserFollowRequestCollectionOutputModel from '@core/domain/user/use-case/output-model/follow_request/get_user_follow_request_collection.output_model';
 
 export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
@@ -34,7 +36,7 @@ export class UserInMemoryRepository implements UserRepository {
   }
 
   public existsUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<boolean> {
-    if(this.currently_available_user_follow_request == params.user_id.concat(params.user_id)){
+    if (this.currently_available_user_follow_request == params.user_id.concat(params.user_id)){
       return Promise.resolve(true); 
     }
     return Promise.resolve(false); 
@@ -60,7 +62,7 @@ export class UserInMemoryRepository implements UserRepository {
   }
 
   public existsUserFollowRelationship(params: CreateUserFollowRequestInputModel) {
-    if(this.currently_available_user_follow_relationship == params.user_id.concat(params.user_id)){
+    if (this.currently_available_user_follow_relationship == params.user_id.concat(params.user_id)){
       return Promise.resolve(true); 
     }
     return Promise.resolve(false); 
@@ -125,5 +127,10 @@ export class UserInMemoryRepository implements UserRepository {
       this.currently_available_user_follow_request = '';
     }
     return Promise.resolve({}); 
+  }
+
+  public async getUserFollowRequestCollection(params: GetUserFollowRequestCollectionInputModel): Promise<GetUserFollowRequestCollectionOutputModel> {
+    params.user_id;
+    return Promise.resolve({pendingUsers: [], followingUsers: []}); 
   }
 }

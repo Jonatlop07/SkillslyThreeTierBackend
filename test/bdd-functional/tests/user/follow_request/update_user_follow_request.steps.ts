@@ -1,16 +1,15 @@
-import { UserDITokens } from "@core/domain/user/di/user_di_tokens";
-import { UserFollowRequestException } from "@core/domain/user/use-case/exception/user_follow_request.exception";
-import CreateUserAccountInputModel from "@core/domain/user/use-case/input-model/create_user_account.input_model";
-import CreateUserFollowRequestInputModel from "@core/domain/user/use-case/input-model/create_user_follow_request.input_model";
-import UpdateUserFollowRequestInputModel from "@core/domain/user/use-case/input-model/update_user_follow_request.input_model";
-import { CreateUserAccountInteractor } from "@core/domain/user/use-case/interactor/create_user_account.interactor";
-import { CreateUserFollowRequestInteractor } from "@core/domain/user/use-case/interactor/create_user_follow_request.interactor";
-import { UpdateUserFollowRequestInteractor } from "@core/domain/user/use-case/interactor/update_user_follow_request.interactor";
-import UpdateUserFollowRequestOutputModel from "@core/domain/user/use-case/output-model/update_user_follow_request.output_model";
-import { defineFeature, loadFeature } from "jest-cucumber";
-import { createTestModule } from "../create_test_module";
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { UserFollowRequestException } from '@core/domain/user/use-case/exception/user_follow_request.exception';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import UpdateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/update_user_follow_request.input_model';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
+import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
+import UpdateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/update_user_follow_request.output_model';
+import { defineFeature, loadFeature } from 'jest-cucumber';
+import { createTestModule } from '../../create_test_module';
 
-const feature = loadFeature('test/bdd-functional/features/user/update_user_follow_request.feature');
+const feature = loadFeature('test/bdd-functional/features/user/follow_request/update_user_follow_request.feature');
 
 defineFeature( feature, (test) => {
   const user_mock: CreateUserAccountInputModel = {
@@ -32,18 +31,19 @@ defineFeature( feature, (test) => {
   let create_user_follow_request_interactor: CreateUserFollowRequestInteractor;
   let update_user_follow_request_interactor: UpdateUserFollowRequestInteractor;
   let output: UpdateUserFollowRequestOutputModel;
-  let exception: UserFollowRequestException = undefined;
+  let exception: UserFollowRequestException;
 
   async function updateUserFollowRequest(input: UpdateUserFollowRequestInputModel) {
     try {
       output = await update_user_follow_request_interactor.execute(input);
     } catch (e) {
       exception = e;
+      console.log(exception);
     }
   }
 
   function givenAUserExists(given) {
-    given(/^a user exists, is logged in, and has an id (.*)$/,
+    given(/^a user exists, is logged in, and has an id "([^"]*)"$/,
       async (id: string) => {
         user_id = id;
         try {
@@ -74,10 +74,10 @@ defineFeature( feature, (test) => {
     and('a follow request exists between the users',
       async () => {
         try {
-          const resp = await create_user_follow_request_interactor.execute({
+          await create_user_follow_request_interactor.execute({
             user_id,
             user_destiny_id
-          })
+          });
         } catch (e) {
           console.log(e); 
         }
@@ -87,13 +87,13 @@ defineFeature( feature, (test) => {
 
   function whenTheUserDestinyActionTheFollowRequest(when) {
     when(/^the user destiny "([^"]*)" the follow request$/, 
-    async (action: string) => {
-      const resp = await updateUserFollowRequest({
-        user_id,
-        user_destiny_id, 
-        action
+      async (action: string) => {
+        await updateUserFollowRequest({
+          user_id,
+          user_destiny_id, 
+          action
+        });
       });
-    });
   }
   
   beforeEach(async () => {
@@ -101,7 +101,6 @@ defineFeature( feature, (test) => {
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
     create_user_follow_request_interactor = module.get<CreateUserFollowRequestInteractor>(UserDITokens.CreateUserFollowRequestInteractor);
     update_user_follow_request_interactor = module.get<UpdateUserFollowRequestInteractor>(UserDITokens.UpdateUserFollowRequestInteractor);
-    exception = undefined;
   });
 
   test('A user accepts an existing follow request',

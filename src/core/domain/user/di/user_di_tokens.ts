@@ -8,5 +8,6 @@ export class UserDITokens {
   public static readonly SearchUsersInteractor: unique symbol = Symbol('SearchUsersInteractor');
   public static readonly CreateUserFollowRequestInteractor: unique symbol = Symbol('CreateUserFollowRequestInteractor');
   public static readonly UpdateUserFollowRequestInteractor: unique symbol = Symbol('UpdateUserFollowRequestInteractor');
-  public static readonly DeleteUserFollowRequestInteractor: unique symbol = Symbol('UpdateUserFollowRequestInteractor');
+  public static readonly DeleteUserFollowRequestInteractor: unique symbol = Symbol('DeleteUserFollowRequestInteractor');
+  public static readonly GetUserFollowRequestCollectionInteractor: unique symbol = Symbol('GetUserFollowRequestCollectionInteractor');
 }

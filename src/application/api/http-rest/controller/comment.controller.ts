@@ -38,7 +38,7 @@ export class CommentController {
   @ApiBadGatewayResponse({ description: 'Error while creating comment' })
   @ApiBearerAuth()
   async createCommentInPermanentPost(
-    @Param('permanentPostID') permanentPostID: string,
+  @Param('permanentPostID') permanentPostID: string,
     @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateCommentDto,
   ) {

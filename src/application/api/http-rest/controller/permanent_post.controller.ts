@@ -80,7 +80,7 @@ export class PermanentPostController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async updatePermanentPost(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('post_id') post_id: string,
     @Body() body) {
     if (body.user_id !== http_user.id)
@@ -163,9 +163,9 @@ export class PermanentPostController {
   @ApiBadGatewayResponse({ description: 'Error while sharing post' })
   @ApiBearerAuth()
   public async sharePermanentPost(
-    @Param('post_id') post_id: string,
+  @Param('post_id') post_id: string,
     @Body(new ValidationPipe()) body: SharePermanentPostDTO
-    ) {
+  ) {
     try {
       return await this.share_permanent_post_interactor.execute(
         await SharePermanentPostAdapter.new({

@@ -20,7 +20,6 @@ defineFeature(feature, (test) => {
   };
 
   let user_id: string;
-  let owner_id: string;
   let post_id: string;
 
   let create_user_account_interactor: CreateUserAccountInteractor;

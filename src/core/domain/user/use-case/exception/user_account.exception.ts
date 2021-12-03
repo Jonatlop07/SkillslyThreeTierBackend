@@ -1,4 +1,4 @@
-import { CoreExceptionCodes } from "@core/common/exception/core_exception_codes";
+import { CoreExceptionCodes } from '@core/common/exception/core_exception_codes';
 
 abstract class UserAccountException extends Error {}
 

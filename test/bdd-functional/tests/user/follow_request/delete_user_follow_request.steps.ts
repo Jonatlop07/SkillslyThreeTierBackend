@@ -1,15 +1,15 @@
-import { UserDITokens } from "@core/domain/user/di/user_di_tokens";
-import { UserFollowRequestException } from "@core/domain/user/use-case/exception/user_follow_request.exception";
-import CreateUserAccountInputModel from "@core/domain/user/use-case/input-model/create_user_account.input_model";
-import DeleteUserFollowRequestInputModel from "@core/domain/user/use-case/input-model/delete_user_follow_request.input_model";
-import { CreateUserAccountInteractor } from "@core/domain/user/use-case/interactor/create_user_account.interactor";
-import { CreateUserFollowRequestInteractor } from "@core/domain/user/use-case/interactor/create_user_follow_request.interactor";
-import { DeleteUserFollowRequestInteractor } from "@core/domain/user/use-case/interactor/delete_user_follow_request.interactor";
-import DeleteUserFollowRequestOutputModel from "@core/domain/user/use-case/output-model/delete_user_follow_request.output_model";
-import { defineFeature, loadFeature } from "jest-cucumber";
-import { createTestModule } from "../create_test_module";
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { UserFollowRequestException } from '@core/domain/user/use-case/exception/user_follow_request.exception';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import DeleteUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/delete_user_follow_request.input_model';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
+import { DeleteUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/delete_user_follow_request.interactor';
+import DeleteUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/delete_user_follow_request.output_model';
+import { defineFeature, loadFeature } from 'jest-cucumber';
+import { createTestModule } from '../../create_test_module';
 
-const feature = loadFeature('test/bdd-functional/features/user/delete_user_follow_request.feature');
+const feature = loadFeature('test/bdd-functional/features/user/follow_request/delete_user_follow_request.feature');
 
 defineFeature( feature, (test) => {
   const user_mock: CreateUserAccountInputModel = {
@@ -31,13 +31,14 @@ defineFeature( feature, (test) => {
   let create_user_follow_request_interactor: CreateUserFollowRequestInteractor;
   let delete_user_follow_request_interactor: DeleteUserFollowRequestInteractor;
   let output: DeleteUserFollowRequestOutputModel;
-  let exception: UserFollowRequestException = undefined;
+  let exception: UserFollowRequestException;
 
   async function deleteUserFollowRequest(input: DeleteUserFollowRequestInputModel) {
     try {
       output = await delete_user_follow_request_interactor.execute(input);
     } catch (e) {
       exception = e;
+      console.log(exception);
     }
   }
 
@@ -73,10 +74,10 @@ defineFeature( feature, (test) => {
     and('a follow request or a follow relationship exists between the users',
       async () => {
         try {
-          const resp = await create_user_follow_request_interactor.execute({
+          await create_user_follow_request_interactor.execute({
             user_id,
             user_destiny_id
-          })
+          });
         } catch (e) {
           console.log(e); 
         }
@@ -86,13 +87,13 @@ defineFeature( feature, (test) => {
 
   function whenTheUserDeleteTheFollowRequest(when) {
     when(/^the user tries to delete the "([^"]*)"$/, 
-    async (action: string) => {
-      const resp = await deleteUserFollowRequest({
-        user_id,
-        user_destiny_id,
-        action
+      async (action: string) => {
+        await deleteUserFollowRequest({
+          user_id,
+          user_destiny_id,
+          action
+        });
       });
-    });
   }
   
   beforeEach(async () => {
@@ -100,7 +101,6 @@ defineFeature( feature, (test) => {
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
     create_user_follow_request_interactor = module.get<CreateUserFollowRequestInteractor>(UserDITokens.CreateUserFollowRequestInteractor);
     delete_user_follow_request_interactor = module.get<DeleteUserFollowRequestInteractor>(UserDITokens.DeleteUserFollowRequestInteractor);
-    exception = undefined;
   });
 
   test('A user deletes an existing follow request or a follow relationship',

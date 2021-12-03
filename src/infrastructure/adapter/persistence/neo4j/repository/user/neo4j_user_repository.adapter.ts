@@ -6,12 +6,14 @@ import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
 import * as moment from 'moment';
-import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/create_user_follow_request.input_model';
-import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/create_user_follow_request.output_model';
-import UpdateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/update_user_follow_request.input_model';
-import UpdateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/update_user_follow_request.output_model';
-import DeleteUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/delete_user_follow_request.input_model';
-import DeleteUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/delete_user_follow_request.output_model';
+import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/create_user_follow_request.input_model';
+import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/create_user_follow_request.output_model';
+import UpdateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/update_user_follow_request.input_model';
+import UpdateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/update_user_follow_request.output_model';
+import DeleteUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/delete_user_follow_request.input_model';
+import DeleteUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/delete_user_follow_request.output_model';
+import GetUserFollowRequestCollectionInputModel from '@core/domain/user/use-case/input-model/follow_request/get_user_follow_request_collection.input_model';
+import GetUserFollowRequestCollectionOutputModel from '@core/domain/user/use-case/output-model/follow_request/get_user_follow_request_collection.output_model';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -88,7 +90,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       MATCH (${user_destiny_key}: User { user_id: '${params.user_destiny_id}' })
       CREATE (${user_key})-[:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
     `;
-    const result: QueryResult = await this.neo4j_service.write(
+    await this.neo4j_service.write(
       create_user_follow_request_query,
       {}
     );
@@ -193,7 +195,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
       DELETE r
     `;
-    if (params.action == "accept"){
+    if (params.action == 'accept'){
       await this.neo4j_service.write(
         accept_user_follow_request_query,
         {
@@ -259,10 +261,10 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       DELETE r
     `;
     const delete_user_follow_relationship_query = ` 
-    MATCH (${user_key}: User { user_id: $user_id }),
-    (${user_destiny_key}: User { user_id: $user_destiny_id }),
-    (${user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${user_destiny_key})
-    DELETE r
+      MATCH (${user_key}: User { user_id: $user_id }),
+      (${user_destiny_key}: User { user_id: $user_destiny_id }),
+      (${user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${user_destiny_key})
+      DELETE r
     `;
     if (params.action == 'request') {
       await this.neo4j_service.write(
@@ -282,5 +284,61 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       );
     }
     return {};
+  }
+
+  public async getUserFollowRequestCollection(params: GetUserFollowRequestCollectionInputModel): Promise<GetUserFollowRequestCollectionOutputModel> {
+    const user_key = 'user';
+    const get_user_follow_request_collection_query = ` 
+      MATCH (${user_key}: User { user_id: $user_id }),
+      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(user_destiny)
+      RETURN user_destiny
+    `;
+    const get_user_follow_relationship_collection_query = ` 
+      MATCH (${user_key}: User { user_id: $user_id }),
+      (${user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(user_destiny)
+      RETURN user_destiny
+    `;
+    const result_request = await this.neo4j_service.read(
+      get_user_follow_request_collection_query,
+      {
+        user_id: params.user_id
+      }
+    ).then(
+      (result: QueryResult) =>
+        result.records.map(
+          (record:any) => record._fields[0].properties
+        )
+    );
+    const request_resp = result_request.map((result: any) => {
+      return ({
+        email: result.email,
+        name: result.name, 
+        user_id: result.user_id, 
+        date_of_birth: result.date_of_birth
+      })
+    });
+    const result_relationship = await this.neo4j_service.read(
+      get_user_follow_relationship_collection_query,
+      {
+        user_id: params.user_id
+      }
+    ).then(
+      (result: QueryResult) =>
+        result.records.map(
+          (record:any) => record._fields[0].properties
+        )
+    );
+    const relationship_resp = result_relationship.map((result: any) => {
+      return ({
+        email: result.email,
+        name: result.name, 
+        user_id: result.user_id, 
+        date_of_birth: result.date_of_birth
+      })
+    });
+    return {
+      pendingUsers: relationship_resp,
+      followingUsers: request_resp
+    };
   }
 }

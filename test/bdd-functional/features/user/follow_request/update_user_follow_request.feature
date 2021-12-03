@@ -1,6 +1,6 @@
 Feature: Update User Follow Request
 
-  Scenario Outline A user accepts an existing follow request
+  Scenario Outline: A user accepts an existing follow request
     Given a user exists, is logged in, and has an id "<UserId>"
     And another user destiny exists, and has an id "<UserDestinyId>"
     And a follow request exists between the users
@@ -11,7 +11,7 @@ Feature: Update User Follow Request
       | UserId | UserDestinyId | Action |
       | 1      | 2             | accept |
 
-  Scenario Outline A user rejects an existing follow request
+  Scenario Outline: A user rejects an existing follow request
     Given a user exists, is logged in, and has an id "<UserId>"
     And another user destiny exists, and has an id "<UserDestinyId>"
     And a follow request exists between the users

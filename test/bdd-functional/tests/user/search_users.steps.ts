@@ -7,7 +7,6 @@ import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/sear
 import SearchUsersInputModel from '@core/domain/user/use-case/input-model/search_users.input_model';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { identity } from 'rxjs';
 
 const feature = loadFeature('test/bdd-functional/features/user/search_users.feature');
 

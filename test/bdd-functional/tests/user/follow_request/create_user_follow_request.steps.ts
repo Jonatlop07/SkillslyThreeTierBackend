@@ -1,14 +1,14 @@
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { UserFollowRequestAlreadyExistsException, UserFollowRequestException } from '@core/domain/user/use-case/exception/user_follow_request.exception';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
-import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/create_user_follow_request.input_model';
+import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/create_user_follow_request.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
-import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/create_user_follow_request.interactor';
-import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/create_user_follow_request.output_model';
+import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
+import CreateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/create_user_follow_request.output_model';
 import { loadFeature, defineFeature } from 'jest-cucumber';
-import { createTestModule } from '../create_test_module';
+import { createTestModule } from '../../create_test_module';
 
-const feature = loadFeature('test/bdd-functional/features/user/create_user_follow_request.feature');
+const feature = loadFeature('test/bdd-functional/features/user/follow_request/create_user_follow_request.feature');
 
 defineFeature( feature, (test) => {
   const user_mock: CreateUserAccountInputModel = {
@@ -69,7 +69,7 @@ defineFeature( feature, (test) => {
 
   function whenTheUserRequestToFollowTheDestinyUser(when) {
     when('the user request to follow the destiny user', async () => {
-      const resp = await createUserFollowRequest({
+      await createUserFollowRequest({
         user_id,
         user_destiny_id
       });

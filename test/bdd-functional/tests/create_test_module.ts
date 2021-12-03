@@ -29,10 +29,11 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
-import { CreateUserFollowRequestService } from '@core/service/user/create_user_follow_request.service';
+import { CreateUserFollowRequestService } from '@core/service/user/follow_request/create_user_follow_request.service';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
-import { UpdateUserFollowRequestService } from '@core/service/user/update_user_follow_request.service';
-import { DeleteUserFollowRequestService } from '@core/service/user/delete_user_follow_request.service';
+import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
+import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
+import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -80,6 +81,11 @@ export async function createTestModule() {
       {
         provide: UserDITokens.DeleteUserFollowRequestInteractor,
         useFactory: (gateway) => new DeleteUserFollowRequestService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.GetUserFollowRequestCollectionInteractor,
+        useFactory: (gateway) => new GetUserFollowRequestCollectionService(gateway),
         inject: [UserDITokens.UserRepository],
       },
       {

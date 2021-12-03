@@ -31,7 +31,7 @@ export class ChatController {
 
   @Post()
   public async createSimpleConversation(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateSimpleChatConversationDTO
   ) {
     try {
@@ -48,7 +48,7 @@ export class ChatController {
 
   @Post('group')
   public async createGroupConversation(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateGroupChatConversationDTO
   ) {
     try {
@@ -64,7 +64,7 @@ export class ChatController {
 
   @Get(':conversation_id/messages')
   public async getConversationMessageCollection(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('conversation_id') conversation_id: string
   ) {
     try {

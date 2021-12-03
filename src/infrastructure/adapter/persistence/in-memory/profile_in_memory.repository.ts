@@ -9,7 +9,7 @@ export class ProfileInMemoryRepository implements ProfileRepository {
   }
 
   async create(profile: ProfileDTO): Promise<ProfileDTO> {
-    const new_profile: ProfileDTO = ({
+    const new_profile: ProfileDTO = {
       profile_id: this.currently_available_profile_id,
       interests: profile.interests,
       activities: profile.activities,
@@ -17,7 +17,7 @@ export class ProfileInMemoryRepository implements ProfileRepository {
       knowledge: profile.knowledge,
       resume: profile.resume,
       user_email: profile.user_email,
-    });
+    };
     this.profiles.set(this.currently_available_profile_id, new_profile);
     this.currently_available_profile_id = `${Number(this.currently_available_profile_id) + 1}`;
     return Promise.resolve(new_profile);
