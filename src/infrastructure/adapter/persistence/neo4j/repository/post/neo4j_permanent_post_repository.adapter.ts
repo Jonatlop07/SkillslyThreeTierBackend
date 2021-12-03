@@ -114,6 +114,10 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
         post_id
       }
     );
+
+    if (!this.neo4j_service.getSingleResultProperties(result, post_key)){
+      return undefined;
+    }
     return {
       ...this.neo4j_service.getSingleResultProperties(result, post_key),
       user_id: this.neo4j_service.getSingleResultProperties(result, user_id_key)

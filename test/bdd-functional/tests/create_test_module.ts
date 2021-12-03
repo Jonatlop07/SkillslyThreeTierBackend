@@ -23,11 +23,16 @@ import { GetCommentsInPermanentPostService } from '@core/service/comment/get_com
 import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
 import { CreateSimpleChatConversationService } from '@core/service/chat/create_simple_chat_conversation.service';
 import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
+import { GetChatConversationCollectionService } from '@core/service/chat/get_chat_conversation_collection.service';
 import { CreateChatMessageService } from '@core/service/chat/create_chat_message.service';
 import { GetChatMessageCollectionService } from '@core/service/chat/get_chat_message_collection.service';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
+import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
+import { AddReactionService } from '@core/service/reaction/add_reaction.service';
+import { ReactionInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/reaction_in_memory.repository';
+import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { CreateUserFollowRequestService } from '@core/service/user/follow_request/create_user_follow_request.service';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
@@ -134,6 +139,16 @@ export async function createTestModule() {
         inject: [CommentDITokens.CommentRepository],
       },
       {
+        provide: ReactionDITokens.AddReactionInteractor,
+        useFactory: (gateway, post_gateway) => new AddReactionService(gateway, post_gateway),
+        inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository]
+      },
+      {
+        provide: ReactionDITokens.QueryReactionsInteractor,
+        useFactory: (gateway, post_gateway) => new QueryReactionsService(gateway, post_gateway),
+        inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository]
+      },
+      {
         provide: PostDITokens.SharePermanentPostInteractor,
         useFactory: (post_gateway, user_gateway) => new SharePermanentPostService(post_gateway, user_gateway),
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
@@ -146,6 +161,11 @@ export async function createTestModule() {
       {
         provide: ChatDITokens.CreateGroupChatConversationInteractor,
         useFactory: (gateway) => new CreateGroupChatConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.GetChatConversationCollectionInteractor,
+        useFactory: (gateway) => new GetChatConversationCollectionService(gateway),
         inject: [ChatDITokens.ChatConversationRepository]
       },
       {
@@ -169,6 +189,10 @@ export async function createTestModule() {
       {
         provide: PostDITokens.PermanentPostRepository,
         useFactory: () => new PermanentPostInMemoryRepository(new Map())
+      },
+      {
+        provide: ReactionDITokens.ReactionRepository,
+        useFactory: () => new ReactionInMemoryRepository(new Map()),
       },
       {
         provide: CommentDITokens.CommentRepository,

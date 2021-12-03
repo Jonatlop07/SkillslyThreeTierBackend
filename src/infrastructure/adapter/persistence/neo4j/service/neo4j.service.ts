@@ -16,6 +16,14 @@ export class Neo4jService {
     return result.records[0]?.get(key).properties;
   };
 
+  public getSingleResultProperty = (result: QueryResult, key: string) => {
+    return result.records[0]?.get(key);
+  };
+
+  public getMultipleResultByKey = (result: QueryResult, key: string) => {
+    return result.records.map((record) => record.get(key).properties);
+  };
+
   getDriver(): Driver {
     return this.driver;
   }

@@ -1,27 +1,34 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { QueryResult } from 'neo4j-driver';
+import * as moment from 'moment';
+import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
+import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import ChatConversationRepository from '@core/domain/chat/use-case/repository/chat_conversation.repository';
 import { ConversationDTO } from '@core/domain/chat/use-case/persistence-dto/conversation.dto';
-import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
-import { Logger } from '@nestjs/common';
-import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
-import * as moment from 'moment';
-import { QueryResult } from 'neo4j-driver';
+import ConversationQueryModel from '@core/domain/chat/use-case/query-model/conversation.query_model';
+import { ConversationDetailsDTO } from '@core/domain/chat/use-case/persistence-dto/conversation_details.dto';
+import { Optional } from '@core/common/type/common_types';
 
+@Injectable()
 export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationRepository {
+  private readonly conversation_key = 'conversation';
+  private readonly user_key = 'user';
+
   private readonly logger: Logger = new Logger(ChatConversationNeo4jRepositoryAdapter.name);
 
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) {
+  }
 
-  async create(conversation: ConversationDTO): Promise<ConversationDTO> {
-    const conversation_key = 'conversation';
-    const user_key = 'user';
+  public async create(conversation: ConversationDTO): Promise<ConversationDTO> {
+
     const create_conversation_statement = `
-      CREATE (${conversation_key}: Conversation)
-      SET ${conversation_key} += $properties, ${conversation_key}.conversation_id = randomUUID()
-      WITH ${conversation_key}
+      CREATE (${this.conversation_key}: Conversation)
+      SET ${this.conversation_key} += $properties, ${this.conversation_key}.conversation_id = randomUUID()
+      WITH ${this.conversation_key}
       UNWIND $member_ids as member_id
-      MATCH (${user_key}: User { user_id: member_id })
-      CREATE (${user_key})-[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]->(${conversation_key})
-      RETURN ${conversation_key}
+      MATCH (${this.user_key}: User { user_id: member_id })
+      CREATE (${this.user_key})-[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]->(${this.conversation_key})
+      RETURN ${this.conversation_key}
     `;
     return this.neo4j_service.getSingleResultProperties(
       await this.neo4j_service.write(
@@ -34,47 +41,43 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
           }
         }
       ),
-      conversation_key
+      this.conversation_key
     );
   }
 
   public async belongsUserToConversation(user_id: string, conversation_id: string): Promise<boolean> {
-    const user_key = 'user';
-    const conversation_key = 'conversation';
     const belongs_user_to_conversation_query = `
       MATCH
-        (${user_key}: User { user_id: $user_id })
+        (${this.user_key}: User { user_id: $user_id })
         -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
-        ->(${conversation_key}: Conversation { conversation_id: $conversation_id })
-      RETURN ${user_key}
+        ->(${this.conversation_key}: Conversation { conversation_id: $conversation_id })
+      RETURN ${this.user_key}
     `;
     const result = this.neo4j_service.getSingleResultProperties(
       await this.neo4j_service.read(belongs_user_to_conversation_query, {
         user_id,
         conversation_id
       }),
-      user_key
+      this.user_key
     );
     return !!result;
   }
 
-  async existsSimpleConversationWithUser(user_id: string, other_user_id: string): Promise<boolean> {
-    const user_key = 'user';
-    const conversation_key = 'conversation';
+  public async existsSimpleConversationWithUser(user_id: string, other_user_id: string): Promise<boolean> {
     const exists_conversation_with_user_query = `
       MATCH
         (: User { user_id: $user_id })
         -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
-        ->(${conversation_key}: Conversation)
+        ->(${this.conversation_key}: Conversation)
         <-[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
         -(: User { user_id: $other_user_id })
-      WITH ${conversation_key}
-      MATCH (${user_key}: User)
+      WITH ${this.conversation_key}
+      MATCH (${this.user_key}: User)
         -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
-        ->(${conversation_key})
-      WITH COUNT(${user_key}) as user_count, ${conversation_key}
+        ->(${this.conversation_key})
+      WITH COUNT(${this.user_key}) as user_count, ${this.conversation_key}
       WHERE user_count = 2
-      RETURN ${conversation_key}
+      RETURN ${this.conversation_key}
     `;
     const result: QueryResult = await this.neo4j_service.read(
       exists_conversation_with_user_query,
@@ -91,10 +94,9 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
   }
 
   public async existsById(id: string): Promise<boolean> {
-    const conversation_key = 'conversation';
     const exists_conversation_by_id_query = `
-      MATCH (${conversation_key}: Conversation { conversation_id: $conversation_id })
-      RETURN ${conversation_key}
+      MATCH (${this.conversation_key}: Conversation { conversation_id: $conversation_id })
+      RETURN ${this.conversation_key}
     `;
     const result: QueryResult = await this.neo4j_service.read(
       exists_conversation_by_id_query,
@@ -103,5 +105,60 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
       }
     );
     return result.records.length > 0;
+  }
+
+  public async findAll(params: ConversationQueryModel): Promise<Array<ConversationDetailsDTO>> {
+    const get_all_conversations_by_user_statement = `
+      MATCH (${this.user_key}: User { user_id: $user_id })
+        -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
+        ->(${this.conversation_key}: Conversation)
+      WITH ${this.conversation_key}
+      MATCH (${this.user_key}: User)
+        -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
+        ->(${this.conversation_key})
+      RETURN ${this.conversation_key}, ${this.user_key}
+    `;
+    const conversation_collection: Array<ConversationDTO> = this.neo4j_service.getMultipleResultByKey(
+      await this.neo4j_service.read(
+        get_all_conversations_by_user_statement,
+        {
+          user_id: params.user_id
+        }
+      ),
+      this.conversation_key
+    );
+    const get_conversation_members = `
+      MATCH (${this.user_key}: User)
+        -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
+        ->(${this.conversation_key}: Conversation { conversation_id: $id})
+      RETURN ${this.user_key}
+    `;
+    const result: Array<ConversationDetailsDTO> = [];
+    for (const conversation of conversation_collection) {
+      const conversation_members = this.neo4j_service
+        .getMultipleResultByKey(
+          await this.neo4j_service.read(
+            get_conversation_members,
+            { id: conversation.conversation_id }
+          ).then(),
+          this.user_key
+        ).map((user) => ({
+          member_id: user.user_id,
+          member_name: user.name
+        }));
+      result.push(
+        {
+          conversation_id: conversation.conversation_id,
+          conversation_name: conversation.name,
+          conversation_members
+        }
+      );
+    }
+    return result;
+  }
+
+  public async findOne(params: ConversationQueryModel): Promise<Optional<ConversationDetailsDTO>> {
+    params;
+    return Promise.resolve(undefined);
   }
 }

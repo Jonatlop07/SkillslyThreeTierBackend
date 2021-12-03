@@ -1,10 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { RootModule } from '@application/module/.root.module';
 import { Logger } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { APIServerConfiguration } from '@infrastructure/config/api_server.config';
 import * as chalk from 'chalk';
+import { RootModule } from '@application/module/.root.module';
+import { APIServerConfiguration } from '@infrastructure/config/api_server.config';
 
 export class ServerApplication {
   private readonly host: string = APIServerConfiguration.HOST;
@@ -18,8 +17,7 @@ export class ServerApplication {
       if (!this.enable_log) {
         options['logger'] = false;
       }
-
-      const app = await NestFactory.create<NestExpressApplication>(
+      const app = await NestFactory.create(
         RootModule,
         options
       );
@@ -27,8 +25,6 @@ export class ServerApplication {
         origin: this.origin
       });
       app.setGlobalPrefix('api/v1');
-      //quitar la de abajo
-      app.enableCors({ origin: 'http://localhost:4200' });
 
       this.buildAPIDocumentation(app);
 

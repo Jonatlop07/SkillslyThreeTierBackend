@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+  import { Injectable, Logger } from '@nestjs/common';
 import { QueryResult } from 'neo4j-driver';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
@@ -20,6 +20,9 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   private readonly logger: Logger = new Logger(UserNeo4jRepositoryAdapter.name);
 
   constructor(private readonly neo4j_service: Neo4jService) {}
+  delete(params: string): Promise<UserDTO> {
+    throw new Error('Method not implemented.');
+  }
 
   public async findAll(params: UserQueryModel): Promise<Array<UserDTO>> {
     const { email, name } = params;
