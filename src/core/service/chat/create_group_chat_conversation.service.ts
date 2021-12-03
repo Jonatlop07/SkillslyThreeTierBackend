@@ -1,10 +1,10 @@
+import { Inject } from '@nestjs/common';
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
 import CreateGroupChatConversationInputModel
   from '@core/domain/chat/use-case/input-model/create_group_chat_conversation.input_model';
 import CreateGroupChatConversationOutputModel
   from '@core/domain/chat/use-case/output-model/create_group_chat_conversation.output_model';
 import { NoMembersInConversationChatException } from '@core/domain/chat/use-case/exception/chat.exception';
-import { Inject } from '@nestjs/common';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import CreateGroupChatConversationGateway
   from '@core/domain/chat/use-case/gateway/create_group_chat_conversation.gateway';

@@ -41,7 +41,9 @@ defineFeature(feature, (test) =>{
         .map((user: UserDTO) =>
           ({
             email: user.email,
-            name: user.name
+            name: user.name,
+            date_of_birth: user.date_of_birth,
+            user_id: user.user_id
           })
         );
       users.forEach( async user => {
@@ -76,7 +78,12 @@ defineFeature(feature, (test) =>{
       whenUserTriesToSearchForAnUser(when);
       then('the users associated with the parameters entered are returned', () => {
         expect(output).toBeDefined();
-        expect(output).toEqual({users:expected_searched_users});
+        output.users.forEach(
+          (user, index) => {
+            expect(user.name).toEqual(expected_searched_users[index].name);
+            expect(user.email).toEqual(expected_searched_users[index].email);
+          }
+        );
       });
     });
 });

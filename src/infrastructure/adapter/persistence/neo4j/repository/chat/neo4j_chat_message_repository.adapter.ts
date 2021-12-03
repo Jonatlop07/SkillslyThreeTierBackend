@@ -1,30 +1,32 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { QueryResult } from 'neo4j-driver';
+import * as moment from 'moment';
+import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
+import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
+import MessageQueryModel from '@core/domain/chat/use-case/query-model/message.query_model';
 import ChatMessageRepository from '@core/domain/chat/use-case/repository/chat_message.repository';
 import { MessageDTO } from '@core/domain/chat/use-case/persistence-dto/message.dto';
-import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
-import { Logger } from '@nestjs/common';
-import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
-import * as moment from 'moment';
-import MessageQueryModel from '@core/domain/chat/use-case/query-model/message.query_model';
 import { Optional } from '@core/common/type/common_types';
-import { QueryResult } from 'neo4j-driver';
 
+@Injectable()
 export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository {
+  private readonly message_key = 'message';
+  private readonly user_key = 'user';
+  private readonly conversation_key = 'conversation';
+
   private readonly logger: Logger = new Logger(ChatMessageNeo4jRepositoryAdapter.name);
 
   constructor(private readonly neo4j_service: Neo4jService) {}
 
-  async create(message: MessageDTO): Promise<MessageDTO> {
-    const user_key = 'user';
-    const conversation_key = 'conversation';
-    const message_key = 'message';
+  public async create(message: MessageDTO): Promise<MessageDTO> {
     const create_message_statement = `
-      MATCH (${user_key}: User { user_id: $user_id }),
-      (${conversation_key}: Conversation { conversation_id: $conversation_id })
-      CREATE (${message_key}: Message),
-      (${user_key})-[:${Relationships.USER_MESSAGE_RELATIONSHIP}->(${message_key}),
-      (${message_key})-[:${Relationships.MESSAGE_CONVERSATION_RELATIONSHIP}]->(${conversation_key})
-      SET ${message_key} += $properties, ${message_key}.message_id = randomUUID()
-      return ${message_key}
+      MATCH (${this.user_key}: User { user_id: $user_id }),
+      (${this.conversation_key}: Conversation { conversation_id: $conversation_id })
+      CREATE (${this.message_key}: Message),
+      (${this.user_key})-[:${Relationships.USER_MESSAGE_RELATIONSHIP}]->(${this.message_key}),
+      (${this.message_key})-[:${Relationships.MESSAGE_CONVERSATION_RELATIONSHIP}]->(${this.conversation_key})
+      SET ${this.message_key} += $properties, ${this.message_key}.message_id = randomUUID()
+      return ${this.message_key}
     `;
     const { message_id, content, created_at } = this.neo4j_service.getSingleResultProperties(
       await this.neo4j_service.write(
@@ -38,7 +40,7 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
           }
         }
       ),
-      message_key
+      this.message_key
     );
     return {
       message_id,
@@ -50,14 +52,21 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
   }
 
   public async findAll(params: MessageQueryModel): Promise<MessageDTO[]> {
-    const conversation_key = 'conversation';
-    const message_key = 'message_key';
+    const result_key = 'result';
     const find_last_20_messages = `
-      MATCH (${message_key})
-        -[:${Relationships.MESSAGE_CONVERSATION_RELATIONSHIP}
-        ->(${conversation_key} { conversation_id: $conversation_id })
-      WITH ${message_key} ORDER BY ${message_key}.created_at LIMIT 20
-      RETURN ${message_key}
+      MATCH (${this.user_key}: User)
+        -[:${Relationships.USER_MESSAGE_RELATIONSHIP}]
+        ->(${this.message_key}: Message)
+        -[:${Relationships.MESSAGE_CONVERSATION_RELATIONSHIP}]
+        ->(${this.conversation_key}: Conversation { conversation_id: $conversation_id })
+      WITH ${this.user_key}, ${this.message_key} ORDER BY ${this.message_key}.created_at LIMIT 20
+      WITH {
+        message_id: ${this.message_key}.message_id,
+        content: ${this.message_key}.content,
+        created_at: ${this.message_key}.created_at,
+        user_id: ${this.user_key}.user_id
+      } AS ${result_key}
+      RETURN ${result_key}
     `;
     return await this.neo4j_service.read(
       find_last_20_messages,
@@ -66,7 +75,16 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
       }
     ).then(
       (result: QueryResult) =>
-        result.records.map((record:any) => record._fields[0].properties)
+        result.records.map((record:any): MessageDTO => {
+          const { content, message_id, created_at, user_id } = record._fields[0];
+          return {
+            message_id,
+            content,
+            created_at,
+            user_id,
+            conversation_id: params.conversation_id
+          };
+        })
     );
   }
 

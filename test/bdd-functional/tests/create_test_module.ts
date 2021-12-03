@@ -23,6 +23,7 @@ import { GetCommentsInPermanentPostService } from '@core/service/comment/get_com
 import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
 import { CreateSimpleChatConversationService } from '@core/service/chat/create_simple_chat_conversation.service';
 import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
+import { GetChatConversationCollectionService } from '@core/service/chat/get_chat_conversation_collection.service';
 import { CreateChatMessageService } from '@core/service/chat/create_chat_message.service';
 import { GetChatMessageCollectionService } from '@core/service/chat/get_chat_message_collection.service';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
@@ -33,8 +34,12 @@ import { AddReactionService } from '@core/service/reaction/add_reaction.service'
 import { ReactionInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/reaction_in_memory.repository';
 import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
+import { CreateUserFollowRequestService } from '@core/service/user/follow_request/create_user_follow_request.service';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { DeletePermanentPostService } from '@core/service/post/delete_permanent_post.service';
+import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
+import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
+import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -67,6 +72,26 @@ export async function createTestModule() {
       {
         provide: UserDITokens.ValidateCredentialsInteractor,
         useFactory: (gateway) => new ValidateCredentialsService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.CreateUserFollowRequestInteractor,
+        useFactory: (gateway) => new CreateUserFollowRequestService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.UpdateUserFollowRequestInteractor,
+        useFactory: (gateway) => new UpdateUserFollowRequestService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.DeleteUserFollowRequestInteractor,
+        useFactory: (gateway) => new DeleteUserFollowRequestService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.GetUserFollowRequestCollectionInteractor,
+        useFactory: (gateway) => new GetUserFollowRequestCollectionService(gateway),
         inject: [UserDITokens.UserRepository],
       },
       {
@@ -142,6 +167,11 @@ export async function createTestModule() {
       {
         provide: ChatDITokens.CreateGroupChatConversationInteractor,
         useFactory: (gateway) => new CreateGroupChatConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.GetChatConversationCollectionInteractor,
+        useFactory: (gateway) => new GetChatConversationCollectionService(gateway),
         inject: [ChatDITokens.ChatConversationRepository]
       },
       {

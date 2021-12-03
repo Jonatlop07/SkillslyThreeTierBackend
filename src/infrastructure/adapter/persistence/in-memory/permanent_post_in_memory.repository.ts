@@ -74,6 +74,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   }
 
   public share(post: PermanentPostQueryModel): Promise<SharePermanentPostOutputModel> {
+    post.user_id; 
     return Promise.resolve({});
   }
 

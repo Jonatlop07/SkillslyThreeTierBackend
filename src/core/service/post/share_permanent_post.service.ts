@@ -24,7 +24,7 @@ export class SharePermanentPostService implements SharePermanentPostInteractor{
       throw new NonExistentUserException();
     }
     const existsPost = await this.post_gateway.existsById(input.post_id);
-    if(!existsPost){
+    if (!existsPost){
       throw new NonExistentPermanentPostException(); 
     }
     const result = await this.post_gateway.share({user_id:input.user_id, post_id: input.post_id});

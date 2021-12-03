@@ -30,7 +30,7 @@ import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interac
 import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
 import { SharePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/share_permanent_post.adapter';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
-import { SharePermanentPostDTO } from '@application/api/http-rest/http-dtos/share_permanent_post.dto';
+import { SharePermanentPostDTO } from '@application/api/http-rest/http-dtos/http_permanent_post.dto';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
 import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interactor/query_reactions.interactor';
