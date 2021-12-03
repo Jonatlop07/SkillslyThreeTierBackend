@@ -3,24 +3,31 @@ import { CoreExceptionCodes } from '@core/common/exception/core_exception_codes'
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class HttpExceptionMapper {
+
   private static http_exceptions = {
     not_found: {
       mappings: new Set([
         CoreExceptionCodes.REACTION_NON_EXISTENT_POST,
         CoreExceptionCodes.NON_EXISTENT_CONVERSATION_CHAT,
+        CoreExceptionCodes.NON_EXISTENT_USER_FOLLOW_REQUEST, 
+        CoreExceptionCodes.NON_EXISTENT_USER_FOLLOW_RELATIONSHIP,
+        CoreExceptionCodes.NON_EXISTENT_USER,
+
       ]),
       status_code: HttpStatus.NOT_FOUND
     },
     bad_request: {
       mappings: new Set([
         CoreExceptionCodes.NO_MEMBERS_IN_CONVERSATION_CHAT,
-        CoreExceptionCodes.EMPTY_MESSAGE_CHAT
+        CoreExceptionCodes.EMPTY_MESSAGE_CHAT,
+        CoreExceptionCodes.INVALID_FORMAT_USER_FOLLOW_REQUEST
       ]),
       status_code: HttpStatus.BAD_REQUEST
     },
     conflict: {
       mappings: new Set([
-        CoreExceptionCodes.SIMPLE_CONVERSATION_ALREADY_EXISTS_CHAT
+        CoreExceptionCodes.SIMPLE_CONVERSATION_ALREADY_EXISTS_CHAT,
+        CoreExceptionCodes.USER_FOLLOW_REQUEST_ALREADY_EXISTS,
       ]),
       status_code: HttpStatus.CONFLICT
     },

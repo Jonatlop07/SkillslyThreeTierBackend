@@ -34,7 +34,11 @@ import { AddReactionService } from '@core/service/reaction/add_reaction.service'
 import { ReactionInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/reaction_in_memory.repository';
 import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
+import { CreateUserFollowRequestService } from '@core/service/user/follow_request/create_user_follow_request.service';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
+import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
+import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
+import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -67,6 +71,26 @@ export async function createTestModule() {
       {
         provide: UserDITokens.ValidateCredentialsInteractor,
         useFactory: (gateway) => new ValidateCredentialsService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.CreateUserFollowRequestInteractor,
+        useFactory: (gateway) => new CreateUserFollowRequestService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.UpdateUserFollowRequestInteractor,
+        useFactory: (gateway) => new UpdateUserFollowRequestService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.DeleteUserFollowRequestInteractor,
+        useFactory: (gateway) => new DeleteUserFollowRequestService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.GetUserFollowRequestCollectionInteractor,
+        useFactory: (gateway) => new GetUserFollowRequestCollectionService(gateway),
         inject: [UserDITokens.UserRepository],
       },
       {

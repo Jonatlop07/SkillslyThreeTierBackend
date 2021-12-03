@@ -41,7 +41,9 @@ defineFeature(feature, (test) =>{
         .map((user: UserDTO) =>
           ({
             email: user.email,
-            name: user.name
+            name: user.name,
+            date_of_birth: user.date_of_birth,
+            user_id: user.user_id
           })
         );
       users.forEach( async user => {
