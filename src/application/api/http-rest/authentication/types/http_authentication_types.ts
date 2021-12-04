@@ -2,7 +2,8 @@ import { Request } from 'express';
 
 export type HttpUserPayload = {
   id: string,
-  email: string
+  email: string,
+  roles: Array<string>
 };
 
 export type HttpRequestWithUser = Request & { user: HttpUserPayload };

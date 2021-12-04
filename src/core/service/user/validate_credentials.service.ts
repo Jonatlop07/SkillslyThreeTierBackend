@@ -28,7 +28,8 @@ export class ValidateCredentialsService implements ValidateCredentialsInteractor
       throw new UserAccountInvalidCredentialsException();
     return {
       id: resulting_user.user_id,
-      email: resulting_user.email
+      email: resulting_user.email,
+      roles: resulting_user.roles
     };
   }
 }

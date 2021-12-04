@@ -40,6 +40,6 @@ export class HttpAuthenticationService {
   }
 
   public async getUser(id: string): Promise<Optional<UserDTO>> {
-    return this.user_repository.findOne({ user_id: id });
+    return await this.user_repository.findOne({ user_id: id });
   }
 }

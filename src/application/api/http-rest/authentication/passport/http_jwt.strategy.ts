@@ -31,6 +31,7 @@ export class HttpJwtStrategy extends PassportStrategy(Strategy) {
     return {
       id: user.user_id,
       email: user.email,
+      roles: user.roles
     };
   }
 }
