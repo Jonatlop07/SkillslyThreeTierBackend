@@ -11,6 +11,9 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   constructor(private readonly posts: Map<string, PermanentPostDTO>) {
     this.currently_available_post_id = '1';
   }
+  delete(params: string): Promise<PermanentPostDTO> {
+    throw new Error('Method not implemented.');
+  }
 
   public create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const new_post: PermanentPostDTO = {
@@ -40,10 +43,10 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
 
   public findAll(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
     const user_posts: PermanentPostDTO[] = [];
-    for (const post of this.posts.values()){
-      if (Object.keys(params).every( (key: string) => {
+    for (const post of this.posts.values()) {
+      if (Object.keys(params).every((key: string) => {
         return params[key] === post[key];
-      })){
+      })) {
         user_posts.push(post);
       }
     }
@@ -51,8 +54,8 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   }
 
   public findOne(params: PermanentPostQueryModel): Promise<Optional<PermanentPostDTO>> {
-    for (const post of this.posts.values()){
-      if (Object.keys(params).every( (key: string) => params[key] === post[key])){
+    for (const post of this.posts.values()) {
+      if (Object.keys(params).every((key: string) => params[key] === post[key])) {
         return Promise.resolve(post);
       }
     }
@@ -73,5 +76,15 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   public share(post: PermanentPostQueryModel): Promise<SharePermanentPostOutputModel> {
     post.user_id; 
     return Promise.resolve({});
+  }
+
+  public deleteById(post_id: string): Promise<PermanentPostDTO> {
+    for (const _post of this.posts.values()) {
+      if (_post.post_id === post_id) {
+        this.posts.delete(post_id);
+        return Promise.resolve(_post);
+      }
+    }
+    return Promise.resolve(undefined);
   }
 }

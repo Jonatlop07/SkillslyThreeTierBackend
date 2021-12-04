@@ -11,7 +11,10 @@ import * as moment from 'moment';
 export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostRepository {
   private readonly logger: Logger = new Logger(PermanentPostNeo4jRepositoryAdapter.name);
 
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) { }
+  delete(params: string): Promise<PermanentPostDTO> {
+    throw new Error('Method not implemented.');
+  }
 
   public async create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const post_key = 'post';
@@ -79,7 +82,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     };
   }
 
-  public async share(post: PermanentPostQueryModel){
+  public async share(post: PermanentPostQueryModel) {
     const post_key = 'post';
     const user_key = 'user';
     const share_permanent_post_query = `
@@ -97,7 +100,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     return {};
   }
 
-  public async findOne( params: PermanentPostQueryModel ): Promise<PermanentPostDTO> {
+  public async findOne(params: PermanentPostQueryModel): Promise<PermanentPostDTO> {
     const { post_id } = params;
     const user_key = 'user';
     const post_key = 'post';
@@ -115,7 +118,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
       }
     );
 
-    if (!this.neo4j_service.getSingleResultProperties(result, post_key)){
+    if (!this.neo4j_service.getSingleResultProperties(result, post_key)) {
       return undefined;
     }
     return {
@@ -124,7 +127,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     };
   }
 
-  public async findAll( params: PermanentPostQueryModel ): Promise<PermanentPostDTO[]> {
+  public async findAll(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
     const { user_id } = params;
     const user_key = 'user';
     const post_key = 'post';
@@ -169,5 +172,19 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
       { id }
     );
     return result.records.length > 0;
+  }
+
+  public async deleteById(id: string): Promise<PermanentPostDTO> {
+    const post_key = 'post';
+    const user_key = 'user';
+    const delete_permanent_post_statement = `
+      MATCH (${post_key}: PermanentPost { post_id: $id })
+        <-[:${Relationships.USER_POST_RELATIONSHIP}]
+        -(${user_key}: User)
+      DETACH DELETE ${post_key}
+      RETURN ${post_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.write(delete_permanent_post_statement, { id });
+    return this.neo4j_service.getSingleResultProperties(result, post_key);
   }
 }
