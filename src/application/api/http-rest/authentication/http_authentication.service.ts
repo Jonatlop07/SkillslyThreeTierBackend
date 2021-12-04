@@ -35,7 +35,8 @@ export class HttpAuthenticationService {
     return {
       id: user.id,
       email: user.email,
-      access_token: this.jwt_service.sign(payload)
+      roles: user.roles,
+      access_token: this.jwt_service.sign(payload),
     };
   }
 
