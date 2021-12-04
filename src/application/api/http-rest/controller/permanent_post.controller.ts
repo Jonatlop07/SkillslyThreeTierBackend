@@ -14,7 +14,8 @@ import {
 import { ApiBadGatewayResponse, ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
-import { Public } from '@application/api/http-rest/authentication/decorator/public';
+import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
+import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
 import { CreatePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/create_permanent_post.adapter';
 import { QueryPermanentPostAdapter } from '@infrastructure/adapter/use-case/post/query_permanent_post.adapter';
 import { QueryPermanentPostCollectionAdapter } from '@infrastructure/adapter/use-case/post/query_permanent_post_collection.adapter';
@@ -34,9 +35,10 @@ import { SharePermanentPostDTO } from '@application/api/http-rest/http-dtos/http
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
 import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interactor/query_reactions.interactor';
-import { HttpExceptionMapper } from '../exception/http_exception.mapper';
+import { Role } from '@core/domain/user/entity/role.enum';
 
 @Controller('permanent-posts')
+@Roles(Role.User)
 @ApiTags('permanent-posts')
 export class PermanentPostController {
   private readonly logger: Logger = new Logger(PermanentPostController.name);
@@ -121,7 +123,6 @@ export class PermanentPostController {
     }
   }
 
-  @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
   public async queryPermanentPostCollection(@Query() queryParams){
@@ -140,8 +141,6 @@ export class PermanentPostController {
     }
   }
 
-
-  @Public()
   @Get(':post_id')
   @HttpCode(HttpStatus.OK)
   public async queryPermanentPost(@Param('post_id') post_id: string, @Query() queryParams){
@@ -196,7 +195,7 @@ export class PermanentPostController {
   @Post(':post_id/react')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async addOrRemoveReaction(@HttpUser() http_user: HttpUserPayload, 
+  public async addOrRemoveReaction(@HttpUser() http_user: HttpUserPayload,
     @Param('post_id') post_id: string,
     @Body() body){
     try {
@@ -213,7 +212,7 @@ export class PermanentPostController {
   @Get(':post_id/reactions')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async queryReactions(@HttpUser() http_user: HttpUserPayload, 
+  public async queryReactions(@HttpUser() http_user: HttpUserPayload,
     @Param('post_id') post_id: string){
     try {
       return await this.query_reactions_interactor.execute({

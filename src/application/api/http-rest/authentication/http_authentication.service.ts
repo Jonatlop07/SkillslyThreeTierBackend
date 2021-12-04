@@ -35,11 +35,12 @@ export class HttpAuthenticationService {
     return {
       id: user.id,
       email: user.email,
-      access_token: this.jwt_service.sign(payload)
+      roles: user.roles,
+      access_token: this.jwt_service.sign(payload),
     };
   }
 
   public async getUser(id: string): Promise<Optional<UserDTO>> {
-    return this.user_repository.findOne({ user_id: id });
+    return await this.user_repository.findOne({ user_id: id });
   }
 }

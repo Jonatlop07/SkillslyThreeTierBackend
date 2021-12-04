@@ -7,20 +7,23 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
-import { CreateCommentInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_permanent_post.interactor';
+import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
 import { CreateCommentDto } from '@application/api/http-rest/http-dtos/http_create_comment.dto';
+import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
+import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
+import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
+import { CreateCommentInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_permanent_post.interactor';
 import { CreateCommentInPermanentPostAdapter } from '@infrastructure/adapter/use-case/comment/create_comment_in_permanent_post.adapter';
 import {
   CommentInvalidDataFormatException,
   ThereAreNoCommentsException,
 } from '@core/domain/comment/use-case/exception/comment.exception';
-import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
-import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { GetCommentsInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/get_comments_in_permanent_post.interactor';
+import { Role } from '@core/domain/user/entity/role.enum';
 
 @Controller('permanent-posts')
+@Roles(Role.User)
 @ApiTags('comments in a permanent post')
 export class CommentController {
 
