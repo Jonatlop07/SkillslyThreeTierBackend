@@ -36,7 +36,7 @@ import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor
 import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interactor/query_reactions.interactor';
 import { HttpExceptionMapper } from '../exception/http_exception.mapper';
 import { DeletePermanentPostInteractor } from '@core/domain/post/use-case/interactor/delete_permanent_post.interactor';
-import { DeletePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/delete_permanent_post.adapter';
+
 
 @Controller('permanent-posts')
 @ApiTags('permanent-posts')
@@ -169,7 +169,7 @@ export class PermanentPostController {
   }
 
   @Delete(':post_id/delete')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiCreatedResponse({ description: 'Post has been sucessfully delete' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while deleting post' })

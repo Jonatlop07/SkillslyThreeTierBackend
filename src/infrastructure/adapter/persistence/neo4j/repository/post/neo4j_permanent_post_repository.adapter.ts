@@ -178,13 +178,13 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     const post_key = 'post';
     const user_key = 'user';
     const delete_permanent_post_statement = `
-      MATCH (${post_key}: Post { post_id: $post_id })
-        -[:${Relationships.USER_POST_RELATIONSHIP}]
-        ->(${user_key}: User)
+      MATCH (${post_key}: PermanentPost { post_id: $id })
+        <-[:${Relationships.USER_POST_RELATIONSHIP}]
+        -(${user_key}: User)
       DETACH DELETE ${post_key}
       RETURN ${post_key}
     `;
-    const result: QueryResult = await this.neo4j_service.write(delete_permanent_post_statement, { post_id: id });
+    const result: QueryResult = await this.neo4j_service.write(delete_permanent_post_statement, { id });
     return this.neo4j_service.getSingleResultProperties(result, post_key);
   }
 }
