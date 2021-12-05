@@ -9,6 +9,10 @@ export class QueryPermanentPostCollectionAdapter implements QueryPermanentPostCo
   @IsString()
   public user_id: string;
 
+  @Expose()
+  @IsString()
+  public owner_id: string;
+
   public static new(
     payload: QueryPermanentPostCollectionInputModel,
   ): QueryPermanentPostCollectionAdapter {

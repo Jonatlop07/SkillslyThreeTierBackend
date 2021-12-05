@@ -39,14 +39,14 @@ export class UserInMemoryRepository implements UserRepository {
   }
 
   public existsUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<boolean> {
-    if (this.currently_available_user_follow_request == params.user_id.concat(params.user_id)){
+    if (this.currently_available_user_follow_request == params.user_id.concat(params.user_destiny_id)){
       return Promise.resolve(true); 
     }
     return Promise.resolve(false); 
   }
 
   public async createUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<CreateUserFollowRequestOutputModel> {
-    this.currently_available_user_follow_request = params.user_id.concat(params.user_id);
+    this.currently_available_user_follow_request = params.user_id.concat(params.user_destiny_id);
     return Promise.resolve({});
   }
 
@@ -65,7 +65,7 @@ export class UserInMemoryRepository implements UserRepository {
   }
 
   public existsUserFollowRelationship(params: CreateUserFollowRequestInputModel) {
-    if (this.currently_available_user_follow_relationship == params.user_id.concat(params.user_id)){
+    if (this.currently_available_user_follow_relationship == params.user_id.concat(params.user_destiny_id)){
       return Promise.resolve(true); 
     }
     return Promise.resolve(false); 
@@ -103,7 +103,7 @@ export class UserInMemoryRepository implements UserRepository {
 
   public updateUserFollowRequest(params: UpdateUserFollowRequestInputModel): Promise<UpdateUserFollowRequestOutputModel>{
     if (params.action == 'accept') {
-      this.currently_available_user_follow_relationship = params.user_id.concat(params.user_id);
+      this.currently_available_user_follow_relationship = params.user_id.concat(params.user_destiny_id);
     } else {
       this.currently_available_user_follow_request = '';
     }

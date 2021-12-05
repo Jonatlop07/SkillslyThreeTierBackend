@@ -18,6 +18,12 @@ import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import * as moment from 'moment';
+import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-model/create_permanent_post.output_model';
+import UpdateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/update_user_follow_request.input_model';
+import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
+import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/create_user_follow_request.input_model';
+import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
+import { create } from 'domain';
 
 const feature = loadFeature(
   'test/bdd-functional/features/post/query_permanent_post.feature',
@@ -32,11 +38,13 @@ defineFeature(feature, (test) => {
   let create_permanent_post_interactor:CreatePermanentPostInteractor;
   let query_permanent_post_interactor: QueryPermanentPostInteractor;
   let query_permanent_post_collection_interactor: QueryPermanentPostCollectionInteractor;
+  let update_user_follow_request_interactor: UpdateUserFollowRequestInteractor;
+  let create_user_follow_request_interactor: CreateUserFollowRequestInteractor;
 
   let output: QueryPermanentPostOutputModel;
   let exception: PermanentPostException;
 
-  let created_post: CreatePermanentPostInputModel;
+  let created_post: CreatePermanentPostOutputModel;
   let output_collection: QueryPermanentPostCollectionOutputModel;
 
   const user_1 = {
@@ -72,8 +80,7 @@ defineFeature(feature, (test) => {
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
       const { id } = await create_user_account_interactor.execute(input);
-      user_id = id;
-      return user_id;
+      return id;
     } catch (e) {
       console.log(e);
     }
@@ -83,25 +90,25 @@ defineFeature(feature, (test) => {
     try {
       return await create_permanent_post_interactor.execute(input);
     } catch (e) {
-      exception = e;
       console.log(e);
     }
   }
 
   function givenAUserExists(given) {
     given(/^a user exists$/, async () => {
-      await createUserAccount(user_1);
+      user_id = await createUserAccount(user_1);
     });
   }
 
   function andPostIdentifiedByIdExists(and) {
-    and(/^there exists a post identified by "([^"]*)", and that belongs to user "([^"]*)", with content:$/,
-      async (post_id, post_owner_id, post_content_table) => {
+    and(/^there exists a post identified by "([^"]*)", with privacy "([^"]*)", and that belongs to user "([^"]*)", with content:$/,
+      async (post_id, post_privacy, post_owner_id, post_content_table) => {
         try {
           created_post = await createPost({
             id: post_id,
             content: post_content_table,
-            user_id: post_owner_id
+            user_id: post_owner_id,
+            privacy: post_privacy,
           });
         } catch (e){
           console.log(e);
@@ -126,10 +133,9 @@ defineFeature(feature, (test) => {
   function andPostCollectionFromUserIdentifiedByIdExists(and) {
     and(/^there exists a collection of posts that belongs to user "([^"]*)"$/,
       async (post_owner_id) => {
-        owner_id = post_owner_id;
         const posts: CreatePermanentPostInputModel[] = [
-          { content: post1_content, user_id: owner_id },
-          { content: post2_content, user_id: owner_id }
+          { content: post1_content, user_id: post_owner_id, privacy: 'public' },
+          { content: post2_content, user_id: post_owner_id, privacy: 'private' }
         ];
         for (const post of posts) {
           await createPost(post);
@@ -144,6 +150,19 @@ defineFeature(feature, (test) => {
         existing_post_id = post_id;
         owner_id = post_owner_id;
       },
+    );
+  }
+
+  function andFollowingRelationshipExists(and){
+    and('there exists a following relationship between the two users',
+      async() => {
+        try {
+          await create_user_follow_request_interactor.execute({user_id: user_id, user_destiny_id: owner_id});
+          await update_user_follow_request_interactor.execute({user_id: user_id, user_destiny_id: owner_id, action: 'accept'});
+        } catch (e){
+          console.log(e);
+        }
+      }
     );
   }
 
@@ -174,7 +193,8 @@ defineFeature(feature, (test) => {
       async () => {
         try {
           output_collection = await query_permanent_post_collection_interactor.execute({
-            user_id: owner_id
+            user_id: user_id,
+            owner_id: owner_id
           });
         } catch (e){
           exception = e;
@@ -186,6 +206,12 @@ defineFeature(feature, (test) => {
     const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(
       UserDITokens.CreateUserAccountInteractor,
+    );
+    create_user_follow_request_interactor = module.get<CreateUserFollowRequestInteractor>(
+      UserDITokens.CreateUserFollowRequestInteractor,
+    );
+    update_user_follow_request_interactor = module.get<UpdateUserFollowRequestInteractor>(
+      UserDITokens.UpdateUserFollowRequestInteractor,
     );
     create_permanent_post_interactor = module.get<CreatePermanentPostInteractor>(
       PostDITokens.CreatePermanentPostInteractor,
@@ -209,7 +235,7 @@ defineFeature(feature, (test) => {
         'the post is then returned',
         () => {
           const expected_output: QueryPermanentPostOutputModel = {
-            post_id: created_post.id,
+            post_id: created_post.post_id,
             content: created_post.content,
             user_id: created_post.user_id
           };
@@ -220,10 +246,9 @@ defineFeature(feature, (test) => {
     }
   );
 
-  test('A logged in user tries to query the collection of permanent posts that belong to another user or himself',
+  test('A logged in user tries to query the collection of permanent posts that belong to himself',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
-      andUserIdentifiedByIdExists(and);
       andPostCollectionFromUserIdentifiedByIdExists(and);
       andUserProvidesIdOfTheOwner(and);
       whenUserTriesToQueryACollectionOfPosts(when);
@@ -237,12 +262,14 @@ defineFeature(feature, (test) => {
                 post_id:'1',
                 content: post1_content,
                 user_id: owner_id,
+                privacy: 'public',
                 created_at: moment().format('YYYY/MM/DD HH:mm:ss')
               },
               {
                 post_id:'2',
                 content: post2_content,
                 user_id: owner_id,
+                privacy: 'private',
                 created_at: moment().format('YYYY/MM/DD HH:mm:ss')
               }
             ]
@@ -253,6 +280,74 @@ defineFeature(feature, (test) => {
       );
     }
   );
+
+
+  test('A logged in user tries to query the collection of permanent posts that belong to another user who is friends with them',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andUserIdentifiedByIdExists(and);
+      andPostCollectionFromUserIdentifiedByIdExists(and);
+      andFollowingRelationshipExists(and);
+      andUserProvidesIdOfTheOwner(and);
+      whenUserTriesToQueryACollectionOfPosts(when);
+
+      then(
+        'the collection of all posts is then returned',
+        () => {
+          const expected_output: QueryPermanentPostCollectionOutputModel = {
+            posts: [
+              {
+                post_id:'1',
+                content: post1_content,
+                user_id: owner_id,
+                privacy: 'public',
+                created_at: moment().format('YYYY/MM/DD HH:mm:ss')
+              },
+              {
+                post_id:'2',
+                content: post2_content,
+                user_id: owner_id,
+                privacy: 'private',
+                created_at: moment().format('YYYY/MM/DD HH:mm:ss')
+              }
+            ]
+          };
+          expect(output_collection).toBeDefined();
+          expect(output_collection.posts).toEqual(expected_output.posts);
+        },
+      );
+    }
+  );
+
+  test('A logged in user tries to query the collection of permanent posts that belong to another user who is not friends with them',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andUserIdentifiedByIdExists(and);
+      andPostCollectionFromUserIdentifiedByIdExists(and);
+      andUserProvidesIdOfTheOwner(and);
+      whenUserTriesToQueryACollectionOfPosts(when);
+
+      then(
+        'the collection of posts that are public is returned',
+        () => {
+          const expected_output: QueryPermanentPostCollectionOutputModel = {
+            posts: [
+              {
+                post_id:'1',
+                content: post1_content,
+                user_id: owner_id,
+                privacy: 'public',
+                created_at: moment().format('YYYY/MM/DD HH:mm:ss')
+              }
+            ]
+          };
+          expect(output_collection).toBeDefined();
+          expect(output_collection.posts).toEqual(expected_output.posts);
+        },
+      );
+    }
+  );
+
 
   test('A logged in user tries to query the collection of permanent posts that belong to another user that does not exist',
     ({ given, and, when, then }) => {

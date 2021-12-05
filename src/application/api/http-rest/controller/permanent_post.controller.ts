@@ -21,10 +21,6 @@ import { QueryPermanentPostCollectionAdapter } from '@infrastructure/adapter/use
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
 import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/update_permanent_post.interactor';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import {
-  EmptyPermanentPostContentException,
-  NonExistentPermanentPostException, NonExistentUserException
-} from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post_collection.interactor';
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
 import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
@@ -66,21 +62,12 @@ export class PermanentPostController {
       return await this.create_permanent_post_interactor.execute(
         await CreatePermanentPostAdapter.new({
           content: body.content,
-          user_id: http_user.id
+          user_id: http_user.id,
+          privacy: body.privacy
         })
       );
     } catch (e) {
-      this.logger.error(e.stack);
-      if (e instanceof EmptyPermanentPostContentException) {
-        throw new HttpException({
-          status: HttpStatus.LENGTH_REQUIRED,
-          error: 'Empty post content'
-        }, HttpStatus.LENGTH_REQUIRED);
-      }
-      throw new HttpException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        error: 'Internal server error'
-      }, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
@@ -100,43 +87,27 @@ export class PermanentPostController {
       return await this.update_permanent_post_interactor.execute({
         id: post_id,
         content: body.content,
-        user_id: http_user.id
+        user_id: http_user.id,
+        privacy: body.privacy
       });
     } catch (e) {
-      if (e instanceof EmptyPermanentPostContentException) {
-        throw new HttpException({
-          status: HttpStatus.LENGTH_REQUIRED,
-          error: 'Empty post content'
-        }, HttpStatus.LENGTH_REQUIRED);
-      } else if (e instanceof NonExistentPermanentPostException) {
-        throw new HttpException({
-          status: HttpStatus.NOT_FOUND,
-          error: 'The post does not exist'
-        }, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        error: 'Internal server error'
-      }, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
-  @Public()
-  @Get()
+  @Get(':user_id')
   @HttpCode(HttpStatus.OK)
-  public async queryPermanentPostCollection(@Query() queryParams){
+  @ApiBearerAuth()
+  public async queryPermanentPostCollection(@Param('user_id') user_id: string, @HttpUser() http_user: HttpUserPayload){
     try {
       return await this.query_permanent_post_collection_interactor.execute(
         await QueryPermanentPostCollectionAdapter.new({
-          user_id: queryParams.user_id
+          user_id: http_user.id,
+          owner_id: user_id,
         })
       );
     } catch (e){
-      this.logger.error(e.stack);
-      if (e instanceof NonExistentUserException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
@@ -153,14 +124,7 @@ export class PermanentPostController {
         })
       );
     } catch (e){
-      this.logger.error(e.stack);
-      if (e instanceof NonExistentUserException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
-      }
-      if (e instanceof NonExistentPermanentPostException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts'}, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
@@ -182,14 +146,7 @@ export class PermanentPostController {
         })
       );
     } catch (e) {
-      this.logger.error(e.stack);
-      if (e instanceof NonExistentUserException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user'}, HttpStatus.NOT_FOUND);
-      }
-      if (e instanceof NonExistentPermanentPostException) {
-        throw new HttpException({status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts'}, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 

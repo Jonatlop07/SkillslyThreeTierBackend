@@ -3,5 +3,6 @@ import { PermanentPostContentElement } from '@core/domain/post/entity/type/perma
 export default interface UpdatePermanentPostInputModel {
   id: string;
   content: Array<PermanentPostContentElement>;
+  privacy: string;
   user_id: string;
 }

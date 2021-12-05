@@ -17,6 +17,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
       post_id: this.currently_available_post_id,
       content: post.content,
       user_id: post.user_id,
+      privacy: post.privacy,
       created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
     };
     this.posts.set(this.currently_available_post_id, new_post);
@@ -50,6 +51,16 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve(user_posts);
   }
 
+  public getPublicPosts(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
+    const user_posts: PermanentPostDTO[] = [];
+    for (const post of this.posts.values()){
+      if (params.user_id === post['user_id'] && post.privacy === 'public'){
+        user_posts.push(post);
+      }
+    }
+    return Promise.resolve(user_posts);
+  }
+
   public findOne(params: PermanentPostQueryModel): Promise<Optional<PermanentPostDTO>> {
     for (const post of this.posts.values()){
       if (Object.keys(params).every( (key: string) => params[key] === post[key])){
@@ -64,6 +75,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
       post_id: post.post_id,
       content: post.content,
       user_id: post.user_id,
+      privacy: post.privacy,
       updated_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
     };
     this.posts.set(post.post_id, post_to_update);
@@ -71,7 +83,6 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   }
 
   public share(post: PermanentPostQueryModel): Promise<SharePermanentPostOutputModel> {
-    post.user_id; 
     return Promise.resolve({});
   }
 }

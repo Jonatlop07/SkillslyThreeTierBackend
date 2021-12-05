@@ -12,7 +12,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.NON_EXISTENT_USER_FOLLOW_REQUEST, 
         CoreExceptionCodes.NON_EXISTENT_USER_FOLLOW_RELATIONSHIP,
         CoreExceptionCodes.NON_EXISTENT_USER,
-
+        CoreExceptionCodes.NON_EXISTENT_POST,
+        CoreExceptionCodes.NON_EXISTENT_POST_OWNER
       ]),
       status_code: HttpStatus.NOT_FOUND
     },
@@ -20,7 +21,8 @@ export class HttpExceptionMapper {
       mappings: new Set([
         CoreExceptionCodes.NO_MEMBERS_IN_CONVERSATION_CHAT,
         CoreExceptionCodes.EMPTY_MESSAGE_CHAT,
-        CoreExceptionCodes.INVALID_FORMAT_USER_FOLLOW_REQUEST
+        CoreExceptionCodes.INVALID_FORMAT_USER_FOLLOW_REQUEST,
+        CoreExceptionCodes.EMPTY_POST_CONTENT
       ]),
       status_code: HttpStatus.BAD_REQUEST
     },
@@ -33,7 +35,7 @@ export class HttpExceptionMapper {
     },
     unauthorized: {
       mappings: new Set([
-        CoreExceptionCodes.USER_DOES_NOT_BELONG_TO_CONVERSATION_CHAT
+        CoreExceptionCodes.USER_DOES_NOT_BELONG_TO_CONVERSATION_CHAT,
       ]),
       status_code: HttpStatus.UNAUTHORIZED
     },
@@ -54,17 +56,14 @@ export class HttpExceptionMapper {
 
   public static toHttpException(exception: CoreException) {
     if (exception.code) {
-      Object
-        .keys(this.http_exceptions)
-        .forEach(
-          (key) => {
-            if (this.http_exceptions[key].mappings.has(exception.code))
-              return this.getHttpException(
-                this.http_exceptions[key].status_code,
-                exception.message
-              );
-          }
-        );
+      for (const exception_type of Object.keys(this.http_exceptions)){
+        if (this.http_exceptions[exception_type].mappings.has(exception.code)){
+          return this.getHttpException(
+            this.http_exceptions[exception_type].status_code,
+            exception.message
+          );
+        }
+      }
     }
     return this.getHttpException(HttpStatus.INTERNAL_SERVER_ERROR, 'Internal server error');
   }

@@ -13,6 +13,10 @@ export class CreatePermanentPostAdapter implements CreatePermanentPostInputModel
   @IsString()
   public user_id: string;
 
+  @Expose()
+  @IsString()
+  public privacy: string;
+
   public static new(payload: CreatePermanentPostInputModel,): CreatePermanentPostAdapter {
     return plainToClass(CreatePermanentPostAdapter, payload);
   }
