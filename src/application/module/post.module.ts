@@ -38,8 +38,8 @@ const use_case_providers: Array<Provider> = [
   },
   {
     provide: PostDITokens.QueryPermanentPostCollectionInteractor,
-    useFactory: (post_gateway, user_gateway) => new QueryPermanentPostCollectionService(post_gateway, user_gateway),
-    inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
+    useFactory: (user_gateway, relationship_gateway, post_gateway) => new QueryPermanentPostCollectionService(user_gateway, relationship_gateway, post_gateway),
+    inject: [UserDITokens.UserRepository, UserDITokens.UserRepository, PostDITokens.PermanentPostRepository]
   },
   {
     provide: PostDITokens.QueryPermanentPostInteractor,

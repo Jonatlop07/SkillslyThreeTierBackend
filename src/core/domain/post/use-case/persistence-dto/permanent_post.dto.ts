@@ -3,7 +3,8 @@ import { PermanentPostContentElement } from '../../entity/type/permanent_post_co
 export interface PermanentPostDTO {
   post_id?: string;
   content: Array<PermanentPostContentElement>;
-  user_id: string;
+  user_id?: string;
   created_at?: string;
   updated_at?: string;
+  privacy?: string;
 }

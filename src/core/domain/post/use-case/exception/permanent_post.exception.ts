@@ -1,10 +1,21 @@
-abstract class PermanentPostException extends Error {}
+import { CoreException } from '@core/common/exception/core.exception';
 
-class EmptyPermanentPostContentException extends PermanentPostException {}
+abstract class PermanentPostException extends CoreException {}
 
-class NonExistentPermanentPostException extends PermanentPostException {}
+class EmptyPermanentPostContentException extends PermanentPostException {
+  code = 200;
+  message= 'Empty post content';
+}
 
-class NonExistentUserException extends PermanentPostException {}
+class NonExistentPermanentPostException extends PermanentPostException {
+  code = 201;
+  message = 'The post does not exist';
+}
+
+class NonExistentUserException extends PermanentPostException {
+  code = 202;
+  message = 'The post owner does not exist';
+}
 
 export {
   PermanentPostException,

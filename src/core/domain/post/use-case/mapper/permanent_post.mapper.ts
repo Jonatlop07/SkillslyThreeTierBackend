@@ -6,7 +6,8 @@ export class PermanentPostMapper {
     return {
       post_id: post.id,
       content: post.content,
-      user_id: post.user_id
+      user_id: post.user_id,
+      privacy: post.privacy,
     };
   }
 
@@ -14,7 +15,8 @@ export class PermanentPostMapper {
     return new PermanentPost({
       id: postDTO.post_id,
       content: postDTO.content,
-      user_id: postDTO.user_id
+      user_id: postDTO.user_id,
+      privacy: postDTO.privacy,
     });
   }
 }

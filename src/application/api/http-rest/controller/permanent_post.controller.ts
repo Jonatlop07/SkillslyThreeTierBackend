@@ -22,10 +22,6 @@ import { QueryPermanentPostCollectionAdapter } from '@infrastructure/adapter/use
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
 import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/update_permanent_post.interactor';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import {
-  EmptyPermanentPostContentException,
-  NonExistentPermanentPostException, NonExistentUserException
-} from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post_collection.interactor';
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
 import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
@@ -38,6 +34,7 @@ import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interac
 import { DeletePermanentPostInteractor } from '@core/domain/post/use-case/interactor/delete_permanent_post.interactor';
 
 import { Role } from '@core/domain/user/entity/role.enum';
+import { NonExistentPermanentPostException } from '@core/domain/post/use-case/exception/permanent_post.exception';
 
 @Controller('permanent-posts')
 @Roles(Role.User)
@@ -72,29 +69,20 @@ export class PermanentPostController {
       return await this.create_permanent_post_interactor.execute(
         await CreatePermanentPostAdapter.new({
           content: body.content,
-          user_id: http_user.id
+          user_id: http_user.id,
+          privacy: body.privacy
         })
       );
     } catch (e) {
-      this.logger.error(e.stack);
-      if (e instanceof EmptyPermanentPostContentException) {
-        throw new HttpException({
-          status: HttpStatus.LENGTH_REQUIRED,
-          error: 'Empty post content'
-        }, HttpStatus.LENGTH_REQUIRED);
-      }
-      throw new HttpException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        error: 'Internal server error'
-      }, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
-  @Put(':post_id')
+  @Put('post/:post_id')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async updatePermanentPost(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('post_id') post_id: string,
     @Body() body) {
     if (body.user_id !== http_user.id)
@@ -106,46 +94,31 @@ export class PermanentPostController {
       return await this.update_permanent_post_interactor.execute({
         id: post_id,
         content: body.content,
-        user_id: http_user.id
+        user_id: http_user.id,
+        privacy: body.privacy
       });
     } catch (e) {
-      if (e instanceof EmptyPermanentPostContentException) {
-        throw new HttpException({
-          status: HttpStatus.LENGTH_REQUIRED,
-          error: 'Empty post content'
-        }, HttpStatus.LENGTH_REQUIRED);
-      } else if (e instanceof NonExistentPermanentPostException) {
-        throw new HttpException({
-          status: HttpStatus.NOT_FOUND,
-          error: 'The post does not exist'
-        }, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        error: 'Internal server error'
-      }, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
-  @Get()
+  @Get(':user_id')
   @HttpCode(HttpStatus.OK)
-  public async queryPermanentPostCollection(@Query() queryParams) {
+  @ApiBearerAuth()
+  public async queryPermanentPostCollection(@Param('user_id') user_id: string, @HttpUser() http_user: HttpUserPayload){
     try {
       return await this.query_permanent_post_collection_interactor.execute(
         await QueryPermanentPostCollectionAdapter.new({
-          user_id: queryParams.user_id
+          user_id: http_user.id,
+          owner_id: user_id,
         })
       );
-    } catch (e) {
-      this.logger.error(e.stack);
-      if (e instanceof NonExistentUserException) {
-        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user' }, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException({ status: HttpStatus.INTERNAL_SERVER_ERROR, error: 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (e){
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
-  @Get(':post_id')
+  @Get('post/:post_id')
   @HttpCode(HttpStatus.OK)
   public async queryPermanentPost(@Param('post_id') post_id: string, @Query() queryParams) {
     try {
@@ -155,19 +128,12 @@ export class PermanentPostController {
           id: post_id
         })
       );
-    } catch (e) {
-      this.logger.error(e.stack);
-      if (e instanceof NonExistentUserException) {
-        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user' }, HttpStatus.NOT_FOUND);
-      }
-      if (e instanceof NonExistentPermanentPostException) {
-        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts' }, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException({ status: HttpStatus.INTERNAL_SERVER_ERROR, error: 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (e){
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
-  @Delete(':post_id/delete')
+  @Delete('post/:post_id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiCreatedResponse({ description: 'Post has been sucessfully delete' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
@@ -188,14 +154,14 @@ export class PermanentPostController {
     }
   }
 
-  @Post(':post_id/share')
+  @Post('post/:post_id/share')
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Post has been sucessfully shared' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while sharing post' })
   @ApiBearerAuth()
   public async sharePermanentPost(
-    @Param('post_id') post_id: string,
+  @Param('post_id') post_id: string,
     @Body(new ValidationPipe()) body: SharePermanentPostDTO
   ) {
     try {
@@ -206,14 +172,7 @@ export class PermanentPostController {
         })
       );
     } catch (e) {
-      this.logger.error(e.stack);
-      if (e instanceof NonExistentUserException) {
-        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get posts from an unexisting user' }, HttpStatus.NOT_FOUND);
-      }
-      if (e instanceof NonExistentPermanentPostException) {
-        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts' }, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException({ status: HttpStatus.INTERNAL_SERVER_ERROR, error: 'Internal server error' }, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
