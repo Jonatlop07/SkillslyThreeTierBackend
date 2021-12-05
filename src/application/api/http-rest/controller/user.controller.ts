@@ -38,6 +38,8 @@ import { DeleteUserFollowRequestInteractor } from '@core/domain/user/use-case/in
 import { DeleteUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/follow_request/delete_user_follow_request.adapter';
 import { GetUserFollowRequestCollectionAdapter } from '@infrastructure/adapter/use-case/user/follow_request/get_user_follow_request_collection.adapter';
 import { GetUserFollowRequestCollectionInteractor } from '@core/domain/user/use-case/interactor/follow_request/get_user_follow_request_collection.interactor';
+import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
+import { Role } from '@core/domain/user/entity/role.enum';
 
 @Controller('users')
 @ApiTags('user')
@@ -98,7 +100,9 @@ export class UserController {
     }
   }
 
+
   @Get('account/:user_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async queryUserAccount(
@@ -114,6 +118,7 @@ export class UserController {
   }
 
   @Put('account/:user_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async updateAccount(
@@ -150,6 +155,7 @@ export class UserController {
   }
 
   @Delete('account/:user_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   public async deleteUserAccount(
@@ -172,6 +178,7 @@ export class UserController {
   }
 
   @Get()
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Search has been sucessfully completed' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
@@ -194,6 +201,7 @@ export class UserController {
   }
 
   @Get('follow')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Requests has been sucessfully found' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
@@ -215,6 +223,7 @@ export class UserController {
   }
 
   @Post('follow/:user_destiny_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Request has been sucessfully created' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
@@ -238,6 +247,7 @@ export class UserController {
   }
 
   @Put('follow/:user_destiny_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Request has been sucessfully updated' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
@@ -259,10 +269,11 @@ export class UserController {
     } catch (e) {
       this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
-    } 
+    }
   }
 
   @Delete('follow/:user_destiny_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Request or Relationship has been sucessfully deleted' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
@@ -285,6 +296,6 @@ export class UserController {
     } catch (e) {
       this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
-    } 
+    }
   }
 }
