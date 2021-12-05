@@ -58,7 +58,7 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
     });
     const post_key = 'post';
     const update_permanent_post_query = `
-      MATCH (${post_key}: PermanentPost { post_id: $post_id }) })
+      MATCH (${post_key}: PermanentPost { post_id: $post_id })
       SET ${post_key} += $properties
       RETURN ${post_key}
     `;
@@ -117,12 +117,12 @@ export class PermanentPostNeo4jRepositoryAdapter implements PermanentPostReposit
         post_id
       }
     );
-
-    if (!this.neo4j_service.getSingleResultProperties(result, post_key)) {
-      return undefined;
-    }
+    const found_post = this.neo4j_service.getSingleResultProperties(result, post_key);
     return {
-      ...this.neo4j_service.getSingleResultProperties(result, post_key),
+      post_id: found_post.post_id,
+      content: found_post.content.map(
+        content_element => JSON.parse(content_element),
+      ),
       user_id: this.neo4j_service.getSingleResultProperties(result, user_id_key)
     };
   }
