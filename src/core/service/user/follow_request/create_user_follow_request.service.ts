@@ -35,7 +35,6 @@ export class CreateUserFollowRequestService implements CreateUserFollowRequestIn
     if (existsUserFollowRequest) {
       throw new UserFollowRequestAlreadyExistsException();
     }
-    console.log(existsUserFollowRequest);
     const result = await this.user_gateway.createUserFollowRequest(input);
     return result; 
   }

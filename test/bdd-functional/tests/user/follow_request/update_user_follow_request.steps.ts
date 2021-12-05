@@ -87,11 +87,12 @@ defineFeature( feature, (test) => {
 
   function whenTheUserDestinyActionTheFollowRequest(when) {
     when(/^the user destiny "([^"]*)" the follow request$/, 
-      async (action: string) => {
+      async (acceptString: string) => {
+        const accept = (acceptString === 'true');
         await updateUserFollowRequest({
           user_id,
           user_destiny_id, 
-          action
+          accept
         });
       });
   }

@@ -13,7 +13,7 @@ export class UpdateUserFollowRequestAdapter implements UpdateUserFollowRequestIn
 
   @Expose()
   @IsString()
-  public action: string;
+  public accept: boolean;
 
   public static new(payload: UpdateUserFollowRequestInputModel): UpdateUserFollowRequestAdapter {
     return plainToClass(UpdateUserFollowRequestAdapter, payload);

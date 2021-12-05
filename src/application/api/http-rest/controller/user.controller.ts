@@ -32,7 +32,6 @@ import {
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
 import { CreateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/follow_request/create_user_follow_request.adapter';
 import { HttpExceptionMapper } from '../exception/http_exception.mapper';
-import { DeleteUserFollowRequestDTO, UpdateUserFollowRequestDTO } from '../http-dtos/http_user_follow_request.dto';
 import { UpdateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/follow_request/update_user_follow_request.adapter';
 import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
 import { DeleteUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/delete_user_follow_request.interactor';
@@ -185,7 +184,7 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while searching users' })
   public async searchUsers(
-  @Query('email') email: string,
+    @Query('email') email: string,
     @Query('name') name: string,
   ) {
     try {
@@ -218,6 +217,7 @@ export class UserController {
         })
       );
     } catch (e) {
+      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -241,6 +241,7 @@ export class UserController {
         })
       );
     } catch (e) {
+      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -254,18 +255,19 @@ export class UserController {
   @ApiBearerAuth()
   public async updateUserFollowRequest(
     @HttpUser() http_user: HttpUserPayload,
-    @Param('user_destiny_id') user_destiny_id: string,
-    @Body() body : UpdateUserFollowRequestDTO
+    @Param('user_destiny_id') user_destiny_id: string, 
+    @Body('accept') accept: boolean
   ){
     try {
       return await this.update_user_follow_request_interactor.execute(
         await UpdateUserFollowRequestAdapter.new({
           user_id: user_destiny_id,
-          user_destiny_id: http_user.id,
-          action: body.action
+          user_destiny_id: http_user.id, 
+          accept
         })
       );
     } catch (e) {
+      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -279,18 +281,20 @@ export class UserController {
   @ApiBearerAuth()
   public async deleteUserFollowRequest(
     @HttpUser() http_user: HttpUserPayload,
-    @Param('user_destiny_id') user_destiny_id: string,
-    @Body() body : DeleteUserFollowRequestDTO
+    @Param('user_destiny_id') user_destiny_id: string, 
+    @Query('isRequest') isRequestString: string
   ){
     try {
+      const isRequest = (isRequestString === 'true'); 
       return await this.delete_user_follow_request_interactor.execute(
         await DeleteUserFollowRequestAdapter.new({
           user_id: http_user.id,
-          user_destiny_id,
-          action: body.action
+          user_destiny_id, 
+          isRequest
         })
       );
     } catch (e) {
+      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
     }
   }

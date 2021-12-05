@@ -3,4 +3,5 @@ import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/sear
 export default interface GetUserFollowRequestCollectionOutputModel {
   pendingUsers: SearchedUserDTO[]; 
   followingUsers: SearchedUserDTO[]; 
+  pendingSentUsers: SearchedUserDTO[];
 }

@@ -1,6 +1,6 @@
-import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/create_user_follow_request.input_model';
+import { FollowRequestDTO } from '@core/domain/user/use-case/persistence-dto/follow_request.dto';
 
 export default interface ExistsUserFollowRequest {
-  existsUserFollowRequest(params: CreateUserFollowRequestInputModel): Promise<boolean>;
-  existsUserFollowRelationship(params: CreateUserFollowRequestInputModel): Promise<boolean>;
+  existsUserFollowRequest(params: FollowRequestDTO): Promise<boolean>;
+  existsUserFollowRelationship(params: FollowRequestDTO): Promise<boolean>;
 }

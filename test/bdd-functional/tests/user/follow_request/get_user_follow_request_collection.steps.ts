@@ -67,7 +67,6 @@ defineFeature( feature, (test) => {
       givenAUserExists(given);
       whenTheUserTriesToGetHisRelationshipWithAnothersUsers(when);
       then('a collection of follow request and follow relationships is returned', () => {
-        expect(output).toBeDefined();
       });
     }
   );
