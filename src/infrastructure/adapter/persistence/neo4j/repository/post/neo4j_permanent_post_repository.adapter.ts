@@ -137,7 +137,7 @@ implements PermanentPostRepository {
       MATCH (${this.user_key}: User { user_id: $user_id })
         -[:${Relationships.USER_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost)
-      RETURN ${this.post_key}, user.user_id
+      RETURN ${this.post_key}, ${this.user_key}.user_id
     `;
     const result = await this.neo4j_service
       .read(find_post_collection_query, {
@@ -169,7 +169,7 @@ implements PermanentPostRepository {
       MATCH (${this.user_key}: User { user_id: $user_id })
         -[:${Relationships.USER_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost { privacy: 'public'})
-      RETURN ${this.post_key}, user.user_id
+      RETURN ${this.post_key}, ${this.user_key}.user_id
     `;
     const result = await this.neo4j_service
       .read(find_public_posts_collection_query, { user_id })
