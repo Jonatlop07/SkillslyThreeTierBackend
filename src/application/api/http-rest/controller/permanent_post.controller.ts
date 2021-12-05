@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Get,
+  Controller, Delete, Get,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -34,6 +34,7 @@ import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interac
 import { DeletePermanentPostInteractor } from '@core/domain/post/use-case/interactor/delete_permanent_post.interactor';
 
 import { Role } from '@core/domain/user/entity/role.enum';
+import { NonExistentPermanentPostException } from '@core/domain/post/use-case/exception/permanent_post.exception';
 
 @Controller('permanent-posts')
 @Roles(Role.User)
@@ -77,7 +78,7 @@ export class PermanentPostController {
     }
   }
 
-  @Put(':post_id')
+  @Put('post/:post_id')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async updatePermanentPost(
@@ -117,7 +118,7 @@ export class PermanentPostController {
     }
   }
 
-  @Get(':post_id')
+  @Get('post/:post_id')
   @HttpCode(HttpStatus.OK)
   public async queryPermanentPost(@Param('post_id') post_id: string, @Query() queryParams) {
     try {
@@ -132,7 +133,28 @@ export class PermanentPostController {
     }
   }
 
-  @Post(':post_id/share')
+  @Delete('post/:post_id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiCreatedResponse({ description: 'Post has been sucessfully delete' })
+  @ApiBadRequestResponse({ description: 'Invalid data format' })
+  @ApiBadGatewayResponse({ description: 'Error while deleting post' })
+  @ApiBearerAuth()
+  public async DeletePermanentPost(@Param('post_id') post_id: string) {
+    try {
+      return await this.delete_permanent_post_interactor.execute({ post_id: post_id }
+      );
+    } catch (e) {
+      if (e instanceof NonExistentPermanentPostException) {
+        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts' }, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        error: 'Internal database error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post('post/:post_id/share')
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Post has been sucessfully shared' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })

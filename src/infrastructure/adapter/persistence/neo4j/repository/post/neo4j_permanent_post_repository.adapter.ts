@@ -89,6 +89,7 @@ implements PermanentPostRepository {
       privacy: updated_post.privacy,
       created_at: updated_post.created_at,
       updated_at: updated_post.updated_at,
+      user_id: post.user_id
     };
   }
 
@@ -126,7 +127,8 @@ implements PermanentPostRepository {
       content: found_post.content.map(
         content_element => JSON.parse(content_element),
       ),
-      user_id: this.neo4j_service.getSingleResultProperties(result, user_id_key)
+      user_id: this.neo4j_service.getSingleResultProperty(result, user_id_key),
+      privacy: found_post.privacy
     };
   }
 

@@ -88,9 +88,6 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   public share(post: PermanentPostQueryModel): Promise<SharePermanentPostOutputModel> {
     return Promise.resolve({});
   }
-<<<<<<< HEAD
-}
-=======
 
   public deleteById(post_id: string): Promise<PermanentPostDTO> {
     for (const _post of this.posts.values()) {
@@ -102,4 +99,3 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve(undefined);
   }
 }
->>>>>>> 7da124815fccd6e1ced5fb3b1de3b6d27fbbf8ef
