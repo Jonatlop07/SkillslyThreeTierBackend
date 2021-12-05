@@ -36,6 +36,7 @@ import { QueryReactionsService } from '@core/service/reaction/query_reactions.se
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { CreateUserFollowRequestService } from '@core/service/user/follow_request/create_user_follow_request.service';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
+import { DeletePermanentPostService } from '@core/service/post/delete_permanent_post.service';
 import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
 import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
 import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
@@ -117,6 +118,11 @@ export async function createTestModule() {
         provide: PostDITokens.QueryPermanentPostInteractor,
         useFactory: (post_gateway, user_gateway) => new QueryPermanentPostService(post_gateway, user_gateway),
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: PostDITokens.DeletePermanentPostInteractor,
+        useFactory: (post_gateway) => new DeletePermanentPostService(post_gateway),
+        inject: [PostDITokens.PermanentPostRepository],
       },
       {
         provide: PostDITokens.QueryPermanentPostCollectionInteractor,

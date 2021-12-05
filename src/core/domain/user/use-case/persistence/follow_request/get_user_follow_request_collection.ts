@@ -1,6 +1,5 @@
-import GetUserFollowRequestCollectionInputModel from '@core/domain/user/use-case/input-model/follow_request/get_user_follow_request_collection.input_model';
-import GetUserFollowRequestCollectionOutputModel from '@core/domain/user/use-case/output-model/follow_request/get_user_follow_request_collection.output_model';
+import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
 
 export default interface GetUserFollowRequestCollection {
-  getUserFollowRequestCollection(params: GetUserFollowRequestCollectionInputModel): Promise<GetUserFollowRequestCollectionOutputModel>;
+  getUserFollowRequestCollection(id: string): Promise<Array<Array<SearchedUserDTO>>>;
 }

@@ -7,6 +7,7 @@ import {
   CreateSimpleChatConversationDTO
 } from '@application/api/http-rest/http-dtos/http_chat.dto';
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
+import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
 import { CreateGroupChatConversationAdapter } from '@infrastructure/adapter/use-case/chat/create_group_chat_conversation.adapter';
 import { CreateSimpleChatConversationAdapter } from '@infrastructure/adapter/use-case/chat/create_simple_chat_conversation.adapter';
 import { GetConversationMessageCollectionAdapter } from '@infrastructure/adapter/use-case/chat/get_conversation_message_collection.adapter';
@@ -15,8 +16,10 @@ import { CreateSimpleChatConversationInteractor } from '@core/domain/chat/use-ca
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
 import { GetChatMessageCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_message_collection.interactor';
 import { GetChatConversationCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_conversation_collection.interactor';
+import { Role } from '@core/domain/user/entity/role.enum';
 
 @Controller('chat')
+@Roles(Role.User)
 @ApiTags('chat')
 export class ChatController {
   private readonly logger: Logger = new Logger(ChatController.name);

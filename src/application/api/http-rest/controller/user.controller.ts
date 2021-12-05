@@ -32,13 +32,14 @@ import {
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
 import { CreateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/follow_request/create_user_follow_request.adapter';
 import { HttpExceptionMapper } from '../exception/http_exception.mapper';
-import { DeleteUserFollowRequestDTO, UpdateUserFollowRequestDTO } from '../http-dtos/http_user_follow_request.dto';
 import { UpdateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/follow_request/update_user_follow_request.adapter';
 import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
 import { DeleteUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/delete_user_follow_request.interactor';
 import { DeleteUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/follow_request/delete_user_follow_request.adapter';
 import { GetUserFollowRequestCollectionAdapter } from '@infrastructure/adapter/use-case/user/follow_request/get_user_follow_request_collection.adapter';
 import { GetUserFollowRequestCollectionInteractor } from '@core/domain/user/use-case/interactor/follow_request/get_user_follow_request_collection.interactor';
+import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
+import { Role } from '@core/domain/user/entity/role.enum';
 
 @Controller('users')
 @ApiTags('user')
@@ -99,7 +100,9 @@ export class UserController {
     }
   }
 
+
   @Get('account/:user_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async queryUserAccount(
@@ -115,6 +118,7 @@ export class UserController {
   }
 
   @Put('account/:user_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async updateAccount(
@@ -151,6 +155,7 @@ export class UserController {
   }
 
   @Delete('account/:user_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   public async deleteUserAccount(
@@ -173,12 +178,13 @@ export class UserController {
   }
 
   @Get()
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Search has been sucessfully completed' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while searching users' })
   public async searchUsers(
-  @Query('email') email: string,
+    @Query('email') email: string,
     @Query('name') name: string,
   ) {
     try {
@@ -195,6 +201,7 @@ export class UserController {
   }
 
   @Get('follow')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Requests has been sucessfully found' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
@@ -210,11 +217,13 @@ export class UserController {
         })
       );
     } catch (e) {
+      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
   @Post('follow/:user_destiny_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Request has been sucessfully created' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
@@ -232,11 +241,13 @@ export class UserController {
         })
       );
     } catch (e) {
+      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
   @Put('follow/:user_destiny_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Request has been sucessfully updated' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
@@ -245,22 +256,24 @@ export class UserController {
   public async updateUserFollowRequest(
     @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string, 
-    @Body() body : UpdateUserFollowRequestDTO
+    @Body('accept') accept: boolean
   ){
     try {
       return await this.update_user_follow_request_interactor.execute(
         await UpdateUserFollowRequestAdapter.new({
           user_id: user_destiny_id,
           user_destiny_id: http_user.id, 
-          action: body.action
+          accept
         })
       );
     } catch (e) {
+      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
-    } 
+    }
   }
 
   @Delete('follow/:user_destiny_id')
+  @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Request or Relationship has been sucessfully deleted' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
@@ -269,18 +282,20 @@ export class UserController {
   public async deleteUserFollowRequest(
     @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string, 
-    @Body() body : DeleteUserFollowRequestDTO
+    @Query('isRequest') isRequestString: string
   ){
     try {
+      const isRequest = (isRequestString === 'true'); 
       return await this.delete_user_follow_request_interactor.execute(
         await DeleteUserFollowRequestAdapter.new({
           user_id: http_user.id,
           user_destiny_id, 
-          action: body.action
+          isRequest
         })
       );
     } catch (e) {
+      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
-    } 
+    }
   }
 }

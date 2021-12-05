@@ -14,7 +14,10 @@ implements PermanentPostRepository {
     PermanentPostNeo4jRepositoryAdapter.name,
   );
 
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) { }
+  delete(params: string): Promise<PermanentPostDTO> {
+    throw new Error('Method not implemented.');
+  }
 
   private readonly post_key = 'post';
   private readonly user_key = 'user';
@@ -102,9 +105,7 @@ implements PermanentPostRepository {
     return {};
   }
 
-  public async findOne(
-    params: PermanentPostQueryModel,
-  ): Promise<PermanentPostDTO> {
+  public async findOne(params: PermanentPostQueryModel): Promise<PermanentPostDTO> {
     const { post_id } = params;
     const user_id_key = 'user_id';
     const find_post_query = `
@@ -113,25 +114,23 @@ implements PermanentPostRepository {
         ->(${this.post_key}: PermanentPost { post_id: $post_id })
       RETURN ${this.post_key}, ${this.user_key}.user_id AS ${user_id_key}
     `;
-    const result: QueryResult = await this.neo4j_service.read(find_post_query, {
-      post_id,
-    });
-
-    if (!this.neo4j_service.getSingleResultProperties(result, this.post_key)) {
-      return undefined;
-    }
+    const result: QueryResult = await this.neo4j_service.read(
+      find_post_query,
+      {
+        post_id
+      }
+    );
+    const found_post = this.neo4j_service.getSingleResultProperties(result, this.post_key);
     return {
-      ...this.neo4j_service.getSingleResultProperties(result, this.post_key),
-      user_id: this.neo4j_service.getSingleResultProperties(
-        result,
-        user_id_key,
+      post_id: found_post.post_id,
+      content: found_post.content.map(
+        content_element => JSON.parse(content_element),
       ),
+      user_id: this.neo4j_service.getSingleResultProperties(result, user_id_key)
     };
   }
 
-  public async findAll(
-    params: PermanentPostQueryModel,
-  ): Promise<PermanentPostDTO[]> {
+  public async findAll(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
     const { user_id } = params;
     const find_post_collection_query = `
       MATCH (${this.user_key}: User { user_id: $user_id })
@@ -207,5 +206,19 @@ implements PermanentPostRepository {
       { id },
     );
     return result.records.length > 0;
+  }
+
+  public async deleteById(id: string): Promise<PermanentPostDTO> {
+    const post_key = 'post';
+    const user_key = 'user';
+    const delete_permanent_post_statement = `
+      MATCH (${post_key}: PermanentPost { post_id: $id })
+        <-[:${Relationships.USER_POST_RELATIONSHIP}]
+        -(${user_key}: User)
+      DETACH DELETE ${post_key}
+      RETURN ${post_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.write(delete_permanent_post_statement, { id });
+    return this.neo4j_service.getSingleResultProperties(result, post_key);
   }
 }

@@ -32,11 +32,16 @@ export class UpdateUserFollowRequestService implements UpdateUserFollowRequestIn
     if (!existsUserFollowRequest) {
       throw new UserFollowRequestNotFoundException();
     }
-    const actionIsValid = input.action == 'accept' || input.action == 'reject'; 
+    const actionIsValid = input.accept == true || input.accept == false; 
     if (!actionIsValid) {
       throw new UserFollowRequestInvalidDataFormatException(); 
     }
-    const result = await this.user_gateway.updateUserFollowRequest(input);
-    return result; 
+    if (input.accept) {
+      const result = this.user_gateway.acceptUserFollowRequest(input);
+      return result;
+    } else {
+      const result = this.user_gateway.rejectUserFollowRequest(input);
+      return result;
+    }
   }
 }

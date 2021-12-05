@@ -87,11 +87,12 @@ defineFeature( feature, (test) => {
 
   function whenTheUserDeleteTheFollowRequest(when) {
     when(/^the user tries to delete the "([^"]*)"$/, 
-      async (action: string) => {
+      async (isRequestString: string) => {
+        const isRequest = (isRequestString === 'true');
         await deleteUserFollowRequest({
           user_id,
           user_destiny_id,
-          action
+          isRequest
         });
       });
   }
