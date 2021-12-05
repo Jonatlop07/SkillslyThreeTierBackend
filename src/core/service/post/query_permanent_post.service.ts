@@ -31,7 +31,6 @@ export class QueryPermanentPostService implements QueryPermanentPostInteractor{
     if (!query_post){
       throw new NonExistentPermanentPostException();
     }
-    this.logger.log(query_post.user_id);
     return query_post as QueryPermanentPostOutputModel;
   }
 }
