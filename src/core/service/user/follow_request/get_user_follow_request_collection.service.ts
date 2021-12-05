@@ -27,7 +27,7 @@ export class GetUserFollowRequestCollectionService implements GetUserFollowReque
     return {
       pendingUsers: result[0],
       followingUsers: result[1],
-      pendingSendedUsers: result[2]
+      pendingSentUsers: result[2]
     }; 
   }
 }
