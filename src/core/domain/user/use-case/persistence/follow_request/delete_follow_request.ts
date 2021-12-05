@@ -1,6 +1,6 @@
-import DeleteUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/delete_user_follow_request.input_model';
-import DeleteUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/delete_user_follow_request.output_model';
+import { FollowRequestDTO } from '@core/domain/user/use-case/persistence-dto/follow_request.dto';
 
 export default interface DeleteUserFollowRequest {
-  deleteUserFollowRequest(params: DeleteUserFollowRequestInputModel): Promise<DeleteUserFollowRequestOutputModel>;
+  deleteUserFollowRequest(params: FollowRequestDTO): Promise<Object>;
+  deleteUserFollowRelationship(params: FollowRequestDTO): Promise<Object>;
 }
