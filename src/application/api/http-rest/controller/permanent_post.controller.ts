@@ -1,44 +1,55 @@
 import {
   Body,
-  Controller, Delete, Get,
+  Controller,
   HttpCode,
   HttpException,
   HttpStatus,
   Inject,
   Logger,
   Param,
+  Get,
   Post,
   Put,
+  Delete,
   Query
 } from '@nestjs/common';
-import { ApiBadGatewayResponse, ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadGatewayResponse,
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags
+} from '@nestjs/swagger';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
-import { CreatePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/create_permanent_post.adapter';
-import { QueryPermanentPostAdapter } from '@infrastructure/adapter/use-case/post/query_permanent_post.adapter';
-import { QueryPermanentPostCollectionAdapter } from '@infrastructure/adapter/use-case/post/query_permanent_post_collection.adapter';
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
 import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/update_permanent_post.interactor';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post_collection.interactor';
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
 import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
-import { SharePermanentPostAdapter } from '@infrastructure/adapter/use-case/post/share_permanent_post.adapter';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
-import { SharePermanentPostDTO } from '@application/api/http-rest/http-dtos/http_permanent_post.dto';
+import { SharePermanentPostDTO } from '@application/api/http-rest/http-dto/post/http_permanent_post.dto';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
 import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interactor/query_reactions.interactor';
 import { DeletePermanentPostInteractor } from '@core/domain/post/use-case/interactor/delete_permanent_post.interactor';
 
 import { Role } from '@core/domain/user/entity/role.enum';
-import { NonExistentPermanentPostException } from '@core/domain/post/use-case/exception/permanent_post.exception';
+import { CreatePermanentPostAdapter } from '@application/api/http-rest/http-adapter/post/create_permanent_post.adapter';
+import { QueryPermanentPostCollectionAdapter } from '@application/api/http-rest/http-adapter/post/query_permanent_post_collection.adapter';
+import { QueryPermanentPostAdapter } from '@application/api/http-rest/http-adapter/post/query_permanent_post.adapter';
+import { SharePermanentPostAdapter } from '@application/api/http-rest/http-adapter/post/share_permanent_post.adapter';
 
 @Controller('permanent-posts')
 @Roles(Role.User)
 @ApiTags('permanent-posts')
+@ApiInternalServerErrorResponse({ description: 'An internal server error occurred' })
 export class PermanentPostController {
   private readonly logger: Logger = new Logger(PermanentPostController.name);
 
@@ -81,6 +92,9 @@ export class PermanentPostController {
   @Put('post/:post_id')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
+  @ApiOkResponse({ description: 'Permanent post successfully updated' })
+  @ApiBadRequestResponse({ description: 'The content of the permanent post should not be empty' })
+  @ApiNotFoundResponse({ description: 'The provided permanent post does not exist' })
   public async updatePermanentPost(
   @HttpUser() http_user: HttpUserPayload,
     @Param('post_id') post_id: string,
@@ -135,22 +149,16 @@ export class PermanentPostController {
 
   @Delete('post/:post_id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiCreatedResponse({ description: 'Post has been sucessfully delete' })
+  @ApiCreatedResponse({ description: 'Post has been successfully delete' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while deleting post' })
   @ApiBearerAuth()
-  public async DeletePermanentPost(@Param('post_id') post_id: string) {
+  public async deletePermanentPost(@Param('post_id') post_id: string) {
     try {
       return await this.delete_permanent_post_interactor.execute({ post_id: post_id }
       );
     } catch (e) {
-      if (e instanceof NonExistentPermanentPostException) {
-        throw new HttpException({ status: HttpStatus.NOT_FOUND, error: 'Can\'t get unexisting posts' }, HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        error: 'Internal database error'
-      }, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 

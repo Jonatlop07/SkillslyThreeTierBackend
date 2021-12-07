@@ -11,38 +11,51 @@ import {
   Param,
   Post,
   Put,
-  Query,
+  Query, ValidationPipe
 } from '@nestjs/common';
-import { ApiBadGatewayResponse, ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadGatewayResponse,
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse
+} from '@nestjs/swagger';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
-import { CreateUserAccountAdapter } from '@infrastructure/adapter/use-case/user/create_user_account.adapter';
-import { SearchUsersAdapter } from '@infrastructure/adapter/use-case/user/search_users.adapter';
+import { CreateUserAccountDTO } from '@application/api/http-rest/http-dto/user/http_create_user_account.dto';
+import { CreateUserAccountAdapter } from '@application/api/http-rest/http-adapter/user/create_user_account.adapter';
+import { SearchUsersAdapter } from '@application/api/http-rest/http-adapter/user/search_users.adapter';
+import { GetUserFollowRequestCollectionAdapter } from '@application/api/http-rest/http-adapter/user/follow_request/get_user_follow_request_collection.adapter';
+import { CreateUserFollowRequestAdapter } from '@application/api/http-rest/http-adapter/user/follow_request/create_user_follow_request.adapter';
+import { UpdateUserFollowRequestAdapter } from '@application/api/http-rest/http-adapter/user/follow_request/update_user_follow_request.adapter';
+import { DeleteUserFollowRequestAdapter } from '@application/api/http-rest/http-adapter/user/follow_request/delete_user_follow_request.adapter';
+import { UpdateUserAccountResponseDTO } from '@application/api/http-rest/http-dto/user/http_update_user_account_response.dto';
+import { UpdateUserAccountAdapter } from '@application/api/http-rest/http-adapter/user/update_user_account.adapter';
+import { UpdateUserAccountDTO } from '@application/api/http-rest/http-dto/user/http_update_user_account.dto';
+import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
+import { HttpExceptionMapper } from '../exception/http_exception.mapper';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { UpdateUserAccountInteractor } from '@core/domain/user/use-case/interactor/update_user_account.interactor';
 import { QueryUserAccountInteractor } from '@core/domain/user/use-case/interactor/query_user_account.interactor';
 import { DeleteUserAccountInteractor } from '@core/domain/user/use-case/interactor/delete_user_account.interactor';
 import { SearchUsersInteractor } from '@core/domain/user/use-case/interactor/search_users.interactor';
-import {
-  UserAccountAlreadyExistsException,
-  UserAccountInvalidDataFormatException
-} from '@core/domain/user/use-case/exception/user_account.exception';
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
-import { CreateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/follow_request/create_user_follow_request.adapter';
-import { HttpExceptionMapper } from '../exception/http_exception.mapper';
-import { UpdateUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/follow_request/update_user_follow_request.adapter';
 import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
 import { DeleteUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/delete_user_follow_request.interactor';
-import { DeleteUserFollowRequestAdapter } from '@infrastructure/adapter/use-case/user/follow_request/delete_user_follow_request.adapter';
-import { GetUserFollowRequestCollectionAdapter } from '@infrastructure/adapter/use-case/user/follow_request/get_user_follow_request_collection.adapter';
 import { GetUserFollowRequestCollectionInteractor } from '@core/domain/user/use-case/interactor/follow_request/get_user_follow_request_collection.interactor';
-import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
 import { Role } from '@core/domain/user/entity/role.enum';
+
 
 @Controller('users')
 @ApiTags('user')
+@ApiInternalServerErrorResponse({ description: 'An internal server error occurred' })
 export class UserController {
   private readonly logger: Logger = new Logger(UserController.name);
 
@@ -65,50 +78,32 @@ export class UserController {
     private readonly delete_user_follow_request_interactor: DeleteUserFollowRequestInteractor,
     @Inject(UserDITokens.GetUserFollowRequestCollectionInteractor)
     private readonly get_user_follow_request_collection_interactor: GetUserFollowRequestCollectionInteractor
-  ) {}
+  ) {
+  }
 
   @Public()
   @Post('account')
+  @ApiCreatedResponse({ description: 'User account has been successfully created' })
+  @ApiForbiddenResponse({ description: 'Invalid sign up data format' })
+  @ApiConflictResponse({ description: 'Tried to create an account that already exists' })
   @HttpCode(HttpStatus.CREATED)
-  public async createUserAccount(@Body() body) {
+  public async createUserAccount(@Body(new ValidationPipe()) create_user_account_details: CreateUserAccountDTO) {
     try {
       return await this.create_user_account_interactor.execute(
-        await CreateUserAccountAdapter.new({
-          email: body.email,
-          password: body.password,
-          name: body.name,
-          date_of_birth: body.date_of_birth
-        })
+        await CreateUserAccountAdapter.toInputModel(create_user_account_details)
       );
     } catch (e) {
-      if (e instanceof UserAccountInvalidDataFormatException) {
-        throw new HttpException({
-          status: HttpStatus.FORBIDDEN,
-          error: 'Invalid sign up data format'
-        }, HttpStatus.FORBIDDEN);
-      } else if (e instanceof UserAccountAlreadyExistsException) {
-        throw new HttpException({
-          status: HttpStatus.CONFLICT,
-          error: 'Account already exists'
-        }, HttpStatus.CONFLICT);
-      } else {
-        throw new HttpException({
-          status: HttpStatus.BAD_GATEWAY,
-          error: 'Internal database error'
-        }, HttpStatus.BAD_GATEWAY);
-      }
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
-
 
   @Get('account/:user_id')
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async queryUserAccount(
-  @HttpUser() http_user: HttpUserPayload,
-    @Param('user_id') user_id: string
-  ) {
+  @ApiOkResponse({ description: 'User account data successfully retrieved' })
+  @ApiUnauthorizedResponse({ description: 'Cannot query the data of an account that does not belong to the user' })
+  public async queryUserAccount(@HttpUser() http_user: HttpUserPayload, @Param('user_id') user_id: string) {
     if (user_id !== http_user.id)
       throw new HttpException({
         status: HttpStatus.UNAUTHORIZED,
@@ -121,36 +116,26 @@ export class UserController {
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
+  @ApiOkResponse({ description: 'User account successfully updated' })
+  @ApiUnauthorizedResponse({ description: 'Cannot update the data of an account that does not belong to the user' })
   public async updateAccount(
-  @HttpUser() http_user: HttpUserPayload,
+    @HttpUser() http_user: HttpUserPayload,
     @Param('user_id') user_id: string,
-    @Body() body
-  ) {
+    @Body(new ValidationPipe()) update_user_account_details: UpdateUserAccountDTO
+  ): Promise<UpdateUserAccountResponseDTO> {
     if (user_id !== http_user.id)
       throw new HttpException({
         status: HttpStatus.UNAUTHORIZED,
         error: 'Cannot update an account that does not belong to you'
       }, HttpStatus.UNAUTHORIZED);
     try {
-      return await this.update_user_account_interactor.execute({
-        id: user_id,
-        email: body.email,
-        password: body.password,
-        name: body.name,
-        date_of_birth: body.date_of_birth
-      });
+      return UpdateUserAccountAdapter.toResponseDTO(
+        await this.update_user_account_interactor.execute(
+          UpdateUserAccountAdapter.toInputModel(user_id, update_user_account_details)
+        )
+      );
     } catch (e) {
-      this.logger.error(e);
-      if (e instanceof UserAccountInvalidDataFormatException) {
-        throw new HttpException({
-          status: HttpStatus.FORBIDDEN,
-          error: 'Invalid update data format'
-        }, HttpStatus.FORBIDDEN);
-      }
-      throw new HttpException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        error: 'Internal database error'
-      }, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
@@ -158,10 +143,7 @@ export class UserController {
   @Roles(Role.User)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
-  public async deleteUserAccount(
-  @HttpUser() http_user: HttpUserPayload,
-    @Param('user_id') user_id: string
-  ) {
+  public async deleteUserAccount(@HttpUser() http_user: HttpUserPayload, @Param('user_id') user_id: string) {
     if (user_id !== http_user.id)
       throw new HttpException({
         status: HttpStatus.UNAUTHORIZED,
@@ -180,13 +162,11 @@ export class UserController {
   @Get()
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ description: 'Search has been sucessfully completed' })
+  @ApiBearerAuth()
+  @ApiCreatedResponse({ description: 'Search has been sucessffully completed' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while searching users' })
-  public async searchUsers(
-    @Query('email') email: string,
-    @Query('name') name: string,
-  ) {
+  public async searchUsers(@Query('email') email: string, @Query('name') name: string) {
     try {
       return await this.search_users_interactor.execute(
         await SearchUsersAdapter.new({
@@ -195,29 +175,25 @@ export class UserController {
         })
       );
     } catch (e) {
-      this.logger.error(e.stack);
-      throw new HttpException({status: HttpStatus.INTERNAL_SERVER_ERROR, error:'Internal server error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
   @Get('follow')
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ description: 'Follow Requests has been sucessfully found' })
+  @ApiCreatedResponse({ description: 'Follow Requests has been successfully found' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while finding user follow requests' })
   @ApiBearerAuth()
-  public async getUserFollowRequestCollection(
-    @HttpUser() http_user: HttpUserPayload,
-  ){
+  public async getUserFollowRequestCollection(@HttpUser() http_user: HttpUserPayload) {
     try {
       return await this.get_user_follow_request_collection_interactor.execute(
         await GetUserFollowRequestCollectionAdapter.new({
-          user_id: http_user.id,
+          user_id: http_user.id
         })
       );
     } catch (e) {
-      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -232,7 +208,7 @@ export class UserController {
   public async createUserFollowRequest(
     @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string
-  ){
+  ) {
     try {
       return await this.create_user_follow_request_interactor.execute(
         await CreateUserFollowRequestAdapter.new({
@@ -241,7 +217,6 @@ export class UserController {
         })
       );
     } catch (e) {
-      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -255,19 +230,18 @@ export class UserController {
   @ApiBearerAuth()
   public async updateUserFollowRequest(
     @HttpUser() http_user: HttpUserPayload,
-    @Param('user_destiny_id') user_destiny_id: string, 
+    @Param('user_destiny_id') user_destiny_id: string,
     @Body('accept') accept: boolean
-  ){
+  ) {
     try {
       return await this.update_user_follow_request_interactor.execute(
         await UpdateUserFollowRequestAdapter.new({
           user_id: user_destiny_id,
-          user_destiny_id: http_user.id, 
+          user_destiny_id: http_user.id,
           accept
         })
       );
     } catch (e) {
-      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -281,20 +255,19 @@ export class UserController {
   @ApiBearerAuth()
   public async deleteUserFollowRequest(
     @HttpUser() http_user: HttpUserPayload,
-    @Param('user_destiny_id') user_destiny_id: string, 
+    @Param('user_destiny_id') user_destiny_id: string,
     @Query('isRequest') isRequestString: string
-  ){
+  ) {
     try {
-      const isRequest = (isRequestString === 'true'); 
+      const isRequest = isRequestString === 'true';
       return await this.delete_user_follow_request_interactor.execute(
         await DeleteUserFollowRequestAdapter.new({
           user_id: http_user.id,
-          user_destiny_id, 
+          user_destiny_id,
           isRequest
         })
       );
     } catch (e) {
-      this.logger.error(e)
       throw HttpExceptionMapper.toHttpException(e);
     }
   }

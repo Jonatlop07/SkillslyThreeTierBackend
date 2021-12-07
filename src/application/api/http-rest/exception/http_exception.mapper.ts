@@ -9,7 +9,7 @@ export class HttpExceptionMapper {
       mappings: new Set([
         CoreExceptionCodes.REACTION_NON_EXISTENT_POST,
         CoreExceptionCodes.NON_EXISTENT_CONVERSATION_CHAT,
-        CoreExceptionCodes.NON_EXISTENT_USER_FOLLOW_REQUEST, 
+        CoreExceptionCodes.NON_EXISTENT_USER_FOLLOW_REQUEST,
         CoreExceptionCodes.NON_EXISTENT_USER_FOLLOW_RELATIONSHIP,
         CoreExceptionCodes.NON_EXISTENT_USER,
         CoreExceptionCodes.NON_EXISTENT_POST,
@@ -28,6 +28,7 @@ export class HttpExceptionMapper {
     },
     conflict: {
       mappings: new Set([
+        CoreExceptionCodes.ACCOUNT_ALREADY_EXISTS,
         CoreExceptionCodes.SIMPLE_CONVERSATION_ALREADY_EXISTS_CHAT,
         CoreExceptionCodes.USER_FOLLOW_REQUEST_ALREADY_EXISTS,
       ]),
@@ -35,12 +36,14 @@ export class HttpExceptionMapper {
     },
     unauthorized: {
       mappings: new Set([
+        CoreExceptionCodes.INVALID_CREDENTIALS,
         CoreExceptionCodes.USER_DOES_NOT_BELONG_TO_CONVERSATION_CHAT,
       ]),
       status_code: HttpStatus.UNAUTHORIZED
     },
     forbidden: {
       mappings: new Set([
+        CoreExceptionCodes.INVALID_ACCOUNT_DATA_FORMAT,
         CoreExceptionCodes.INVALID_REACTION_TYPE
       ]),
       status_code: HttpStatus.FORBIDDEN
