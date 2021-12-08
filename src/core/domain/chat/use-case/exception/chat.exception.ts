@@ -10,7 +10,7 @@ class NonExistentConversationChatException extends ChatException {
 
 class NoMembersInConversationChatException extends ChatException {
   code = CoreExceptionCodes.NO_MEMBERS_IN_CONVERSATION_CHAT;
-  message = 'No members of the conversation where provided';
+  message = 'No members of the conversation were provided';
 }
 
 class EmptyMessageChatException extends ChatException {
