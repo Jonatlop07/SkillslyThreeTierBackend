@@ -23,8 +23,8 @@ class UserDoesNotBelongToConversationChatException extends ChatException {
   message = 'You do not belong to the conversation';
 }
 
-class SimpleConversationAlreadyExistsChatException extends ChatException {
-  code = CoreExceptionCodes.SIMPLE_CONVERSATION_ALREADY_EXISTS_CHAT;
+class PrivateConversationAlreadyExistsChatException extends ChatException {
+  code = CoreExceptionCodes.PRIVATE_CONVERSATION_ALREADY_EXISTS_CHAT;
   message = 'The chat conversation already exists';
 }
 
@@ -34,5 +34,5 @@ export {
   NoMembersInConversationChatException,
   EmptyMessageChatException,
   UserDoesNotBelongToConversationChatException,
-  SimpleConversationAlreadyExistsChatException
+  PrivateConversationAlreadyExistsChatException
 };

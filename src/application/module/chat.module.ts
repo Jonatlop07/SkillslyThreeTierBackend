@@ -2,7 +2,7 @@ import { Global, Module, Provider } from '@nestjs/common';
 import { ChatController } from '@application/api/http-rest/controller/chat.controller';
 import { ChatConversationNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/chat/neo4j_chat_conversation_repository.adapter';
 import { ChatMessageNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/chat/neo4j_chat_message_repository.adapter';
-import { CreateSimpleChatConversationService } from '@core/service/chat/create_simple_chat_conversation.service';
+import { CreatePrivateChatConversationService } from '@core/service/chat/create_private_chat_conversation.service';
 import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
 import { GetChatMessageCollectionService } from '@core/service/chat/get_chat_message_collection.service';
 import { GetChatConversationCollectionService } from '@core/service/chat/get_chat_conversation_collection.service';
@@ -22,8 +22,8 @@ const persistence_providers: Array<Provider> = [
 
 const use_case_providers: Array<Provider> = [
   {
-    provide: ChatDITokens.CreateSimpleChatConversationInteractor,
-    useFactory: (gateway) => new CreateSimpleChatConversationService(gateway),
+    provide: ChatDITokens.CreatePrivateChatConversationInteractor,
+    useFactory: (gateway) => new CreatePrivateChatConversationService(gateway),
     inject: [ChatDITokens.ChatConversationRepository]
   },
   {
@@ -58,7 +58,8 @@ const use_case_providers: Array<Provider> = [
     ...use_case_providers,
   ],
   exports: [
-    ChatDITokens.CreateChatMessageInteractor
+    ChatDITokens.CreateChatMessageInteractor,
+    ChatDITokens.CreatePrivateChatConversationInteractor
   ]
 })
 export class ChatModule {}

@@ -1,5 +1,5 @@
 export class ChatDITokens {
-  public static readonly CreateSimpleChatConversationInteractor: unique symbol = Symbol('CreateSimpleChatConversationInteractor');
+  public static readonly CreatePrivateChatConversationInteractor: unique symbol = Symbol('CreatePrivateChatConversationInteractor');
   public static readonly CreateGroupChatConversationInteractor: unique symbol = Symbol('CreateGroupChatConversationInteractor');
   public static readonly GetChatConversationCollectionInteractor: unique symbol = Symbol('GetChatConversationCollectionInteractor');
   public static readonly GetChatMessageCollectionInteractor: unique symbol = Symbol('GetChatMessageCollectionInteractor');

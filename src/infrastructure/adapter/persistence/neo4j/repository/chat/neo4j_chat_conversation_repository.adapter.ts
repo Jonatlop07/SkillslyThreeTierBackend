@@ -20,9 +20,8 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
   }
 
   public async create(conversation: ConversationDTO): Promise<ConversationDTO> {
-
     const create_conversation_statement = `
-      CREATE (${this.conversation_key}: Conversation)
+      CREATE (${this.conversation_key}: Conversation : ${conversation.is_private ? 'PrivateConversation' : 'GroupConversation'})
       SET ${this.conversation_key} += $properties, ${this.conversation_key}.conversation_id = randomUUID()
       WITH ${this.conversation_key}
       UNWIND $member_ids as member_id
@@ -63,12 +62,12 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
     return !!result;
   }
 
-  public async existsSimpleConversationWithUser(user_id: string, other_user_id: string): Promise<boolean> {
+  public async existsPrivateConversationWithUser(user_id: string, other_user_id: string): Promise<boolean> {
     const exists_conversation_with_user_query = `
       MATCH
         (: User { user_id: $user_id })
         -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
-        ->(${this.conversation_key}: Conversation)
+        ->(${this.conversation_key}: PrivateConversation)
         <-[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
         -(: User { user_id: $other_user_id })
       WITH ${this.conversation_key}

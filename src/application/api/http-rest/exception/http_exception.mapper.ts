@@ -29,7 +29,7 @@ export class HttpExceptionMapper {
     conflict: {
       mappings: new Set([
         CoreExceptionCodes.ACCOUNT_ALREADY_EXISTS,
-        CoreExceptionCodes.SIMPLE_CONVERSATION_ALREADY_EXISTS_CHAT,
+        CoreExceptionCodes.PRIVATE_CONVERSATION_ALREADY_EXISTS_CHAT,
         CoreExceptionCodes.USER_FOLLOW_REQUEST_ALREADY_EXISTS,
       ]),
       status_code: HttpStatus.CONFLICT

@@ -24,13 +24,13 @@ import { HttpUser } from '@application/api/http-rest/authentication/decorator/ht
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
 import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
-import { CreateSimpleChatConversationAdapter } from '@application/api/http-rest/http-adapter/chat/create_simple_chat_conversation.adapter';
+import { CreatePrivateChatConversationAdapter } from '@application/api/http-rest/http-adapter/chat/create_private_chat_conversation.adapter';
 import { CreateGroupChatConversationAdapter } from '@application/api/http-rest/http-adapter/chat/create_group_chat_conversation.adapter';
 import { GetConversationMessageCollectionAdapter } from '@application/api/http-rest/http-adapter/chat/get_conversation_message_collection.adapter';
-import { CreateSimpleChatConversationDTO } from '@application/api/http-rest/http-dto/chat/http_create_simple_chat_conversation.dto';
+import { CreatePrivateChatConversationDTO } from '@application/api/http-rest/http-dto/chat/http_create_private_chat_conversation.dto';
 import { CreateGroupChatConversationDTO } from '@application/api/http-rest/http-dto/chat/http_create_group_chat_conversation_dto';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
-import { CreateSimpleChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_simple_chat_conversation.interactor';
+import { CreatePrivateChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_private_chat_conversation.interactor';
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
 import { GetChatMessageCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_message_collection.interactor';
 import { GetChatConversationCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_conversation_collection.interactor';
@@ -45,8 +45,8 @@ export class ChatController {
   private readonly logger: Logger = new Logger(ChatController.name);
 
   constructor(
-    @Inject(ChatDITokens.CreateSimpleChatConversationInteractor)
-    private readonly create_simple_chat_conversation_interactor: CreateSimpleChatConversationInteractor,
+    @Inject(ChatDITokens.CreatePrivateChatConversationInteractor)
+    private readonly create_private_chat_conversation_interactor: CreatePrivateChatConversationInteractor,
     @Inject(ChatDITokens.CreateGroupChatConversationInteractor)
     private readonly create_group_chat_conversation_interactor: CreateGroupChatConversationInteractor,
     @Inject(ChatDITokens.GetChatConversationCollectionInteractor)
@@ -59,13 +59,13 @@ export class ChatController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'The private conversation was successfully created' })
   @ApiConflictResponse({ description: 'The chat conversation already exists' })
-  public async createSimpleConversation(
+  public async createPrivateConversation(
     @HttpUser() http_user: HttpUserPayload,
-    @Body(new ValidationPipe()) body: CreateSimpleChatConversationDTO
+    @Body(new ValidationPipe()) body: CreatePrivateChatConversationDTO
   ) {
     try {
-      return CreateSimpleChatConversationAdapter.toResponseDTO(
-        await this.create_simple_chat_conversation_interactor.execute({
+      return CreatePrivateChatConversationAdapter.toResponseDTO(
+        await this.create_private_chat_conversation_interactor.execute({
           user_id: http_user.id,
           partner_id: body.partner_id,
         })

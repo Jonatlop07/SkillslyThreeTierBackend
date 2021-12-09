@@ -34,7 +34,7 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
     );
   }
 
-  public existsSimpleConversationWithUser(user_id: string, other_user_id: string): Promise<boolean> {
+  public existsPrivateConversationWithUser(user_id: string, other_user_id: string): Promise<boolean> {
     for (const conversation of this.conversations.values()) {
       if (user_id in conversation.members && other_user_id in conversation.members)
         return Promise.resolve(true);

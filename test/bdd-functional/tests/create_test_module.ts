@@ -21,7 +21,7 @@ import { UpdatePermanentPostService } from '@core/service/post/update_permanent_
 import { CreateCommentInPermanentPostService } from '@core/service/comment/create_comment_in_permanent_post.service';
 import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post';
 import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
-import { CreateSimpleChatConversationService } from '@core/service/chat/create_simple_chat_conversation.service';
+import { CreatePrivateChatConversationService } from '@core/service/chat/create_private_chat_conversation.service';
 import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
 import { GetChatConversationCollectionService } from '@core/service/chat/get_chat_conversation_collection.service';
 import { CreateChatMessageService } from '@core/service/chat/create_chat_message.service';
@@ -160,8 +160,8 @@ export async function createTestModule() {
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
       },
       {
-        provide: ChatDITokens.CreateSimpleChatConversationInteractor,
-        useFactory: (gateway) => new CreateSimpleChatConversationService(gateway),
+        provide: ChatDITokens.CreatePrivateChatConversationInteractor,
+        useFactory: (gateway) => new CreatePrivateChatConversationService(gateway),
         inject: [ChatDITokens.ChatConversationRepository]
       },
       {

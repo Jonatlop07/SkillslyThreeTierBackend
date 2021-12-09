@@ -1,5 +1,5 @@
-import CreateSimpleChatConversationGateway
-  from '@core/domain/chat/use-case/gateway/create_simple_chat_conversation.gateway';
+import CreatePrivateChatConversationGateway
+  from '@core/domain/chat/use-case/gateway/create_private_chat_conversation.gateway';
 import CreateGroupChatConversationGateway
   from '@core/domain/chat/use-case/gateway/create_group_chat_conversation.gateway';
 import BelongsUserToChatConversationGateway
@@ -8,6 +8,6 @@ import GetChatConversationCollectionGateway
   from '@core/domain/chat/use-case/gateway/get_chat_conversation_collection.gateway';
 
 export default interface ChatConversationRepository
-  extends CreateSimpleChatConversationGateway,
+  extends CreatePrivateChatConversationGateway,
   CreateGroupChatConversationGateway, BelongsUserToChatConversationGateway,
   GetChatConversationCollectionGateway {}

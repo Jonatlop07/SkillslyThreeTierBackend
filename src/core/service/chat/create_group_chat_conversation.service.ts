@@ -27,7 +27,8 @@ export class CreateGroupChatConversationService implements CreateGroupChatConver
     return await this.gateway.create({
       name: conversation_name,
       members: conversation_members,
-      messages: []
+      messages: [],
+      is_private: false
     });
   }
 }
