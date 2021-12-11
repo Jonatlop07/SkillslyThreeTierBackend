@@ -40,6 +40,7 @@ import { DeletePermanentPostService } from '@core/service/post/delete_permanent_
 import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
 import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
 import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
+import { GetPermanentPostCollectionOfFriendsService } from '@core/service/post/get_permanent_post_collection_of_friends.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -117,6 +118,11 @@ export async function createTestModule() {
       {
         provide: PostDITokens.QueryPermanentPostInteractor,
         useFactory: (post_gateway, user_gateway) => new QueryPermanentPostService(post_gateway, user_gateway),
+        inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: PostDITokens.GetPermanentPostCollectionOfFriendsInteractor,
+        useFactory: (post_gateway, user_gateway) => new GetPermanentPostCollectionOfFriendsService(post_gateway, user_gateway),
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
       },
       {
