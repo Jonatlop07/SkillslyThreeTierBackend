@@ -1,16 +1,34 @@
-import { Body, Controller, Get, Inject, Logger, Param, Post, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Logger,
+  Param,
+  Post,
+  ValidationPipe
+} from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags, ApiUnauthorizedResponse
+} from '@nestjs/swagger';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
-import {
-  CreateGroupChatConversationDTO,
-  CreateSimpleChatConversationDTO
-} from '@application/api/http-rest/http-dtos/http_chat.dto';
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
 import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
-import { CreateGroupChatConversationAdapter } from '@infrastructure/adapter/use-case/chat/create_group_chat_conversation.adapter';
-import { CreateSimpleChatConversationAdapter } from '@infrastructure/adapter/use-case/chat/create_simple_chat_conversation.adapter';
-import { GetConversationMessageCollectionAdapter } from '@infrastructure/adapter/use-case/chat/get_conversation_message_collection.adapter';
+import { CreateSimpleChatConversationAdapter } from '@application/api/http-rest/http-adapter/chat/create_simple_chat_conversation.adapter';
+import { CreateGroupChatConversationAdapter } from '@application/api/http-rest/http-adapter/chat/create_group_chat_conversation.adapter';
+import { GetConversationMessageCollectionAdapter } from '@application/api/http-rest/http-adapter/chat/get_conversation_message_collection.adapter';
+import { CreateSimpleChatConversationDTO } from '@application/api/http-rest/http-dto/chat/http_create_simple_chat_conversation.dto';
+import { CreateGroupChatConversationDTO } from '@application/api/http-rest/http-dto/chat/http_create_group_chat_conversation_dto';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { CreateSimpleChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_simple_chat_conversation.interactor';
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
@@ -21,6 +39,8 @@ import { Role } from '@core/domain/user/entity/role.enum';
 @Controller('chat')
 @Roles(Role.User)
 @ApiTags('chat')
+@ApiBearerAuth()
+@ApiInternalServerErrorResponse({ description: 'An internal server error occurred' })
 export class ChatController {
   private readonly logger: Logger = new Logger(ChatController.name);
 
@@ -36,9 +56,11 @@ export class ChatController {
   ) {}
 
   @Post()
-  @ApiBearerAuth()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: 'The private conversation was successfully created' })
+  @ApiConflictResponse({ description: 'The chat conversation already exists' })
   public async createSimpleConversation(
-  @HttpUser() http_user: HttpUserPayload,
+    @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateSimpleChatConversationDTO
   ) {
     try {
@@ -54,11 +76,11 @@ export class ChatController {
   }
 
   @Post('group')
-  @ApiBearerAuth()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: 'The group conversation was successfully created' })
+  @ApiBadRequestResponse({ description: 'Cannot create a group conversation with no members' })
   public async createGroupConversation(
-  @HttpUser() http_user: HttpUserPayload,
-    @Body(new ValidationPipe()) body: CreateGroupChatConversationDTO
-  ) {
+  @HttpUser() http_user: HttpUserPayload, @Body(new ValidationPipe()) body: CreateGroupChatConversationDTO) {
     try {
       return CreateGroupChatConversationAdapter.toResponseDTO(
         await this.create_group_chat_conversation_interactor.execute(
@@ -71,10 +93,9 @@ export class ChatController {
   }
 
   @Get()
-  @ApiBearerAuth()
-  public async getChatConversations(
-    @HttpUser() http_user: HttpUserPayload
-  ) {
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'The chat conversations were successfully retrieved' })
+  public async getChatConversations(@HttpUser() http_user: HttpUserPayload) {
     try {
       return await this.get_chat_conversation_collection_interactor.execute({
         user_id: http_user.id
@@ -85,9 +106,16 @@ export class ChatController {
   }
 
   @Get(':conversation_id/messages')
-  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'The chat messages were successfully retrieved' })
+  @ApiNotFoundResponse({ description: 'The chat conversation does not exist' })
+  @ApiUnauthorizedResponse(
+    {
+      description: 'The user that requested the messages does not belong to the conversation'
+    }
+  )
   public async getConversationMessageCollection(
-  @HttpUser() http_user: HttpUserPayload,
+    @HttpUser() http_user: HttpUserPayload,
     @Param('conversation_id') conversation_id: string
   ) {
     try {

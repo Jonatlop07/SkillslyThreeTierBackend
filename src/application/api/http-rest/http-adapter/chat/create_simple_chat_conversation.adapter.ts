@@ -1,8 +1,7 @@
-import {
-  ChatConversationResponseDTO, ChatMessageResponseDTO
-} from '@application/api/http-rest/http-dtos/http_chat.dto';
+import { ChatConversationResponseDTO } from '@application/api/http-rest/http-dto/chat/http_chat_conversation_response.dto';
 import CreateSimpleChatConversationOutputModel
   from '@core/domain/chat/use-case/output-model/create_simple_chat_conversation.output_model';
+import { ChatMessageResponseDTO } from '@application/api/http-rest/http-dto/chat/http_chat_message_response.dto';
 
 export class CreateSimpleChatConversationAdapter {
   public static toResponseDTO(payload: CreateSimpleChatConversationOutputModel): ChatConversationResponseDTO {

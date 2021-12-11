@@ -1,16 +1,20 @@
 export class CoreExceptionCodes {
-  // User excetion codes range form 100 to 199 
+  public static readonly ACCOUNT_ALREADY_EXISTS = 0;
+  public static readonly INVALID_ACCOUNT_DATA_FORMAT = 1;
+  public static readonly INVALID_CREDENTIALS = 2;
+
+  // User excetion codes range form 100 to 199
   public static readonly NON_EXISTENT_USER = 100;
   public static readonly USER_FOLLOW_REQUEST_ALREADY_EXISTS = 101;
-  public static readonly NON_EXISTENT_USER_FOLLOW_REQUEST = 102; 
-  public static readonly INVALID_FORMAT_USER_FOLLOW_REQUEST = 103; 
-  public static readonly NON_EXISTENT_USER_FOLLOW_RELATIONSHIP = 104; 
+  public static readonly NON_EXISTENT_USER_FOLLOW_REQUEST = 102;
+  public static readonly INVALID_FORMAT_USER_FOLLOW_REQUEST = 103;
+  public static readonly NON_EXISTENT_USER_FOLLOW_RELATIONSHIP = 104;
 
   // Post exception codes range from 200 to 299
   public static readonly EMPTY_POST_CONTENT = 200;
   public static readonly NON_EXISTENT_POST = 201;
   public static readonly NON_EXISTENT_POST_OWNER = 202;
-  
+
   // Chat exception codes range from 500 to 599
   public static readonly NON_EXISTENT_CONVERSATION_CHAT = 500;
   public static readonly NO_MEMBERS_IN_CONVERSATION_CHAT = 501;
