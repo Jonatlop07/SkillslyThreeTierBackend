@@ -53,7 +53,7 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
     return Promise.resolve(false);
   }
 
-  public async findAll(params: ConversationQueryModel): Promise<ConversationDetailsDTO[]> {
+  public async findAll(params: ConversationQueryModel): Promise<Array<ConversationDetailsDTO>> {
     const user_conversations: Array<ConversationDetailsDTO> = [];
     for (const conversation of this.conversations.values()){
       if (params.conversation_id === conversation.conversation_id) {
@@ -63,7 +63,8 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
           conversation_members: conversation.members.map((member_id: string) => ({
             member_id,
             member_name: ''
-          }))
+          })),
+          is_private: false
         });
       }
     }

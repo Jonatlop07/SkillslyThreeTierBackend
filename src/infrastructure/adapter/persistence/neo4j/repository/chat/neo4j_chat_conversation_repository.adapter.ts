@@ -107,53 +107,57 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
   }
 
   public async findAll(params: ConversationQueryModel): Promise<Array<ConversationDetailsDTO>> {
-    const get_all_conversations_by_user_statement = `
-      MATCH (${this.user_key}: User { user_id: $user_id })
-        -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
-        ->(${this.conversation_key}: Conversation)
-      WITH ${this.conversation_key}
-      MATCH (${this.user_key}: User)
-        -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
-        ->(${this.conversation_key})
-      RETURN ${this.conversation_key}, ${this.user_key}
-    `;
-    const conversation_collection: Array<ConversationDTO> = this.neo4j_service.getMultipleResultByKey(
-      await this.neo4j_service.read(
-        get_all_conversations_by_user_statement,
-        {
-          user_id: params.user_id
-        }
-      ),
-      this.conversation_key
-    );
-    const get_conversation_members = `
-      MATCH (${this.user_key}: User)
-        -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
-        ->(${this.conversation_key}: Conversation { conversation_id: $id})
-      RETURN ${this.user_key}
-    `;
-    const result: Array<ConversationDetailsDTO> = [];
-    for (const conversation of conversation_collection) {
-      const conversation_members = this.neo4j_service
-        .getMultipleResultByKey(
-          await this.neo4j_service.read(
-            get_conversation_members,
-            { id: conversation.conversation_id }
-          ).then(),
-          this.user_key
-        ).map((user) => ({
-          member_id: user.user_id,
-          member_name: user.name
-        }));
-      result.push(
-        {
-          conversation_id: conversation.conversation_id,
-          conversation_name: conversation.name,
-          conversation_members
-        }
+    type ConversationType = 'PrivateConversation' | 'GroupConversation';
+    const getConversationCollection = async (type: ConversationType) => {
+      const get_all_conversations_by_user_query = `
+        MATCH (${this.user_key}: User { user_id: $user_id })
+          -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
+          ->(${this.conversation_key}: ${type})
+        RETURN ${this.conversation_key}
+      `;
+      const get_conversation_members_query = `
+        MATCH (${this.user_key}: User)
+          -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
+          ->(${this.conversation_key}: ${type} { conversation_id: $id })
+        RETURN ${this.user_key}
+      `;
+      const conversation_collection: Array<ConversationDTO> = this.neo4j_service.getMultipleResultByKey(
+        await this.neo4j_service.read(
+          get_all_conversations_by_user_query,
+          {
+            user_id: params.user_id
+          }
+        ),
+        this.conversation_key
       );
-    }
-    return result;
+      const result: Array<ConversationDetailsDTO> = [];
+      for (const conversation of conversation_collection) {
+        const conversation_members = this.neo4j_service
+          .getMultipleResultByKey(
+            await this.neo4j_service.read(
+              get_conversation_members_query,
+              { id: conversation.conversation_id }
+            ),
+            this.user_key
+          ).map((user) => ({
+            member_id: user.user_id,
+            member_name: user.name
+          }));
+        result.push(
+          {
+            conversation_id: conversation.conversation_id,
+            conversation_name: conversation.name,
+            conversation_members,
+            is_private: type === 'PrivateConversation'
+          }
+        );
+      }
+      return result;
+    };
+    return [
+      ...await getConversationCollection('PrivateConversation'),
+      ...await getConversationCollection('GroupConversation')
+    ];
   }
 
   public async findOne(params: ConversationQueryModel): Promise<Optional<ConversationDetailsDTO>> {

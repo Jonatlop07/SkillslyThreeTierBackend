@@ -295,76 +295,70 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   }
 
   public async getUserFollowRequestCollection(id: string): Promise<Array<Array<SearchedUserDTO>>> {
+    const map_nodes_properties = (result: QueryResult) =>
+      result.records.map(
+        (record: any) => record._fields[0].properties
+      );
+    const map_user_data = (result:any) => ({
+      email: result.email,
+      user_id: result.user_id,
+      date_of_birth: result.date_of_birth,
+      name: result.name
+    });
     const user_key = 'user';
-    const get_user_follow_request_collection_query = ` 
+    const other_user_key = 'other_user';
+    const get_user_follow_request_collection_query = `
       MATCH (${user_key}: User { user_id: $user_id }),
-      (user_destiny)-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_key})
-      RETURN user_destiny
+      (${other_user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_key})
+      RETURN ${other_user_key}
     `;
-    const get_user_follow_relationship_collection_query = ` 
+    const get_following_users_query = `
       MATCH (${user_key}: User { user_id: $user_id }),
-      (${user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(user_destiny)
-      RETURN user_destiny
+      (${user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${other_user_key})
+      RETURN ${other_user_key}
     `;
-    const get_user_follow_request_sended_collection_query = ` 
+    const get_followers_query = `
       MATCH (${user_key}: User { user_id: $user_id }),
-      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(user_destiny)
-      RETURN user_destiny
+      (${user_key})<-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]-(${other_user_key})
+      RETURN ${other_user_key}
+    `;
+    const get_user_follow_request_sent_collection_query = ` 
+      MATCH (${user_key}: User { user_id: $user_id }),
+      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${other_user_key})
+      RETURN ${other_user_key}
     `;
     const result_request = await this.neo4j_service.read(
       get_user_follow_request_collection_query,
       {
         user_id: id
       }
-    ).then(
-      (result: QueryResult) =>
-        result.records.map(
-          (record: any) => record._fields[0].properties
-        )
-    );
-    const mapped_result_request = result_request.map((result:any) => ({
-      email: result.email,
-      user_id: result.user_id,
-      date_of_birth: result.date_of_birth,
-      name: result.name
-    }));
-    const result_relationship = await this.neo4j_service.read(
-      get_user_follow_relationship_collection_query,
+    ).then(map_nodes_properties);
+    const mapped_result_request = result_request.map(map_user_data);
+    const following_users = await this.neo4j_service.read(
+      get_following_users_query,
       {
         user_id: id
       }
-    ).then(
-      (result: QueryResult) =>
-        result.records.map(
-          (record: any) => record._fields[0].properties
-        )
-    );
-    const mapped_result_relationship = result_relationship.map((result:any) => ({
-      email: result.email,
-      user_id: result.user_id,
-      date_of_birth: result.date_of_birth,
-      name: result.name
-    }));
-    const result_request_sended = await this.neo4j_service.read(
-      get_user_follow_request_sended_collection_query,
+    ).then(map_nodes_properties);
+    const mapped_following_users = following_users.map(map_user_data);
+    const followers = await this.neo4j_service.read(
+      get_followers_query,
       {
         user_id: id
       }
-    ).then(
-      (result: QueryResult) =>
-        result.records.map(
-          (record:any) => record._fields[0].properties
-        )
-    );
-    const mapped_result_request_sent = result_request_sended.map((result:any) => ({
-      email: result.email,
-      user_id: result.user_id,
-      date_of_birth: result.date_of_birth,
-      name: result.name
-    }));
+    ).then(map_nodes_properties);
+    const mapped_followers = followers.map(map_user_data);
+    const result_request_sent = await this.neo4j_service.read(
+      get_user_follow_request_sent_collection_query,
+      {
+        user_id: id
+      }
+    ).then(map_nodes_properties);
+    const mapped_result_request_sent = result_request_sent.map(map_user_data);
     return [
       mapped_result_request_sent,
-      mapped_result_relationship,
+      mapped_following_users,
+      mapped_followers,
       mapped_result_request
     ];
   }

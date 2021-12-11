@@ -8,8 +8,8 @@ export class CreatePrivateChatConversationAdapter {
     const { conversation_id, name, members, messages, created_at } = payload;
     return {
       conversation_id,
-      name,
-      members,
+      conversation_name: name,
+      conversation_members: members,
       messages: messages as Array<ChatMessageResponseDTO>,
       created_at
     };
