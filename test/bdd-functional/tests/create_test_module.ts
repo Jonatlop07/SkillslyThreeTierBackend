@@ -37,6 +37,8 @@ import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
 import { TemporalPostInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/temporal_post_in_memory.repository';
 import { CreateTemporalPostService } from '@core/service/temp-post/create_temporal_post.service';
+import { QueryTemporalPostService } from '@core/service/temp-post/query_temporal_post.service';
+import { QueryTemporalPostCollectionService } from '@core/service/temp-post/query_temporal_post_collection.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -102,9 +104,19 @@ export async function createTestModule() {
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
       },
       {
+        provide: TempPostDITokens.QueryTemporalPostInteractor,
+        useFactory: (temp_post_gateway, user_gateway) => new QueryTemporalPostService(temp_post_gateway, user_gateway),
+        inject: [TempPostDITokens.TempPostRepository, UserDITokens.UserRepository],
+      },
+      {
         provide: PostDITokens.QueryPermanentPostCollectionInteractor,
         useFactory: (post_gateway, user_gateway) => new QueryPermanentPostCollectionService(post_gateway, user_gateway),
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: TempPostDITokens.QueryTemporalPostCollectionInteractor,
+        useFactory: (temp_post_gateway, user_gateway) => new QueryTemporalPostCollectionService(temp_post_gateway, user_gateway),
+        inject: [TempPostDITokens.TempPostRepository, UserDITokens.UserRepository],
       },
       {
         provide: PostDITokens.UpdatePermanentPostInteractor,

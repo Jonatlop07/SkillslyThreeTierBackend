@@ -8,6 +8,11 @@ export class CoreExceptionCodes {
   public static readonly SIMPLE_CONVERSATION_ALREADY_EXISTS_CHAT = 504;
 
   public static readonly NON_EXISTENT_POST = 600;
-  public static readonly INVALID_REACTION_TYPE = 601; 
+  public static readonly INVALID_REACTION_TYPE = 601;
+
+  public static readonly REQUIRED_TEMP_POST_CONTENT = 900;
+  public static readonly INVALID_TEMP_POST_REFERENCE = 901;
+  public static readonly INVALID_TEMP_POST_REFERENCE_TYPE = 902;
+  public static readonly NOT_FOUND_TEMP_POST = 903;
 
 }

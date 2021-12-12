@@ -7,9 +7,12 @@ import CreateTemporalPostInputModel from '@core/domain/temp-post/use-case/input-
 import { CreateTemporalPostInteractor } from '@core/domain/temp-post/use-case/interactor/create_temporal_post.interactor';
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { CreateProfileService } from '@core/service/profile/create_profile.service';
-import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
+import {
+  InvalidInputException,
+  InvalidReferenceException, InvalidReferenceTypeException,
+  TempPostException,
+} from '@core/domain/temp-post/use-case/exception/temp-post.exception';
 
 
 const feature = loadFeature('test/bdd-functional/features/temp-posts/create_temporal_post.feature');
@@ -24,6 +27,7 @@ defineFeature(feature, (test) => {
   let createTemporalPostInteractor: CreateTemporalPostInteractor;
 
   let output: CreateTemporalPostOutputModel;
+  let exception: TempPostException;
 
   const user_1 = {
     email: 'newuser_123@test.com',
@@ -45,7 +49,7 @@ defineFeature(feature, (test) => {
     try {
       return await createTemporalPostInteractor.execute(input);
     } catch (e) {
-      console.log(e);
+      exception = e;
     }
   }
 
@@ -84,7 +88,7 @@ defineFeature(feature, (test) => {
     createUserAccountInteractor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
     createTemporalPostInteractor = module.get<CreateTemporalPostInteractor>(TempPostDITokens.CreateTempPostInteractor);
     output = undefined;
-    // exception = undefined;
+    exception = undefined;
   });
 
 
@@ -97,5 +101,34 @@ defineFeature(feature, (test) => {
     });
   });
 
+  test('A logged user creates a temporal post with an invalid reference', ({ given, and, when, then }) => {
+    givenAnExistingUser(given);
+    andUserProvidesTemporalPostContent(and);
+    whenUserTriesToCreateATemporalPost(when);
+    then(/^an error occurs: post must have a valid reference$/, () => {
+      expect(exception).toBeInstanceOf(InvalidReferenceException);
+      expect(output).toBeUndefined();
+    });
+  });
+
+  test('A logged user creates a temporal post with an invalid reference type', ({ given, and, when, then }) => {
+    givenAnExistingUser(given);
+    andUserProvidesTemporalPostContent(and);
+    whenUserTriesToCreateATemporalPost(when);
+    then(/^an error occurs: post must have a valid reference type$/, () => {
+      expect(exception).toBeInstanceOf(InvalidReferenceTypeException);
+      expect(output).toBeUndefined();
+    });
+  });
+
+  test('A logged user creates a temporal post without any content', ({ given, and, when, then }) => {
+    givenAnExistingUser(given);
+    andUserProvidesTemporalPostContent(and);
+    whenUserTriesToCreateATemporalPost(when);
+    then(/^an error occurs: post must have a valid content$/, () => {
+      expect(exception).toBeInstanceOf(InvalidInputException);
+      expect(output).toBeUndefined();
+    });
+  });
 
 });
