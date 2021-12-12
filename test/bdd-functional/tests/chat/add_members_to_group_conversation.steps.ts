@@ -5,7 +5,11 @@ import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/
 import AddMembersToGroupConversationOutputModel
   from '@core/domain/chat/use-case/output-model/add_members_to_group_conversation.output_model';
 import { AddMembersToGroupConversationInteractor } from '@core/domain/chat/use-case/interactor/add_members_to_group_conversation.interactor';
-import { ChatException, UserDoesNotBelongToConversationChatException } from '@core/domain/chat/use-case/exception/chat.exception';
+import {
+  ChatException,
+  NonExistentConversationChatException,
+  UserDoesNotBelongToConversationChatException
+} from '@core/domain/chat/use-case/exception/chat.exception';
 import { createTestModule } from '../create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
@@ -61,7 +65,7 @@ defineFeature(feature, (test) => {
   }
 
   function andUserProvidesMembersToAddToConversation(and) {
-    and(/the user identified by "([^"]*)" provides the ids of the members to add to the conversation:/,
+    and(/^the user identified by "([^"]*)" provides the ids of the members to add to the conversation:$/,
       (current_user_id: string, users: Array<{ user_id: string }>) => {
         user_id = current_user_id;
         members_to_add = users.map((user) => user.user_id);
@@ -116,7 +120,6 @@ defineFeature(feature, (test) => {
       );
     }
   );
-
   test('A user that does not belong to a group conversation tries to add members to it',
     ({ given, and, when, then }) => {
       givenTheseUsersExists(given);
@@ -129,6 +132,22 @@ defineFeature(feature, (test) => {
           expect(exception).toBeInstanceOf(UserDoesNotBelongToConversationChatException);
         }
       );
+    }
+  );
+  test('A user tries to add members to a conversation that does not exist',
+    ({ given, and, when, then }) => {
+      givenTheseUsersExists(given);
+      and(/^the user provides the conversation id: "([^"]*)"$/,
+        (provided_conversation_id: string) => {
+          conversation_id = provided_conversation_id;
+        }
+      );
+      andUserProvidesMembersToAddToConversation(and);
+      whenUserTriesToAddTheMembersToConversation(when);
+      then('an error occurs: the conversation does not exist', () => {
+        expect(exception).toBeDefined();
+        expect(exception).toBeInstanceOf(NonExistentConversationChatException);
+      });
     }
   );
 });
