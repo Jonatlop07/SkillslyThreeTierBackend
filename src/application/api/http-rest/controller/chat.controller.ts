@@ -7,6 +7,7 @@ import {
   Inject,
   Logger,
   Param,
+  Patch,
   Post, Put,
   ValidationPipe
 } from '@nestjs/common';
@@ -38,6 +39,9 @@ import { Role } from '@core/domain/user/entity/role.enum';
 import { AddMembersToGroupConversationDTO } from '@application/api/http-rest/http-dto/chat/http_add_members_to_group_conversation.dto';
 import { AddMembersToGroupConversationAdapter } from '@application/api/http-rest/http-adapter/chat/add_members_to_group_conversation.adapter';
 import { AddMembersToGroupConversationInteractor } from '@core/domain/chat/use-case/interactor/add_members_to_group_conversation.interactor';
+import { UpdateGroupConversationDetailsInteractor } from '@core/domain/chat/use-case/interactor/update_group_conversation_details.interactor';
+import { UpdateGroupConversationDetailsAdapter } from '@application/api/http-rest/http-adapter/chat/update_group_conversation_details.adapter';
+import { UpdateGroupConversationDetailsDTO } from '@application/api/http-rest/http-dto/chat/http_update_group_conversation_details.dto';
 
 @Controller('chat')
 @Roles(Role.User)
@@ -57,7 +61,9 @@ export class ChatController {
     @Inject(ChatDITokens.GetChatMessageCollectionInteractor)
     private readonly get_chat_message_collection_interactor: GetChatMessageCollectionInteractor,
     @Inject(ChatDITokens.AddMembersToGroupConversationInteractor)
-    private readonly add_members_to_group_conversation_interactor: AddMembersToGroupConversationInteractor
+    private readonly add_members_to_group_conversation_interactor: AddMembersToGroupConversationInteractor,
+    @Inject(ChatDITokens.UpdateGroupConversationDetailsInteractor)
+    private readonly update_group_conversation_details_interactor: UpdateGroupConversationDetailsInteractor
   ) {}
 
   @Post()
@@ -157,6 +163,30 @@ export class ChatController {
       );
     } catch (e) {
       HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
+  @Patch('group/:conversation_id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'The details of the group conversation were successfully updated' })
+  @ApiNotFoundResponse( { description: 'The group conversation does not exists' })
+  @ApiUnauthorizedResponse({ description: 'The user cannot edit the details of a group conversation they does not belong to' })
+  @ApiBadRequestResponse({ description: 'The user provided the details of the group conversation in an invalid format' })
+  public async updateGroupConversationDetails(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('conversation_id') conversation_id: string,
+    @Body(new ValidationPipe()) body: UpdateGroupConversationDetailsDTO
+  ) {
+    try {
+      return UpdateGroupConversationDetailsAdapter.toResponseDTO(
+        await this.update_group_conversation_details_interactor.execute({
+          user_id: http_user.id,
+          conversation_id,
+          conversation_name: body.conversation_name
+        })
+      );
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 }

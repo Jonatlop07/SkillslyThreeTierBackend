@@ -22,7 +22,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.NO_MEMBERS_IN_CONVERSATION_CHAT,
         CoreExceptionCodes.EMPTY_MESSAGE_CHAT,
         CoreExceptionCodes.INVALID_FORMAT_USER_FOLLOW_REQUEST,
-        CoreExceptionCodes.EMPTY_POST_CONTENT
+        CoreExceptionCodes.EMPTY_POST_CONTENT,
+        CoreExceptionCodes.INVALID_GROUP_CONVERSATION_DETAILS_FORMAT
       ]),
       status_code: HttpStatus.BAD_REQUEST
     },

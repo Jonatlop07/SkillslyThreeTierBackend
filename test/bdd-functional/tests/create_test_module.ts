@@ -41,6 +41,7 @@ import { UpdateUserFollowRequestService } from '@core/service/user/follow_reques
 import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
 import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
 import { AddMembersToGroupConversationService } from '@core/service/chat/add_members_to_group_conversation.service';
+import { UpdateGroupConversationDetailsService } from '@core/service/chat/update_group_conversation_details.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -178,6 +179,11 @@ export async function createTestModule() {
       {
         provide: ChatDITokens.AddMembersToGroupConversationInteractor,
         useFactory: (gateway) => new AddMembersToGroupConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.UpdateGroupConversationDetailsInteractor,
+        useFactory: (gateway) => new UpdateGroupConversationDetailsService(gateway),
         inject: [ChatDITokens.ChatConversationRepository]
       },
       {

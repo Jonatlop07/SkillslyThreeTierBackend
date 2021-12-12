@@ -186,4 +186,24 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
       this.user_key
     );
   }
+
+  public async update(conversation: ConversationDTO): Promise<ConversationDTO> {
+    const update_group_conversation_details_statement = `
+      MATCH (${this.conversation_key}: GroupConversation { conversation_id: $conversation_id })
+      SET ${this.conversation_key} += $properties
+      RETURN ${this.conversation_key}
+    `;
+    return this.neo4j_service.getSingleResultProperties(
+      await this.neo4j_service.write(
+        update_group_conversation_details_statement,
+        {
+          conversation_id: conversation.conversation_id,
+          properties: {
+            name: conversation.name
+          }
+        }
+      ),
+      this.conversation_key
+    );
+  }
 }

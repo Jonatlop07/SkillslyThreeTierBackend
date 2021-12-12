@@ -9,6 +9,7 @@ import { GetChatConversationCollectionService } from '@core/service/chat/get_cha
 import { CreateChatMessageService } from '@core/service/chat/create_chat_message.service';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { AddMembersToGroupConversationService } from '@core/service/chat/add_members_to_group_conversation.service';
+import { UpdateGroupConversationDetailsService } from '@core/service/chat/update_group_conversation_details.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -40,6 +41,11 @@ const use_case_providers: Array<Provider> = [
   {
     provide: ChatDITokens.AddMembersToGroupConversationInteractor,
     useFactory: (gateway) => new AddMembersToGroupConversationService(gateway),
+    inject: [ChatDITokens.ChatConversationRepository]
+  },
+  {
+    provide: ChatDITokens.UpdateGroupConversationDetailsInteractor,
+    useFactory: (gateway) => new UpdateGroupConversationDetailsService(gateway),
     inject: [ChatDITokens.ChatConversationRepository]
   },
   {

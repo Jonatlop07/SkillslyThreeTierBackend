@@ -78,7 +78,7 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
     return Promise.resolve(undefined);
   }
 
-  addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>> {
+  public async addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>> {
     const conversation: ConversationDTO = this.conversations.get(dto.conversation_id);
     const members_to_add: Array<string> = dto.members_to_add.filter(member => !conversation.members.includes(member));
     conversation.members = conversation.members.concat(members_to_add);
@@ -90,5 +90,12 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
       name: '',
       date_of_birth: '',
     })));
+  }
+
+  public async update(conversation: ConversationDTO): Promise<ConversationDTO> {
+    const conversation_to_update = this.conversations.get(conversation.conversation_id);
+    conversation_to_update.name = conversation.name;
+    this.conversations.set(conversation_to_update.conversation_id, conversation_to_update);
+    return Promise.resolve(conversation_to_update);
   }
 }

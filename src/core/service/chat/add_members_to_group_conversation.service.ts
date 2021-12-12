@@ -10,9 +10,13 @@ import {
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import AddMembersToGroupConversationGateway
   from '@core/domain/chat/use-case/gateway/add_members_to_group_conversation.gateway';
+import { Inject } from '@nestjs/common';
+import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 
 export class AddMembersToGroupConversationService implements AddMembersToGroupConversationInteractor {
-  constructor(private readonly gateway: AddMembersToGroupConversationGateway) {
+  constructor(
+    @Inject(ChatDITokens.ChatConversationRepository)
+    private readonly gateway: AddMembersToGroupConversationGateway) {
   }
 
   public async execute(input: AddMembersToGroupConversationInputModel)

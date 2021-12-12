@@ -28,11 +28,17 @@ class PrivateConversationAlreadyExistsChatException extends ChatException {
   message = 'The chat conversation already exists';
 }
 
+class InvalidGroupConversationDetailsFormatChatException extends ChatException {
+  code = CoreExceptionCodes.INVALID_GROUP_CONVERSATION_DETAILS_FORMAT;
+  message = 'The edited details of the group conversation are in an invalid format';
+}
+
 export {
   ChatException,
   NonExistentConversationChatException,
   NoMembersInConversationChatException,
   EmptyMessageChatException,
   UserDoesNotBelongToConversationChatException,
-  PrivateConversationAlreadyExistsChatException
+  PrivateConversationAlreadyExistsChatException,
+  InvalidGroupConversationDetailsFormatChatException
 };
