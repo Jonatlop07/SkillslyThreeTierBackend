@@ -40,6 +40,7 @@ import { DeletePermanentPostService } from '@core/service/post/delete_permanent_
 import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
 import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
 import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
+import { AddMembersToGroupConversationService } from '@core/service/chat/add_members_to_group_conversation.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -172,6 +173,11 @@ export async function createTestModule() {
       {
         provide: ChatDITokens.GetChatConversationCollectionInteractor,
         useFactory: (gateway) => new GetChatConversationCollectionService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.AddMembersToGroupConversationInteractor,
+        useFactory: (gateway) => new AddMembersToGroupConversationService(gateway),
         inject: [ChatDITokens.ChatConversationRepository]
       },
       {

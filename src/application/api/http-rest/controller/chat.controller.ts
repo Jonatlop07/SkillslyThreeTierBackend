@@ -7,7 +7,7 @@ import {
   Inject,
   Logger,
   Param,
-  Post,
+  Post, Put,
   ValidationPipe
 } from '@nestjs/common';
 import {
@@ -35,6 +35,9 @@ import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-cas
 import { GetChatMessageCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_message_collection.interactor';
 import { GetChatConversationCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_conversation_collection.interactor';
 import { Role } from '@core/domain/user/entity/role.enum';
+import { AddMembersToGroupConversationDTO } from '@application/api/http-rest/http-dto/chat/http_add_members_to_group_conversation.dto';
+import { AddMembersToGroupConversationAdapter } from '@application/api/http-rest/http-adapter/chat/add_members_to_group_conversation.adapter';
+import { AddMembersToGroupConversationInteractor } from '@core/domain/chat/use-case/interactor/add_members_to_group_conversation.interactor';
 
 @Controller('chat')
 @Roles(Role.User)
@@ -52,7 +55,9 @@ export class ChatController {
     @Inject(ChatDITokens.GetChatConversationCollectionInteractor)
     private readonly get_chat_conversation_collection_interactor: GetChatConversationCollectionInteractor,
     @Inject(ChatDITokens.GetChatMessageCollectionInteractor)
-    private readonly get_chat_message_collection_interactor: GetChatMessageCollectionInteractor
+    private readonly get_chat_message_collection_interactor: GetChatMessageCollectionInteractor,
+    @Inject(ChatDITokens.AddMembersToGroupConversationInteractor)
+    private readonly add_members_to_group_conversation_interactor: AddMembersToGroupConversationInteractor
   ) {}
 
   @Post()
@@ -127,6 +132,31 @@ export class ChatController {
       );
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
+  @Put('group/:conversation_id/add-members')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'The members were successfully added to the conversation' })
+  @ApiNotFoundResponse( { description: 'The conversation does not exists' })
+  @ApiUnauthorizedResponse({ description: 'The user cannot add members to a conversation they does not belong to' })
+  public async addMembersToGroupConversation(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('conversation_id') conversation_id: string,
+    @Body(new ValidationPipe()) body: AddMembersToGroupConversationDTO
+  ) {
+    try {
+      return AddMembersToGroupConversationAdapter.toResponseDTO(
+        await this.add_members_to_group_conversation_interactor.execute(
+          {
+            user_id: http_user.id,
+            conversation_id,
+            members_to_add: body.members_to_add
+          }
+        )
+      );
+    } catch (e) {
+      HttpExceptionMapper.toHttpException(e);
     }
   }
 }

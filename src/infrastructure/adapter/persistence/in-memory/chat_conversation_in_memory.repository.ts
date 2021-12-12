@@ -4,6 +4,8 @@ import * as moment from 'moment';
 import ConversationQueryModel from '@core/domain/chat/use-case/query-model/conversation.query_model';
 import { ConversationDetailsDTO } from '@core/domain/chat/use-case/persistence-dto/conversation_details.dto';
 import { Optional } from '@core/common/type/common_types';
+import { AddMembersToGroupConversationDTO } from '@core/domain/chat/use-case/persistence-dto/add_members_to_group_conversation.dto';
+import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 
 export class ChatConversationInMemoryRepository implements ChatConversationRepository {
   private currently_available_conversation_id: string;
@@ -74,5 +76,19 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
   public async findOne(params: ConversationQueryModel): Promise<Optional<ConversationDetailsDTO>> {
     params;
     return Promise.resolve(undefined);
+  }
+
+  addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>> {
+    const conversation: ConversationDTO = this.conversations.get(dto.conversation_id);
+    const members_to_add: Array<string> = dto.members_to_add.filter(member => !conversation.members.includes(member));
+    conversation.members = conversation.members.concat(members_to_add);
+    this.conversations.set(conversation.conversation_id, conversation);
+    return Promise.resolve(members_to_add.map((member) => ({
+      user_id: member,
+      email: '',
+      password: '',
+      name: '',
+      date_of_birth: '',
+    })));
   }
 }

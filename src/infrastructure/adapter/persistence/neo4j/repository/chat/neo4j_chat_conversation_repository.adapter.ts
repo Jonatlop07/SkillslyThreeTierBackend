@@ -8,6 +8,8 @@ import { ConversationDTO } from '@core/domain/chat/use-case/persistence-dto/conv
 import ConversationQueryModel from '@core/domain/chat/use-case/query-model/conversation.query_model';
 import { ConversationDetailsDTO } from '@core/domain/chat/use-case/persistence-dto/conversation_details.dto';
 import { Optional } from '@core/common/type/common_types';
+import { AddMembersToGroupConversationDTO } from '@core/domain/chat/use-case/persistence-dto/add_members_to_group_conversation.dto';
+import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 
 @Injectable()
 export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationRepository {
@@ -163,5 +165,25 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
   public async findOne(params: ConversationQueryModel): Promise<Optional<ConversationDetailsDTO>> {
     params;
     return Promise.resolve(undefined);
+  }
+
+  public async addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>> {
+    const add_members_to_group_conversation_statement = `
+      MATCH (${this.conversation_key}: GroupConversation { conversation_id = $conversation_id })
+      WITH ${this.conversation_key}
+      UNWIND $new_member_ids as new_member_id
+      MATCH (${this.user_key}: User { user_id: new_member_id })
+      CREATE (${this.user_key})-[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]->(${this.conversation_key})
+      RETURN ${this.user_key}
+    `;
+    return this.neo4j_service.getMultipleResultByKey(
+      await this.neo4j_service.write(
+        add_members_to_group_conversation_statement,
+        {
+          conversation_id: dto.conversation_id,
+          new_member_ids: dto.members_to_add
+        }),
+      this.user_key
+    );
   }
 }
