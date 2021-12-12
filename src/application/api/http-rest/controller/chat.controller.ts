@@ -67,7 +67,9 @@ export class ChatController {
     @Inject(ChatDITokens.UpdateGroupConversationDetailsInteractor)
     private readonly update_group_conversation_details_interactor: UpdateGroupConversationDetailsInteractor,
     @Inject(ChatDITokens.DeleteChatGroupConversationInteractor)
-    private readonly delete_chat_group_conversation_interactor: DeleteChatGroupConversationInteractor
+    private readonly delete_chat_group_conversation_interactor: DeleteChatGroupConversationInteractor,
+    @Inject(ChatDITokens.ExitChatGroupConversationInteractor)
+    private readonly exit_chat_group_conversation_interactor: DeleteChatGroupConversationInteractor
   ) {}
 
   @Post()
@@ -205,6 +207,25 @@ export class ChatController {
   ) {
     try {
       return await this.delete_chat_group_conversation_interactor.execute({
+        user_id: http_user.id,
+        conversation_id
+      });
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
+  @Post('group/:conversation_id/exit')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'The user could successfully exit the group conversation' })
+  @ApiNotFoundResponse( { description: 'The group conversation does not exist' })
+  @ApiUnauthorizedResponse({ description: 'The user cannot exit a group conversation they does not belong to' })
+  public async exitChatGroupConversation(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('conversation_id') conversation_id: string,
+  ) {
+    try {
+      return await this.exit_chat_group_conversation_interactor.execute({
         user_id: http_user.id,
         conversation_id
       });

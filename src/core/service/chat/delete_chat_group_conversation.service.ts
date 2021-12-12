@@ -1,9 +1,9 @@
+import { Inject } from '@nestjs/common';
 import { DeleteChatGroupConversationInteractor } from '@core/domain/chat/use-case/interactor/delete_chat_group_conversation.interactor';
 import DeleteChatGroupConversationInputModel
   from '@core/domain/chat/use-case/input-model/delete_chat_group_conversation.input_model';
 import DeleteChatGroupConversationOutputModel
   from '@core/domain/chat/use-case/output-model/delete_chat_group_conversation.output_model';
-import { Inject } from '@nestjs/common';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import DeleteChatGroupConversationGateway
   from '@core/domain/chat/use-case/gateway/delete_chat_group_conversation.gateway';

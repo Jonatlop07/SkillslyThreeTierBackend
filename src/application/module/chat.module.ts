@@ -11,6 +11,7 @@ import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { AddMembersToGroupConversationService } from '@core/service/chat/add_members_to_group_conversation.service';
 import { UpdateGroupConversationDetailsService } from '@core/service/chat/update_group_conversation_details.service';
 import { DeleteChatGroupConversationService } from '@core/service/chat/delete_chat_group_conversation.service';
+import { ExitChatGroupConversationService } from '@core/service/chat/exit_chat_group_conversation.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -52,6 +53,11 @@ const use_case_providers: Array<Provider> = [
   {
     provide: ChatDITokens.DeleteChatGroupConversationInteractor,
     useFactory: (gateway) => new DeleteChatGroupConversationService(gateway),
+    inject: [ChatDITokens.ChatConversationRepository]
+  },
+  {
+    provide: ChatDITokens.ExitChatGroupConversationInteractor,
+    useFactory: (gateway) => new ExitChatGroupConversationService(gateway),
     inject: [ChatDITokens.ChatConversationRepository]
   },
   {

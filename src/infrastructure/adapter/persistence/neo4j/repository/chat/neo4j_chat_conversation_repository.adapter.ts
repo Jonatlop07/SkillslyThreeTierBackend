@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { QueryResult } from 'neo4j-driver';
-import * as moment from 'moment';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import ChatConversationRepository from '@core/domain/chat/use-case/repository/chat_conversation.repository';
@@ -10,6 +9,7 @@ import { ConversationDetailsDTO } from '@core/domain/chat/use-case/persistence-d
 import { Optional } from '@core/common/type/common_types';
 import { AddMembersToGroupConversationDTO } from '@core/domain/chat/use-case/persistence-dto/add_members_to_group_conversation.dto';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+import * as moment from 'moment';
 
 @Injectable()
 export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationRepository {
@@ -226,5 +226,17 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
     `;
     await this.neo4j_service.write(delete_group_conversation_statement, { conversation_id });
     return null;
+  }
+
+  public async exit(user_id: string, conversation_id: string): Promise<void> {
+    const user_conversation_relationship_key = 'r';
+    const exit_group_conversation_statement = `
+      MATCH
+        (${this.conversation_key}: GroupConversation { conversation_id: $conversation_id })
+        <-[${user_conversation_relationship_key}: ${Relationships.USER_CONVERSATION_RELATIONSHIP}]
+        -(${this.user_key}: User { user_id: $user_id })
+      DELETE ${user_conversation_relationship_key}
+    `;
+    await this.neo4j_service.write(exit_group_conversation_statement, { user_id, conversation_id });
   }
 }

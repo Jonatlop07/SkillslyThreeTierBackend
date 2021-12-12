@@ -108,4 +108,11 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
     this.conversations.delete(id);
     return Promise.resolve(null);
   }
+
+  public async exit(user_id: string, conversation_id: string): Promise<void> {
+    const conversation = this.conversations.get(conversation_id);
+    conversation.members = conversation.members.filter((member) => member !== user_id);
+    this.conversations.set(conversation_id, conversation);
+    return Promise.resolve();
+  }
 }
