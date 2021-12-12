@@ -39,6 +39,7 @@ import { TemporalPostInMemoryRepository } from '@infrastructure/adapter/persiste
 import { CreateTemporalPostService } from '@core/service/temp-post/create_temporal_post.service';
 import { QueryTemporalPostService } from '@core/service/temp-post/query_temporal_post.service';
 import { QueryTemporalPostCollectionService } from '@core/service/temp-post/query_temporal_post_collection.service';
+import { DeleteTemporalPostService } from '@core/service/temp-post/delete_temporal_post.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -117,6 +118,11 @@ export async function createTestModule() {
         provide: TempPostDITokens.QueryTemporalPostCollectionInteractor,
         useFactory: (temp_post_gateway, user_gateway) => new QueryTemporalPostCollectionService(temp_post_gateway, user_gateway),
         inject: [TempPostDITokens.TempPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: TempPostDITokens.DeleteTemporalPostInteractor,
+        useFactory: (query_gateway, delete_gateway) => new DeleteTemporalPostService(query_gateway, delete_gateway),
+        inject: [TempPostDITokens.TempPostRepository, TempPostDITokens.TempPostRepository],
       },
       {
         provide: PostDITokens.UpdatePermanentPostInteractor,

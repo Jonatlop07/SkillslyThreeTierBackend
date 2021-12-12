@@ -44,4 +44,13 @@ export class TemporalPostInMemoryRepository implements TemporalPostRepository {
     return Promise.resolve(temporalPosts);
   }
 
+  public deleteById(id: string): Promise<TemporalPostDTO> {
+    const temporalPost: TemporalPostDTO = this.temporalPosts.get(id);
+    this.temporalPosts.delete(id);
+    return Promise.resolve(temporalPost);
+  }
+
+  public delete(): Promise<TemporalPostDTO> {
+    return null;
+  }
 }
