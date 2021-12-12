@@ -215,7 +215,7 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
 
   public async deleteById(conversation_id: string): Promise<ConversationDTO> {
     const delete_group_conversation_statement = `
-      MATCH (${this.conversation_key}: GroupConversation { conversation_id: $conversation_id }})
+      MATCH (${this.conversation_key}: GroupConversation { conversation_id: $conversation_id })
       WITH ${this.conversation_key}
       OPTIONAL MATCH
         (${this.message_key}: Message)
