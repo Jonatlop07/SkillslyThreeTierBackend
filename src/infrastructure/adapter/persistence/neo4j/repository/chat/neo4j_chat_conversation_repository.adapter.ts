@@ -15,6 +15,7 @@ import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationRepository {
   private readonly conversation_key = 'conversation';
   private readonly user_key = 'user';
+  private readonly message_key = 'message';
 
   private readonly logger: Logger = new Logger(ChatConversationNeo4jRepositoryAdapter.name);
 
@@ -205,5 +206,25 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
       ),
       this.conversation_key
     );
+  }
+
+  public async delete(params: ConversationQueryModel): Promise<ConversationDTO> {
+    params;
+    return Promise.resolve(undefined);
+  }
+
+  public async deleteById(conversation_id: string): Promise<ConversationDTO> {
+    const delete_group_conversation_statement = `
+      MATCH (${this.conversation_key}: GroupConversation { conversation_id: $conversation_id }})
+      WITH ${this.conversation_key}
+      OPTIONAL MATCH
+        (${this.message_key}: Message)
+        -[:${Relationships.MESSAGE_CONVERSATION_RELATIONSHIP}]
+        ->(${this.conversation_key})
+      DETACH DELETE ${this.message_key}
+      DETACH DELETE ${this.conversation_key}
+    `;
+    await this.neo4j_service.write(delete_group_conversation_statement, { conversation_id });
+    return null;
   }
 }

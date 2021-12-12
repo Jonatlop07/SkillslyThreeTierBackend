@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -17,6 +17,7 @@ import {
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags, ApiUnauthorizedResponse
@@ -42,6 +43,7 @@ import { AddMembersToGroupConversationInteractor } from '@core/domain/chat/use-c
 import { UpdateGroupConversationDetailsInteractor } from '@core/domain/chat/use-case/interactor/update_group_conversation_details.interactor';
 import { UpdateGroupConversationDetailsAdapter } from '@application/api/http-rest/http-adapter/chat/update_group_conversation_details.adapter';
 import { UpdateGroupConversationDetailsDTO } from '@application/api/http-rest/http-dto/chat/http_update_group_conversation_details.dto';
+import { DeleteChatGroupConversationInteractor } from '@core/domain/chat/use-case/interactor/delete_chat_group_conversation.interactor';
 
 @Controller('chat')
 @Roles(Role.User)
@@ -63,7 +65,9 @@ export class ChatController {
     @Inject(ChatDITokens.AddMembersToGroupConversationInteractor)
     private readonly add_members_to_group_conversation_interactor: AddMembersToGroupConversationInteractor,
     @Inject(ChatDITokens.UpdateGroupConversationDetailsInteractor)
-    private readonly update_group_conversation_details_interactor: UpdateGroupConversationDetailsInteractor
+    private readonly update_group_conversation_details_interactor: UpdateGroupConversationDetailsInteractor,
+    @Inject(ChatDITokens.DeleteChatGroupConversationInteractor)
+    private readonly delete_chat_group_conversation_interactor: DeleteChatGroupConversationInteractor
   ) {}
 
   @Post()
@@ -169,7 +173,7 @@ export class ChatController {
   @Patch('group/:conversation_id')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'The details of the group conversation were successfully updated' })
-  @ApiNotFoundResponse( { description: 'The group conversation does not exists' })
+  @ApiNotFoundResponse( { description: 'The group conversation does not exist' })
   @ApiUnauthorizedResponse({ description: 'The user cannot edit the details of a group conversation they does not belong to' })
   @ApiBadRequestResponse({ description: 'The user provided the details of the group conversation in an invalid format' })
   public async updateGroupConversationDetails(
@@ -185,6 +189,25 @@ export class ChatController {
           conversation_name: body.conversation_name
         })
       );
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
+  @Delete('group/:conversation_id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: 'The group conversation was successfully deleted' })
+  @ApiNotFoundResponse( { description: 'The group conversation does not exist' })
+  @ApiUnauthorizedResponse({ description: 'The user cannot delete a group conversation they does not belong to' })
+  public async deleteChatGroupConversation(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('conversation_id') conversation_id: string,
+  ) {
+    try {
+      return await this.delete_chat_group_conversation_interactor.execute({
+        user_id: http_user.id,
+        conversation_id
+      });
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }

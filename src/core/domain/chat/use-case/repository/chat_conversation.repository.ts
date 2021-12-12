@@ -10,9 +10,11 @@ import AddMembersToGroupConversationGateway
   from '@core/domain/chat/use-case/gateway/add_members_to_group_conversation.gateway';
 import UpdateGroupConversationDetailsGateway
   from '@core/domain/chat/use-case/gateway/update_group_conversation_details.gateway';
+import DeleteChatGroupConversationGateway
+  from '@core/domain/chat/use-case/gateway/delete_chat_group_conversation.gateway';
 
 export default interface ChatConversationRepository
   extends CreatePrivateChatConversationGateway,
   CreateGroupChatConversationGateway, BelongsUserToChatConversationGateway,
   GetChatConversationCollectionGateway, AddMembersToGroupConversationGateway,
-  UpdateGroupConversationDetailsGateway {}
+  UpdateGroupConversationDetailsGateway, DeleteChatGroupConversationGateway {}

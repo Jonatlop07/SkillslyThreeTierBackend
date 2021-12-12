@@ -98,4 +98,14 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
     this.conversations.set(conversation_to_update.conversation_id, conversation_to_update);
     return Promise.resolve(conversation_to_update);
   }
+
+  public async delete(params: ConversationQueryModel): Promise<ConversationDTO> {
+    params;
+    return Promise.resolve(undefined);
+  }
+
+  public async deleteById(id: string): Promise<ConversationDTO> {
+    this.conversations.delete(id);
+    return Promise.resolve(null);
+  }
 }
