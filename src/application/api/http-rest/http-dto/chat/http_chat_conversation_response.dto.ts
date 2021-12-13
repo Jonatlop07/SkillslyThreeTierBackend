@@ -3,8 +3,8 @@ import { ChatMessageResponseDTO } from '@application/api/http-rest/http-dto/chat
 
 export class ChatConversationResponseDTO {
   @IsString() conversation_id: string;
-  @IsString() name: string;
-  @IsArray() members: Array<string>;
+  @IsString() conversation_name: string;
+  @IsArray() conversation_members: Array<string>;
   @IsArray() messages: Array<ChatMessageResponseDTO>;
   @IsArray() created_at: string;
 }

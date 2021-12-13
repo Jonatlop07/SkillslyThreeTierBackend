@@ -6,5 +6,6 @@ interface ConversationMemberDetailsDTO {
 export interface ConversationDetailsDTO {
   conversation_id: string;
   conversation_members: Array<ConversationMemberDetailsDTO>,
-  conversation_name: string
+  conversation_name: string;
+  is_private: boolean;
 }
