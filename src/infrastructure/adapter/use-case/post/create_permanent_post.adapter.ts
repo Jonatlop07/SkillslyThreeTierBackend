@@ -17,7 +17,7 @@ export class CreatePermanentPostAdapter implements CreatePermanentPostInputModel
   @IsString()
   public privacy: string;
 
-  public static new(payload: CreatePermanentPostInputModel,): CreatePermanentPostAdapter {
+  public static new(payload: CreatePermanentPostInputModel): CreatePermanentPostAdapter {
     return plainToClass(CreatePermanentPostAdapter, payload);
   }
 }

@@ -158,7 +158,7 @@ defineFeature(feature, (test) => {
       async() => {
         try {
           await create_user_follow_request_interactor.execute({user_id: user_id, user_destiny_id: owner_id});
-          await update_user_follow_request_interactor.execute({user_id: user_id, user_destiny_id: owner_id, action: 'accept'});
+          await update_user_follow_request_interactor.execute({user_id: user_id, user_destiny_id: owner_id, accept:true});
         } catch (e){
           console.log(e);
         }

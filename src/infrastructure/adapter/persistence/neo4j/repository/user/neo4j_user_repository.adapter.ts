@@ -332,7 +332,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       user_id: result.user_id,
       date_of_birth: result.date_of_birth, 
       name: result.name
-    }))
+    }));
     const result_relationship = await this.neo4j_service.read(
       get_user_follow_relationship_collection_query,
       {
@@ -349,7 +349,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       user_id: result.user_id,
       date_of_birth: result.date_of_birth, 
       name: result.name
-    }))
+    }));
     const result_request_sended = await this.neo4j_service.read(
       get_user_follow_request_sended_collection_query,
       {
@@ -366,7 +366,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       user_id: result.user_id,
       date_of_birth: result.date_of_birth, 
       name: result.name
-    }))
+    }));
     return [
       mapped_result_request_sended,
       mapped_result_relationship, 

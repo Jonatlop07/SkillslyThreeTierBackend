@@ -40,7 +40,7 @@ export class DeleteUserFollowRequestService implements DeleteUserFollowRequestIn
     if (!actionIsValid) {
       throw new UserFollowRequestInvalidDataFormatException(); 
     }
-    if(input.isRequest){
+    if (input.isRequest){
       const result = await this.user_gateway.deleteUserFollowRequest(input);
       return result; 
     } else {

@@ -184,7 +184,7 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while searching users' })
   public async searchUsers(
-    @Query('email') email: string,
+  @Query('email') email: string,
     @Query('name') name: string,
   ) {
     try {
@@ -208,7 +208,7 @@ export class UserController {
   @ApiBadGatewayResponse({ description: 'Error while finding user follow requests' })
   @ApiBearerAuth()
   public async getUserFollowRequestCollection(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
   ){
     try {
       return await this.get_user_follow_request_collection_interactor.execute(
@@ -217,7 +217,7 @@ export class UserController {
         })
       );
     } catch (e) {
-      this.logger.error(e)
+      this.logger.error(e);
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -230,7 +230,7 @@ export class UserController {
   @ApiBadGatewayResponse({ description: 'Error while cretaing user follow request' })
   @ApiBearerAuth()
   public async createUserFollowRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string
   ){
     try {
@@ -241,7 +241,7 @@ export class UserController {
         })
       );
     } catch (e) {
-      this.logger.error(e)
+      this.logger.error(e);
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -254,7 +254,7 @@ export class UserController {
   @ApiBadGatewayResponse({ description: 'Error while updating user follow request' })
   @ApiBearerAuth()
   public async updateUserFollowRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string, 
     @Body('accept') accept: boolean
   ){
@@ -267,7 +267,7 @@ export class UserController {
         })
       );
     } catch (e) {
-      this.logger.error(e)
+      this.logger.error(e);
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -280,12 +280,12 @@ export class UserController {
   @ApiBadGatewayResponse({ description: 'Error while deleting user follow request' })
   @ApiBearerAuth()
   public async deleteUserFollowRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string, 
     @Query('isRequest') isRequestString: string
   ){
     try {
-      const isRequest = (isRequestString === 'true'); 
+      const isRequest = isRequestString === 'true'; 
       return await this.delete_user_follow_request_interactor.execute(
         await DeleteUserFollowRequestAdapter.new({
           user_id: http_user.id,
@@ -294,7 +294,7 @@ export class UserController {
         })
       );
     } catch (e) {
-      this.logger.error(e)
+      this.logger.error(e);
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
