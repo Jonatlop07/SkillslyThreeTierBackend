@@ -44,6 +44,7 @@ import { AddMembersToGroupConversationService } from '@core/service/chat/add_mem
 import { UpdateGroupConversationDetailsService } from '@core/service/chat/update_group_conversation_details.service';
 import { DeleteChatGroupConversationService } from '@core/service/chat/delete_chat_group_conversation.service';
 import { ExitChatGroupConversationService } from '@core/service/chat/exit_chat_group_conversation.service';
+import { GetPermanentPostCollectionOfFriendsService } from '@core/service/post/get_permanent_post_collection_of_friends.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -121,6 +122,11 @@ export async function createTestModule() {
       {
         provide: PostDITokens.QueryPermanentPostInteractor,
         useFactory: (post_gateway, user_gateway) => new QueryPermanentPostService(post_gateway, user_gateway),
+        inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: PostDITokens.GetPermanentPostCollectionOfFriendsInteractor,
+        useFactory: (post_gateway, user_gateway) => new GetPermanentPostCollectionOfFriendsService(post_gateway, user_gateway),
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
       },
       {

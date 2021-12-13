@@ -14,6 +14,7 @@ import { AddReactionService } from '@core/service/reaction/add_reaction.service'
 import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
 import { ReactionNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/reaction/neo4j_reaction_repository.adapter';
 import { DeletePermanentPostService } from '@core/service/post/delete_permanent_post.service';
+import { GetPermanentPostCollectionOfFriendsService } from '@core/service/post/get_permanent_post_collection_of_friends.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -44,6 +45,11 @@ const use_case_providers: Array<Provider> = [
   {
     provide: PostDITokens.QueryPermanentPostInteractor,
     useFactory: (post_gateway, user_gateway) => new QueryPermanentPostService(post_gateway, user_gateway),
+    inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
+  },
+  {
+    provide: PostDITokens.GetPermanentPostCollectionOfFriendsInteractor,
+    useFactory: (post_gateway, user_gateway) => new GetPermanentPostCollectionOfFriendsService(post_gateway, user_gateway),
     inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
   },
   {

@@ -39,12 +39,14 @@ import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
 import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interactor/query_reactions.interactor';
 import { DeletePermanentPostInteractor } from '@core/domain/post/use-case/interactor/delete_permanent_post.interactor';
-
 import { Role } from '@core/domain/user/entity/role.enum';
+import { PaginationDTO } from '@application/api/http-rest/http-dtos/http_pagination.dto';
+import { GetPermanentPostCollectionOfFriendsInteractor } from '@core/domain/post/use-case/interactor/get_permanent_post_collection_of_friends.interactor';
 import { CreatePermanentPostAdapter } from '@application/api/http-rest/http-adapter/post/create_permanent_post.adapter';
 import { QueryPermanentPostCollectionAdapter } from '@application/api/http-rest/http-adapter/post/query_permanent_post_collection.adapter';
 import { QueryPermanentPostAdapter } from '@application/api/http-rest/http-adapter/post/query_permanent_post.adapter';
 import { SharePermanentPostAdapter } from '@application/api/http-rest/http-adapter/post/share_permanent_post.adapter';
+import { GetPermanentPostOfFriendsCollectionAdapter } from '@application/api/http-rest/http-adapter/post/get_permanent_post_of_friends_collection.adapter';
 
 @Controller('permanent-posts')
 @Roles(Role.User)
@@ -69,7 +71,9 @@ export class PermanentPostController {
     @Inject(ReactionDITokens.AddReactionInteractor)
     private readonly add_reaction_interactor: AddReactionInteractor,
     @Inject(ReactionDITokens.QueryReactionsInteractor)
-    private readonly query_reactions_interactor: QueryReactionsInteractor
+    private readonly query_reactions_interactor: QueryReactionsInteractor,
+    @Inject(PostDITokens.GetPermanentPostCollectionOfFriendsInteractor)
+    private readonly get_permanent_post_of_friends_collection_interactor: GetPermanentPostCollectionOfFriendsInteractor
   ) { }
 
   @Post()
@@ -214,5 +218,26 @@ export class PermanentPostController {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  public async getPermanentPostOfFriendsCollection(
+    @HttpUser() http_user: HttpUserPayload,
+    @Query() pagination: PaginationDTO
+  ) {
+    try {
+      return await this.get_permanent_post_of_friends_collection_interactor.execute(
+        await GetPermanentPostOfFriendsCollectionAdapter.new({
+          user_id: http_user.id,
+          limit: pagination.limit,
+          offset: pagination.offset
+        })
+      );
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+  
 }
 
