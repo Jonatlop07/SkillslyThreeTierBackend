@@ -32,19 +32,22 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
       CREATE (${this.user_key})-[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]->(${this.conversation_key})
       RETURN ${this.conversation_key}
     `;
-    return this.neo4j_service.getSingleResultProperties(
-      await this.neo4j_service.write(
-        create_conversation_statement,
-        {
-          member_ids: conversation.members,
-          properties: {
-            name: conversation.name,
-            created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
+    return {
+      ...this.neo4j_service.getSingleResultProperties(
+        await this.neo4j_service.write(
+          create_conversation_statement,
+          {
+            member_ids: conversation.members,
+            properties: {
+              name: conversation.name,
+              created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
+            }
           }
-        }
+        ),
+        this.conversation_key
       ),
-      this.conversation_key
-    );
+      members: conversation.members
+    };
   }
 
   public async belongsUserToConversation(user_id: string, conversation_id: string): Promise<boolean> {
@@ -170,7 +173,7 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
 
   public async addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>> {
     const add_members_to_group_conversation_statement = `
-      MATCH (${this.conversation_key}: GroupConversation { conversation_id = $conversation_id })
+      MATCH (${this.conversation_key}: GroupConversation { conversation_id: $conversation_id })
       WITH ${this.conversation_key}
       UNWIND $new_member_ids as new_member_id
       MATCH (${this.user_key}: User { user_id: new_member_id })

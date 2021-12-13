@@ -26,12 +26,16 @@ export class AddMembersToGroupConversationService implements AddMembersToGroupCo
       throw new NonExistentConversationChatException();
     if (!await this.gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();
+    const members_not_in_conversation = await Promise.all(
+      members_to_add
+        .filter(
+          async (member) =>
+            !await this.gateway.belongsUserToConversation(member, conversation_id)
+        )
+    );
     const added_members_map = await this.gateway.addMembersToGroupConversation({
       conversation_id,
-      members_to_add: members_to_add.filter(
-        async (member_to_add) =>
-          !await this.gateway.belongsUserToConversation(member_to_add, conversation_id)
-      )
+      members_to_add: members_not_in_conversation
     }).then(
       (added_members: Array<UserDTO>) =>
         added_members.map(
