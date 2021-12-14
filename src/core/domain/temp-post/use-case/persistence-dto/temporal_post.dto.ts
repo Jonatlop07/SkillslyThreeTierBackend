@@ -5,6 +5,5 @@ export interface TemporalPostDTO {
   referenceType: string;
   user_id: string;
   created_at?: string;
-  updated_at?: string;
   expires_at?: string;
 }

@@ -7,6 +7,7 @@ import { InfrastructureModule } from './infrastructure.module';
 import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
 import { CommentModule } from '@application/module/comment.module';
+import { TempPostModule } from '@application/module/temp-post.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CommentModule } from '@application/module/comment.module';
     AuthenticationModule,
     ProfileModule,
     CommentModule,
+    TempPostModule,
   ],
 })
 export class RootModule {
