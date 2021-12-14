@@ -8,6 +8,7 @@ import QueryPermanentPostCollectionInputModel
   from '@core/domain/post/use-case/input-model/query_permanent_post_collection.input_model';
 import { TemporalPostDTO } from '@core/domain/temp-post/use-case/persistence-dto/temporal_post.dto';
 import { NonExistentUserException } from '@core/domain/post/use-case/exception/permanent_post.exception';
+import { NotFoundFriendsTemporalPostsException } from '@core/domain/temp-post/use-case/exception/temp-post.exception';
 
 export class QueryTemporalPostCollectionService implements QueryTemporalPostCollectionInteractor {
   constructor(
@@ -24,7 +25,13 @@ export class QueryTemporalPostCollectionService implements QueryTemporalPostColl
     if (!owner) {
       throw new NonExistentUserException();
     }
-    return await this.temp_post_gateway.findAll({ user_id: owner_id });
+    const posts = await this.temp_post_gateway.findAll({ user_id: owner_id });
+    if (posts instanceof Object) {
+      if (Object.keys(posts).length === 0) {
+        throw new NotFoundFriendsTemporalPostsException();
+      }
+    }
+    return posts;
   }
 
 }
