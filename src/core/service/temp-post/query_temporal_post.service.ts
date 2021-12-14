@@ -1,7 +1,7 @@
 import { QueryTemporalPostInteractor } from '@core/domain/temp-post/use-case/interactor/query_temporal_post.interactor';
 import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
 import QueryTemporalPostGateway from '@core/domain/temp-post/use-case/gateway/query_temporal_post.gateway';
-import { UserDITokens } from '../../../../dist/core/domain/user/di/user_di_tokens';
+
 import SearchUsersGateway from '@core/domain/user/use-case/gateway/search_users.gateway';
 import { Inject } from '@nestjs/common';
 import QueryTemporalPostInputModel from '@core/domain/temp-post/use-case/input-model/query_temporal_post.input_model';
@@ -10,6 +10,7 @@ import QueryTemporalPostOutputModel
 import { NonExistentUserException } from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { TemporalPostDTO } from '@core/domain/temp-post/use-case/persistence-dto/temporal_post.dto';
 import { NotFoundTemporalPostException } from '@core/domain/temp-post/use-case/exception/temp-post.exception';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 
 export class QueryTemporalPostService implements QueryTemporalPostInteractor {
 

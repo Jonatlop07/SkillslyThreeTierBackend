@@ -13,12 +13,12 @@ export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepositor
   }
 
   public async create(temp_post: TemporalPostDTO): Promise<TemporalPostDTO> {
-    const temp_post_key = 'temp-post';
+    const temp_post_key = 'tempPost';
     const user_key = 'user';
 
     const create_temp_post_query = `
-      MATCH (${user_key}): User {user_id: $user_id}
-      CREATE(${temp_post_key}): TemporalPost)
+      MATCH (${user_key}: User {user_id: $user_id})
+      CREATE (${temp_post_key}: TemporalPost)
       SET ${temp_post_key} += $properties, ${temp_post_key}.temporal_post_id = randomUUID()
       CREATE (${user_key})-[:${Relationships.USER_TEMP_POST_RELATIONSHIP}]->(${temp_post_key})
       RETURN ${temp_post_key}
@@ -48,10 +48,6 @@ export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepositor
       created_at: created_temp_post.created_at,
       expires_at: created_temp_post.expires_at,
     };
-  }
-
-  public update() {
-    return null;
   }
 
   public delete() {
