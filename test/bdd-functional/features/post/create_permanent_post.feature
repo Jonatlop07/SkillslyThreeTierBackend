@@ -39,3 +39,15 @@ Feature: Create permanent post
 
     When the user tries to create a new post
     Then a post is then created with the images provided
+
+  Scenario: A logged in user tries to create a permanent post with privacy of friends-only
+    Given a user exists
+    And the user provides the content of the post being:
+    | description         | reference                                           | reference_type |
+    |                     | https://www.gstatic.com/webp/gallery/1.jpg          | jpg            |
+    |                     | https://www.gstatic.com/webp/gallery/2.jpg          | jpg            |
+    |                     | http://techslides.com/demos/sample-videos/small.mp4 | mp4            |
+
+    And the user provides the privacy of the post being "private"
+    When the user tries to create a new post
+    Then a post is then created with the content provided and will be available for friends only

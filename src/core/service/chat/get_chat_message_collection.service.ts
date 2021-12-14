@@ -14,7 +14,6 @@ import BelongsUserToChatConversationGateway
   from '@core/domain/chat/use-case/gateway/belongs_user_to_chat_conversation.gateway';
 import { MessageDTO } from '@core/domain/chat/use-case/persistence-dto/message.dto';
 
-
 export class GetChatMessageCollectionService implements GetChatMessageCollectionInteractor {
   constructor(
     @Inject(ChatDITokens.ChatMessageRepository)
@@ -27,10 +26,8 @@ export class GetChatMessageCollectionService implements GetChatMessageCollection
     const { user_id, conversation_id } = input;
     if (!await this.conversation_gateway.existsById(conversation_id))
       throw new NonExistentConversationChatException();
-    console.log(user_id);
     if (!await this.conversation_gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();
-
     const messages: Array<MessageDTO> = await this.gateway.findAll({
       conversation_id
     });

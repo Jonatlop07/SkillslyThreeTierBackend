@@ -1,10 +1,11 @@
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Post, Put, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
-import { CreateProfileDto } from '@application/api/http-rest/http-dtos/http_create_profile.dto';
-import { EditProfileAdapter } from '@infrastructure/adapter/use-case/profile/edit_profile.adapter';
-import { CreateProfileAdapter } from '@infrastructure/adapter/use-case/profile/create_profile.adapter';
-import { GetProfileAdapter } from '@infrastructure/adapter/use-case/profile/get_profile.adapter';
+import { CreateProfileDto } from '@application/api/http-rest/http-dto/profile/http_create_profile.dto';
+import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
+import { CreateProfileAdapter } from '@application/api/http-rest/http-adapter/profile/create_profile.adapter';
+import { GetProfileAdapter } from '@application/api/http-rest/http-adapter/profile/get_profile.adapter';
+import { EditProfileAdapter } from '@application/api/http-rest/http-adapter/profile/edit_profile.adapter';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 import { CreateProfileInteractor } from '@core/domain/profile/use-case/interactor/create_profile.interactor';
 import { GetProfileInteractor } from '@core/domain/profile/use-case/interactor/get_profile.interactor';
@@ -14,9 +15,12 @@ import {
   ProfileInvalidDataFormatException,
   ProfileNotFoundException
 } from '@core/domain/profile/use-case/exception/profile.exception';
+import { Role } from '@core/domain/user/entity/role.enum';
 
 @Controller('users/profile')
+@Roles(Role.User)
 @ApiTags('profile')
+@ApiInternalServerErrorResponse({ description: 'An internal server error occurred' })
 export class ProfileController {
   constructor(
     @Inject(ProfileDITokens.CreateProfileInteractor)

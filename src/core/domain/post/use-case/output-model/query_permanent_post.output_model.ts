@@ -4,4 +4,5 @@ export default interface QueryPermanentPostOutputModel {
   post_id: string;
   user_id: string;
   content: Array<PermanentPostContentElement>;
+  privacy?: string
 }

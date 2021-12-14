@@ -18,6 +18,7 @@ const feature = loadFeature('test/bdd-functional/features/post/create_permanent_
 defineFeature(feature, (test) => {
   let user_id: string;
   let post_content: Array<PermanentPostContentElement>;
+  let post_privacy = 'public';
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_permanent_post_interactor: CreatePermanentPostInteractor;
@@ -64,13 +65,22 @@ defineFeature(feature, (test) => {
     );
   }
 
+  function andUserProvidesPrivacyOfThePost(and){
+    and(/^the user provides the privacy of the post being "([^"]*)"$/,
+      (provided_post_privacy) => {
+        post_privacy = provided_post_privacy;
+      },
+    );
+  }
+
   function whenUserTriesToCreateNewPost(when) {
     when('the user tries to create a new post',
       async () => {
         output = await createPost({
           id: '1',
           content: post_content,
-          user_id
+          user_id,
+          privacy: post_privacy
         });
       });
   }
@@ -158,4 +168,27 @@ defineFeature(feature, (test) => {
       });
     }
   );
+
+
+  test('A logged in user tries to create a permanent post with privacy of friends-only',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andUserProvidesTheContentOfThePost(and);
+      andUserProvidesPrivacyOfThePost(and);
+      whenUserTriesToCreateNewPost(when);
+      then('a post is then created with the content provided and will be available for friends only', () => {
+        const expected_output: CreatePermanentPostOutputModel = {
+          post_id: '1',
+          user_id: user_id,
+          content: post_content
+        };
+        expect(output).toBeDefined();
+        expect(output.user_id).toEqual(expected_output.user_id);
+        expect(output.content).toEqual(expected_output.content);
+      });
+    }
+  );
+
+
+
 });

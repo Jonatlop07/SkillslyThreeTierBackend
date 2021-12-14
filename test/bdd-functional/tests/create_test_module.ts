@@ -21,8 +21,9 @@ import { UpdatePermanentPostService } from '@core/service/post/update_permanent_
 import { CreateCommentInPermanentPostService } from '@core/service/comment/create_comment_in_permanent_post.service';
 import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post';
 import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
-import { CreateSimpleChatConversationService } from '@core/service/chat/create_simple_chat_conversation.service';
+import { CreatePrivateChatConversationService } from '@core/service/chat/create_private_chat_conversation.service';
 import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
+import { GetChatConversationCollectionService } from '@core/service/chat/get_chat_conversation_collection.service';
 import { CreateChatMessageService } from '@core/service/chat/create_chat_message.service';
 import { GetChatMessageCollectionService } from '@core/service/chat/get_chat_message_collection.service';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
@@ -33,13 +34,26 @@ import { AddReactionService } from '@core/service/reaction/add_reaction.service'
 import { ReactionInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/reaction_in_memory.repository';
 import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
+import { CreateUserFollowRequestService } from '@core/service/user/follow_request/create_user_follow_request.service';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
+<<<<<<< HEAD
 import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
 import { TemporalPostInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/temporal_post_in_memory.repository';
 import { CreateTemporalPostService } from '@core/service/temp-post/create_temporal_post.service';
 import { QueryTemporalPostService } from '@core/service/temp-post/query_temporal_post.service';
 import { QueryTemporalPostCollectionService } from '@core/service/temp-post/query_temporal_post_collection.service';
 import { DeleteTemporalPostService } from '@core/service/temp-post/delete_temporal_post.service';
+=======
+import { DeletePermanentPostService } from '@core/service/post/delete_permanent_post.service';
+import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
+import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
+import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
+import { AddMembersToGroupConversationService } from '@core/service/chat/add_members_to_group_conversation.service';
+import { UpdateGroupConversationDetailsService } from '@core/service/chat/update_group_conversation_details.service';
+import { DeleteChatGroupConversationService } from '@core/service/chat/delete_chat_group_conversation.service';
+import { ExitChatGroupConversationService } from '@core/service/chat/exit_chat_group_conversation.service';
+import { GetPermanentPostCollectionOfFriendsService } from '@core/service/post/get_permanent_post_collection_of_friends.service';
+>>>>>>> development
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -75,6 +89,26 @@ export async function createTestModule() {
         inject: [UserDITokens.UserRepository],
       },
       {
+        provide: UserDITokens.CreateUserFollowRequestInteractor,
+        useFactory: (gateway) => new CreateUserFollowRequestService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.UpdateUserFollowRequestInteractor,
+        useFactory: (gateway) => new UpdateUserFollowRequestService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.DeleteUserFollowRequestInteractor,
+        useFactory: (gateway) => new DeleteUserFollowRequestService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
+        provide: UserDITokens.GetUserFollowRequestCollectionInteractor,
+        useFactory: (gateway) => new GetUserFollowRequestCollectionService(gateway),
+        inject: [UserDITokens.UserRepository],
+      },
+      {
         provide: ProfileDITokens.CreateProfileInteractor,
         useFactory: (gateway) => new CreateProfileService(gateway),
         inject: [ProfileDITokens.ProfileRepository],
@@ -105,6 +139,7 @@ export async function createTestModule() {
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
       },
       {
+<<<<<<< HEAD
         provide: TempPostDITokens.QueryTemporalPostInteractor,
         useFactory: (temp_post_gateway, user_gateway) => new QueryTemporalPostService(temp_post_gateway, user_gateway),
         inject: [TempPostDITokens.TempPostRepository, UserDITokens.UserRepository],
@@ -123,6 +158,21 @@ export async function createTestModule() {
         provide: TempPostDITokens.DeleteTemporalPostInteractor,
         useFactory: (query_gateway, delete_gateway) => new DeleteTemporalPostService(query_gateway, delete_gateway),
         inject: [TempPostDITokens.TempPostRepository, TempPostDITokens.TempPostRepository],
+=======
+        provide: PostDITokens.GetPermanentPostCollectionOfFriendsInteractor,
+        useFactory: (post_gateway, user_gateway) => new GetPermanentPostCollectionOfFriendsService(post_gateway, user_gateway),
+        inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: PostDITokens.DeletePermanentPostInteractor,
+        useFactory: (post_gateway) => new DeletePermanentPostService(post_gateway),
+        inject: [PostDITokens.PermanentPostRepository],
+      },
+      {
+        provide: PostDITokens.QueryPermanentPostCollectionInteractor,
+        useFactory: (user_gateway, relationship_gateway, post_gateway) => new QueryPermanentPostCollectionService(user_gateway, relationship_gateway, post_gateway),
+        inject: [UserDITokens.UserRepository, UserDITokens.UserRepository, PostDITokens.PermanentPostRepository],
+>>>>>>> development
       },
       {
         provide: PostDITokens.UpdatePermanentPostInteractor,
@@ -155,14 +205,45 @@ export async function createTestModule() {
         inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
       },
       {
+<<<<<<< HEAD
         provide: ChatDITokens.CreateSimpleChatConversationInteractor,
         useFactory: (gateway) => new CreateSimpleChatConversationService(gateway),
         inject: [ChatDITokens.ChatConversationRepository],
+=======
+        provide: ChatDITokens.CreatePrivateChatConversationInteractor,
+        useFactory: (gateway) => new CreatePrivateChatConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+>>>>>>> development
       },
       {
         provide: ChatDITokens.CreateGroupChatConversationInteractor,
         useFactory: (gateway) => new CreateGroupChatConversationService(gateway),
         inject: [ChatDITokens.ChatConversationRepository],
+      },
+      {
+        provide: ChatDITokens.GetChatConversationCollectionInteractor,
+        useFactory: (gateway) => new GetChatConversationCollectionService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.AddMembersToGroupConversationInteractor,
+        useFactory: (gateway) => new AddMembersToGroupConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.UpdateGroupConversationDetailsInteractor,
+        useFactory: (gateway) => new UpdateGroupConversationDetailsService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.DeleteChatGroupConversationInteractor,
+        useFactory: (gateway) => new DeleteChatGroupConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
+      },
+      {
+        provide: ChatDITokens.ExitChatGroupConversationInteractor,
+        useFactory: (gateway) => new ExitChatGroupConversationService(gateway),
+        inject: [ChatDITokens.ChatConversationRepository]
       },
       {
         provide: ChatDITokens.CreateChatMessageInteractor,

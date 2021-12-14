@@ -8,6 +8,8 @@ import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
 import { CommentModule } from '@application/module/comment.module';
 import { TempPostModule } from '@application/module/temp-post.module';
+import { CommentModule } from './comment.module';
+import { ChatModule } from './chat.module';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { TempPostModule } from '@application/module/temp-post.module';
     ProfileModule,
     CommentModule,
     TempPostModule,
+    ChatModule
   ],
 })
 export class RootModule {

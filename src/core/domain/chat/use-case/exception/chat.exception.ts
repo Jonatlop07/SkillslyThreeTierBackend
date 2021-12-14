@@ -10,7 +10,7 @@ class NonExistentConversationChatException extends ChatException {
 
 class NoMembersInConversationChatException extends ChatException {
   code = CoreExceptionCodes.NO_MEMBERS_IN_CONVERSATION_CHAT;
-  message = 'No members of the conversation where provided';
+  message = 'No members of the conversation were provided';
 }
 
 class EmptyMessageChatException extends ChatException {
@@ -23,9 +23,14 @@ class UserDoesNotBelongToConversationChatException extends ChatException {
   message = 'You do not belong to the conversation';
 }
 
-class SimpleConversationAlreadyExistsChatException extends ChatException {
-  code = CoreExceptionCodes.SIMPLE_CONVERSATION_ALREADY_EXISTS_CHAT;
+class PrivateConversationAlreadyExistsChatException extends ChatException {
+  code = CoreExceptionCodes.PRIVATE_CONVERSATION_ALREADY_EXISTS_CHAT;
   message = 'The chat conversation already exists';
+}
+
+class InvalidGroupConversationDetailsFormatChatException extends ChatException {
+  code = CoreExceptionCodes.INVALID_GROUP_CONVERSATION_DETAILS_FORMAT;
+  message = 'The edited details of the group conversation are in an invalid format';
 }
 
 export {
@@ -34,5 +39,6 @@ export {
   NoMembersInConversationChatException,
   EmptyMessageChatException,
   UserDoesNotBelongToConversationChatException,
-  SimpleConversationAlreadyExistsChatException
+  PrivateConversationAlreadyExistsChatException,
+  InvalidGroupConversationDetailsFormatChatException
 };

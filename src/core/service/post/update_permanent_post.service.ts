@@ -24,7 +24,8 @@ export class UpdatePermanentPostService implements UpdatePermanentPostInteractor
     const post: PermanentPost = PermanentPostMapper.toPermanentPost({
       post_id: input.id,
       content: input.content,
-      user_id: input.user_id
+      user_id: input.user_id,
+      privacy: input.privacy
     });
     if (!post.hasNonEmptyContent())
       throw new EmptyPermanentPostContentException();

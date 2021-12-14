@@ -1,7 +1,7 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
+import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
-import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import {
@@ -11,9 +11,9 @@ import {
   ChatException,
   NoMembersInConversationChatException
 } from '@core/domain/chat/use-case/exception/chat.exception';
-import { CreateSimpleChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_simple_chat_conversation.interactor';
-import CreateSimpleChatConversationOutputModel
-  from '@core/domain/chat/use-case/output-model/create_simple_chat_conversation.output_model';
+import { CreatePrivateChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_private_chat_conversation.interactor';
+import CreatePrivateChatConversationOutputModel
+  from '@core/domain/chat/use-case/output-model/create_private_chat_conversation.output_model';
 import CreateGroupChatConversationOutputModel
   from '@core/domain/chat/use-case/output-model/create_group_chat_conversation.output_model';
 
@@ -25,9 +25,9 @@ defineFeature(feature, (test) => {
   let conversation_name: string;
   let conversation_members: Array<string> = [];
   let create_user_account_interactor: CreateUserAccountInteractor;
-  let create_simple_chat_conversation_interactor: CreateSimpleChatConversationInteractor;
+  let create_private_chat_conversation_interactor: CreatePrivateChatConversationInteractor;
   let create_group_chat_conversation_interactor: CreateGroupChatConversationInteractor;
-  let create_simple_chat_conversation_output: CreateSimpleChatConversationOutputModel;
+  let create_private_chat_conversation_output: CreatePrivateChatConversationOutputModel;
   let create_group_chat_conversation_output: CreateGroupChatConversationOutputModel;
   let exception: ChatException;
 
@@ -71,10 +71,10 @@ defineFeature(feature, (test) => {
     );
   }
 
-  function whenUserTriesToCreateASimpleConversation(when) {
-    when('the user tries to create a simple conversation', async () => {
+  function whenUserTriesToCreateAPrivateConversation(when) {
+    when('the user tries to create a private conversation', async () => {
       try {
-        create_simple_chat_conversation_output = await create_simple_chat_conversation_interactor.execute({
+        create_private_chat_conversation_output = await create_private_chat_conversation_interactor.execute({
           user_id,
           partner_id: other_user_id
         });
@@ -100,7 +100,7 @@ defineFeature(feature, (test) => {
   beforeEach(async () => {
     const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
-    create_simple_chat_conversation_interactor = module.get<CreateSimpleChatConversationInteractor>(ChatDITokens.CreateSimpleChatConversationInteractor);
+    create_private_chat_conversation_interactor = module.get<CreatePrivateChatConversationInteractor>(ChatDITokens.CreatePrivateChatConversationInteractor);
     create_group_chat_conversation_interactor = module.get<CreateGroupChatConversationInteractor>(ChatDITokens.CreateGroupChatConversationInteractor);
     exception = undefined;
   });
@@ -109,10 +109,10 @@ defineFeature(feature, (test) => {
     ({ given, and, when, then }) => {
       givenTheseUsersExists(given);
       andUserWantsToInitiateConversationWithOtherUser(and);
-      whenUserTriesToCreateASimpleConversation(when);
+      whenUserTriesToCreateAPrivateConversation(when);
       then('the conversation with the other user is created successfully',
         () => {
-          expect(create_simple_chat_conversation_output).toBeDefined();
+          expect(create_private_chat_conversation_output).toBeDefined();
         }
       );
     }

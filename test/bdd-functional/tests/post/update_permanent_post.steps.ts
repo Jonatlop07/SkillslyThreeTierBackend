@@ -28,6 +28,7 @@ defineFeature(feature, (test) => {
   let owner_id: string;
   let post_to_update_id: string;
   let post_new_content: Array<PermanentPostContentElement>;
+  let post_new_privacy = 'public';
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_permanent_post_interactor: CreatePermanentPostInteractor;
@@ -52,13 +53,14 @@ defineFeature(feature, (test) => {
   }
 
   function andAPostIdentifiedByIdExists(and) {
-    and(/^there exists a post identified by "([^"]*)", and that belongs to user "([^"]*)", with content:$/,
-      async (post_id, post_owner_id, post_content_table) => {
+    and(/^there exists a post identified by "([^"]*)", with privacy "([^"]*)", and that belongs to user "([^"]*)", with content:$/,
+      async (post_id, post_privacy, post_owner_id, post_content_table) => {
         try {
           await create_permanent_post_interactor.execute({
             id: post_id,
             content: post_content_table,
-            user_id: owner_id
+            user_id: owner_id,
+            privacy: post_privacy
           });
         } catch (e) {
           console.log(e);
@@ -83,13 +85,22 @@ defineFeature(feature, (test) => {
     );
   }
 
+  function andTheUserProvidesNewPrivacyOfThePost(and) {
+    and(/^the user provides the new privacy of the post being "([^"]*)"$/,
+      (post_new_privacy_setting) => {
+        post_new_privacy = post_new_privacy_setting;
+      }
+    );
+  }
+
   function whenTheUserTriesToUpdateThePost(when) {
     when('the user tries to update the post', async () => {
       try {
         output = await update_permanent_post_interactor.execute({
           id: post_to_update_id,
           content: post_new_content,
-          user_id
+          privacy: post_new_privacy,
+          user_id,
         });
       } catch (e) {
         exception = e;
@@ -100,6 +111,13 @@ defineFeature(feature, (test) => {
   function thenThePostIsUpdatedWithTheContentProvided(then) {
     then('the post is updated with the new content provided', () => {
       expect(output).toBeDefined();
+    });
+  }
+
+  function thenThePostIsUpdatedWithTheNewPrivacy(then) {
+    then('the post is updated with the new privacy setting', () => {
+      expect(output).toBeDefined();
+      expect(output.privacy).toEqual('private');
     });
   }
 
@@ -168,4 +186,17 @@ defineFeature(feature, (test) => {
       });
     }
   );
+
+  test('A logged in user tries to update a permanent posts privacy from public to private',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andAPostIdentifiedByIdExists(and);
+      andAPostIdIsProvided(and);
+      andTheUserProvidesNewContentOfThePost(and);
+      andTheUserProvidesNewPrivacyOfThePost(and);
+      whenTheUserTriesToUpdateThePost(when);
+      thenThePostIsUpdatedWithTheNewPrivacy(then);
+    }
+  );
+
 });

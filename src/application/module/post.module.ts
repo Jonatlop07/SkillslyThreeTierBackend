@@ -13,6 +13,8 @@ import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionService } from '@core/service/reaction/add_reaction.service';
 import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
 import { ReactionNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/reaction/neo4j_reaction_repository.adapter';
+import { DeletePermanentPostService } from '@core/service/post/delete_permanent_post.service';
+import { GetPermanentPostCollectionOfFriendsService } from '@core/service/post/get_permanent_post_collection_of_friends.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -28,17 +30,17 @@ const use_case_providers: Array<Provider> = [
   {
     provide: PostDITokens.CreatePermanentPostInteractor,
     useFactory: (gateway) => new CreatePermanentPostService(gateway),
-    inject: [ PostDITokens.PermanentPostRepository]
+    inject: [PostDITokens.PermanentPostRepository]
   },
   {
     provide: PostDITokens.UpdatePermanentPostInteractor,
     useFactory: (gateway) => new UpdatePermanentPostService(gateway),
-    inject: [ PostDITokens.PermanentPostRepository]
+    inject: [PostDITokens.PermanentPostRepository]
   },
   {
     provide: PostDITokens.QueryPermanentPostCollectionInteractor,
-    useFactory: (post_gateway, user_gateway) => new QueryPermanentPostCollectionService(post_gateway, user_gateway),
-    inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
+    useFactory: (user_gateway, relationship_gateway, post_gateway) => new QueryPermanentPostCollectionService(user_gateway, relationship_gateway, post_gateway),
+    inject: [UserDITokens.UserRepository, UserDITokens.UserRepository, PostDITokens.PermanentPostRepository]
   },
   {
     provide: PostDITokens.QueryPermanentPostInteractor,
@@ -46,9 +48,14 @@ const use_case_providers: Array<Provider> = [
     inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
   },
   {
-    provide: PostDITokens.SharePermanentPostInteractor,
-    useFactory: (post_gateway, user_gateway) => new SharePermanentPostService(post_gateway, user_gateway),
+    provide: PostDITokens.GetPermanentPostCollectionOfFriendsInteractor,
+    useFactory: (post_gateway, user_gateway) => new GetPermanentPostCollectionOfFriendsService(post_gateway, user_gateway),
     inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository]
+  },
+  {
+    provide: PostDITokens.DeletePermanentPostInteractor,
+    useFactory: (post_gateway) => new DeletePermanentPostService(post_gateway),
+    inject: [PostDITokens.PermanentPostRepository]
   },
   {
     provide: PostDITokens.SharePermanentPostInteractor,
@@ -80,4 +87,4 @@ const use_case_providers: Array<Provider> = [
     PostDITokens.PermanentPostRepository,
   ]
 })
-export class PostModule {}
+export class PostModule { }
