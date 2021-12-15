@@ -6,4 +6,5 @@ export default interface QueryGroupOutputModel{
   picture: string;
   isOwner: boolean;
   isMember: boolean;
+  existsRequest?: boolean;
 }

@@ -192,18 +192,18 @@ export class GroupController {
     }
   }
 
-  @Get()
+  @Post()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async queryGroupCollection(@Body() body, @Query() pagination: PaginationDTO){
+  public async queryGroupCollection(@Body() body){
     try {
       return await this.query_group_collection_interactor.execute(
         await QueryGroupCollectionAdapter.new({
           user_id: body.user_id,
           name: body.name,
           category: body.category,
-          limit: pagination.limit,
-          offset: pagination.offset
+          limit: body.limit,
+          offset: body.offset
         })
       );
     } catch (e){

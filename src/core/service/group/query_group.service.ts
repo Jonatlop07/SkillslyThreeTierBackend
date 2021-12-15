@@ -22,6 +22,7 @@ export class QueryGroupService implements QueryGroupInteractor{
     }
     const user_is_owner = await this.gateway.userIsOwner({ user_id: user_id, group_id: group_id });
     const user_is_member = await this.gateway.userIsMember({ user_id: user_id, group_id: group_id });
+    const exists_request = await this.gateway.existsJoinRequest({ user_id: user_id, group_id: group_id });
     const { id, name, description, category, picture } = group;
     if (user_is_owner){
       return { id, name, description, category, picture, isOwner: true, isMember: true };
@@ -30,6 +31,6 @@ export class QueryGroupService implements QueryGroupInteractor{
       return { id, name, description, category, picture, isOwner: false, isMember: true };
     }
 
-    return { id, name, description, category, picture, isOwner: false, isMember: false };
+    return { id, name, description, category, picture, isOwner: false, isMember: false, existsRequest: exists_request };
   }
 }
