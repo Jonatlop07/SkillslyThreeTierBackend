@@ -9,23 +9,24 @@ import { PermanentPostMapper } from '@core/domain/post/use-case/mapper/permanent
 import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-model/create_permanent_post.output_model';
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 
-export class CreatePermanentPostService implements CreatePermanentPostInteractor{
+export class CreatePermanentPostService
+  implements CreatePermanentPostInteractor
+{
   constructor(
     @Inject(PostDITokens.PermanentPostRepository)
     private readonly gateway: CreatePermanentPostGateway,
-  ){}
+  ) {}
 
   async execute(
     input: CreatePermanentPostInputModel,
   ): Promise<CreatePermanentPostOutputModel> {
     const post_to_create: PermanentPost = PermanentPostMapper.toPermanentPost(
-      input as PermanentPostDTO
+      input as PermanentPostDTO,
     );
-    if (!post_to_create.hasNonEmptyContent()){
+    if (!post_to_create.hasNonEmptyContent()) {
       throw new EmptyPermanentPostContentException();
     }
     const created_post: PermanentPostDTO = await this.gateway.create(input);
     return created_post as CreatePermanentPostOutputModel;
-
   }
 }
