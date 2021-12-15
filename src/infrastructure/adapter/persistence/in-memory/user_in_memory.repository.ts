@@ -8,13 +8,15 @@ import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/sear
 
 export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
-  private currently_available_user_follow_request: string; 
+  private currently_available_user_follow_request: string;
   private currently_available_user_follow_relationship: string;
 
   constructor(public readonly users: Map<string, UserDTO>) {
     this.currently_available_user_id = '1';
   }
+
   delete(params: string): Promise<UserDTO> {
+    params;
     throw new Error('Method not implemented.');
   }
 
@@ -34,14 +36,14 @@ export class UserInMemoryRepository implements UserRepository {
 
   public existsUserFollowRequest(params: FollowRequestDTO): Promise<boolean> {
     if (this.currently_available_user_follow_request == params.user_id.concat(params.user_destiny_id)){
-      return Promise.resolve(true); 
+      return Promise.resolve(true);
     }
-    return Promise.resolve(false); 
+    return Promise.resolve(false);
   }
 
-  public async createUserFollowRequest(params: FollowRequestDTO): Promise<Object> {
+  public async createUserFollowRequest(params: FollowRequestDTO): Promise<void> {
     this.currently_available_user_follow_request = params.user_id.concat(params.user_destiny_id);
-    return Promise.resolve({});
+    return Promise.resolve();
   }
 
   public exists(user: UserDTO): Promise<boolean> {
@@ -54,15 +56,15 @@ export class UserInMemoryRepository implements UserRepository {
   public existsById(id: string): Promise<boolean> {
     for (const _user of this.users.values())
       if (_user.user_id === id)
-        return Promise.resolve(true); 
+        return Promise.resolve(true);
     return Promise.resolve(false);
   }
 
   public existsUserFollowRelationship(params: FollowRequestDTO): Promise<boolean> {
     if (this.currently_available_user_follow_relationship == params.user_id.concat(params.user_destiny_id)){
-      return Promise.resolve(true); 
+      return Promise.resolve(true);
     }
-    return Promise.resolve(false); 
+    return Promise.resolve(false);
   }
 
   public findOne(params: UserQueryModel): Promise<UserDTO> {
@@ -95,14 +97,15 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve(user_to_update);
   }
 
-  public acceptUserFollowRequest(params: FollowRequestDTO): Promise<Object>{
+  public acceptUserFollowRequest(params: FollowRequestDTO): Promise<void>{
     this.currently_available_user_follow_relationship = params.user_id.concat(params.user_destiny_id);
-    return Promise.resolve({}); 
+    return Promise.resolve();
   }
 
-  public rejectUserFollowRequest(params: FollowRequestDTO): Promise<Object>{
+  public rejectUserFollowRequest(params: FollowRequestDTO): Promise<void>{
+    params;
     this.currently_available_user_follow_request = '';
-    return Promise.resolve({}); 
+    return Promise.resolve();
   }
 
   public queryById(id: string): Promise<Optional<UserDTO>> {
@@ -118,18 +121,20 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve(user_to_delete);
   }
 
-  public deleteUserFollowRequest(params: FollowRequestDTO): Promise<Object>{
+  public deleteUserFollowRequest(params: FollowRequestDTO): Promise<void> {
+    params;
     this.currently_available_user_follow_request = '';
-    return Promise.resolve({}); 
+    return Promise.resolve();
   }
 
-  public deleteUserFollowRelationship(params: FollowRequestDTO): Promise<Object>{
+  public deleteUserFollowRelationship(params: FollowRequestDTO): Promise<void> {
+    params;
     this.currently_available_user_follow_relationship = '';
-    return Promise.resolve({}); 
+    return Promise.resolve();
   }
 
   public async getUserFollowRequestCollection(id: string): Promise<Array<Array<SearchedUserDTO>>> {
     id;
-    return Promise.resolve([[], [], []]); 
+    return Promise.resolve([[], [], []]);
   }
 }

@@ -4,6 +4,7 @@ import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/per
 import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
 import * as moment from 'moment';
 import SharePermanentPostOutputModel from '@core/domain/post/use-case/output-model/share_permanent_post.output_model';
+import { PaginationDTO } from '@application/api/http-rest/http-dtos/http_pagination.dto';
 
 export class PermanentPostInMemoryRepository implements PermanentPostRepository {
   private currently_available_post_id: string;
@@ -58,6 +59,16 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     const user_posts: PermanentPostDTO[] = [];
     for (const post of this.posts.values()){
       if (params.user_id === post['user_id'] && post.privacy === 'public'){
+        user_posts.push(post);
+      }
+    }
+    return Promise.resolve(user_posts);
+  }
+
+  public getPostsOfFriends(id: string, pagination: PaginationDTO): Promise<PermanentPostDTO[]> {
+    const user_posts: PermanentPostDTO[] = [];
+    for (const post of this.posts.values()){
+      if (id === post['user_id'] && post.privacy === 'public'){
         user_posts.push(post);
       }
     }

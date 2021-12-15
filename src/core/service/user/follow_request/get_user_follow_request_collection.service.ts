@@ -4,7 +4,6 @@ import GetUserFollowRequestCollectionGateway from '@core/domain/user/use-case/ga
 import GetUserFollowRequestCollectionInputModel from '@core/domain/user/use-case/input-model/follow_request/get_user_follow_request_collection.input_model';
 import { GetUserFollowRequestCollectionInteractor } from '@core/domain/user/use-case/interactor/follow_request/get_user_follow_request_collection.interactor';
 import GetUserFollowRequestCollectionOutputModel from '@core/domain/user/use-case/output-model/follow_request/get_user_follow_request_collection.output_model';
-import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
@@ -27,7 +26,8 @@ export class GetUserFollowRequestCollectionService implements GetUserFollowReque
     return {
       pendingUsers: result[0],
       followingUsers: result[1],
-      pendingSentUsers: result[2]
-    }; 
+      followers: result[2],
+      pendingSentUsers: result[3]
+    };
   }
 }
