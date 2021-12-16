@@ -7,7 +7,6 @@ import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/per
 import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
 import * as moment from 'moment';
 import { PaginationDTO } from '@application/api/http-rest/http-dtos/http_pagination.dto';
-import { Console } from 'console';
 
 @Injectable()
 export class PermanentPostNeo4jRepositoryAdapter
@@ -17,7 +16,9 @@ implements PermanentPostRepository {
   );
 
   constructor(private readonly neo4j_service: Neo4jService) { }
+
   delete(params: string): Promise<PermanentPostDTO> {
+    params;
     throw new Error('Method not implemented.');
   }
 
@@ -181,7 +182,7 @@ implements PermanentPostRepository {
     `;
     const result = await this.neo4j_service
       .read(find_public_posts_collection_query, { user_id })
-      .then((result: QueryResult) => 
+      .then((result: QueryResult) =>
         result.records.map((record: any) => {
           return {
             privacy: record._fields[0].properties.privacy,
@@ -195,7 +196,7 @@ implements PermanentPostRepository {
 
     return result.map((post) => ({
       ...post,
-      content: post.content.map((content_element) => 
+      content: post.content.map((content_element) =>
         JSON.parse(content_element)
       ),
     }));
@@ -203,7 +204,7 @@ implements PermanentPostRepository {
 
   public async getPostsOfFriends(id: string, pagination: PaginationDTO): Promise<PermanentPostDTO[]> {
     const limit = pagination.limit || 25;
-    const offset = pagination.offset || 0; 
+    const offset = pagination.offset || 0;
     const result_key = 'result';
     const friend_key = 'friend';
     const get_friends_collection_query = `
@@ -211,7 +212,7 @@ implements PermanentPostRepository {
       -[:${Relationships.USER_FOLLOW_RELATIONSHIP}]
       ->(${friend_key}: User)
       RETURN ${friend_key}
-    `; 
+    `;
     const friends_ids = await this.neo4j_service
     .read(get_friends_collection_query, { id })
     .then((result: QueryResult) => result.records.map((record:any) => record._fields[0].properties.user_id));
@@ -233,22 +234,22 @@ implements PermanentPostRepository {
       LIMIT ${limit}
     `;
     const result = await this.neo4j_service
-    .read(get_posts_of_friends_collection_query, { friends_ids })
-    .then((result: QueryResult) => 
-      result.records.map((record: any) => {
-        const { privacy, created_at, post_id, content, user_id } = record._fields[0];
-        return {
-          privacy,
-          created_at,
-          post_id,
-          content, 
-          user_id
-        };
-      })
-    );
+      .read(get_posts_of_friends_collection_query, { friends_ids })
+      .then((result: QueryResult) =>
+        result.records.map((record: any) => {
+          const { privacy, created_at, post_id, content, user_id } = record._fields[0];
+          return {
+            privacy,
+            created_at,
+            post_id,
+            content,
+            user_id
+          };
+        })
+      );
     result.map((post) => ({
       ...post,
-      content: post.content.map((content_element) => 
+      content: post.content.map((content_element) =>
         JSON.parse(content_element)
       ),
     }));

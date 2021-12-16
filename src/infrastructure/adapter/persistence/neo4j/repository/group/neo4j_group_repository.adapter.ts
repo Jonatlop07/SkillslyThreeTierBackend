@@ -20,7 +20,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
   private readonly user_key = 'user';
 
   constructor(private readonly neo4j_service: Neo4jService) {}
-  
+
   async findOne(params: GroupQueryModel): Promise<GroupDTO> {
     const { group_id } = params;
     const find_group_query = `
@@ -53,7 +53,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     `;
     const result = await this.neo4j_service
       .read(find_user_groups_query, { user_id })
-      .then((result: QueryResult) => 
+      .then((result: QueryResult) =>
         result.records.map((record:any) => record._fields[0].properties));
 
     return result.map((group) => ({
@@ -76,7 +76,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     `;
     const result = await this.neo4j_service
       .read(query_group_users, { group_id })
-      .then((result: QueryResult) => 
+      .then((result: QueryResult) =>
         result.records.map((record:any) => record._fields[0].properties));
 
     return result.map((user) => ({
@@ -98,7 +98,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     `;
     const result = await this.neo4j_service
       .read(get_join_requests_query, { group_id })
-      .then((result: QueryResult) => 
+      .then((result: QueryResult) =>
         result.records.map((record:any) => record._fields[0].properties));
 
     return result.map((user) => ({
@@ -120,7 +120,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
 
     const result = await this.neo4j_service
       .read(find_with_name_query, { name })
-      .then((result: QueryResult) => 
+      .then((result: QueryResult) =>
         result.records.map((record:any) => record._fields[0].properties));
 
     return result.map((group) => ({
@@ -143,7 +143,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
 
     const result = await this.neo4j_service
       .read(find_by_category_query, { category })
-      .then((result: QueryResult) => 
+      .then((result: QueryResult) =>
         result.records.map((record:any) => record._fields[0].properties));
 
     return result.map((group) => ({
@@ -157,7 +157,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
 
   async leaveGroup(param: GroupQueryModel): Promise<BasicGroupDTO> {
     const { group_id, user_id } = param;
-    const leave_group_query = 
+    const leave_group_query =
     `
     MATCH (${this.user_key}:User { user_id:$user_id })
     -[r:${Relationships.USER_JOINED_GROUP_RELATIONSHIP}|${Relationships.USER_ADMINS_GROUP_RELATIONSHIP}]
@@ -168,7 +168,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     `;
 
     const result = await this.neo4j_service.write(leave_group_query, { user_id, group_id });
-    return { 
+    return {
       user_id: this.neo4j_service.getSingleResultProperty(result, 'user'),
       group_id: this.neo4j_service.getSingleResultProperty(result, 'group')
     };
@@ -181,7 +181,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
       `;
     const result = await this.neo4j_service.read(check_if_more_than_one_owner_query, { group_id });
     const num_of_owners = this.neo4j_service.getSingleResultProperty(result, 'num_owners');
-    return num_of_owners > 1;    
+    return num_of_owners > 1;
   }
 
   async acceptUserJoinGroupRequest(params: GroupQueryModel): Promise<JoinRequestDTO> {
@@ -266,7 +266,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     return result.records.length > 0;
   }
 
-  async existsGroupUserRelationship(param: GroupQueryModel): Promise<boolean> { 
+  async existsGroupUserRelationship(param: GroupQueryModel): Promise<boolean> {
     const { user_id, group_id } = param;
     const exists_group_user_query = `
       MATCH (${this.user_key}:User { user_id:$user_id })
@@ -278,7 +278,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     const result = await this.neo4j_service.read(exists_group_user_query, { user_id, group_id });
     return result.records.length > 0;
   }
-  
+
   async createJoinRequest(params: JoinRequestDTO): Promise<JoinRequestDTO> {
     const { user_id, group_id } = params;
     const create_join_request_query = `
@@ -406,10 +406,17 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
   }
 
   delete(params: GroupQueryModel): Promise<GroupDTO> {
+    params;
     throw new Error('Method not implemented.');
   }
 
   findAll(params: GroupQueryModel): Promise<GroupDTO[]> {
+    params;
+    throw new Error('Method not implemented.');
+  }
+
+  findAllWithRelation(params: GroupQueryModel): Promise<any> {
+    params;
     throw new Error('Method not implemented.');
   }
 }
