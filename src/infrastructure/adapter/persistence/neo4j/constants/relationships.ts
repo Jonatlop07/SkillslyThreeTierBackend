@@ -18,5 +18,5 @@ export class Relationships {
   public static readonly USER_ADMINS_GROUP_RELATIONSHIP = 'ADMINISTRATES';
   public static readonly USER_JOIN_GROUP_REQUEST_RELATIONSHIP = 'JOIN_PENDING';
   public static readonly USER_JOINED_GROUP_RELATIONSHIP = 'JOINED';
-
+  public static readonly USER_TEMP_POST_RELATIONSHIP = 'HAS';
 }

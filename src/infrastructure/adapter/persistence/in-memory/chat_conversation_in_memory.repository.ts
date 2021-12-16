@@ -20,7 +20,7 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
       name: conversation.name,
       members: conversation.members,
       messages: conversation.messages,
-      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
+      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
     };
     this.conversations.set(this.currently_available_conversation_id, new_conversation);
     this.currently_available_conversation_id = `${Number(this.currently_available_conversation_id) + 1}`;
@@ -32,7 +32,7 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
       !!this.conversations
         .get(conversation_id)
         .members
-        .find((member) => member === user_id)
+        .find((member) => member === user_id),
     );
   }
 
@@ -57,16 +57,16 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
 
   public async findAll(params: ConversationQueryModel): Promise<Array<ConversationDetailsDTO>> {
     const user_conversations: Array<ConversationDetailsDTO> = [];
-    for (const conversation of this.conversations.values()){
+    for (const conversation of this.conversations.values()) {
       if (params.conversation_id === conversation.conversation_id) {
         user_conversations.push({
           conversation_id: conversation.conversation_id,
           conversation_name: conversation.name,
           conversation_members: conversation.members.map((member_id: string) => ({
             member_id,
-            member_name: ''
+            member_name: '',
           })),
-          is_private: false
+          is_private: false,
         });
       }
     }
@@ -76,6 +76,10 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
   public async findOne(params: ConversationQueryModel): Promise<Optional<ConversationDetailsDTO>> {
     params;
     return Promise.resolve(undefined);
+  }
+
+  public findAllWithRelation() {
+    return null;
   }
 
   public async addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>> {

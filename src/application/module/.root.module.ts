@@ -6,7 +6,8 @@ import { PostModule } from './post.module';
 import { InfrastructureModule } from './infrastructure.module';
 import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
-import { CommentModule } from './comment.module';
+import { CommentModule } from '@application/module/comment.module';
+import { TempPostModule } from '@application/module/temp-post.module';
 import { ChatModule } from './chat.module';
 import { EventModule } from './event.module';
 import { GroupModule } from './group.module';
@@ -27,7 +28,10 @@ import { ProjectModule } from './project.module';
     ChatModule, 
     EventModule,
     GroupModule,
-    ProjectModule
+    ProjectModule,
+    TempPostModule,
+    ChatModule
   ],
 })
-export class RootModule {}
+export class RootModule {
+}

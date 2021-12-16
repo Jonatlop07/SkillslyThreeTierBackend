@@ -72,6 +72,10 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
       reaction_type: this.neo4jService.getSingleResultProperty(reaction_result, 'reaction_type')
     };
   }
+  public findAllWithRelation() {
+    return null;
+  }
+
 
   async queryById(id: string): Promise<QueryReactionElement[]> {
     const query_reactions_statement = `

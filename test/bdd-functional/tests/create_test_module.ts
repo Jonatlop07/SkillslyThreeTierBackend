@@ -31,19 +31,23 @@ import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { ProjectDITokens } from '@core/domain/project/di/project_di_tokens';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
+import { GroupDITokens } from '@core/domain/group/di/group_di_tokens';
 import { AddReactionService } from '@core/service/reaction/add_reaction.service';
 import { ReactionInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/reaction_in_memory.repository';
 import { QueryReactionsService } from '@core/service/reaction/query_reactions.service';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { CreateUserFollowRequestService } from '@core/service/user/follow_request/create_user_follow_request.service';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
+import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
+import { TemporalPostInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/temporal_post_in_memory.repository';
+import { CreateTemporalPostService } from '@core/service/temp-post/create_temporal_post.service';
+import { QueryTemporalPostService } from '@core/service/temp-post/query_temporal_post.service';
+import { QueryTemporalPostCollectionService } from '@core/service/temp-post/query_temporal_post_collection.service';
+import { DeleteTemporalPostService } from '@core/service/temp-post/delete_temporal_post.service';
 import { DeletePermanentPostService } from '@core/service/post/delete_permanent_post.service';
 import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
 import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
 import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
-import { GroupDITokens } from '@core/domain/group/di/group_di_tokens';
-import { CreateGroupService } from '@core/service/group/create_group.service';
-import { GroupInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/group_in_memory.repository';
 import { UpdateGroupService } from '@core/service/group/update_group.service';
 import { DeleteGroupService } from '@core/service/group/delete_group.service';
 import { CreateJoinGroupRequestService } from '@core/service/group/join-request/create_join_group_request.service';
@@ -55,7 +59,6 @@ import { QueryGroupCollectionService } from '@core/service/group/query_group_col
 import { GetJoinRequestsService } from '@core/service/group/join-request/get_join_requests.service';
 import { QueryGroupUsersService } from '@core/service/group/query_group_users.service';
 import { CreateProjectService } from '@core/service/project/create_project.service';
-import { ProjectInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/project_in_memory.repository';
 import { AddMembersToGroupConversationService } from '@core/service/chat/add_members_to_group_conversation.service';
 import { UpdateGroupConversationDetailsService } from '@core/service/chat/update_group_conversation_details.service';
 import { DeleteChatGroupConversationService } from '@core/service/chat/delete_chat_group_conversation.service';
@@ -66,6 +69,7 @@ import { CreateEventService } from '@core/service/event/create_event.service';
 import { EventInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/event_in_memory.repository';
 import { GetEventCollectionOfFriendsService } from '@core/service/event/get_event_collection_of_friends.service';
 import { GetMyEventCollectionService } from '@core/service/event/get_my_event_collection.service';
+import { CreateGroupService } from '@core/service/group/create_group.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -117,8 +121,7 @@ export async function createTestModule() {
       },
       {
         provide: UserDITokens.GetUserFollowRequestCollectionInteractor,
-        useFactory: (gateway) =>
-          new GetUserFollowRequestCollectionService(gateway),
+        useFactory: (gateway) => new GetUserFollowRequestCollectionService(gateway),
         inject: [UserDITokens.UserRepository],
       },
       {
@@ -133,12 +136,8 @@ export async function createTestModule() {
       },
       {
         provide: ProfileDITokens.EditProfileInteractor,
-        useFactory: (gateway, getProfileInteractor) =>
-          new EditProfileService(gateway, getProfileInteractor),
-        inject: [
-          ProfileDITokens.ProfileRepository,
-          ProfileDITokens.GetProfileInteractor,
-        ],
+        useFactory: (gateway, getProfileInteractor) => new EditProfileService(gateway, getProfileInteractor),
+        inject: [ProfileDITokens.ProfileRepository, ProfileDITokens.GetProfileInteractor],
       },
       {
         provide: PostDITokens.CreatePermanentPostInteractor,
@@ -146,31 +145,19 @@ export async function createTestModule() {
         inject: [PostDITokens.PermanentPostRepository],
       },
       {
+        provide: TempPostDITokens.CreateTempPostInteractor,
+        useFactory: (gateway) => new CreateTemporalPostService(gateway),
+        inject: [TempPostDITokens.TempPostRepository],
+      },
+      {
         provide: PostDITokens.QueryPermanentPostInteractor,
-        useFactory: (post_gateway, user_gateway) =>
-          new QueryPermanentPostService(post_gateway, user_gateway),
-        inject: [
-          PostDITokens.PermanentPostRepository,
-          UserDITokens.UserRepository,
-        ],
+        useFactory: (post_gateway, user_gateway) => new QueryPermanentPostService(post_gateway, user_gateway),
+        inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
       },
       {
-        provide: PostDITokens.GetPermanentPostCollectionOfFriendsInteractor,
-        useFactory: (post_gateway, user_gateway) =>
-          new GetPermanentPostCollectionOfFriendsService(
-            post_gateway,
-            user_gateway,
-          ),
-        inject: [
-          PostDITokens.PermanentPostRepository,
-          UserDITokens.UserRepository,
-        ],
-      },
-      {
-        provide: PostDITokens.DeletePermanentPostInteractor,
-        useFactory: (post_gateway) =>
-          new DeletePermanentPostService(post_gateway),
-        inject: [PostDITokens.PermanentPostRepository],
+        provide: TempPostDITokens.QueryTemporalPostInteractor,
+        useFactory: (temp_post_gateway, user_gateway) => new QueryTemporalPostService(temp_post_gateway, user_gateway),
+        inject: [TempPostDITokens.TempPostRepository, UserDITokens.UserRepository],
       },
       {
         provide: PostDITokens.QueryPermanentPostCollectionInteractor,
@@ -187,14 +174,38 @@ export async function createTestModule() {
         ],
       },
       {
+        provide: TempPostDITokens.QueryTemporalPostCollectionInteractor,
+        useFactory: (temp_post_gateway, user_gateway) => new QueryTemporalPostCollectionService(temp_post_gateway, user_gateway),
+        inject: [TempPostDITokens.TempPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: TempPostDITokens.DeleteTemporalPostInteractor,
+        useFactory: (query_gateway, delete_gateway) => new DeleteTemporalPostService(query_gateway, delete_gateway),
+        inject: [TempPostDITokens.TempPostRepository, TempPostDITokens.TempPostRepository],
+      },
+      {
+        provide: PostDITokens.GetPermanentPostCollectionOfFriendsInteractor,
+        useFactory: (post_gateway, user_gateway) => new GetPermanentPostCollectionOfFriendsService(post_gateway, user_gateway),
+        inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: PostDITokens.DeletePermanentPostInteractor,
+        useFactory: (post_gateway) => new DeletePermanentPostService(post_gateway),
+        inject: [PostDITokens.PermanentPostRepository],
+      },
+      {
+        provide: PostDITokens.QueryPermanentPostCollectionInteractor,
+        useFactory: (user_gateway, relationship_gateway, post_gateway) => new QueryPermanentPostCollectionService(user_gateway, relationship_gateway, post_gateway),
+        inject: [UserDITokens.UserRepository, UserDITokens.UserRepository, PostDITokens.PermanentPostRepository],
+      },
+      {
         provide: PostDITokens.UpdatePermanentPostInteractor,
         useFactory: (gateway) => new UpdatePermanentPostService(gateway),
         inject: [PostDITokens.PermanentPostRepository],
       },
       {
         provide: CommentDITokens.CreateCommentInPermanentPostInteractor,
-        useFactory: (gateway) =>
-          new CreateCommentInPermanentPostService(gateway),
+        useFactory: (gateway) => new CreateCommentInPermanentPostService(gateway),
         inject: [CommentDITokens.CommentRepository],
       },
       {
@@ -204,65 +215,47 @@ export async function createTestModule() {
       },
       {
         provide: ReactionDITokens.AddReactionInteractor,
-        useFactory: (gateway, post_gateway) =>
-          new AddReactionService(gateway, post_gateway),
-        inject: [
-          ReactionDITokens.ReactionRepository,
-          PostDITokens.PermanentPostRepository,
-        ],
+        useFactory: (gateway, post_gateway) => new AddReactionService(gateway, post_gateway),
+        inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository],
       },
       {
         provide: ReactionDITokens.QueryReactionsInteractor,
-        useFactory: (gateway, post_gateway) =>
-          new QueryReactionsService(gateway, post_gateway),
-        inject: [
-          ReactionDITokens.ReactionRepository,
-          PostDITokens.PermanentPostRepository,
-        ],
+        useFactory: (gateway, post_gateway) => new QueryReactionsService(gateway, post_gateway),
+        inject: [ReactionDITokens.ReactionRepository, PostDITokens.PermanentPostRepository],
       },
       {
         provide: PostDITokens.SharePermanentPostInteractor,
-        useFactory: (post_gateway, user_gateway) =>
-          new SharePermanentPostService(post_gateway, user_gateway),
-        inject: [
-          PostDITokens.PermanentPostRepository,
-          UserDITokens.UserRepository,
-        ],
+        useFactory: (post_gateway, user_gateway) => new SharePermanentPostService(post_gateway, user_gateway),
+        inject: [PostDITokens.PermanentPostRepository, UserDITokens.UserRepository],
       },
       {
         provide: ChatDITokens.CreatePrivateChatConversationInteractor,
-        useFactory: (gateway) =>
-          new CreatePrivateChatConversationService(gateway),
+        useFactory: (gateway) => new CreatePrivateChatConversationService(gateway),
         inject: [ChatDITokens.ChatConversationRepository],
       },
       {
         provide: ChatDITokens.CreateGroupChatConversationInteractor,
-        useFactory: (gateway) =>
-          new CreateGroupChatConversationService(gateway),
+        useFactory: (gateway) => new CreateGroupChatConversationService(gateway),
         inject: [ChatDITokens.ChatConversationRepository],
       },
       {
         provide: ChatDITokens.GetChatConversationCollectionInteractor,
-        useFactory: (gateway) =>
-          new GetChatConversationCollectionService(gateway),
+        useFactory: (gateway) => new GetChatConversationCollectionService(gateway),
         inject: [ChatDITokens.ChatConversationRepository],
       },
       {
         provide: ChatDITokens.AddMembersToGroupConversationInteractor,
-        useFactory: (gateway) =>
-          new AddMembersToGroupConversationService(gateway),
+        useFactory: (gateway) => new AddMembersToGroupConversationService(gateway),
         inject: [ChatDITokens.ChatConversationRepository],
       },
       {
         provide: ChatDITokens.UpdateGroupConversationDetailsInteractor,
-        useFactory: (gateway) =>
-          new UpdateGroupConversationDetailsService(gateway),
+        useFactory: (gateway) => new UpdateGroupConversationDetailsService(gateway),
         inject: [ChatDITokens.ChatConversationRepository],
       },
       {
         provide: ChatDITokens.DeleteChatGroupConversationInteractor,
-        useFactory: (gateway) =>
-          new DeleteChatGroupConversationService(gateway),
+        useFactory: (gateway) => new DeleteChatGroupConversationService(gateway),
         inject: [ChatDITokens.ChatConversationRepository],
       },
       {
@@ -272,12 +265,8 @@ export async function createTestModule() {
       },
       {
         provide: ChatDITokens.CreateChatMessageInteractor,
-        useFactory: (gateway, conversation_gateway) =>
-          new CreateChatMessageService(gateway, conversation_gateway),
-        inject: [
-          ChatDITokens.ChatMessageRepository,
-          ChatDITokens.ChatConversationRepository,
-        ],
+        useFactory: (gateway, conversation_gateway) => new CreateChatMessageService(gateway, conversation_gateway),
+        inject: [ChatDITokens.ChatMessageRepository, ChatDITokens.ChatConversationRepository],
       },
       {
         provide: ChatDITokens.GetChatMessageCollectionInteractor,
@@ -296,57 +285,57 @@ export async function createTestModule() {
       {
         provide: GroupDITokens.CreateGroupInteractor,
         useFactory: (gateway) => new CreateGroupService(gateway),
-        inject: [GroupDITokens.GroupRepository]
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: GroupDITokens.UpdateGroupInteractor,
         useFactory: (gateway) => new UpdateGroupService(gateway),
-        inject: [GroupDITokens.GroupRepository]
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: GroupDITokens.DeleteGroupInteractor,
         useFactory: (gateway) => new DeleteGroupService(gateway),
-        inject: [GroupDITokens.GroupRepository]
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: GroupDITokens.CreateJoinGroupRequestInteractor,
         useFactory: (gateway) => new CreateJoinGroupRequestService(gateway),
-        inject: [GroupDITokens.GroupRepository] 
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: GroupDITokens.DeleteJoinGroupRequestInteractor,
         useFactory: (gateway) => new DeleteJoinGroupRequestService(gateway),
-        inject: [GroupDITokens.GroupRepository] 
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: GroupDITokens.UpdateGroupUserInteractor,
         useFactory: (gateway) => new UpdateGroupUserService(gateway),
-        inject: [GroupDITokens.GroupRepository] 
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: GroupDITokens.LeaveGroupInteractor,
         useFactory: (gateway) => new LeaveGroupService(gateway),
-        inject: [GroupDITokens.GroupRepository]
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: GroupDITokens.QueryGroupInteractor,
         useFactory: (gateway) => new QueryGroupService(gateway),
-        inject: [GroupDITokens.GroupRepository]
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: GroupDITokens.QueryGroupCollectionInteractor,
         useFactory: (gateway) => new QueryGroupCollectionService(gateway),
-        inject: [GroupDITokens.GroupRepository]
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: GroupDITokens.GetJoinRequestsInteractor,
         useFactory: (gateway) => new GetJoinRequestsService(gateway),
-        inject: [GroupDITokens.GroupRepository]
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: GroupDITokens.QueryGroupUsersInteractor,
         useFactory: (gateway) => new QueryGroupUsersService(gateway),
-        inject: [GroupDITokens.GroupRepository]
+        inject: [GroupDITokens.GroupRepository],
       },
       {
         provide: EventDITokens.CreateEventInteractor,
@@ -376,8 +365,8 @@ export async function createTestModule() {
         useFactory: () => new PermanentPostInMemoryRepository(new Map()),
       },
       {
-        provide: ProjectDITokens.ProjectRepository,
-        useFactory: () => new ProjectInMemoryRepository(new Map()),
+        provide: TempPostDITokens.TempPostRepository,
+        useFactory: () => new TemporalPostInMemoryRepository(new Map()),
       },
       {
         provide: ReactionDITokens.ReactionRepository,
@@ -393,22 +382,16 @@ export async function createTestModule() {
       },
       {
         provide: ChatDITokens.ChatMessageRepository,
-<<<<<<< HEAD
-        useFactory: () => new ChatMessageInMemoryRepository(new Map())
+        useFactory: () => new ChatMessageInMemoryRepository(new Map()),
       },
       {
-<<<<<<< HEAD
         provide: EventDITokens.EventRepository,
-        useFactory: () => new EventInMemoryRepository(new Map())
-      }
-=======
-        provide: GroupDITokens.GroupRepository,
-        useFactory: () => new GroupInMemoryRepository(new Map())
-=======
-        useFactory: () => new ChatMessageInMemoryRepository(new Map()),
->>>>>>> a950cb2a01694f7777eeaa189aacac89be70c129
+        useFactory: () => new EventInMemoryRepository(new Map()),
       },
->>>>>>> ad657e0be7958211ea8764a64d8077f19543e7be
+      {
+        provide: GroupDITokens.GroupRepository,
+        useFactory: () => new ChatMessageInMemoryRepository(new Map()),
+      },
     ],
   }).compile();
 }
