@@ -35,4 +35,7 @@ export class CoreExceptionCodes {
   public static readonly UNIQUE_GROUP_OWNER = 804;
   public static readonly NON_EXISTENT_GROUP = 805;
 
+  public static readonly EMPTY_PROJECT_CONTENT = 700;
+  public static readonly NON_EXISTENT_PROJECT = 701;
+  public static readonly NON_EXISTENT_PROJECT_OWNER = 702;
 }
