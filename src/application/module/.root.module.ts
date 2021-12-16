@@ -9,6 +9,8 @@ import { ProfileModule } from './profile.module';
 import { CommentModule } from './comment.module';
 import { ChatModule } from './chat.module';
 import { EventModule } from './event.module';
+import { GroupModule } from './group.module';
+import { ProjectModule } from './project.module';
 
 @Module({
   imports: [
@@ -23,8 +25,9 @@ import { EventModule } from './event.module';
     ProfileModule,
     CommentModule,
     ChatModule, 
-    EventModule
+    EventModule,
+    GroupModule,
+    ProjectModule
   ],
 })
-export class RootModule {
-}
+export class RootModule {}

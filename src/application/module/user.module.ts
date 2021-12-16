@@ -12,6 +12,7 @@ import { CreateUserFollowRequestService } from '@core/service/user/follow_reques
 import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
 import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
 import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
+import { ChatModule } from '@application/module/chat.module';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -55,7 +56,7 @@ const use_case_providers: Array<Provider> = [
     provide: UserDITokens.CreateUserFollowRequestInteractor,
     useFactory: (gateway) => new CreateUserFollowRequestService(gateway),
     inject: [UserDITokens.UserRepository]
-  }, 
+  },
   {
     provide: UserDITokens.UpdateUserFollowRequestInteractor,
     useFactory: (gateway) => new UpdateUserFollowRequestService(gateway),
@@ -74,6 +75,9 @@ const use_case_providers: Array<Provider> = [
 ];
 
 @Module({
+  imports: [
+    ChatModule
+  ],
   controllers: [
     UserController
   ],

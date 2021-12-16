@@ -51,6 +51,8 @@ import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/in
 import { DeleteUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/delete_user_follow_request.interactor';
 import { GetUserFollowRequestCollectionInteractor } from '@core/domain/user/use-case/interactor/follow_request/get_user_follow_request_collection.interactor';
 import { Role } from '@core/domain/user/entity/role.enum';
+import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
+import { CreatePrivateChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_private_chat_conversation.interactor';
 
 
 @Controller('users')
@@ -77,7 +79,9 @@ export class UserController {
     @Inject(UserDITokens.DeleteUserFollowRequestInteractor)
     private readonly delete_user_follow_request_interactor: DeleteUserFollowRequestInteractor,
     @Inject(UserDITokens.GetUserFollowRequestCollectionInteractor)
-    private readonly get_user_follow_request_collection_interactor: GetUserFollowRequestCollectionInteractor
+    private readonly get_user_follow_request_collection_interactor: GetUserFollowRequestCollectionInteractor,
+    @Inject(ChatDITokens.CreatePrivateChatConversationInteractor)
+    private readonly create_private_chat_conversation_interactor: CreatePrivateChatConversationInteractor
   ) {
   }
 
@@ -120,8 +124,8 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: 'Cannot update the data of an account that does not belong to the user' })
   public async updateAccount(
     @HttpUser() http_user: HttpUserPayload,
-    @Param('user_id') user_id: string,
-    @Body(new ValidationPipe()) update_user_account_details: UpdateUserAccountDTO
+      @Param('user_id') user_id: string,
+      @Body(new ValidationPipe()) update_user_account_details: UpdateUserAccountDTO
   ): Promise<UpdateUserAccountResponseDTO> {
     if (user_id !== http_user.id)
       throw new HttpException({
@@ -201,12 +205,12 @@ export class UserController {
   @Post('follow/:user_destiny_id')
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ description: 'Follow Request has been sucessfully created' })
+  @ApiCreatedResponse({ description: 'Follow Request has been successfully created' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
-  @ApiBadGatewayResponse({ description: 'Error while cretaing user follow request' })
+  @ApiBadGatewayResponse({ description: 'Error while creating user follow request' })
   @ApiBearerAuth()
   public async createUserFollowRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string
   ) {
     try {
@@ -224,23 +228,30 @@ export class UserController {
   @Put('follow/:user_destiny_id')
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ description: 'Follow Request has been sucessfully updated' })
+  @ApiCreatedResponse({ description: 'Follow Request has been successfully updated' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while updating user follow request' })
+  @ApiConflictResponse({ description: 'The conversation with the user to follow already exists' })
   @ApiBearerAuth()
   public async updateUserFollowRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string,
     @Body('accept') accept: boolean
   ) {
     try {
-      return await this.update_user_follow_request_interactor.execute(
+      await this.update_user_follow_request_interactor.execute(
         await UpdateUserFollowRequestAdapter.new({
           user_id: user_destiny_id,
           user_destiny_id: http_user.id,
           accept
         })
       );
+      if (accept) {
+        return await this.create_private_chat_conversation_interactor.execute({
+          user_id: http_user.id,
+          partner_id: user_destiny_id
+        });
+      }
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
@@ -249,12 +260,12 @@ export class UserController {
   @Delete('follow/:user_destiny_id')
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ description: 'Follow Request or Relationship has been sucessfully deleted' })
+  @ApiCreatedResponse({ description: 'Follow Request or Relationship has been successfully deleted' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while deleting user follow request' })
   @ApiBearerAuth()
   public async deleteUserFollowRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string,
     @Query('isRequest') isRequestString: string
   ) {

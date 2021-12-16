@@ -3,7 +3,7 @@ import { createTestModule } from '@test/bdd-functional/tests/create_test_module'
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
-import { CreateSimpleChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_simple_chat_conversation.interactor';
+import { CreatePrivateChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_private_chat_conversation.interactor';
 import GetChatConversationCollectionOutputModel
   from '@core/domain/chat/use-case/output-model/get_chat_conversation_collection.output_model';
 import { GetChatConversationCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_conversation_collection.interactor';
@@ -16,7 +16,7 @@ defineFeature(feature, (test) => {
   let user_id: string;
   let conversation_members: Array<string> = [];
   let create_user_account_interactor: CreateUserAccountInteractor;
-  let create_simple_chat_conversation_interactor: CreateSimpleChatConversationInteractor;
+  let create_private_chat_conversation_interactor: CreatePrivateChatConversationInteractor;
   let create_group_chat_conversation_interactor: CreateGroupChatConversationInteractor;
   let get_chat_conversation_collection_interactor: GetChatConversationCollectionInteractor;
   let output: GetChatConversationCollectionOutputModel;
@@ -32,7 +32,7 @@ defineFeature(feature, (test) => {
   beforeEach(async () => {
     const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
-    create_simple_chat_conversation_interactor = module.get<CreateSimpleChatConversationInteractor>(ChatDITokens.CreateSimpleChatConversationInteractor);
+    create_private_chat_conversation_interactor = module.get<CreatePrivateChatConversationInteractor>(ChatDITokens.CreatePrivateChatConversationInteractor);
     create_group_chat_conversation_interactor = module.get<CreateGroupChatConversationInteractor>(ChatDITokens.CreateGroupChatConversationInteractor);
     get_chat_conversation_collection_interactor = module.get<GetChatConversationCollectionInteractor>(ChatDITokens.GetChatConversationCollectionInteractor);
   });
@@ -51,12 +51,12 @@ defineFeature(feature, (test) => {
           user_id = _user_id;
         }
       );
-      and(/^simple conversations with these users exist:$/,
+      and(/^private conversations with these users exist:$/,
         (users: Array<{ user_id: string }>) => {
           if (users) {
             users.forEach(async (user) => {
               try {
-                await create_simple_chat_conversation_interactor.execute({
+                await create_private_chat_conversation_interactor.execute({
                   user_id,
                   partner_id: user.user_id
                 });

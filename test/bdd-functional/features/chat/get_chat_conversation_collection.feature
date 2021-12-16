@@ -7,7 +7,7 @@ Feature: Get chat conversations
       | newuser_1234@test.com | Abc123_tr | John | 01/01/2000    |
       | newuser_1234@test.com | Abc123_tr | Lucy | 01/01/2000    |
     And the user that tries to get their conversations is identified by "UserId"
-    And simple conversations with these users exist:
+    And private conversations with these users exist:
       | user_id |
       | 2       |
       | 3       |

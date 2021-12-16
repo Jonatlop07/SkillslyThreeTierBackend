@@ -6,7 +6,7 @@ Feature: Create a chat conversation
       | newuser_123@test.com  | Abc123_tr | Juan | 01/01/2000    |
       | newuser_1234@test.com | Abc123_tr | John | 01/01/2000    |
     And the user identified by "<UserId>" wants to initiate a conversation with user "<PartnerId>"
-    When the user tries to create a simple conversation
+    When the user tries to create a private conversation
     Then the conversation with the other user is created successfully
     Examples:
       | UserId | PartnerId |
