@@ -17,8 +17,11 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.NOT_FOUND_TEMP_POST,
         CoreExceptionCodes.NOT_FOUND_USER_TEMP_POSTS,
         CoreExceptionCodes.NOT_FOUND_FRIENDS_TEMP_POSTS,
+        CoreExceptionCodes.NON_EXISTENT_POST_OWNER,
+        CoreExceptionCodes.NON_EXISTENT_JOIN_GROUP_REQUEST,
+        CoreExceptionCodes.NON_EXISTENT_GROUP
       ]),
-      status_code: HttpStatus.NOT_FOUND,
+      status_code: HttpStatus.NOT_FOUND
     },
     bad_request: {
       mappings: new Set([
@@ -30,6 +33,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.REQUIRED_TEMP_POST_CONTENT,
         CoreExceptionCodes.INVALID_TEMP_POST_REFERENCE,
         CoreExceptionCodes.INVALID_TEMP_POST_REFERENCE_TYPE,
+        CoreExceptionCodes.INVALID_GROUP_INFO_FORMAT,
+        CoreExceptionCodes.INVALID_GROUP_CONVERSATION_DETAILS_FORMAT
       ]),
       status_code: HttpStatus.BAD_REQUEST,
     },
@@ -38,6 +43,7 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.ACCOUNT_ALREADY_EXISTS,
         CoreExceptionCodes.PRIVATE_CONVERSATION_ALREADY_EXISTS_CHAT,
         CoreExceptionCodes.USER_FOLLOW_REQUEST_ALREADY_EXISTS,
+        CoreExceptionCodes.JOIN_REQUEST_ALREADY_EXISTS
       ]),
       status_code: HttpStatus.CONFLICT,
     },
@@ -45,6 +51,8 @@ export class HttpExceptionMapper {
       mappings: new Set([
         CoreExceptionCodes.INVALID_CREDENTIALS,
         CoreExceptionCodes.USER_DOES_NOT_BELONG_TO_CONVERSATION_CHAT,
+        CoreExceptionCodes.UNAUTHORIZED_GROUP_EDITOR,
+        CoreExceptionCodes.UNIQUE_GROUP_OWNER
       ]),
       status_code: HttpStatus.UNAUTHORIZED,
     },

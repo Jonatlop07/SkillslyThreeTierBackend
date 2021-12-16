@@ -9,6 +9,8 @@ import { ProfileModule } from './profile.module';
 import { CommentModule } from '@application/module/comment.module';
 import { TempPostModule } from '@application/module/temp-post.module';
 import { ChatModule } from './chat.module';
+import { GroupModule } from './group.module';
+import { ProjectModule } from './project.module';
 
 @Module({
   imports: [
@@ -22,6 +24,9 @@ import { ChatModule } from './chat.module';
     AuthenticationModule,
     ProfileModule,
     CommentModule,
+    ChatModule,
+    GroupModule,
+    ProjectModule,
     TempPostModule,
     ChatModule
   ],
