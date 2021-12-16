@@ -22,20 +22,20 @@ import { UpdateGroupInteractor } from '@core/domain/group/use-case/interactor/up
 import { CreateJoinGroupRequestInteractor } from '@core/domain/group/use-case/interactor/join-request/create_join_group_request.interactor';
 import { DeleteJoinGroupRequestInteractor } from '@core/domain/group/use-case/interactor/join-request/delete_join_group_request.interactor';
 import { UpdateGroupUserInteractor } from '@core/domain/group/use-case/interactor/join-request/update_group_user.interactor';
-import { CreateGroupAdapter } from '@infrastructure/adapter/use-case/group/create_group.adapter';
-import { CreateJoinGroupRequestAdapter } from '@infrastructure/adapter/use-case/group/create_join_group_request.adapter';
-import { UpdateGroupUserAdapter } from '@infrastructure/adapter/use-case/group/update_group_user.adapter';
+import { CreateGroupAdapter } from '@application/api/http-rest/http-adapter/group/create_group.adapter';
+import { CreateJoinGroupRequestAdapter } from '@application/api/http-rest/http-adapter/group/create_join_group_request.adapter';
+import { UpdateGroupUserAdapter } from '@application/api/http-rest/http-adapter/group/update_group_user.adapter';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LeaveGroupInteractor } from '@core/domain/group/use-case/interactor/leave_group.interactor';
 import { QueryGroupCollectionInteractor } from '@core/domain/group/use-case/interactor/query_group_collection.interactor';
 import { QueryGroupInteractor } from '@core/domain/group/use-case/interactor/query_group.interactor';
-import { QueryGroupCollectionAdapter } from '@infrastructure/adapter/use-case/group/query_group_collection.adapter';
+import { QueryGroupCollectionAdapter } from '@application/api/http-rest/http-adapter/group/query_group_collection.adapter';
 import { PaginationDTO } from '../http-dtos/pagination.dto';
-import { QueryGroupAdapter } from '@infrastructure/adapter/use-case/group/query_group.adapter';
-import { QueryGroupUsersAdapter } from '@infrastructure/adapter/use-case/group/query_group_users.adapter';
+import { QueryGroupAdapter } from '@application/api/http-rest/http-adapter/group/query_group.adapter';
+import { QueryGroupUsersAdapter } from '@application/api/http-rest/http-adapter/group/query_group_users.adapter';
 import { QueryGroupUsersInteractor } from '@core/domain/group/use-case/interactor/query_group_users.interactor';
 import { GetJoinRequestsInteractor } from '@core/domain/group/use-case/interactor/join-request/get_join_requests.interactor';
-import { GetJoinRequestsAdapter } from '@infrastructure/adapter/use-case/group/get_join_requests.adapter';
+import { GetJoinRequestsAdapter } from '@application/api/http-rest/http-adapter/group/get_join_requests.adapter';
 import { Roles } from '../authorization/decorator/roles.decorator';
 import { Role } from '@core/domain/user/entity/role.enum';
 
