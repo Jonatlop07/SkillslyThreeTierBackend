@@ -167,8 +167,29 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
   }
 
   public async findOne(params: ConversationQueryModel): Promise<Optional<ConversationDetailsDTO>> {
-    params;
-    return Promise.resolve(undefined);
+    const get_conversation_by_id_with_members = `
+      MATCH (${this.conversation_key}: Conversation { conversation_id: $conversation_id }),
+        (${this.user_key}: User)
+        -[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
+        ->(${this.conversation_key})
+      RETURN ${this.conversation_key}, ${this.user_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      get_conversation_by_id_with_members,
+      {
+        conversation_id: params.conversation_id
+      }
+    );
+    const conversation: ConversationDTO = this.neo4j_service.getSingleResultProperties(
+      result,
+      this.conversation_key
+    );
+    return {
+      conversation_id: conversation.conversation_id,
+      conversation_name: conversation.name,
+      conversation_members: this.neo4j_service.getMultipleResultByKey(result, this.user_key),
+      is_private: params.is_private
+    };
   }
 
   public findAllWithRelation() {

@@ -155,7 +155,7 @@ export class GroupInMemoryRepository implements GroupRepository {
     for (const group of this.groups.values()){
       if (group.id === params.group_id){
         queried_group = group;
-      } 
+      }
     }
     return Promise.resolve(queried_group);
   }
@@ -169,7 +169,7 @@ export class GroupInMemoryRepository implements GroupRepository {
     const groups_with_name: BasicGroupDTO[] = [];
     for (const group of this.groups.values()){
       if (group.name.includes(name)){
-        groups_with_name.push(group as BasicGroupDTO);  
+        groups_with_name.push(group as BasicGroupDTO);
       }
     }
     return Promise.resolve(groups_with_name);
@@ -179,7 +179,7 @@ export class GroupInMemoryRepository implements GroupRepository {
     const groups_by_category: BasicGroupDTO[] = [];
     for (const group of this.groups.values()){
       if (group.category === category){
-        groups_by_category.push(group as BasicGroupDTO);  
+        groups_by_category.push(group as BasicGroupDTO);
       }
     }
     return Promise.resolve(groups_by_category);
@@ -191,6 +191,11 @@ export class GroupInMemoryRepository implements GroupRepository {
   }
 
   public delete(params: GroupQueryModel): Promise<GroupDTO> {
+    params;
+    throw new Error('Method not implemented.');
+  }
+
+  findAllWithRelation(params: GroupQueryModel): Promise<any> {
     params;
     throw new Error('Method not implemented.');
   }

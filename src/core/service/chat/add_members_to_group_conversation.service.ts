@@ -47,7 +47,11 @@ export class AddMembersToGroupConversationService implements AddMembersToGroupCo
         )
     );
     return {
-      added_members: added_members_map
+      added_members: added_members_map,
+      conversation: await this.gateway.findOne({
+        conversation_id,
+        is_private: false
+      })
     };
   }
 }

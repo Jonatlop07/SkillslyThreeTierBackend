@@ -22,6 +22,7 @@ import {
   ApiOkResponse,
   ApiTags, ApiUnauthorizedResponse
 } from '@nestjs/swagger';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
@@ -44,6 +45,11 @@ import { UpdateGroupConversationDetailsInteractor } from '@core/domain/chat/use-
 import { UpdateGroupConversationDetailsAdapter } from '@application/api/http-rest/http-adapter/chat/update_group_conversation_details.adapter';
 import { UpdateGroupConversationDetailsDTO } from '@application/api/http-rest/http-dto/chat/http_update_group_conversation_details.dto';
 import { DeleteChatGroupConversationInteractor } from '@core/domain/chat/use-case/interactor/delete_chat_group_conversation.interactor';
+import AddMembersToGroupConversationOutputModel
+  from '@core/domain/chat/use-case/output-model/add_members_to_group_conversation.output_model';
+import { ConversationEventsNames } from '@application/events/conversation.event_names';
+import { AddedMembersToGroupConversationEvent } from '@application/events/chat/added_members_to_group_conversation.event';
+
 
 @Controller('chat')
 @Roles(Role.User)
@@ -54,6 +60,7 @@ export class ChatController {
   private readonly logger: Logger = new Logger(ChatController.name);
 
   constructor(
+    private readonly event_emitter: EventEmitter2,
     @Inject(ChatDITokens.CreatePrivateChatConversationInteractor)
     private readonly create_private_chat_conversation_interactor: CreatePrivateChatConversationInteractor,
     @Inject(ChatDITokens.CreateGroupChatConversationInteractor)
@@ -158,15 +165,23 @@ export class ChatController {
     @Body(new ValidationPipe()) body: AddMembersToGroupConversationDTO
   ) {
     try {
-      return AddMembersToGroupConversationAdapter.toResponseDTO(
-        await this.add_members_to_group_conversation_interactor.execute(
-          {
-            user_id: http_user.id,
-            conversation_id,
-            members_to_add: body.members_to_add
-          }
-        )
+      const result: AddMembersToGroupConversationOutputModel = await this.add_members_to_group_conversation_interactor.execute(
+        {
+          user_id: http_user.id,
+          conversation_id,
+          members_to_add: body.members_to_add
+        }
       );
+      result.added_members.forEach((added_member) => {
+        this.event_emitter.emit(
+          ConversationEventsNames.ADDED_MEMBERS_TO_GROUP_CONVERSATION,
+          new AddedMembersToGroupConversationEvent({
+            user_id: added_member.user_id,
+            conversation: result.conversation
+          })
+        );
+      });
+      return AddMembersToGroupConversationAdapter.toResponseDTO(result);
     } catch (e) {
       HttpExceptionMapper.toHttpException(e);
     }

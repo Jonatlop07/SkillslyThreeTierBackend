@@ -25,6 +25,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
@@ -53,6 +54,12 @@ import { GetUserFollowRequestCollectionInteractor } from '@core/domain/user/use-
 import { Role } from '@core/domain/user/entity/role.enum';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { CreatePrivateChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_private_chat_conversation.interactor';
+import { ConversationEventsNames } from '@application/events/conversation.event_names';
+import CreateUserFollowRequestOutputModel
+  from '@core/domain/user/use-case/output-model/follow_request/create_user_follow_request.output_model';
+import { FollowRequestSentToUserEvent } from '@application/events/user/follow_request_sent_to_user.event';
+import { FollowRequestAcceptedEvent } from '@application/events/user/follow_request_accepted.event';
+import { FollowRequestDeletedEvent } from '@application/events/user/follow_request_deleted.event';
 
 
 @Controller('users')
@@ -62,6 +69,7 @@ export class UserController {
   private readonly logger: Logger = new Logger(UserController.name);
 
   constructor(
+    private readonly event_emitter: EventEmitter2,
     @Inject(UserDITokens.CreateUserAccountInteractor)
     private readonly create_user_account_interactor: CreateUserAccountInteractor,
     @Inject(UserDITokens.UpdateUserAccountInteractor)
@@ -214,10 +222,19 @@ export class UserController {
     @Param('user_destiny_id') user_destiny_id: string
   ) {
     try {
-      return await this.create_user_follow_request_interactor.execute(
+      const result: CreateUserFollowRequestOutputModel = await this.create_user_follow_request_interactor.execute(
         await CreateUserFollowRequestAdapter.new({
           user_id: http_user.id,
           user_destiny_id
+        })
+      );
+      this.event_emitter.emit(
+        ConversationEventsNames.FOLLOW_REQUEST_SENT,
+        new FollowRequestSentToUserEvent({
+          user_destiny_id,
+          user_id: result.user_id,
+          user_name: result.name,
+          user_email: result.email
         })
       );
     } catch (e) {
@@ -239,7 +256,7 @@ export class UserController {
     @Body('accept') accept: boolean
   ) {
     try {
-      await this.update_user_follow_request_interactor.execute(
+      const result = await this.update_user_follow_request_interactor.execute(
         await UpdateUserFollowRequestAdapter.new({
           user_id: user_destiny_id,
           user_destiny_id: http_user.id,
@@ -247,6 +264,15 @@ export class UserController {
         })
       );
       if (accept) {
+        this.event_emitter.emit(
+          ConversationEventsNames.FOLLOW_REQUEST_ACCEPTED,
+          new FollowRequestAcceptedEvent({
+            user_destiny_id,
+            user_id: result.user_id,
+            user_name: result.name,
+            user_email: result.email
+          })
+        );
         return await this.create_private_chat_conversation_interactor.execute({
           user_id: http_user.id,
           partner_id: user_destiny_id
@@ -271,13 +297,21 @@ export class UserController {
   ) {
     try {
       const isRequest = isRequestString === 'true';
-      return await this.delete_user_follow_request_interactor.execute(
+      const result = await this.delete_user_follow_request_interactor.execute(
         await DeleteUserFollowRequestAdapter.new({
           user_id: http_user.id,
           user_destiny_id,
           isRequest
         })
       );
+      this.event_emitter.emit(
+        ConversationEventsNames.FOLLOW_REQUEST_DELETED,
+        new FollowRequestDeletedEvent({
+          user_destiny_id,
+          user_id: result.user_id
+        })
+      );
+      return result;
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
