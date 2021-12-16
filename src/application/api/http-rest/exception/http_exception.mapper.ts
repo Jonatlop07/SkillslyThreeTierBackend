@@ -13,7 +13,9 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.NON_EXISTENT_USER_FOLLOW_RELATIONSHIP,
         CoreExceptionCodes.NON_EXISTENT_USER,
         CoreExceptionCodes.NON_EXISTENT_POST,
-        CoreExceptionCodes.NON_EXISTENT_POST_OWNER
+        CoreExceptionCodes.NON_EXISTENT_POST_OWNER,
+        CoreExceptionCodes.NON_EXISTENT_JOIN_GROUP_REQUEST,
+        CoreExceptionCodes.NON_EXISTENT_GROUP
       ]),
       status_code: HttpStatus.NOT_FOUND
     },
@@ -23,6 +25,7 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.EMPTY_MESSAGE_CHAT,
         CoreExceptionCodes.INVALID_FORMAT_USER_FOLLOW_REQUEST,
         CoreExceptionCodes.EMPTY_POST_CONTENT,
+        CoreExceptionCodes.INVALID_GROUP_INFO_FORMAT,
         CoreExceptionCodes.INVALID_GROUP_CONVERSATION_DETAILS_FORMAT
       ]),
       status_code: HttpStatus.BAD_REQUEST
@@ -32,6 +35,7 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.ACCOUNT_ALREADY_EXISTS,
         CoreExceptionCodes.PRIVATE_CONVERSATION_ALREADY_EXISTS_CHAT,
         CoreExceptionCodes.USER_FOLLOW_REQUEST_ALREADY_EXISTS,
+        CoreExceptionCodes.JOIN_REQUEST_ALREADY_EXISTS
       ]),
       status_code: HttpStatus.CONFLICT
     },
@@ -39,6 +43,8 @@ export class HttpExceptionMapper {
       mappings: new Set([
         CoreExceptionCodes.INVALID_CREDENTIALS,
         CoreExceptionCodes.USER_DOES_NOT_BELONG_TO_CONVERSATION_CHAT,
+        CoreExceptionCodes.UNAUTHORIZED_GROUP_EDITOR,
+        CoreExceptionCodes.UNIQUE_GROUP_OWNER
       ]),
       status_code: HttpStatus.UNAUTHORIZED
     },

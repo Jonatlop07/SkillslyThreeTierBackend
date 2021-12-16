@@ -8,6 +8,7 @@ import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
 import { CommentModule } from './comment.module';
 import { ChatModule } from './chat.module';
+import { GroupModule } from './group.module';
 import { ProjectModule } from './project.module';
 
 @Module({
@@ -23,7 +24,8 @@ import { ProjectModule } from './project.module';
     ProfileModule,
     CommentModule,
     ChatModule,
-    ProjectModule,
+    GroupModule,
+    ProjectModule
   ],
 })
 export class RootModule {}

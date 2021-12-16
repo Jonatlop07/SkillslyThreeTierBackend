@@ -23,8 +23,17 @@ export class CoreExceptionCodes {
   public static readonly PRIVATE_CONVERSATION_ALREADY_EXISTS_CHAT = 504;
   public static readonly INVALID_GROUP_CONVERSATION_DETAILS_FORMAT = 505;
 
+  // Reaction exception codes range from 600 to 699
   public static readonly REACTION_NON_EXISTENT_POST = 600;
   public static readonly INVALID_REACTION_TYPE = 601;
+
+  //Group exception codes range from 800 to 899
+  public static readonly INVALID_GROUP_INFO_FORMAT = 800;
+  public static readonly UNAUTHORIZED_GROUP_EDITOR = 801;
+  public static readonly JOIN_REQUEST_ALREADY_EXISTS = 802;
+  public static readonly NON_EXISTENT_JOIN_GROUP_REQUEST = 803;
+  public static readonly UNIQUE_GROUP_OWNER = 804;
+  public static readonly NON_EXISTENT_GROUP = 805;
 
   public static readonly EMPTY_PROJECT_CONTENT = 700;
   public static readonly NON_EXISTENT_PROJECT = 701;
