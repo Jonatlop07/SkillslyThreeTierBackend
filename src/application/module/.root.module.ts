@@ -8,6 +8,7 @@ import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
 import { CommentModule } from './comment.module';
 import { ChatModule } from './chat.module';
+import { EventModule } from './event.module';
 import { GroupModule } from './group.module';
 import { ProjectModule } from './project.module';
 
@@ -23,7 +24,8 @@ import { ProjectModule } from './project.module';
     AuthenticationModule,
     ProfileModule,
     CommentModule,
-    ChatModule,
+    ChatModule, 
+    EventModule,
     GroupModule,
     ProjectModule
   ],

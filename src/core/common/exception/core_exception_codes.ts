@@ -38,4 +38,7 @@ export class CoreExceptionCodes {
   public static readonly EMPTY_PROJECT_CONTENT = 700;
   public static readonly NON_EXISTENT_PROJECT = 701;
   public static readonly NON_EXISTENT_PROJECT_OWNER = 702;
+
+    // 800 Event exception codes from 900 to 999 
+    public static readonly EMPTY_EVENT_DESCRIPTION_OR_NAME= 900; 
 }
