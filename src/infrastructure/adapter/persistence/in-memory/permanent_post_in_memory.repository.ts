@@ -84,6 +84,11 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve(undefined);
   }
 
+  public findAllWithRelation() {
+    return null;
+  }
+
+
   public update(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const post_to_update: PermanentPostDTO = {
       post_id: post.post_id,

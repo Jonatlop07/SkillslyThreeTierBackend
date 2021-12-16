@@ -23,6 +23,12 @@ class NotFoundTemporalPostException extends TempPostException {
   code = CoreExceptionCodes.NOT_FOUND_TEMP_POST;
   message = 'Temporal post not found';
 }
+
+class NotFoundUserTemporalPostsException extends TempPostException {
+  code = CoreExceptionCodes.NOT_FOUND_USER_TEMP_POSTS;
+  message = 'User temporal posts not found';
+}
+
 class NotFoundFriendsTemporalPostsException extends TempPostException {
   code = CoreExceptionCodes.NOT_FOUND_FRIENDS_TEMP_POSTS;
   message = 'Friends temporal posts not found';
@@ -35,5 +41,6 @@ export {
   InvalidReferenceTypeException,
   NotFoundTemporalPostException,
   NotFoundFriendsTemporalPostsException,
+  NotFoundUserTemporalPostsException,
   TempPostException,
 };

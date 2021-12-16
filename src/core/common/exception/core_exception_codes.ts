@@ -26,7 +26,8 @@ export class CoreExceptionCodes {
   public static readonly INVALID_TEMP_POST_REFERENCE = 901;
   public static readonly INVALID_TEMP_POST_REFERENCE_TYPE = 902;
   public static readonly NOT_FOUND_TEMP_POST = 903;
-  public static readonly NOT_FOUND_FRIENDS_TEMP_POSTS = 904;
+  public static readonly NOT_FOUND_USER_TEMP_POSTS = 904;
+  public static readonly NOT_FOUND_FRIENDS_TEMP_POSTS = 905;
 
 
   public static readonly PRIVATE_CONVERSATION_ALREADY_EXISTS_CHAT = 504;

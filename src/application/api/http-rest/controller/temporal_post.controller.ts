@@ -30,6 +30,7 @@ import { DeleteTemporalPostDTO } from '@application/api/http-rest/http-dto/temp-
 import { DeleteTemporalPostInteractor } from '@core/domain/temp-post/use-case/interactor/delete_temporal_post.interactor';
 import { DeleteTemporalPostAdapter } from '@application/api/http-rest/http-adapter/temp-post/delete_temporal_post.adapter';
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
+import { QueryTemporalPostFriendsCollectionInteractor } from '@core/domain/temp-post/use-case/interactor/query_temporal_post_friends_collection.interactor';
 
 
 @Controller('temporal-posts')
@@ -43,6 +44,8 @@ export class TemporalPostController {
     private readonly createTempPostInteractor: CreateTemporalPostInteractor,
     @Inject(TempPostDITokens.QueryTemporalPostCollectionInteractor)
     private readonly queryTemporalPostCollectionInteractor: QueryTemporalPostCollectionInteractor,
+    @Inject(TempPostDITokens.QueryTemporalPostFriendsCollectionInteractor)
+    private readonly queryTemporalPostFriendsCollectionInteractor: QueryTemporalPostFriendsCollectionInteractor,
     @Inject(TempPostDITokens.DeleteTemporalPostInteractor)
     private readonly deleteTemporalPostInteractor: DeleteTemporalPostInteractor,
   ) {
@@ -70,14 +73,15 @@ export class TemporalPostController {
     }
   }
 
-  @Get('friends')
+
+  @Get()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOkResponse({
-    description: 'User friends temporal posts obtained successfully',
+    description: 'User temporal posts obtained successfully',
   })
   @ApiNotFoundResponse({
-    description: 'User friends temporal posts not found',
+    description: 'User temporal posts not found',
   })
   public async getUserTemporalPosts(@HttpUser() httpUser: HttpUserPayload) {
     try {
@@ -89,6 +93,24 @@ export class TemporalPostController {
     }
   }
 
+  @Get('friends')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'User friends temporal posts obtained successfully',
+  })
+  @ApiNotFoundResponse({
+    description: 'User friends temporal posts not found',
+  })
+  public async getUserFriendsTemporalPosts(@HttpUser() httpUser: HttpUserPayload) {
+    try {
+      return await this.queryTemporalPostFriendsCollectionInteractor.execute(QueryTemporalPostCollectionAdapter.new({
+        user_id: httpUser.id,
+      }));
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
 
   @Delete()
   @HttpCode(HttpStatus.ACCEPTED)

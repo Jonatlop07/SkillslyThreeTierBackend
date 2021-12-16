@@ -16,7 +16,8 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
 
   private readonly logger: Logger = new Logger(ChatMessageNeo4jRepositoryAdapter.name);
 
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) {
+  }
 
   public async create(message: MessageDTO): Promise<MessageDTO> {
     const create_message_statement = `
@@ -36,18 +37,18 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
           conversation_id: message.conversation_id,
           properties: {
             content: message.content,
-            created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
-          }
-        }
+            created_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
+          },
+        },
       ),
-      this.message_key
+      this.message_key,
     );
     return {
       message_id,
       content,
       created_at,
       conversation_id: message.conversation_id,
-      user_id: message.user_id
+      user_id: message.user_id,
     };
   }
 
@@ -71,20 +72,20 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
     return await this.neo4j_service.read(
       find_last_20_messages,
       {
-        conversation_id: params.conversation_id
-      }
+        conversation_id: params.conversation_id,
+      },
     ).then(
       (result: QueryResult) =>
-        result.records.map((record:any): MessageDTO => {
+        result.records.map((record: any): MessageDTO => {
           const { content, message_id, created_at, user_id } = record._fields[0];
           return {
             message_id,
             content,
             created_at,
             user_id,
-            conversation_id: params.conversation_id
+            conversation_id: params.conversation_id,
           };
-        })
+        }),
     );
   }
 
@@ -92,4 +93,9 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
     params;
     return Promise.resolve(undefined);
   }
+
+  public findAllWithRelation() {
+    return null;
+  }
+
 }

@@ -80,11 +80,11 @@ export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepositor
   public async findOne(input: QueryTemporalPostInputModel): Promise<TemporalPostDTO> {
     const temp_post_key = 'tempPost';
 
-    const delete_temp_post_query = `
+    const get_temp_post_query = `
       MATCH (${temp_post_key}: TemporalPost {temporal_post_id: $temporal_post_id})
       RETURN ${temp_post_key}`;
 
-    const result: QueryResult = await this.neo4j_service.read(delete_temp_post_query, {
+    const result: QueryResult = await this.neo4j_service.read(get_temp_post_query, {
       temporal_post_id: input.temporal_post_id,
     });
 
@@ -92,7 +92,7 @@ export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepositor
 
   }
 
-  public async findAll(input: QueryTemporalPostCollectionInputModel): Promise<any> {
+  public async findAllWithRelation(input: QueryTemporalPostCollectionInputModel): Promise<any> {
     const user_request_key = 'userReq';
     const user_followed_key = 'userFollowed';
     const temp_posts_key = 'tempPost';
@@ -126,6 +126,23 @@ export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepositor
 
     return groupByUser(result);
 
+  }
+
+  public async findAll(input: QueryTemporalPostCollectionInputModel): Promise<TemporalPostDTO[]> {
+    const user_request_key = 'userReq';
+    const temp_posts_key = 'tempPost';
+
+    const get_my_temporal_posts = `
+      MATCH (${user_request_key} :User {user_id: $user_id})-->(${temp_posts_key}: TemporalPost)
+      RETURN ${temp_posts_key}`;
+
+    const result: QueryResult = await this.neo4j_service.read(
+      get_my_temporal_posts,
+      {
+        user_id: input.user_id,
+      });
+
+    return this.neo4j_service.getMultipleResultByKey(result, temp_posts_key) as TemporalPostDTO[];
   }
 
 

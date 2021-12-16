@@ -15,6 +15,7 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.NON_EXISTENT_POST,
         CoreExceptionCodes.NON_EXISTENT_POST_OWNER,
         CoreExceptionCodes.NOT_FOUND_TEMP_POST,
+        CoreExceptionCodes.NOT_FOUND_USER_TEMP_POSTS,
         CoreExceptionCodes.NOT_FOUND_FRIENDS_TEMP_POSTS,
       ]),
       status_code: HttpStatus.NOT_FOUND,

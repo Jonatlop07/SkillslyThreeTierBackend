@@ -35,7 +35,7 @@ export class UserInMemoryRepository implements UserRepository {
   }
 
   public existsUserFollowRequest(params: FollowRequestDTO): Promise<boolean> {
-    if (this.currently_available_user_follow_request == params.user_id.concat(params.user_destiny_id)){
+    if (this.currently_available_user_follow_request == params.user_id.concat(params.user_destiny_id)) {
       return Promise.resolve(true);
     }
     return Promise.resolve(false);
@@ -61,28 +61,33 @@ export class UserInMemoryRepository implements UserRepository {
   }
 
   public existsUserFollowRelationship(params: FollowRequestDTO): Promise<boolean> {
-    if (this.currently_available_user_follow_relationship == params.user_id.concat(params.user_destiny_id)){
+    if (this.currently_available_user_follow_relationship == params.user_id.concat(params.user_destiny_id)) {
       return Promise.resolve(true);
     }
     return Promise.resolve(false);
   }
 
   public findOne(params: UserQueryModel): Promise<UserDTO> {
-    for (const user of this.users.values()){
-      if (Object.keys(params).every((key: string) => params[key] === user[key])){
+    for (const user of this.users.values()) {
+      if (Object.keys(params).every((key: string) => params[key] === user[key])) {
         return Promise.resolve(user);
       }
     }
     return Promise.resolve(undefined);
   }
 
-  public findAll(params: any): Promise<Array<UserDTO>>{
+  public findAll(params: any): Promise<Array<UserDTO>> {
     const response_users: Array<UserDTO> = [];
     for (const _user of this.users.values())
       if (_user.email === params.email || _user.name === params.name)
         response_users.push(_user);
     return Promise.resolve(response_users);
   }
+
+  public findAllWithRelation() {
+    return null;
+  }
+
 
   public update(user: UserDTO): Promise<UserDTO> {
     const user_to_update: UserDTO = {
@@ -97,12 +102,12 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve(user_to_update);
   }
 
-  public acceptUserFollowRequest(params: FollowRequestDTO): Promise<void>{
+  public acceptUserFollowRequest(params: FollowRequestDTO): Promise<void> {
     this.currently_available_user_follow_relationship = params.user_id.concat(params.user_destiny_id);
     return Promise.resolve();
   }
 
-  public rejectUserFollowRequest(params: FollowRequestDTO): Promise<void>{
+  public rejectUserFollowRequest(params: FollowRequestDTO): Promise<void> {
     params;
     this.currently_available_user_follow_request = '';
     return Promise.resolve();

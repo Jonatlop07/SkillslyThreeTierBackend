@@ -166,6 +166,11 @@ implements PermanentPostRepository {
     }));
   }
 
+  public findAllWithRelation() {
+    return null;
+  }
+
+
   async getPublicPosts(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
     const { user_id } = params;
     const find_public_posts_collection_query = `
