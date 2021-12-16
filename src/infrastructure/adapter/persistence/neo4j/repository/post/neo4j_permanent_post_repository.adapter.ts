@@ -166,6 +166,11 @@ implements PermanentPostRepository {
     }));
   }
 
+  public findAllWithRelation() {
+    return null;
+  }
+
+
   async getPublicPosts(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
     const { user_id } = params;
     const find_public_posts_collection_query = `
@@ -223,7 +228,7 @@ implements PermanentPostRepository {
         user_id: ${friend_key}.user_id
       } AS ${result_key}
       RETURN DISTINCT ${result_key}
-      ORDER BY ${result_key}.created_at
+      ORDER BY ${result_key}.created_at DESC
       SKIP ${offset}
       LIMIT ${limit}
     `;

@@ -132,8 +132,8 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: 'Cannot update the data of an account that does not belong to the user' })
   public async updateAccount(
     @HttpUser() http_user: HttpUserPayload,
-    @Param('user_id') user_id: string,
-    @Body(new ValidationPipe()) update_user_account_details: UpdateUserAccountDTO
+      @Param('user_id') user_id: string,
+      @Body(new ValidationPipe()) update_user_account_details: UpdateUserAccountDTO
   ): Promise<UpdateUserAccountResponseDTO> {
     if (user_id !== http_user.id)
       throw new HttpException({
@@ -218,7 +218,7 @@ export class UserController {
   @ApiBadGatewayResponse({ description: 'Error while creating user follow request' })
   @ApiBearerAuth()
   public async createUserFollowRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string
   ) {
     try {
@@ -251,7 +251,7 @@ export class UserController {
   @ApiConflictResponse({ description: 'The conversation with the user to follow already exists' })
   @ApiBearerAuth()
   public async updateUserFollowRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string,
     @Body('accept') accept: boolean
   ) {
@@ -291,7 +291,7 @@ export class UserController {
   @ApiBadGatewayResponse({ description: 'Error while deleting user follow request' })
   @ApiBearerAuth()
   public async deleteUserFollowRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('user_destiny_id') user_destiny_id: string,
     @Query('isRequest') isRequestString: string
   ) {

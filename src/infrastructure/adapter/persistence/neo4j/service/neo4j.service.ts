@@ -24,6 +24,7 @@ export class Neo4jService {
     return result.records.map((record) => record.get(key).properties);
   };
 
+
   getDriver(): Driver {
     return this.driver;
   }

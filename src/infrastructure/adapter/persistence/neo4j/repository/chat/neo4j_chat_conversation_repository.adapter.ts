@@ -192,6 +192,11 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
     };
   }
 
+  public findAllWithRelation() {
+    return null;
+  }
+
+
   public async addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>> {
     const add_members_to_group_conversation_statement = `
       MATCH (${this.conversation_key}: GroupConversation { conversation_id: $conversation_id })
