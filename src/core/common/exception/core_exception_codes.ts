@@ -25,4 +25,8 @@ export class CoreExceptionCodes {
 
   public static readonly REACTION_NON_EXISTENT_POST = 600;
   public static readonly INVALID_REACTION_TYPE = 601;
+
+  public static readonly EMPTY_PROJECT_CONTENT = 700;
+  public static readonly NON_EXISTENT_PROJECT = 701;
+  public static readonly NON_EXISTENT_PROJECT_OWNER = 702;
 }

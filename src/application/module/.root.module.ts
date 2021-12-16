@@ -8,6 +8,7 @@ import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
 import { CommentModule } from './comment.module';
 import { ChatModule } from './chat.module';
+import { ProjectModule } from './project.module';
 
 @Module({
   imports: [
@@ -21,8 +22,8 @@ import { ChatModule } from './chat.module';
     AuthenticationModule,
     ProfileModule,
     CommentModule,
-    ChatModule
+    ChatModule,
+    ProjectModule,
   ],
 })
-export class RootModule {
-}
+export class RootModule {}
