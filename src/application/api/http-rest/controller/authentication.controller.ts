@@ -7,7 +7,7 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
 import { HttpAuthenticationService } from '@application/api/http-rest/authentication/http_authentication.service';
 import { HttpLocalAuthenticationGuard } from '@application/api/http-rest/authentication/guard/http_local_authentication.guard';
 import {
@@ -18,6 +18,7 @@ import { Public } from '@application/api/http-rest/authentication/decorator/publ
 
 @Controller('auth')
 @ApiTags('auth')
+@ApiInternalServerErrorResponse({ description: 'An internal server error occurred' })
 export class AuthenticationController {
   private readonly logger: Logger = new Logger(AuthenticationController.name);
 

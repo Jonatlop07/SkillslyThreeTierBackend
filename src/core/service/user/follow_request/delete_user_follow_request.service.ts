@@ -5,7 +5,6 @@ import DeleteUserFollowRequestGateway from '@core/domain/user/use-case/gateway/f
 import DeleteUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/delete_user_follow_request.input_model';
 import { DeleteUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/delete_user_follow_request.interactor';
 import DeleteUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/delete_user_follow_request.output_model';
-import { FollowRequestDTO } from '@core/domain/user/use-case/persistence-dto/follow_request.dto';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
@@ -36,16 +35,15 @@ export class DeleteUserFollowRequestService implements DeleteUserFollowRequestIn
     if (!existsUserFollowRelationShip && !input.isRequest) {
       throw new UserFollowRelationshipNotFoundException();
     }
-    const actionIsValid = input.isRequest == true || input.isRequest == false; 
+    const actionIsValid = input.isRequest == true || input.isRequest == false;
     if (!actionIsValid) {
-      throw new UserFollowRequestInvalidDataFormatException(); 
+      throw new UserFollowRequestInvalidDataFormatException();
     }
     if (input.isRequest){
-      const result = await this.user_gateway.deleteUserFollowRequest(input);
-      return result; 
+      await this.user_gateway.deleteUserFollowRequest(input);
     } else {
-      const result = await this.user_gateway.deleteUserFollowRelationship(input);
-      return result; 
+      await this.user_gateway.deleteUserFollowRelationship(input);
     }
+    return {};
   }
 }

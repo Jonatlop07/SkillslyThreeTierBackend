@@ -6,6 +6,8 @@ import PermanentPostRepository from '@core/domain/post/use-case/repository/perma
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
 import * as moment from 'moment';
+import { PaginationDTO } from '@application/api/http-rest/http-dtos/http_pagination.dto';
+import { Console } from 'console';
 
 @Injectable()
 export class PermanentPostNeo4jRepositoryAdapter
@@ -192,6 +194,60 @@ implements PermanentPostRepository {
         JSON.parse(content_element)
       ),
     }));
+  }
+
+  public async getPostsOfFriends(id: string, pagination: PaginationDTO): Promise<PermanentPostDTO[]> {
+    const limit = pagination.limit || 25;
+    const offset = pagination.offset || 0; 
+    const result_key = 'result';
+    const friend_key = 'friend';
+    const get_friends_collection_query = `
+      MATCH (${this.user_key}: User { user_id: $id })
+      -[:${Relationships.USER_FOLLOW_RELATIONSHIP}]
+      ->(${friend_key}: User)
+      RETURN ${friend_key}
+    `; 
+    const friends_ids = await this.neo4j_service
+    .read(get_friends_collection_query, { id })
+    .then((result: QueryResult) => result.records.map((record:any) => record._fields[0].properties.user_id));
+    const get_posts_of_friends_collection_query = `
+      UNWIND $friends_ids as friend_id
+      MATCH (${friend_key}: User {user_id: friend_id})
+        -[:${Relationships.USER_POST_RELATIONSHIP}]
+        ->(${this.post_key}: PermanentPost)
+      WITH {
+        privacy: ${this.post_key}.privacy,
+        created_at: ${this.post_key}.created_at,
+        post_id: ${this.post_key}.post_id,
+        content: ${this.post_key}.content,
+        user_id: ${friend_key}.user_id
+      } AS ${result_key}
+      RETURN DISTINCT ${result_key}
+      ORDER BY ${result_key}.created_at
+      SKIP ${offset}
+      LIMIT ${limit}
+    `;
+    const result = await this.neo4j_service
+    .read(get_posts_of_friends_collection_query, { friends_ids })
+    .then((result: QueryResult) => 
+      result.records.map((record: any) => {
+        const { privacy, created_at, post_id, content, user_id } = record._fields[0];
+        return {
+          privacy,
+          created_at,
+          post_id,
+          content, 
+          user_id
+        };
+      })
+    );
+    result.map((post) => ({
+      ...post,
+      content: post.content.map((content_element) => 
+        JSON.parse(content_element)
+      ),
+    }));
+    return result;
   }
 
   public async exists(post: PermanentPostDTO): Promise<boolean> {

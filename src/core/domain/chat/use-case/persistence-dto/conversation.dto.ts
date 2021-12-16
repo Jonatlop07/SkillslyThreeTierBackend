@@ -6,4 +6,5 @@ export interface ConversationDTO {
   members: Array<string>;
   messages: Array<MessageDTO>;
   created_at?: string;
+  is_private?: boolean;
 }

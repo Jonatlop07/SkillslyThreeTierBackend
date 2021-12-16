@@ -19,11 +19,8 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import * as moment from 'moment';
 import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-model/create_permanent_post.output_model';
-import UpdateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/update_user_follow_request.input_model';
 import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
-import CreateUserFollowRequestInputModel from '@core/domain/user/use-case/input-model/follow_request/create_user_follow_request.input_model';
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
-import { create } from 'domain';
 
 const feature = loadFeature(
   'test/bdd-functional/features/post/query_permanent_post.feature',
@@ -158,7 +155,7 @@ defineFeature(feature, (test) => {
       async() => {
         try {
           await create_user_follow_request_interactor.execute({user_id: user_id, user_destiny_id: owner_id});
-          await update_user_follow_request_interactor.execute({user_id: user_id, user_destiny_id: owner_id, accept:true});
+          await update_user_follow_request_interactor.execute({user_id: user_id, user_destiny_id: owner_id, accept: true});
         } catch (e){
           console.log(e);
         }
