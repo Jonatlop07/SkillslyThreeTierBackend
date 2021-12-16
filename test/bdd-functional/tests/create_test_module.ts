@@ -48,13 +48,6 @@ import { DeletePermanentPostService } from '@core/service/post/delete_permanent_
 import { UpdateUserFollowRequestService } from '@core/service/user/follow_request/update_user_follow_request.service';
 import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
 import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
-import { AddMembersToGroupConversationService } from '@core/service/chat/add_members_to_group_conversation.service';
-import { UpdateGroupConversationDetailsService } from '@core/service/chat/update_group_conversation_details.service';
-import { DeleteChatGroupConversationService } from '@core/service/chat/delete_chat_group_conversation.service';
-import { ExitChatGroupConversationService } from '@core/service/chat/exit_chat_group_conversation.service';
-import { GetPermanentPostCollectionOfFriendsService } from '@core/service/post/get_permanent_post_collection_of_friends.service';
-import { CreateProjectService } from '@core/service/project/create_project.service';
-import { CreateGroupService } from '@core/service/group/create_group.service';
 import { UpdateGroupService } from '@core/service/group/update_group.service';
 import { DeleteGroupService } from '@core/service/group/delete_group.service';
 import { CreateJoinGroupRequestService } from '@core/service/group/join-request/create_join_group_request.service';
@@ -65,6 +58,18 @@ import { QueryGroupService } from '@core/service/group/query_group.service';
 import { QueryGroupCollectionService } from '@core/service/group/query_group_collection.service';
 import { GetJoinRequestsService } from '@core/service/group/join-request/get_join_requests.service';
 import { QueryGroupUsersService } from '@core/service/group/query_group_users.service';
+import { CreateProjectService } from '@core/service/project/create_project.service';
+import { AddMembersToGroupConversationService } from '@core/service/chat/add_members_to_group_conversation.service';
+import { UpdateGroupConversationDetailsService } from '@core/service/chat/update_group_conversation_details.service';
+import { DeleteChatGroupConversationService } from '@core/service/chat/delete_chat_group_conversation.service';
+import { ExitChatGroupConversationService } from '@core/service/chat/exit_chat_group_conversation.service';
+import { GetPermanentPostCollectionOfFriendsService } from '@core/service/post/get_permanent_post_collection_of_friends.service';
+import { EventDITokens } from '@core/domain/event/di/event_di_tokens';
+import { CreateEventService } from '@core/service/event/create_event.service';
+import { EventInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/event_in_memory.repository';
+import { GetEventCollectionOfFriendsService } from '@core/service/event/get_event_collection_of_friends.service';
+import { GetMyEventCollectionService } from '@core/service/event/get_my_event_collection.service';
+import { CreateGroupService } from '@core/service/group/create_group.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -333,6 +338,21 @@ export async function createTestModule() {
         inject: [GroupDITokens.GroupRepository],
       },
       {
+        provide: EventDITokens.CreateEventInteractor,
+        useFactory: (gateway, user_gateway) => new CreateEventService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.GetEventCollectionOfFriendsInteractor,
+        useFactory: (gateway, user_gateway) => new GetEventCollectionOfFriendsService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.GetMyEventCollectionInteractor,
+        useFactory: (gateway, user_gateway) => new GetMyEventCollectionService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
         provide: UserDITokens.UserRepository,
         useFactory: () => new UserInMemoryRepository(new Map()),
       },
@@ -348,7 +368,6 @@ export async function createTestModule() {
         provide: TempPostDITokens.TempPostRepository,
         useFactory: () => new TemporalPostInMemoryRepository(new Map()),
       },
-
       {
         provide: ReactionDITokens.ReactionRepository,
         useFactory: () => new ReactionInMemoryRepository(new Map()),
@@ -363,6 +382,14 @@ export async function createTestModule() {
       },
       {
         provide: ChatDITokens.ChatMessageRepository,
+        useFactory: () => new ChatMessageInMemoryRepository(new Map()),
+      },
+      {
+        provide: EventDITokens.EventRepository,
+        useFactory: () => new EventInMemoryRepository(new Map()),
+      },
+      {
+        provide: GroupDITokens.GroupRepository,
         useFactory: () => new ChatMessageInMemoryRepository(new Map()),
       },
     ],
