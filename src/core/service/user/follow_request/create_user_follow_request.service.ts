@@ -20,12 +20,12 @@ export class CreateUserFollowRequestService implements CreateUserFollowRequestIn
   async execute(
     input: CreateUserFollowRequestInputModel,
   ): Promise<CreateUserFollowRequestOutputModel> {
-    const existsUser = await this.user_gateway.existsById(input.user_id);
-    if (!existsUser) {
+    const requestingUser = await this.user_gateway.findOne({ user_id: input.user_id });
+    if (!requestingUser) {
       throw new UserAccountNotFoundException();
     }
-    const existsDestinyUser = await this.user_gateway.existsById(input.user_destiny_id);
-    if (!existsDestinyUser) {
+    const destinyUser = await this.user_gateway.findOne({ user_id: input.user_destiny_id });
+    if (!destinyUser) {
       throw new UserAccountNotFoundException();
     }
     if (input.user_id == input.user_destiny_id) {
@@ -36,6 +36,6 @@ export class CreateUserFollowRequestService implements CreateUserFollowRequestIn
       throw new UserFollowRequestAlreadyExistsException();
     }
     await this.user_gateway.createUserFollowRequest(input);
-    return {};
+    return requestingUser;
   }
 }

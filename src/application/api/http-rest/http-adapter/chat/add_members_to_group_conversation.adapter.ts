@@ -4,6 +4,8 @@ import { AddMembersToGroupConversationResponseDTO } from '@application/api/http-
 
 export class AddMembersToGroupConversationAdapter {
   public static toResponseDTO(payload: AddMembersToGroupConversationOutputModel): AddMembersToGroupConversationResponseDTO {
-    return payload as AddMembersToGroupConversationResponseDTO;
+    return {
+      added_members: payload.added_members
+    };
   }
 }

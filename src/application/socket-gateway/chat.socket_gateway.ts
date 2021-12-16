@@ -18,10 +18,11 @@ import CreateChatMessageOutputModel from '@core/domain/chat/use-case/output-mode
 @WebSocketGateway({
   cors: {
     origin: '*'
-  }
+  },
+  namespace: 'chat'
 })
-export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-  private readonly logger: Logger = new Logger(SocketGateway.name);
+export class ChatSocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  private readonly logger: Logger = new Logger(ChatSocketGateway.name);
 
   @WebSocketServer() server: Server;
 
