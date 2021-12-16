@@ -24,4 +24,7 @@ export class CoreExceptionCodes {
 
   public static readonly REACTION_NON_EXISTENT_POST = 600;
   public static readonly INVALID_REACTION_TYPE = 601;
+
+  // 800 Event exception codes from 800 to 899 
+  public static readonly EMPTY_EVENT_DESCRIPTION_OR_NAME= 800; 
 }

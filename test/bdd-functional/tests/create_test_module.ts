@@ -41,6 +41,11 @@ import { UpdateUserFollowRequestService } from '@core/service/user/follow_reques
 import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
 import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
 import { GetPermanentPostCollectionOfFriendsService } from '@core/service/post/get_permanent_post_collection_of_friends.service';
+import { EventDITokens } from '@core/domain/event/di/event_di_tokens';
+import { CreateEventService } from '@core/service/event/create_event.service';
+import { EventInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/event_in_memory.repository';
+import { GetEventCollectionOfFriendsService } from '@core/service/event/get_event_collection_of_friends.service';
+import { GetMyEventCollectionService } from '@core/service/event/get_my_event_collection.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -191,6 +196,21 @@ export async function createTestModule() {
         inject: [ChatDITokens.ChatMessageRepository, ChatDITokens.ChatConversationRepository]
       },
       {
+        provide: EventDITokens.CreateEventInteractor,
+        useFactory: (gateway, user_gateway) => new CreateEventService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.GetEventCollectionOfFriendsInteractor,
+        useFactory: (gateway, user_gateway) => new GetEventCollectionOfFriendsService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.GetMyEventCollectionInteractor,
+        useFactory: (gateway, user_gateway) => new GetMyEventCollectionService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
         provide: UserDITokens.UserRepository,
         useFactory: () => new UserInMemoryRepository(new Map()),
       },
@@ -217,6 +237,10 @@ export async function createTestModule() {
       {
         provide: ChatDITokens.ChatMessageRepository,
         useFactory: () => new ChatMessageInMemoryRepository(new Map())
+      },
+      {
+        provide: EventDITokens.EventRepository,
+        useFactory: () => new EventInMemoryRepository(new Map())
       }
     ],
   }).compile();
