@@ -9,11 +9,11 @@ export class DeleteUserFollowRequestAdapter implements DeleteUserFollowRequestIn
 
   @Expose()
   @IsString()
-  public user_destiny_id: string;
+  public user_to_follow_id: string;
 
   @Expose()
   @IsString()
-  public isRequest: boolean;
+  public is_request: boolean;
 
   public static new(payload: DeleteUserFollowRequestInputModel): DeleteUserFollowRequestAdapter {
     return plainToClass(DeleteUserFollowRequestAdapter, payload);

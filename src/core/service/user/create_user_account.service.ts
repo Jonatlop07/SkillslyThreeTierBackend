@@ -1,5 +1,4 @@
-import * as bcrypt from 'bcryptjs';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import CreateUserAccountGateway from '@core/domain/user/use-case/gateway/create_user_account.gateway';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
@@ -16,38 +15,33 @@ import {
   isValidDateOfBirth,
 } from '@core/common/util/account_data.validators';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+import generateHashedPassword from '@core/common/util/generate_hash_password';
 
-
-@Injectable()
 export class CreateUserAccountService implements CreateUserAccountInteractor {
   private readonly logger: Logger = new Logger(CreateUserAccountService.name);
 
   constructor(
     @Inject(UserDITokens.UserRepository)
     private gateway: CreateUserAccountGateway,
-  ) { }
+  ) {
+  }
 
-  async execute(
-    input: CreateUserAccountInputModel,
-  ): Promise<CreateUserAccountOutputModel> {
+  public async execute(input: CreateUserAccountInputModel,): Promise<CreateUserAccountOutputModel> {
     const { email, password, name, date_of_birth } = input;
     const is_a_valid_input = email && password && name && date_of_birth
       && isValidEmail(email) && isValidPassword(password)
       && isValidName(name) && isValidDateOfBirth(date_of_birth);
     if (!is_a_valid_input)
       throw new UserAccountInvalidDataFormatException();
-    const SALT_ROUNDS = 10;
-    const salt = bcrypt.genSaltSync(SALT_ROUNDS);
-    const hashed_password = bcrypt.hashSync(password, salt);
-    const user: UserDTO = {
+    const user_to_create: UserDTO = {
       email,
-      password: hashed_password,
+      password: generateHashedPassword(password),
       name,
       date_of_birth,
     };
-    if (await this.gateway.exists(user))
+    if (await this.gateway.exists(user_to_create))
       throw new UserAccountAlreadyExistsException();
-    const createdUser: UserDTO = await this.gateway.create(user);
-    return { id: createdUser.user_id, email: createdUser.email };
+    const created_user: UserDTO = await this.gateway.create(user_to_create);
+    return { id: created_user.user_id, email: created_user.email };
   }
 }

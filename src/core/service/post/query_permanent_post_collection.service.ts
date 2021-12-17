@@ -18,7 +18,7 @@ export class QueryPermanentPostCollectionService implements QueryPermanentPostCo
 
   constructor(
     @Inject(UserDITokens.UserRepository)
-    private readonly search_user_gateway: SearchUsersGateway, 
+    private readonly search_user_gateway: SearchUsersGateway,
     @Inject(UserDITokens.UserRepository)
     private readonly relationship_gateway: ExistsUserFollowRelationshipGateway,
     @Inject(PostDITokens.PermanentPostRepository)
@@ -26,22 +26,22 @@ export class QueryPermanentPostCollectionService implements QueryPermanentPostCo
   ) {}
 
   async execute(input: QueryPermanentPostCollectionInputModel): Promise<QueryPermanentPostCollectionOutputModel> {
-    const {user_id, owner_id} = input;
-    let posts: Array<PermanentPostDTO> = [];
+    const { user_id, owner_id } = input;
     const owner = await this.search_user_gateway.findOne({ user_id: owner_id });
-    if (!owner){
+    if (!owner)
       throw new NonExistentUserException();
-    }
-
-    if (user_id === owner_id){
+    let posts: Array<PermanentPostDTO> = [];
+    if (user_id === owner_id) {
       posts = await this.post_gateway.findAll({ user_id: owner_id });
     } else {
-      const existsRelationship = await this.relationship_gateway.existsUserFollowRelationship({user_id: user_id, user_destiny_id: owner_id});
-      if (existsRelationship){
-        posts = await this.post_gateway.findAll({user_id: owner_id});
-      } else {
-        posts = await this.post_gateway.getPublicPosts({user_id: owner_id});
-      }
+      const exists_relationship = await this.relationship_gateway.existsUserFollowRelationship(
+        {
+          user_id: user_id,
+          user_to_follow_id: owner_id
+        }
+      );
+      if (exists_relationship) posts = await this.post_gateway.findAll({ user_id: owner_id });
+      else posts = await this.post_gateway.getPublicPosts({ user_id: owner_id });
     }
     return Promise.resolve({
       posts
