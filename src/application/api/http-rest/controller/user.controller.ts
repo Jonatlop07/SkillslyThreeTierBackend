@@ -219,19 +219,19 @@ export class UserController {
   @ApiBearerAuth()
   public async createUserFollowRequest(
   @HttpUser() http_user: HttpUserPayload,
-    @Param('user_destiny_id') user_destiny_id: string
+    @Param('user_to_follow_id') user_to_follow_id: string
   ) {
     try {
       const result: CreateUserFollowRequestOutputModel = await this.create_user_follow_request_interactor.execute(
         await CreateUserFollowRequestAdapter.new({
           user_id: http_user.id,
-          user_destiny_id
+          user_to_follow_id
         })
       );
       this.event_emitter.emit(
         ConversationEventsNames.FOLLOW_REQUEST_SENT,
         new FollowRequestSentToUserEvent({
-          user_destiny_id,
+          user_to_follow_id,
           user_id: result.user_id,
           user_name: result.name,
           user_email: result.email
@@ -252,14 +252,14 @@ export class UserController {
   @ApiBearerAuth()
   public async updateUserFollowRequest(
   @HttpUser() http_user: HttpUserPayload,
-    @Param('user_destiny_id') user_destiny_id: string,
+    @Param('user_to_follow_id') user_to_follow_id: string,
     @Body('accept') accept: boolean
   ) {
     try {
       const result = await this.update_user_follow_request_interactor.execute(
         await UpdateUserFollowRequestAdapter.new({
-          user_id: user_destiny_id,
-          user_destiny_id: http_user.id,
+          user_id: user_to_follow_id,
+          user_to_follow_id: http_user.id,
           accept
         })
       );
@@ -267,7 +267,7 @@ export class UserController {
         this.event_emitter.emit(
           ConversationEventsNames.FOLLOW_REQUEST_ACCEPTED,
           new FollowRequestAcceptedEvent({
-            user_destiny_id,
+            user_to_follow_id,
             user_id: result.user_id,
             user_name: result.name,
             user_email: result.email
@@ -275,7 +275,7 @@ export class UserController {
         );
         return await this.create_private_chat_conversation_interactor.execute({
           user_id: http_user.id,
-          partner_id: user_destiny_id
+          partner_id: user_to_follow_id
         });
       }
     } catch (e) {
@@ -292,22 +292,22 @@ export class UserController {
   @ApiBearerAuth()
   public async deleteUserFollowRequest(
   @HttpUser() http_user: HttpUserPayload,
-    @Param('user_destiny_id') user_destiny_id: string,
-    @Query('isRequest') isRequestString: string
+    @Param('user_to_follow_id') user_to_follow_id: string,
+    @Query('is_request') is_request_string: string
   ) {
     try {
-      const isRequest = isRequestString === 'true';
+      const is_request = is_request_string === 'true';
       const result = await this.delete_user_follow_request_interactor.execute(
         await DeleteUserFollowRequestAdapter.new({
           user_id: http_user.id,
-          user_destiny_id,
-          isRequest
+          user_to_follow_id,
+          is_request
         })
       );
       this.event_emitter.emit(
         ConversationEventsNames.FOLLOW_REQUEST_DELETED,
         new FollowRequestDeletedEvent({
-          user_destiny_id,
+          user_to_follow_id,
           user_id: result.user_id
         })
       );

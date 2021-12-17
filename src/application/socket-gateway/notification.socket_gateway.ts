@@ -60,7 +60,7 @@ export class NotificationSocketGateway implements OnGatewayInit, OnGatewayConnec
 
   @OnEvent(ConversationEventsNames.FOLLOW_REQUEST_SENT)
   handleFollowRequestSentToUserEvent(payload: FollowRequestSentToUserEvent) {
-    this.server.to(payload.user_destiny_id).emit('follow_request_received', {
+    this.server.to(payload.user_to_follow_id).emit('follow_request_received', {
       user_id: payload.user_id,
       name: payload.user_name,
       email: payload.user_email
@@ -69,7 +69,7 @@ export class NotificationSocketGateway implements OnGatewayInit, OnGatewayConnec
 
   @OnEvent(ConversationEventsNames.FOLLOW_REQUEST_ACCEPTED)
   handleFollowRequestAcceptedEvent(payload: FollowRequestAcceptedEvent) {
-    this.server.to(payload.user_destiny_id).emit('follow_request_accepted', {
+    this.server.to(payload.user_to_follow_id).emit('follow_request_accepted', {
       user_id: payload.user_id,
       name: payload.user_name,
       email: payload.user_email
@@ -78,7 +78,7 @@ export class NotificationSocketGateway implements OnGatewayInit, OnGatewayConnec
 
   @OnEvent(ConversationEventsNames.FOLLOW_REQUEST_DELETED)
   handleFollowRequestDeletedEvent(payload: FollowRequestDeletedEvent) {
-    this.server.to(payload.user_destiny_id).emit('follow_request_deleted', {
+    this.server.to(payload.user_to_follow_id).emit('follow_request_deleted', {
       user_id: payload.user_id
     });
   }

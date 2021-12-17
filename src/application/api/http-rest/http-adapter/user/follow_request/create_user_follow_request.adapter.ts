@@ -9,7 +9,7 @@ export class CreateUserFollowRequestAdapter implements CreateUserFollowRequestIn
 
   @Expose()
   @IsString()
-  public user_destiny_id: string;
+  public user_to_follow_id: string;
 
   public static new(payload: CreateUserFollowRequestInputModel): CreateUserFollowRequestAdapter {
     return plainToClass(CreateUserFollowRequestAdapter, payload);

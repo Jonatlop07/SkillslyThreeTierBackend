@@ -3,7 +3,7 @@ import {
   UserFollowRequestInvalidDataFormatException
 } from '@core/domain/user/use-case/exception/user_follow_request.exception';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
 import UpdateUserFollowRequestInputModel
   from '@core/domain/user/use-case/input-model/follow_request/update_user_follow_request.input_model';
@@ -12,9 +12,9 @@ import UpdateUserFollowRequestOutputModel
 import UpdateUserFollowRequestGateway
   from '@core/domain/user/use-case/gateway/follow_request/update_user_follow_request.gateway';
 import { UserAccountNotFoundException } from '@core/domain/user/use-case/exception/user_account.exception';
+import { FollowRequestDTO } from '@core/domain/user/use-case/persistence-dto/follow_request.dto';
+import UserDetailsOutputModel from '@core/domain/user/use-case/output-model/user_details.output_model';
 
-
-@Injectable()
 export class UpdateUserFollowRequestService implements UpdateUserFollowRequestInteractor {
   private readonly logger: Logger = new Logger(UpdateUserFollowRequestService.name);
 
@@ -24,30 +24,29 @@ export class UpdateUserFollowRequestService implements UpdateUserFollowRequestIn
   ) {
   }
 
-  async execute(
-    input: UpdateUserFollowRequestInputModel
-  ): Promise<UpdateUserFollowRequestOutputModel> {
-    const requesting_user = await this.user_gateway.findOne({ user_id: input.user_id });
-    if (!requesting_user) {
+  public async execute(input: UpdateUserFollowRequestInputModel): Promise<UpdateUserFollowRequestOutputModel> {
+    const { user_id, user_to_follow_id, accept } = input;
+    const requesting_user = await this.user_gateway.findOne({ user_id });
+    if (!requesting_user)
       throw new UserAccountNotFoundException();
-    }
-    const destiny_user = await this.user_gateway.findOne({ user_id: input.user_destiny_id });
-    if (!destiny_user) {
+    const user_to_follow = await this.user_gateway.findOne({ user_id: user_to_follow_id });
+    if (!user_to_follow)
       throw new UserAccountNotFoundException();
-    }
-    const existsUserFollowRequest = await this.user_gateway.existsUserFollowRequest(input);
-    if (!existsUserFollowRequest) {
+    const follow_request: FollowRequestDTO = {
+      user_id,
+      user_to_follow_id
+    };
+    const exists_user_follow_request = await this.user_gateway.existsUserFollowRequest(follow_request);
+    if (!exists_user_follow_request)
       throw new UserFollowRequestNotFoundException();
-    }
-    const actionIsValid = input.accept == true || input.accept == false;
-    if (!actionIsValid) {
+    const is_valid_action = accept == true || accept == false;
+    if (!is_valid_action)
       throw new UserFollowRequestInvalidDataFormatException();
-    }
-    if (input.accept) {
-      await this.user_gateway.acceptUserFollowRequest(input);
+    if (accept) {
+      await this.user_gateway.acceptUserFollowRequest(follow_request);
     } else {
-      await this.user_gateway.rejectUserFollowRequest(input);
+      await this.user_gateway.rejectUserFollowRequest(follow_request);
     }
-    return requesting_user;
+    return requesting_user as UserDetailsOutputModel;
   }
 }

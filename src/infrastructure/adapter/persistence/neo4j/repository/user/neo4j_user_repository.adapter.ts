@@ -14,6 +14,9 @@ import { Role } from '@core/domain/user/entity/role.enum';
 export class UserNeo4jRepositoryAdapter implements UserRepository {
   private readonly logger: Logger = new Logger(UserNeo4jRepositoryAdapter.name);
 
+  private readonly user_key = 'user';
+  private readonly user_to_follow_key = 'user_to_follow';
+
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
@@ -24,11 +27,10 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
 
   public async findAll(params: UserQueryModel): Promise<Array<UserDTO>> {
     const { email, name } = params;
-    const user_key = 'user';
     const find_user_query = `
-      MATCH (${user_key}: User)
-      WHERE ${user_key}.email CONTAINS $email OR ${user_key}.name CONTAINS $name 
-      RETURN ${user_key}
+      MATCH (${this.user_key}: User)
+      WHERE ${this.user_key}.email CONTAINS $email OR ${this.user_key}.name CONTAINS $name 
+      RETURN ${this.user_key}
     `;
     return await this.neo4j_service.read(
       find_user_query,
@@ -45,11 +47,10 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   }
 
   public async findOne(params: UserQueryModel): Promise<UserDTO> {
-    const user_key = 'user';
     const find_user_query = `
-      MATCH (${user_key}: User)
-      WHERE ALL(k in keys($properties) WHERE $properties[k] = ${user_key}[k])
-      RETURN ${user_key}
+      MATCH (${this.user_key}: User)
+      WHERE ALL(k in keys($properties) WHERE $properties[k] = ${this.user_key}[k])
+      RETURN ${this.user_key}
     `;
     return {
       ...this.neo4j_service.getSingleResultProperties(
@@ -59,7 +60,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
             properties: params,
           },
         ),
-        user_key,
+        this.user_key,
       ),
       roles: [Role.User],
     };
@@ -70,11 +71,10 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   }
 
   public async create(user: UserDTO): Promise<UserDTO> {
-    const user_key = 'new_user';
     const create_user_statement = `
-      CREATE (${user_key}: User)
-      SET ${user_key} += $properties, ${user_key}.user_id = randomUUID()
-      RETURN ${user_key}
+      CREATE (${this.user_key}: User)
+      SET ${this.user_key} += $properties, ${this.user_key}.user_id = randomUUID()
+      RETURN ${this.user_key}
     `;
     const result: QueryResult = await this.neo4j_service.write(
       create_user_statement,
@@ -87,17 +87,15 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
           created_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
         },
       });
-    return this.neo4j_service.getSingleResultProperties(result, user_key) as UserDTO;
+    return this.neo4j_service.getSingleResultProperties(result, this.user_key) as UserDTO;
   }
 
   public async createUserFollowRequest(params: FollowRequestDTO): Promise<void> {
-    const user_key = 'user';
-    const user_destiny_key = 'user_destiny';
     const create_user_follow_request_query = ` 
-      MATCH (${user_key}: User { user_id: '${params.user_id}' }) 
-      MATCH (${user_destiny_key}: User { user_id: '${params.user_destiny_id}' })
-      CREATE (${user_key})-[:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
-      RETURN ${user_key}
+      MATCH (${this.user_key}: User { user_id: '${params.user_id}' }) 
+      MATCH (${this.user_to_follow_key}: User { user_id: '${params.user_to_follow_id}' })
+      CREATE (${this.user_key})-[:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${this.user_to_follow_key})
+      RETURN ${this.user_key}
     `;
     await this.neo4j_service.write(
       create_user_follow_request_query,
@@ -107,8 +105,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
 
 
   public async exists(user: UserDTO): Promise<boolean> {
-    const user_key = 'user';
-    const exists_user_query = `MATCH (${user_key}: User { email: $email }) RETURN ${user_key}`;
+    const exists_user_query = `MATCH (${this.user_key}: User { email: $email }) RETURN ${this.user_key}`;
     const result: QueryResult = await this.neo4j_service.read(
       exists_user_query,
       { email: user.email },
@@ -117,59 +114,53 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   }
 
   public async existsById(id: string): Promise<boolean> {
-    const user_key = 'user';
-    const exists_user_query = `MATCH (${user_key}: User { user_id: $id }) RETURN ${user_key}`;
+    const exists_user_query = `MATCH (${this.user_key}: User { user_id: $id }) RETURN ${this.user_key}`;
     const result: QueryResult = await this.neo4j_service.read(
       exists_user_query,
-      { id: id },
+      { id },
     );
     return result.records.length > 0;
   }
 
   public async existsUserFollowRequest(params: FollowRequestDTO): Promise<boolean> {
-    const user_key = 'user';
-    const user_destiny_key = 'user_destiny';
     const exists_user_follow_request_query = ` 
-      MATCH (${user_key}: User { user_id: $user_id }) , 
-      (${user_destiny_key}: User { user_id: $user_destiny_id }), 
-      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+      MATCH (${this.user_key}: User { user_id: $user_id }) , 
+      (${this.user_to_follow_key}: User { user_id: $user_to_follow_id }), 
+      (${this.user_key})-[r: ${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${this.user_to_follow_key})
       RETURN r
     `;
     const result: QueryResult = await this.neo4j_service.read(
       exists_user_follow_request_query,
       {
         user_id: params.user_id,
-        user_destiny_id: params.user_destiny_id,
+        user_to_follow_id: params.user_to_follow_id
       },
     );
     return result.records.length > 0;
   }
 
   public async existsUserFollowRelationship(params: FollowRequestDTO): Promise<boolean> {
-    const user_key = 'user';
-    const user_destiny_key = 'user_destiny';
     const exists_user_follow_request_query = ` 
-      MATCH (${user_key}: User { user_id: $user_id }) , 
-      (${user_destiny_key}: User { user_id: $user_destiny_id }), 
-      (${user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${user_destiny_key})
+      MATCH (${this.user_key}: User { user_id: $user_id }) , 
+      (${this.user_to_follow_key}: User { user_id: $user_to_follow_id }), 
+      (${this.user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${this.user_to_follow_key})
       RETURN r
     `;
     const result: QueryResult = await this.neo4j_service.read(
       exists_user_follow_request_query,
       {
         user_id: params.user_id,
-        user_destiny_id: params.user_destiny_id,
+        user_to_follow_id: params.user_to_follow_id
       },
     );
     return result.records.length > 0;
   }
 
   public async update(user: UserDTO): Promise<UserDTO> {
-    const user_key = 'user';
     const update_user_statement = `
-      MATCH (${user_key}: User { user_id: $user_id })
-      SET ${user_key} += $properties
-      RETURN ${user_key}
+      MATCH (${this.user_key}: User { user_id: $user_id })
+      SET ${this.user_key} += $properties
+      RETURN ${this.user_key}
     `;
     const result: QueryResult = await this.neo4j_service.write(
       update_user_statement,
@@ -185,42 +176,38 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
         },
       },
     );
-    return this.neo4j_service.getSingleResultProperties(result, user_key) as UserDTO;
+    return this.neo4j_service.getSingleResultProperties(result, this.user_key) as UserDTO;
   }
 
   public async acceptUserFollowRequest(params: FollowRequestDTO): Promise<void> {
-    const user_key = 'user';
-    const user_destiny_key = 'user_destiny';
     const accept_user_follow_request_query = ` 
-      MATCH (${user_key}: User { user_id: $user_id }),
-      (${user_destiny_key}: User { user_id: $user_destiny_id }),
-      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+      MATCH (${this.user_key}: User { user_id: $user_id }),
+      (${this.user_to_follow_key}: User { user_id: $user_to_follow_id }),
+      (${this.user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${this.user_to_follow_key})
       DELETE r
-      CREATE (${user_key})-[:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${user_destiny_key})
+      CREATE (${this.user_key})-[:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${this.user_to_follow_key})
     `;
     await this.neo4j_service.write(
       accept_user_follow_request_query,
       {
         user_id: params.user_id,
-        user_destiny_id: params.user_destiny_id,
+        user_to_follow_id: params.user_to_follow_id
       },
     );
   }
 
   public async rejectUserFollowRequest(params: FollowRequestDTO): Promise<void> {
-    const user_key = 'user';
-    const user_destiny_key = 'user_destiny';
     const reject_user_follow_request_query = ` 
-      MATCH (${user_key}: User { user_id: $user_id }),
-      (${user_destiny_key}: User { user_id: $user_destiny_id }),
-      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+      MATCH (${this.user_key}: User { user_id: $user_id }),
+      (${this.user_to_follow_key}: User { user_id: $user_to_follow_id }),
+      (${this.user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${this.user_to_follow_key})
       DELETE r
     `;
     await this.neo4j_service.write(
       reject_user_follow_request_query,
       {
         user_id: params.user_id,
-        user_destiny_id: params.user_destiny_id,
+        user_to_follow_id: params.user_to_follow_id,
       },
     );
   }
@@ -239,63 +226,58 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   }
 
   public async deleteById(id: string): Promise<UserDTO> {
-    const user_key = 'user';
     const post_key = 'post';
     const profile_key = 'profile';
     const user_conversation_relationship = 'belongs_to_c';
     const conversation_key = 'conversation';
     const delete_user_statement = `
-      MATCH (${user_key}: User { user_id: $user_id })
-      WITH ${user_key}
-      OPTIONAL MATCH (${user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
+      MATCH (${this.user_key}: User { user_id: $user_id })
+      WITH ${this.user_key}
+      OPTIONAL MATCH (${this.user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
       DETACH DELETE ${post_key}
-      WITH ${user_key}
-      OPTIONAL MATCH (${user_key})-[:${Relationships.USER_PROFILE_RELATIONSHIP}]->(${profile_key}: Profile)
+      WITH ${this.user_key}
+      OPTIONAL MATCH (${this.user_key})-[:${Relationships.USER_PROFILE_RELATIONSHIP}]->(${profile_key}: Profile)
       DETACH DELETE ${profile_key}
-      DETACH DELETE ${user_key}
-      WITH ${user_key}
-      OPTIONAL MATCH (${user_key})
+      DETACH DELETE ${this.user_key}
+      WITH ${this.user_key}
+      OPTIONAL MATCH (${this.user_key})
         -[${user_conversation_relationship}:${Relationships.USER_CONVERSATION_RELATIONSHIP}
         ->(${conversation_key}: Conversation)
       DELETE ${user_conversation_relationship}
-      RETURN ${user_key}
+      RETURN ${this.user_key}
     `;
     const result: QueryResult = await this.neo4j_service.write(delete_user_statement, { user_id: id });
-    return this.neo4j_service.getSingleResultProperties(result, user_key);
+    return this.neo4j_service.getSingleResultProperties(result, this.user_key);
   }
 
   public async deleteUserFollowRequest(params: FollowRequestDTO): Promise<void> {
-    const user_key = 'user';
-    const user_destiny_key = 'user_destiny';
     const delete_user_follow_request_query = ` 
-      MATCH (${user_key}: User { user_id: $user_id }),
-      (${user_destiny_key}: User { user_id: $user_destiny_id }),
-      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_destiny_key})
+      MATCH (${this.user_key}: User { user_id: $user_id }),
+      (${this.user_to_follow_key}: User { user_id: $user_to_follow_id }),
+      (${this.user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${this.user_to_follow_key})
       DELETE r
     `;
     await this.neo4j_service.write(
       delete_user_follow_request_query,
       {
         user_id: params.user_id,
-        user_destiny_id: params.user_destiny_id,
+        user_to_follow_id: params.user_to_follow_id,
       },
     );
   }
 
   public async deleteUserFollowRelationship(params: FollowRequestDTO): Promise<void> {
-    const user_key = 'user';
-    const user_destiny_key = 'user_destiny';
     const delete_user_follow_relationship_query = ` 
-      MATCH (${user_key}: User { user_id: $user_id }),
-      (${user_destiny_key}: User { user_id: $user_destiny_id }),
-      (${user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${user_destiny_key})
+      MATCH (${this.user_key}: User { user_id: $user_id }),
+      (${this.user_to_follow_key}: User { user_id: $user_to_follow_id }),
+      (${this.user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${this.user_to_follow_key})
       DELETE r
     `;
     await this.neo4j_service.write(
       delete_user_follow_relationship_query,
       {
         user_id: params.user_id,
-        user_destiny_id: params.user_destiny_id,
+        user_to_follow_id: params.user_to_follow_id,
       },
     );
   }
@@ -311,26 +293,25 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       date_of_birth: result.date_of_birth,
       name: result.name,
     });
-    const user_key = 'user';
     const other_user_key = 'other_user';
     const get_user_follow_request_collection_query = `
-      MATCH (${user_key}: User { user_id: $user_id }),
-      (${other_user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${user_key})
+      MATCH (${this.user_key}: User { user_id: $user_id }),
+      (${other_user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${this.user_key})
       RETURN ${other_user_key}
     `;
     const get_following_users_query = `
-      MATCH (${user_key}: User { user_id: $user_id }),
-      (${user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${other_user_key})
+      MATCH (${this.user_key}: User { user_id: $user_id }),
+      (${this.user_key})-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]->(${other_user_key})
       RETURN ${other_user_key}
     `;
     const get_followers_query = `
-      MATCH (${user_key}: User { user_id: $user_id }),
-      (${user_key})<-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]-(${other_user_key})
+      MATCH (${this.user_key}: User { user_id: $user_id }),
+      (${this.user_key})<-[r:${Relationships.USER_FOLLOW_RELATIONSHIP}]-(${other_user_key})
       RETURN ${other_user_key}
     `;
     const get_user_follow_request_sent_collection_query = ` 
-      MATCH (${user_key}: User { user_id: $user_id }),
-      (${user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${other_user_key})
+      MATCH (${this.user_key}: User { user_id: $user_id }),
+      (${this.user_key})-[r:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${other_user_key})
       RETURN ${other_user_key}
     `;
     const result_request = await this.neo4j_service.read(
