@@ -35,7 +35,8 @@ export class UpdateUserAccountService implements UpdateUserAccountInteractor {
       && isValidDateOfBirth(date_of_birth);
     if (!is_a_valid_update)
       throw new UserAccountInvalidDataFormatException();
-    if (await this.gateway.findOne({ email }))
+    const existing_user_with_email = await this.gateway.findOne({ email });
+    if (existing_user_with_email && existing_user_with_email.user_id !== id)
       throw new UserAccountAlreadyExistsException();
     const updated_user: UserDTO = await this.gateway.update({
       user_id: id,

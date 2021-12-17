@@ -70,6 +70,8 @@ import { EventInMemoryRepository } from '@infrastructure/adapter/persistence/in-
 import { GetEventCollectionOfFriendsService } from '@core/service/event/get_event_collection_of_friends.service';
 import { GetMyEventCollectionService } from '@core/service/event/get_my_event_collection.service';
 import { CreateGroupService } from '@core/service/group/create_group.service';
+import { ProjectInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/project_in_memory.repository';
+import { GroupInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/group_in_memory.repository';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -390,8 +392,12 @@ export async function createTestModule() {
       },
       {
         provide: GroupDITokens.GroupRepository,
-        useFactory: () => new ChatMessageInMemoryRepository(new Map()),
+        useFactory: () => new GroupInMemoryRepository(new Map()),
       },
+      {
+        provide: ProjectDITokens.ProjectRepository,
+        useFactory: () => new ProjectInMemoryRepository(new Map())
+      }
     ],
   }).compile();
 }

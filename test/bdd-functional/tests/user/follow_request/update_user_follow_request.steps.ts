@@ -25,8 +25,8 @@ defineFeature( feature, (test) => {
     date_of_birth: '01/01/2000'
   };
 
-  let user_id: string; 
-  let user_destiny_id: string;
+  let user_id: string;
+  let user_to_follow_id: string;
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_user_follow_request_interactor: CreateUserFollowRequestInteractor;
   let update_user_follow_request_interactor: UpdateUserFollowRequestInteractor;
@@ -48,7 +48,7 @@ defineFeature( feature, (test) => {
         user_id = id;
         try {
           const resp = await create_user_account_interactor.execute(user_mock);
-          user_id = resp.id; 
+          user_id = resp.id;
         } catch (e) {
           console.log(e);
         }
@@ -56,13 +56,13 @@ defineFeature( feature, (test) => {
     );
   }
 
-  function andAnotherUserDestinyExists(and) {
-    and(/^another user destiny exists, and has an id "([^"]*)"$/,
+  function andAnotherUserToFollowExists(and) {
+    and(/^another user to follow exists, and has an id "([^"]*)"$/,
       async (id: string) => {
-        user_destiny_id = id;
+        user_to_follow_id = id;
         try {
           const resp = await create_user_account_interactor.execute(user_mock_1);
-          user_destiny_id = resp.id; 
+          user_to_follow_id = resp.id;
         } catch (e) {
           console.log(e);
         }
@@ -76,27 +76,27 @@ defineFeature( feature, (test) => {
         try {
           await create_user_follow_request_interactor.execute({
             user_id,
-            user_destiny_id
+            user_to_follow_id
           });
         } catch (e) {
-          console.log(e); 
+          console.log(e);
         }
       }
     );
   }
 
-  function whenTheUserDestinyActionTheFollowRequest(when) {
-    when(/^the user destiny "([^"]*)" the follow request$/, 
+  function whenTheUserToFollowActionTheFollowRequest(when) {
+    when(/^the user to follow "([^"]*)" the follow request$/,
       async (acceptString: string) => {
-        const accept = (acceptString === 'true');
+        const accept = acceptString === 'true';
         await updateUserFollowRequest({
           user_id,
-          user_destiny_id, 
+          user_to_follow_id,
           accept
         });
       });
   }
-  
+
   beforeEach(async () => {
     const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
@@ -107,10 +107,10 @@ defineFeature( feature, (test) => {
   test('A user accepts an existing follow request',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
-      andAnotherUserDestinyExists(and);
+      andAnotherUserToFollowExists(and);
       andAFollowRequestExists(and);
-      whenTheUserDestinyActionTheFollowRequest(when);
-      then('the follow request is updated and the user follow the destiny user', () => {
+      whenTheUserToFollowActionTheFollowRequest(when);
+      then('the follow request is updated and the user follow the desired user', () => {
         expect(output).toBeDefined();
       });
     }
@@ -119,13 +119,12 @@ defineFeature( feature, (test) => {
   test('A user rejects an existing follow request',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
-      andAnotherUserDestinyExists(and);
+      andAnotherUserToFollowExists(and);
       andAFollowRequestExists(and);
-      whenTheUserDestinyActionTheFollowRequest(when);
-      then('the follow request is updated and the user do not follow the destiny user', () => {
+      whenTheUserToFollowActionTheFollowRequest(when);
+      then('the follow request is updated and the user do not follow the desired user', () => {
         expect(output).toBeDefined();
       });
     }
   );
-  
-}); 
+});

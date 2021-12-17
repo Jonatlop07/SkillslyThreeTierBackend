@@ -24,8 +24,8 @@ defineFeature( feature, (test) => {
     date_of_birth: '01/01/2000'
   };
 
-  let user_id: string; 
-  let user_destiny_id: string;
+  let user_id: string;
+  let user_to_follow_id: string;
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_user_follow_request_interactor: CreateUserFollowRequestInteractor;
   let output: CreateUserFollowRequestOutputModel;
@@ -45,7 +45,7 @@ defineFeature( feature, (test) => {
         user_id = id;
         try {
           const resp = await create_user_account_interactor.execute(user_mock);
-          user_id = resp.id; 
+          user_id = resp.id;
         } catch (e) {
           console.log(e);
         }
@@ -54,12 +54,12 @@ defineFeature( feature, (test) => {
   }
 
   function andAnotherUserDestinyExists(and) {
-    and(/^another user destiny exists, and has an id "([^"]*)"$/,
+    and(/^another user to follow exists, and has an id "([^"]*)"$/,
       async (id: string) => {
-        user_destiny_id = id;
+        user_to_follow_id = id;
         try {
           const resp = await create_user_account_interactor.execute(user_mock_1);
-          user_destiny_id = resp.id; 
+          user_to_follow_id = resp.id;
         } catch (e) {
           console.log(e);
         }
@@ -67,11 +67,11 @@ defineFeature( feature, (test) => {
     );
   }
 
-  function whenTheUserRequestToFollowTheDestinyUser(when) {
-    when('the user request to follow the destiny user', async () => {
+  function whenTheUserRequestToFollowTheDesiredUser(when) {
+    when('the user request to follow the desired user', async () => {
       await createUserFollowRequest({
         user_id,
-        user_destiny_id
+        user_to_follow_id
       });
     });
   }
@@ -83,11 +83,11 @@ defineFeature( feature, (test) => {
     exception = undefined;
   });
 
-  test('A logged in user request frienship to another existing user',
+  test('A logged in user request friendship to another existing user',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andAnotherUserDestinyExists(and);
-      whenTheUserRequestToFollowTheDestinyUser(when);
+      whenTheUserRequestToFollowTheDesiredUser(when);
       then('a user follow request is created', () => {
         expect(output).toBeDefined();
       });
@@ -96,18 +96,18 @@ defineFeature( feature, (test) => {
 
   test('A logged in user fails to request friendship to another existing user because there already exists a friedship request',
     ({ given, and, when, then }) => {
-      givenAUserExists(given); 
-      andAnotherUserDestinyExists(and); 
+      givenAUserExists(given);
+      andAnotherUserDestinyExists(and);
       and(
         'there already exists an friendship request between the users',
         async () => {
           await createUserFollowRequest({
             user_id,
-            user_destiny_id
+            user_to_follow_id
           });
         },
       );
-      whenTheUserRequestToFollowTheDestinyUser(when);
+      whenTheUserRequestToFollowTheDesiredUser(when);
       then(
         'an error occurs: a friendship request between the users already exists',
         () => {

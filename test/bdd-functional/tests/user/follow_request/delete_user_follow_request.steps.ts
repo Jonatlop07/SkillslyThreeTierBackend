@@ -25,8 +25,8 @@ defineFeature( feature, (test) => {
     date_of_birth: '01/01/2000'
   };
 
-  let user_id: string; 
-  let user_destiny_id: string;
+  let user_id: string;
+  let user_to_follow_id: string;
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_user_follow_request_interactor: CreateUserFollowRequestInteractor;
   let delete_user_follow_request_interactor: DeleteUserFollowRequestInteractor;
@@ -48,7 +48,7 @@ defineFeature( feature, (test) => {
         user_id = id;
         try {
           const resp = await create_user_account_interactor.execute(user_mock);
-          user_id = resp.id; 
+          user_id = resp.id;
         } catch (e) {
           console.log(e);
         }
@@ -56,13 +56,13 @@ defineFeature( feature, (test) => {
     );
   }
 
-  function andAnotherUserDestinyExists(and) {
-    and(/^another user destiny exists, and has an id "([^"]*)"$/,
+  function andAnotherUserToFollowExists(and) {
+    and(/^another user to follow exists, and has an id "([^"]*)"$/,
       async (id: string) => {
-        user_destiny_id = id;
+        user_to_follow_id = id;
         try {
           const resp = await create_user_account_interactor.execute(user_mock_1);
-          user_destiny_id = resp.id; 
+          user_to_follow_id = resp.id;
         } catch (e) {
           console.log(e);
         }
@@ -76,27 +76,27 @@ defineFeature( feature, (test) => {
         try {
           await create_user_follow_request_interactor.execute({
             user_id,
-            user_destiny_id
+            user_to_follow_id
           });
         } catch (e) {
-          console.log(e); 
+          console.log(e);
         }
       }
     );
   }
 
   function whenTheUserDeleteTheFollowRequest(when) {
-    when(/^the user tries to delete the "([^"]*)"$/, 
+    when(/^the user tries to delete the "([^"]*)"$/,
       async (isRequestString: string) => {
-        const isRequest = (isRequestString === 'true');
+        const is_request = isRequestString === 'true';
         await deleteUserFollowRequest({
           user_id,
-          user_destiny_id,
-          isRequest
+          user_to_follow_id,
+          is_request
         });
       });
   }
-  
+
   beforeEach(async () => {
     const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
@@ -107,10 +107,10 @@ defineFeature( feature, (test) => {
   test('A user deletes an existing follow request or a follow relationship',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
-      andAnotherUserDestinyExists(and);
+      andAnotherUserToFollowExists(and);
       andAFollowRequestExists(and);
       whenTheUserDeleteTheFollowRequest(when);
-      then('the follow request is deleted or the user stop following the destiny user', () => {
+      then('the follow request is deleted or the user stop following the desired user', () => {
         expect(output).toBeDefined();
       });
     }

@@ -18,7 +18,7 @@ defineFeature( feature, (test) => {
     date_of_birth: '01/01/2000'
   };
 
-  let user_id: string; 
+  let user_id: string;
   let create_user_account_interactor: CreateUserAccountInteractor;
   let get_user_follow_request_collection_interactor: GetUserFollowRequestCollectionInteractor;
   let output: GetUserFollowRequestCollectionOutputModel;
@@ -39,7 +39,7 @@ defineFeature( feature, (test) => {
         user_id = id;
         try {
           const resp = await create_user_account_interactor.execute(user_mock);
-          user_id = resp.id; 
+          user_id = resp.id;
         } catch (e) {
           console.log(e);
         }
@@ -47,26 +47,28 @@ defineFeature( feature, (test) => {
     );
   }
 
-  function whenTheUserTriesToGetHisRelationshipWithAnothersUsers(when) {
-    when('the user tries to get his relationship with anothers users', 
+  function whenTheUserTriesToGetHisRelationshipWithOtherUsers(when) {
+    when('the user tries to get his relationship with other users',
       async () => {
         await getUserFollowRequestCollection({
           user_id
         });
       });
   }
-  
+
   beforeEach(async () => {
     const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
     get_user_follow_request_collection_interactor = module.get<GetUserFollowRequestCollectionInteractor>(UserDITokens.GetUserFollowRequestCollectionInteractor);
+    exception = undefined;
   });
 
   test('A user gets a collection of existing follow requests or follow relationships',
     ({ given, when, then }) => {
       givenAUserExists(given);
-      whenTheUserTriesToGetHisRelationshipWithAnothersUsers(when);
+      whenTheUserTriesToGetHisRelationshipWithOtherUsers(when);
       then('a collection of follow request and follow relationships is returned', () => {
+        expect(output).toBeDefined();
       });
     }
   );

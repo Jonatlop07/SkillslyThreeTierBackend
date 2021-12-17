@@ -2,9 +2,8 @@ Feature: Get User Follow Request Collection
 
   Scenario Outline: A user gets a collection of existing follow requests or follow relationships
     Given a user exists, is logged in, and has an id "<UserId>"
-    When the user tries to get his relationship with anothers users
+    When the user tries to get his relationship with other users
     Then a collection of follow request and follow relationships is returned
-
-    Examples: 
-      | UserId | 
+    Examples:
+      | UserId |
       | 1      |
