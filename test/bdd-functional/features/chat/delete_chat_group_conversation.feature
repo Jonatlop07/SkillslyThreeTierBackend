@@ -1,4 +1,5 @@
 Feature: Delete a Group Conversation
+
   Scenario Outline: A user successfully deletes a group conversation
     Given these users exists:
       | email                 | password  | name | date_of_birth |
@@ -41,3 +42,19 @@ Feature: Delete a Group Conversation
       | UserId | ConversationId |
       | 1      | 1              |
 
+  Scenario Outline: A user that is not an administrator of a group conversation tries to delete it
+    Given these users exists:
+      | email                 | password  | name | date_of_birth |
+      | newuser_123@test.com  | Abc123_tr | Juan | 01/01/2000    |
+      | newuser_1234@test.com | Abc123_tr | John | 01/01/2000    |
+      | newuser_1235@test.com | Abc123_tr | Jake | 01/01/2000    |
+    And a conversation named "<ConversationName>" exists and is identified by "<ConversationId>" with the users:
+      | user_id |
+      | 1       |
+      | 2       |
+      | 3       |
+    When the user identified by "<UserId>" tries to delete the conversation
+    Then an error occurs: the user is not an administrator of the conversation
+    Examples:
+      | UserId | ConversationId | ConversationName |
+      | 2      | 1              | NewConversation  |

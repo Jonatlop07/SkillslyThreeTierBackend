@@ -1,4 +1,4 @@
-import { isValidType } from '@core/common/util/reaction_data.validators';
+import { isValidType } from '@core/common/util/validators/reaction_data.validators';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import QueryPermanentPostGateway from '@core/domain/post/use-case/gateway/query_permanent_post.gateway';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
@@ -41,5 +41,5 @@ export class AddReactionService implements AddReactionInteractor{
     };
     return await this.gateway.create(reaction) as AddReactionOutputModel;
   }
-  
+
 }

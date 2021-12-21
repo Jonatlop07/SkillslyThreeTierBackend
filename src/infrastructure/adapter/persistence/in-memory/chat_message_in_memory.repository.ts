@@ -1,7 +1,7 @@
 import ChatMessageRepository from '@core/domain/chat/use-case/repository/chat_message.repository';
 import { MessageDTO } from '@core/domain/chat/use-case/persistence-dto/message.dto';
-import * as moment from 'moment';
 import MessageQueryModel from '@core/domain/chat/use-case/query-model/message.query_model';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 export class ChatMessageInMemoryRepository implements ChatMessageRepository {
   private currently_available_message_id: string;
@@ -16,7 +16,7 @@ export class ChatMessageInMemoryRepository implements ChatMessageRepository {
       conversation_id: message.conversation_id,
       user_id: message.user_id,
       content: message.content,
-      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
+      created_at: getCurrentDate()
     };
     this.messages.set(this.currently_available_message_id, new_message);
     this.currently_available_message_id = `${Number(this.currently_available_message_id) + 1}`;

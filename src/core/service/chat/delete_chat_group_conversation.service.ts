@@ -9,7 +9,7 @@ import DeleteChatGroupConversationGateway
   from '@core/domain/chat/use-case/gateway/delete_chat_group_conversation.gateway';
 import {
   NonExistentConversationChatException,
-  UserDoesNotBelongToConversationChatException
+  UserDoesNotBelongToConversationChatException, UserDoesNotHavePermissionsInConversationChatException
 } from '@core/domain/chat/use-case/exception/chat.exception';
 
 export class DeleteChatGroupConversationService implements DeleteChatGroupConversationInteractor {
@@ -25,6 +25,8 @@ export class DeleteChatGroupConversationService implements DeleteChatGroupConver
       throw new NonExistentConversationChatException();
     if (!await this.gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();
+    if (!await this.gateway.isAdministratorOfTheGroupConversation(user_id, conversation_id))
+      throw new UserDoesNotHavePermissionsInConversationChatException();
     await this.gateway.deleteById(conversation_id);
     return {};
   }

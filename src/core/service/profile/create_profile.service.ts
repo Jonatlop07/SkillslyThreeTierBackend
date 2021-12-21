@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { isValidMember } from '@core/common/util/profile.validators';
+import { isValidMember } from '@core/common/util/validators/profile.validators';
 import CreateProfileGateway from '@core/domain/profile/use-case/gateway/create_profile.gateway';
 import CreateProfileInputModel from '@core/domain/profile/use-case/input-model/create_profile.input_model';
 import CreateProfileOutputModel from '@core/domain/profile/use-case/output-model/create_profile.output_model';

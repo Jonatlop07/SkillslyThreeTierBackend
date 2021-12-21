@@ -3,7 +3,7 @@ import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interact
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
 import {
   ChatException, InvalidGroupConversationDetailsFormatChatException, NonExistentConversationChatException,
-  UserDoesNotBelongToConversationChatException
+  UserDoesNotBelongToConversationChatException, UserDoesNotHavePermissionsInConversationChatException
 } from '@core/domain/chat/use-case/exception/chat.exception';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import UpdateGroupConversationDetailsInputModel
@@ -57,6 +57,7 @@ defineFeature(feature, (test) => {
         }
         try {
           await create_chat_conversation_interactor.execute({
+            creator_id: conversation_members[0],
             conversation_name,
             conversation_members
           });
@@ -154,6 +155,20 @@ defineFeature(feature, (test) => {
         () => {
           expect(exception).toBeDefined();
           expect(exception).toBeInstanceOf(NonExistentConversationChatException);
+        }
+      );
+    }
+  );
+  test('A user that is not an administrator of a group conversation tries to update its details',
+    ({ given, and, when, then }) => {
+      givenTheseUsersExists(given);
+      andAConversationExists(and);
+      andUserProvidesEditedConversationDetails(and);
+      whenUserTriesToUpdateGroupConversationDetails(when);
+      then('an error occurs: the user is not an administrator of the conversation',
+        () => {
+          expect(exception).toBeDefined();
+          expect(exception).toBeInstanceOf(UserDoesNotHavePermissionsInConversationChatException);
         }
       );
     }

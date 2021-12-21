@@ -19,7 +19,8 @@ import CreateChatMessageOutputModel from '@core/domain/chat/use-case/output-mode
   cors: {
     origin: '*'
   },
-  namespace: 'chat'
+  namespace: 'chat',
+  secure: true
 })
 export class ChatSocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger(ChatSocketGateway.name);

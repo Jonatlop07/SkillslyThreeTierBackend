@@ -8,7 +8,7 @@ import { AddMembersToGroupConversationInteractor } from '@core/domain/chat/use-c
 import {
   ChatException,
   NonExistentConversationChatException,
-  UserDoesNotBelongToConversationChatException
+  UserDoesNotBelongToConversationChatException, UserDoesNotHavePermissionsInConversationChatException
 } from '@core/domain/chat/use-case/exception/chat.exception';
 import { createTestModule } from '../create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
@@ -54,6 +54,7 @@ defineFeature(feature, (test) => {
         }
         try {
           await create_chat_conversation_interactor.execute({
+            creator_id: conversation_members[0],
             conversation_name,
             conversation_members
           });
@@ -148,6 +149,20 @@ defineFeature(feature, (test) => {
         expect(exception).toBeDefined();
         expect(exception).toBeInstanceOf(NonExistentConversationChatException);
       });
+    }
+  );
+  test('A user tries to add members to a conversation but is not an administrator',
+    ({ given, and, when, then }) => {
+      givenTheseUsersExists(given);
+      andAConversationExists(and);
+      andUserProvidesMembersToAddToConversation(and);
+      whenUserTriesToAddTheMembersToConversation(when);
+      then('an error occurs: the user is not an administrator of the conversation',
+        () => {
+          expect(exception).toBeDefined();
+          expect(exception).toBeInstanceOf(UserDoesNotHavePermissionsInConversationChatException);
+        }
+      );
     }
   );
 });

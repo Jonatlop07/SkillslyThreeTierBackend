@@ -9,13 +9,14 @@ import { ConversationDetailsDTO } from '@core/domain/chat/use-case/persistence-d
 import { Optional } from '@core/common/type/common_types';
 import { AddMembersToGroupConversationDTO } from '@core/domain/chat/use-case/persistence-dto/add_members_to_group_conversation.dto';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
-import * as moment from 'moment';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 @Injectable()
 export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationRepository {
   private readonly conversation_key = 'conversation';
   private readonly user_key = 'user';
   private readonly message_key = 'message';
+  private readonly user_conversation_relationship_key = 'r';
 
   private readonly logger: Logger = new Logger(ChatConversationNeo4jRepositoryAdapter.name);
 
@@ -29,7 +30,12 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
       WITH ${this.conversation_key}
       UNWIND $member_ids as member_id
       MATCH (${this.user_key}: User { user_id: member_id })
-      CREATE (${this.user_key})-[:${Relationships.USER_CONVERSATION_RELATIONSHIP}]->(${this.conversation_key})
+      CREATE
+        (${this.user_key})
+        -[:${Relationships.USER_CONVERSATION_RELATIONSHIP} ${conversation.creator_id ? `{ 
+            is_administrator: ${this.user_key}.user_id = $creator_id
+          }` : ''}]
+        ->(${this.conversation_key})
       RETURN ${this.conversation_key}
     `;
     return {
@@ -40,8 +46,9 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
             member_ids: conversation.members,
             properties: {
               name: conversation.name,
-              created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
-            }
+              created_at: getCurrentDate()
+            },
+            creator_id: conversation.creator_id
           }
         ),
         this.conversation_key
@@ -258,14 +265,33 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
   }
 
   public async exit(user_id: string, conversation_id: string): Promise<void> {
-    const user_conversation_relationship_key = 'r';
     const exit_group_conversation_statement = `
       MATCH
         (${this.conversation_key}: GroupConversation { conversation_id: $conversation_id })
-        <-[${user_conversation_relationship_key}: ${Relationships.USER_CONVERSATION_RELATIONSHIP}]
+        <-[${this.user_conversation_relationship_key}: ${Relationships.USER_CONVERSATION_RELATIONSHIP}]
         -(${this.user_key}: User { user_id: $user_id })
-      DELETE ${user_conversation_relationship_key}
+      DELETE ${this.user_conversation_relationship_key}
     `;
     await this.neo4j_service.write(exit_group_conversation_statement, { user_id, conversation_id });
+  }
+
+  public async isAdministratorOfTheGroupConversation(user_id: string, conversation_id: string): Promise<boolean> {
+    const is_administrator_of_group_conversation_query = `
+      MATCH
+        (${this.user_key} { user_id: $user_id })
+        -[${this.user_conversation_relationship_key}:${Relationships.USER_CONVERSATION_RELATIONSHIP}
+          { is_administrator: true }
+        ]
+        ->(${this.conversation_key} { conversation_id: $conversation_id })
+      RETURN ${this.user_conversation_relationship_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      is_administrator_of_group_conversation_query,
+      {
+        user_id,
+        conversation_id
+      }
+    );
+    return result.records.length > 0;
   }
 }

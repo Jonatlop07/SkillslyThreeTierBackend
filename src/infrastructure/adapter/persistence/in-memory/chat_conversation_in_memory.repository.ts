@@ -1,11 +1,11 @@
 import ChatConversationRepository from '@core/domain/chat/use-case/repository/chat_conversation.repository';
 import { ConversationDTO } from '@core/domain/chat/use-case/persistence-dto/conversation.dto';
-import * as moment from 'moment';
 import ConversationQueryModel from '@core/domain/chat/use-case/query-model/conversation.query_model';
 import { ConversationDetailsDTO } from '@core/domain/chat/use-case/persistence-dto/conversation_details.dto';
 import { Optional } from '@core/common/type/common_types';
 import { AddMembersToGroupConversationDTO } from '@core/domain/chat/use-case/persistence-dto/add_members_to_group_conversation.dto';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 export class ChatConversationInMemoryRepository implements ChatConversationRepository {
   private currently_available_conversation_id: string;
@@ -16,11 +16,12 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
 
   public create(conversation: ConversationDTO): Promise<ConversationDTO> {
     const new_conversation: ConversationDTO = {
+      creator_id: conversation.creator_id,
       conversation_id: this.currently_available_conversation_id,
       name: conversation.name,
       members: conversation.members,
       messages: conversation.messages,
-      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
+      created_at: getCurrentDate(),
     };
     this.conversations.set(this.currently_available_conversation_id, new_conversation);
     this.currently_available_conversation_id = `${Number(this.currently_available_conversation_id) + 1}`;
@@ -118,5 +119,10 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
     conversation.members = conversation.members.filter((member) => member !== user_id);
     this.conversations.set(conversation_id, conversation);
     return Promise.resolve();
+  }
+
+  public async isAdministratorOfTheGroupConversation(user_id: string, conversation_id: string): Promise<boolean> {
+    const conversation = this.conversations.get(conversation_id);
+    return Promise.resolve(conversation.creator_id === user_id);
   }
 }

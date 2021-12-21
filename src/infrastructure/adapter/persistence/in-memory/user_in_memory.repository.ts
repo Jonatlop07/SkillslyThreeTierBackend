@@ -1,10 +1,10 @@
 import { Optional } from '@core/common/type/common_types';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
-import * as moment from 'moment';
 import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
 import { FollowRequestDTO } from '@core/domain/user/use-case/persistence-dto/follow_request.dto';
 import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
@@ -27,7 +27,7 @@ export class UserInMemoryRepository implements UserRepository {
       password: user.password,
       name: user.name,
       date_of_birth: user.date_of_birth,
-      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
+      created_at: getCurrentDate(),
     };
     this.users.set(this.currently_available_user_id, new_user);
     this.currently_available_user_id = `${Number(this.currently_available_user_id) + 1}`;
@@ -88,7 +88,6 @@ export class UserInMemoryRepository implements UserRepository {
     return null;
   }
 
-
   public update(user: UserDTO): Promise<UserDTO> {
     const user_to_update: UserDTO = {
       user_id: user.user_id,
@@ -96,7 +95,7 @@ export class UserInMemoryRepository implements UserRepository {
       email: user.email,
       name: user.name,
       date_of_birth: user.date_of_birth,
-      updated_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
+      updated_at: getCurrentDate(),
     };
     this.users.set(user.user_id, user_to_update);
     return Promise.resolve(user_to_update);

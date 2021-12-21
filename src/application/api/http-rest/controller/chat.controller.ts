@@ -108,7 +108,7 @@ export class ChatController {
     try {
       return CreateGroupChatConversationAdapter.toResponseDTO(
         await this.create_group_chat_conversation_interactor.execute(
-          CreateGroupChatConversationAdapter.toInputModel(body)
+          CreateGroupChatConversationAdapter.toInputModel(body, http_user.id)
         )
       );
     } catch (e) {
@@ -158,7 +158,7 @@ export class ChatController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'The members were successfully added to the conversation' })
   @ApiNotFoundResponse( { description: 'The conversation does not exists' })
-  @ApiUnauthorizedResponse({ description: 'The user cannot add members to a conversation they does not belong to' })
+  @ApiUnauthorizedResponse({ description: 'The user does not have permissions to add members to the conversation' })
   public async addMembersToGroupConversation(
     @HttpUser() http_user: HttpUserPayload,
     @Param('conversation_id') conversation_id: string,
@@ -183,7 +183,7 @@ export class ChatController {
       });
       return AddMembersToGroupConversationAdapter.toResponseDTO(result);
     } catch (e) {
-      HttpExceptionMapper.toHttpException(e);
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
@@ -191,7 +191,7 @@ export class ChatController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'The details of the group conversation were successfully updated' })
   @ApiNotFoundResponse( { description: 'The group conversation does not exist' })
-  @ApiUnauthorizedResponse({ description: 'The user cannot edit the details of a group conversation they does not belong to' })
+  @ApiUnauthorizedResponse({ description: 'The user does not have permissions to update the details of the conversation' })
   @ApiBadRequestResponse({ description: 'The user provided the details of the group conversation in an invalid format' })
   public async updateGroupConversationDetails(
     @HttpUser() http_user: HttpUserPayload,
@@ -215,7 +215,7 @@ export class ChatController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: 'The group conversation was successfully deleted' })
   @ApiNotFoundResponse( { description: 'The group conversation does not exist' })
-  @ApiUnauthorizedResponse({ description: 'The user cannot delete a group conversation they does not belong to' })
+  @ApiUnauthorizedResponse({ description: 'The user does not have permissions to delete the conversation' })
   public async deleteChatGroupConversation(
     @HttpUser() http_user: HttpUserPayload,
     @Param('conversation_id') conversation_id: string,

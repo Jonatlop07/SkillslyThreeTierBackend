@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { isValidEmail } from '@core/common/util/account_data.validators';
+import { isValidEmail } from '@core/common/util/validators/account_data.validators';
 import { GetProfileInteractor } from '@core/domain/profile/use-case/interactor/get_profile.interactor';
 import GetProfileGateway from '@core/domain/profile/use-case/gateway/get_profile.gateway';
 import GetProfileInputModel from '@core/domain/profile/use-case/input-model/get_profile.input_model';

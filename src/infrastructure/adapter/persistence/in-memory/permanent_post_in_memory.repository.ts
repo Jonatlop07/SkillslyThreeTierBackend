@@ -2,9 +2,9 @@ import { Optional } from '@core/common/type/common_types';
 import PermanentPostRepository from '@core/domain/post/use-case/repository/permanent_post.repository';
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
-import * as moment from 'moment';
 import SharePermanentPostOutputModel from '@core/domain/post/use-case/output-model/share_permanent_post.output_model';
 import { PaginationDTO } from '@application/api/http-rest/http-dtos/http_pagination.dto';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 export class PermanentPostInMemoryRepository implements PermanentPostRepository {
   private currently_available_post_id: string;
@@ -13,6 +13,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     this.currently_available_post_id = '1';
   }
   delete(params: string): Promise<PermanentPostDTO> {
+    params;
     throw new Error('Method not implemented.');
   }
 
@@ -22,7 +23,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
       content: post.content,
       user_id: post.user_id,
       privacy: post.privacy,
-      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss')
+      created_at: getCurrentDate()
     };
     this.posts.set(this.currently_available_post_id, new_post);
     this.currently_available_post_id = `${Number(this.currently_available_post_id) + 1}`;
@@ -66,6 +67,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   }
 
   public getPostsOfFriends(id: string, pagination: PaginationDTO): Promise<PermanentPostDTO[]> {
+    pagination;
     const user_posts: PermanentPostDTO[] = [];
     for (const post of this.posts.values()){
       if (id === post['user_id'] && post.privacy === 'public'){
@@ -95,13 +97,14 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
       content: post.content,
       user_id: post.user_id,
       privacy: post.privacy,
-      updated_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
+      updated_at: getCurrentDate(),
     };
     this.posts.set(post.post_id, post_to_update);
     return Promise.resolve(post_to_update);
   }
 
   public share(post: PermanentPostQueryModel): Promise<SharePermanentPostOutputModel> {
+    post;
     return Promise.resolve({});
   }
 

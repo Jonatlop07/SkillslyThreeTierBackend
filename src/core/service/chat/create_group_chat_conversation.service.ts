@@ -22,9 +22,10 @@ export class CreateGroupChatConversationService implements CreateGroupChatConver
   };
 
   public async execute(input: CreateGroupChatConversationInputModel): Promise<CreateGroupChatConversationOutputModel> {
-    const { conversation_name, conversation_members } = input;
+    const { creator_id, conversation_name, conversation_members } = input;
     this.throwIfNotEnoughConversationMembers(conversation_members);
     return await this.gateway.create({
+      creator_id,
       name: conversation_name,
       members: conversation_members,
       messages: [],

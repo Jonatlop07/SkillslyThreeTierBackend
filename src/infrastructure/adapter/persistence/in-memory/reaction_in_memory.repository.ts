@@ -1,9 +1,8 @@
 import { Optional } from '@core/common/type/common_types';
-import { QueryReactionElement } from '@core/domain/reaction/entity/type/queried_reactions_element';
 import { ReactionDTO } from '@core/domain/reaction/use_case/persistence-dto/reaction.dto';
 import ReactionQueryModel from '@core/domain/reaction/use_case/query-model/reaction.query_model';
 import { ReactionRepository } from '@core/domain/reaction/use_case/repository/reaction.repository';
-import * as moment from 'moment';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 export class ReactionInMemoryRepository implements ReactionRepository {
 
@@ -19,18 +18,15 @@ export class ReactionInMemoryRepository implements ReactionRepository {
       post_id: reaction.post_id,
       reactor_id: reaction.reactor_id,
       reaction_type: reaction.reaction_type,
-      created_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
+      created_at: getCurrentDate(),
     };
     this.reactions.set(this.last_added_reaction_id, added_reaction);
     this.last_added_reaction_id = `${Number(this.last_added_reaction_id) + 1}`;
     return Promise.resolve(added_reaction);
   }
 
-  findOneByParam(param: string, value: any): Promise<ReactionDTO> {
-    throw new Error('Method not implemented.');
-  }
-
   findAll(params: ReactionQueryModel): Promise<ReactionDTO[]> {
+    params;
     throw new Error('Method not implemented.');
   }
 
