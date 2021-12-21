@@ -5,8 +5,12 @@ import { AddMembersToGroupConversationDTO } from '@core/domain/chat/use-case/per
 import Find from '@core/common/persistence/find';
 import ConversationQueryModel from '@core/domain/chat/use-case/query-model/conversation.query_model';
 import { ConversationDetailsDTO } from '@core/domain/chat/use-case/persistence-dto/conversation_details.dto';
+import IsAdministratorOfTheGroupConversation
+  from '@core/domain/chat/use-case/persistence/is_administrator_of_the_group_conversation';
 
 export default interface AddMembersToGroupConversationGateway
-  extends BelongsUserToChatConversationGateway, Find<ConversationDetailsDTO, ConversationQueryModel> {
-  addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>>
+  extends BelongsUserToChatConversationGateway,
+    IsAdministratorOfTheGroupConversation,
+    Find<ConversationDetailsDTO, ConversationQueryModel> {
+  addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>>;
 }

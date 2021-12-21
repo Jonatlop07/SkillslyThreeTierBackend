@@ -18,8 +18,12 @@ export class CreateGroupChatConversationAdapter {
     };
   }
 
-  public static toInputModel(payload: CreateGroupChatConversationDTO): CreateGroupChatConversationInputModel {
+  public static toInputModel(
+    payload: CreateGroupChatConversationDTO,
+    creator_id: string
+  ): CreateGroupChatConversationInputModel {
     return {
+      creator_id,
       conversation_name: payload.name,
       conversation_members: payload.members
     };

@@ -33,6 +33,11 @@ class InvalidGroupConversationDetailsFormatChatException extends ChatException {
   message = 'The edited details of the group conversation are in an invalid format';
 }
 
+class UserDoesNotHavePermissionsInConversationChatException extends ChatException {
+  code = CoreExceptionCodes.USER_DOES_NOT_HAVE_PERMISSIONS_IN_CONVERSATION;
+  message = 'The user is not an administrator of the conversation';
+}
+
 export {
   ChatException,
   NonExistentConversationChatException,
@@ -40,5 +45,6 @@ export {
   EmptyMessageChatException,
   UserDoesNotBelongToConversationChatException,
   PrivateConversationAlreadyExistsChatException,
-  InvalidGroupConversationDetailsFormatChatException
+  InvalidGroupConversationDetailsFormatChatException,
+  UserDoesNotHavePermissionsInConversationChatException
 };

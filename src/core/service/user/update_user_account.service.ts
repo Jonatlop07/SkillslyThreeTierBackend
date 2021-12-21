@@ -9,13 +9,13 @@ import {
   isValidEmail,
   isValidName,
   isValidPassword
-} from '@core/common/util/account_data.validators';
+} from '@core/common/util/validators/account_data.validators';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import {
   UserAccountAlreadyExistsException,
   UserAccountInvalidDataFormatException
 } from '@core/domain/user/use-case/exception/user_account.exception';
-import generateHashedPassword from '@core/common/util/generate_hash_password';
+import generateHashedPassword from '@core/common/util/validators/generate_hash_password';
 
 export class UpdateUserAccountService implements UpdateUserAccountInteractor {
   private readonly logger = new Logger(UpdateUserAccountService.name);
@@ -35,7 +35,8 @@ export class UpdateUserAccountService implements UpdateUserAccountInteractor {
       && isValidDateOfBirth(date_of_birth);
     if (!is_a_valid_update)
       throw new UserAccountInvalidDataFormatException();
-    if (await this.gateway.findOne({ email }))
+    const existing_user_with_email = await this.gateway.findOne({ email });
+    if (existing_user_with_email && existing_user_with_email.user_id !== id)
       throw new UserAccountAlreadyExistsException();
     const updated_user: UserDTO = await this.gateway.update({
       user_id: id,

@@ -16,14 +16,19 @@ import CreatePrivateChatConversationOutputModel
   from '@core/domain/chat/use-case/output-model/create_private_chat_conversation.output_model';
 import CreateGroupChatConversationOutputModel
   from '@core/domain/chat/use-case/output-model/create_group_chat_conversation.output_model';
+import CreateGroupChatConversationInputModel
+  from '@core/domain/chat/use-case/input-model/create_group_chat_conversation.input_model';
 
 const feature = loadFeature('test/bdd-functional/features/chat/create_chat_conversation.feature');
 
 defineFeature(feature, (test) => {
+  const conversation_setup: CreateGroupChatConversationInputModel = {
+    creator_id: null,
+    conversation_name: null,
+    conversation_members: []
+  };
   let user_id: string;
   let other_user_id: string;
-  let conversation_name: string;
-  let conversation_members: Array<string> = [];
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_private_chat_conversation_interactor: CreatePrivateChatConversationInteractor;
   let create_group_chat_conversation_interactor: CreateGroupChatConversationInteractor;
@@ -61,12 +66,13 @@ defineFeature(feature, (test) => {
   function andUserWantsToInitiateConversationWithUsers(and) {
     and(/^the user identified by "([^"]*)" wants to initiate a conversation named "([^"]*)" with the users:$/,
       (user_id: string, name: string, users: Array<{ user_id: string }>) => {
+        conversation_setup.creator_id = user_id;
         if (users) {
-          conversation_members = [...users.map((user) => user.user_id)];
+          conversation_setup.conversation_members = [...users.map((user) => user.user_id)];
         } else {
-          conversation_members = [];
+          conversation_setup.conversation_members = [];
         }
-        conversation_name = name;
+        conversation_setup.conversation_name = name;
       }
     );
   }
@@ -87,10 +93,7 @@ defineFeature(feature, (test) => {
   function whenUserTriesToCreateAGroupConversation(when) {
     when('the user tries to create a group conversation', async () => {
       try {
-        create_group_chat_conversation_output = await create_group_chat_conversation_interactor.execute({
-          conversation_name,
-          conversation_members
-        });
+        create_group_chat_conversation_output = await create_group_chat_conversation_interactor.execute(conversation_setup);
       } catch (e) {
         exception = e;
       }

@@ -13,9 +13,9 @@ import {
   isValidPassword,
   isValidName,
   isValidDateOfBirth,
-} from '@core/common/util/account_data.validators';
+} from '@core/common/util/validators/account_data.validators';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
-import generateHashedPassword from '@core/common/util/generate_hash_password';
+import generateHashedPassword from '@core/common/util/validators/generate_hash_password';
 
 export class CreateUserAccountService implements CreateUserAccountInteractor {
   private readonly logger: Logger = new Logger(CreateUserAccountService.name);

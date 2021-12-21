@@ -13,13 +13,10 @@ export class DeleteGroupService implements DeleteGroupInteractor{
     private readonly gateway: DeleteGroupGateway
   ){}
 
-  async execute(
-    input: DeleteGroupInputModel,
-  ): Promise<DeleteGroupOutputModel> {
+  public async execute(input: DeleteGroupInputModel): Promise<DeleteGroupOutputModel> {
     const user_is_owner = await this.gateway.userIsOwner({ group_id: input.id, user_id: input.user_id });
-    if (!user_is_owner){
+    if (!user_is_owner)
       throw new UnauthorizedGroupEditorException();
-    }
     const deleted_group: GroupDTO = await this.gateway.deleteById(input.id);
     return {
       id: deleted_group.id,

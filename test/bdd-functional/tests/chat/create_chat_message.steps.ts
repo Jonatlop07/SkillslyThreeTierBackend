@@ -53,6 +53,7 @@ defineFeature(feature, (test) => {
         }
         try {
           await create_chat_conversation_interactor.execute({
+            creator_id: conversation_members[0],
             conversation_name,
             conversation_members
           });

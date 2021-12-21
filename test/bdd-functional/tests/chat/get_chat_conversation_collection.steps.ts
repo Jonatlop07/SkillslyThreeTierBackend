@@ -76,6 +76,7 @@ defineFeature(feature, (test) => {
               conversation_members = [];
             }
             await create_group_chat_conversation_interactor.execute({
+              creator_id: conversation_members[0],
               conversation_members,
               conversation_name
             });

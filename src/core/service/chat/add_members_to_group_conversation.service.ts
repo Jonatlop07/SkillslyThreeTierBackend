@@ -5,15 +5,17 @@ import AddMembersToGroupConversationOutputModel
   from '@core/domain/chat/use-case/output-model/add_members_to_group_conversation.output_model';
 import {
   NonExistentConversationChatException,
-  UserDoesNotBelongToConversationChatException
+  UserDoesNotBelongToConversationChatException, UserDoesNotHavePermissionsInConversationChatException
 } from '@core/domain/chat/use-case/exception/chat.exception';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import AddMembersToGroupConversationGateway
   from '@core/domain/chat/use-case/gateway/add_members_to_group_conversation.gateway';
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 
 export class AddMembersToGroupConversationService implements AddMembersToGroupConversationInteractor {
+  private readonly logger: Logger = new Logger(AddMembersToGroupConversationService.name);
+
   constructor(
     @Inject(ChatDITokens.ChatConversationRepository)
     private readonly gateway: AddMembersToGroupConversationGateway) {
@@ -26,6 +28,8 @@ export class AddMembersToGroupConversationService implements AddMembersToGroupCo
       throw new NonExistentConversationChatException();
     if (!await this.gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();
+    if (!await this.gateway.isAdministratorOfTheGroupConversation(user_id, conversation_id))
+      throw new UserDoesNotHavePermissionsInConversationChatException();
     const members_not_in_conversation = await Promise.all(
       members_to_add
         .filter(

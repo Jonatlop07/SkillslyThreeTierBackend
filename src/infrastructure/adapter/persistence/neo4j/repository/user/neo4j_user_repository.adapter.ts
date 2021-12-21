@@ -5,10 +5,10 @@ import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constan
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
-import * as moment from 'moment';
 import { FollowRequestDTO } from '@core/domain/user/use-case/persistence-dto/follow_request.dto';
 import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
 import { Role } from '@core/domain/user/entity/role.enum';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -36,13 +36,13 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       find_user_query,
       {
         email,
-        name,
-      },
+        name
+      }
     ).then(
       (result: QueryResult) =>
         result.records.map(
-          (record: any) => record._fields[0].properties,
-        ),
+          (record: any) => record._fields[0].properties
+        )
     );
   }
 
@@ -57,12 +57,12 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
         await this.neo4j_service.read(
           find_user_query,
           {
-            properties: params,
-          },
+            properties: params
+          }
         ),
-        this.user_key,
+        this.user_key
       ),
-      roles: [Role.User],
+      roles: [Role.User]
     };
   }
 
@@ -84,31 +84,33 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
           password: user.password,
           name: user.name,
           date_of_birth: user.date_of_birth,
-          created_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
-        },
+          created_at: getCurrentDate()
+        }
       });
     return this.neo4j_service.getSingleResultProperties(result, this.user_key) as UserDTO;
   }
 
   public async createUserFollowRequest(params: FollowRequestDTO): Promise<void> {
     const create_user_follow_request_query = ` 
-      MATCH (${this.user_key}: User { user_id: '${params.user_id}' }) 
-      MATCH (${this.user_to_follow_key}: User { user_id: '${params.user_to_follow_id}' })
+      MATCH (${this.user_key}: User { user_id: $user_id }),
+      (${this.user_to_follow_key}: User { user_id: $user_to_follow_id })
       CREATE (${this.user_key})-[:${Relationships.USER_FOLLOW_REQUEST_RELATIONSHIP}]->(${this.user_to_follow_key})
       RETURN ${this.user_key}
     `;
     await this.neo4j_service.write(
       create_user_follow_request_query,
-      {},
+      {
+        user_id: params.user_id,
+        user_to_follow_id: params.user_to_follow_id
+      }
     );
   }
-
 
   public async exists(user: UserDTO): Promise<boolean> {
     const exists_user_query = `MATCH (${this.user_key}: User { email: $email }) RETURN ${this.user_key}`;
     const result: QueryResult = await this.neo4j_service.read(
       exists_user_query,
-      { email: user.email },
+      { email: user.email }
     );
     return result.records.length > 0;
   }
@@ -117,7 +119,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     const exists_user_query = `MATCH (${this.user_key}: User { user_id: $id }) RETURN ${this.user_key}`;
     const result: QueryResult = await this.neo4j_service.read(
       exists_user_query,
-      { id },
+      { id }
     );
     return result.records.length > 0;
   }
@@ -134,7 +136,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       {
         user_id: params.user_id,
         user_to_follow_id: params.user_to_follow_id
-      },
+      }
     );
     return result.records.length > 0;
   }
@@ -151,7 +153,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       {
         user_id: params.user_id,
         user_to_follow_id: params.user_to_follow_id
-      },
+      }
     );
     return result.records.length > 0;
   }
@@ -172,9 +174,9 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
           password: user.password,
           name: user.name,
           date_of_birth: user.date_of_birth,
-          updated_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
-        },
-      },
+          updated_at: getCurrentDate()
+        }
+      }
     );
     return this.neo4j_service.getSingleResultProperties(result, this.user_key) as UserDTO;
   }
@@ -192,7 +194,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       {
         user_id: params.user_id,
         user_to_follow_id: params.user_to_follow_id
-      },
+      }
     );
   }
 
@@ -207,8 +209,8 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       reject_user_follow_request_query,
       {
         user_id: params.user_id,
-        user_to_follow_id: params.user_to_follow_id,
-      },
+        user_to_follow_id: params.user_to_follow_id
+      }
     );
   }
 
@@ -221,7 +223,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     const result: QueryResult = await this.neo4j_service.read(user_query, { user_id: id });
     return {
       ...this.neo4j_service.getSingleResultProperties(result, user_key),
-      roles: [Role.User],
+      roles: [Role.User]
     };
   }
 
@@ -261,8 +263,8 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       delete_user_follow_request_query,
       {
         user_id: params.user_id,
-        user_to_follow_id: params.user_to_follow_id,
-      },
+        user_to_follow_id: params.user_to_follow_id
+      }
     );
   }
 
@@ -277,21 +279,21 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       delete_user_follow_relationship_query,
       {
         user_id: params.user_id,
-        user_to_follow_id: params.user_to_follow_id,
-      },
+        user_to_follow_id: params.user_to_follow_id
+      }
     );
   }
 
   public async getUserFollowRequestCollection(id: string): Promise<Array<Array<SearchedUserDTO>>> {
     const map_nodes_properties = (result: QueryResult) =>
       result.records.map(
-        (record: any) => record._fields[0].properties,
+        (record: any) => record._fields[0].properties
       );
     const map_user_data = (result: any) => ({
       email: result.email,
       user_id: result.user_id,
       date_of_birth: result.date_of_birth,
-      name: result.name,
+      name: result.name
     });
     const other_user_key = 'other_user';
     const get_user_follow_request_collection_query = `
@@ -317,36 +319,36 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     const result_request = await this.neo4j_service.read(
       get_user_follow_request_collection_query,
       {
-        user_id: id,
-      },
+        user_id: id
+      }
     ).then(map_nodes_properties);
     const mapped_result_request = result_request.map(map_user_data);
     const following_users = await this.neo4j_service.read(
       get_following_users_query,
       {
-        user_id: id,
-      },
+        user_id: id
+      }
     ).then(map_nodes_properties);
     const mapped_following_users = following_users.map(map_user_data);
     const followers = await this.neo4j_service.read(
       get_followers_query,
       {
-        user_id: id,
-      },
+        user_id: id
+      }
     ).then(map_nodes_properties);
     const mapped_followers = followers.map(map_user_data);
     const result_request_sent = await this.neo4j_service.read(
       get_user_follow_request_sent_collection_query,
       {
-        user_id: id,
-      },
+        user_id: id
+      }
     ).then(map_nodes_properties);
     const mapped_result_request_sent = result_request_sent.map(map_user_data);
     return [
       mapped_result_request_sent,
       mapped_following_users,
       mapped_followers,
-      mapped_result_request,
+      mapped_result_request
     ];
   }
 }

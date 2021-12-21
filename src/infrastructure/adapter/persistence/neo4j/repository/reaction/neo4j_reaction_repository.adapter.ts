@@ -3,10 +3,10 @@ import { ReactionDTO } from '@core/domain/reaction/use_case/persistence-dto/reac
 import ReactionQueryModel from '@core/domain/reaction/use_case/query-model/reaction.query_model';
 import { ReactionRepository } from '@core/domain/reaction/use_case/repository/reaction.repository';
 import { Injectable } from '@nestjs/common';
-import * as moment from 'moment';
 import { QueryResult } from 'neo4j-driver-core';
 import { Relationships } from '../../constants/relationships';
 import { Neo4jService } from '../../service/neo4j.service';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 @Injectable()
 export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
@@ -36,7 +36,6 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
   async create(reaction: ReactionDTO): Promise<ReactionDTO> {
     const reaction_type = reaction.reaction_type.toUpperCase();
     const {reactor_id, post_id} = reaction;
-    const created_at = moment().local().format('YYYY/MM/DD HH:mm:ss');
     const add_reaction_statement = `
       MATCH (u: User),(p: PermanentPost) 
       WHERE u.user_id = $reactor_id AND p.post_id = $post_id
@@ -46,7 +45,7 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
     const add_result: QueryResult = await this.neo4jService.write(add_reaction_statement, {
       reactor_id,
       post_id,
-      created_at
+      created_at: getCurrentDate()
     });
     return {
       post_id: this.neo4jService.getSingleResultProperty(add_result, 'post'),
@@ -83,7 +82,7 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
       RETURN type(r) as reaction_type, count(*) as reaction_count, collect({name:u.name, email:u.email}) as reactors
     `;
     const query_reactions_result = await this.neo4jService.read(query_reactions_statement, {
-      id 
+      id
     }).then(
       (result: QueryResult) => result.records.map((record:any) =>
         record._fields
@@ -100,16 +99,13 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
     return reactions as QueryReactionElement[];
   }
 
-  findOneByParam(param: string, value: any): Promise<ReactionDTO> {
-    throw new Error('Method not implemented.');
-  }
-
   deleteById(id: string): Promise<ReactionDTO> {
+    id;
     throw new Error('Method not implemented.');
   }
 
   findAll(params: ReactionQueryModel): Promise<ReactionDTO[]> {
+    params;
     throw new Error('Method not implemented.');
   }
-  
 }

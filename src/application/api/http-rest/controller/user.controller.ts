@@ -175,7 +175,7 @@ export class UserController {
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: 'Search has been sucessffully completed' })
+  @ApiCreatedResponse({ description: 'Search has been successfully completed' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while searching users' })
   public async searchUsers(@Query('email') email: string, @Query('name') name: string) {
@@ -210,7 +210,7 @@ export class UserController {
     }
   }
 
-  @Post('follow/:user_destiny_id')
+  @Post('follow/:user_to_follow_id')
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Request has been successfully created' })
@@ -223,7 +223,7 @@ export class UserController {
   ) {
     try {
       const result: CreateUserFollowRequestOutputModel = await this.create_user_follow_request_interactor.execute(
-        await CreateUserFollowRequestAdapter.new({
+        CreateUserFollowRequestAdapter.new({
           user_id: http_user.id,
           user_to_follow_id
         })
@@ -242,7 +242,7 @@ export class UserController {
     }
   }
 
-  @Put('follow/:user_destiny_id')
+  @Put('follow/:user_to_follow_id')
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Request has been successfully updated' })
@@ -257,7 +257,7 @@ export class UserController {
   ) {
     try {
       const result = await this.update_user_follow_request_interactor.execute(
-        await UpdateUserFollowRequestAdapter.new({
+        UpdateUserFollowRequestAdapter.new({
           user_id: user_to_follow_id,
           user_to_follow_id: http_user.id,
           accept
@@ -283,7 +283,7 @@ export class UserController {
     }
   }
 
-  @Delete('follow/:user_destiny_id')
+  @Delete('follow/:user_to_follow_id')
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'Follow Request or Relationship has been successfully deleted' })
@@ -298,7 +298,7 @@ export class UserController {
     try {
       const is_request = is_request_string === 'true';
       const result = await this.delete_user_follow_request_interactor.execute(
-        await DeleteUserFollowRequestAdapter.new({
+        DeleteUserFollowRequestAdapter.new({
           user_id: http_user.id,
           user_to_follow_id,
           is_request

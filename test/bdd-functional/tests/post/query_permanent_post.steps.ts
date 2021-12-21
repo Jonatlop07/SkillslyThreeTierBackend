@@ -23,7 +23,7 @@ import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/in
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
 
 const feature = loadFeature(
-  'test/bdd-functional/features/post/query_permanent_post.feature',
+  'test/bdd-functional/features/post/query_permanent_post.feature'
 );
 
 defineFeature(feature, (test) => {
@@ -32,7 +32,7 @@ defineFeature(feature, (test) => {
   let existing_post_id: string;
 
   let create_user_account_interactor: CreateUserAccountInteractor;
-  let create_permanent_post_interactor:CreatePermanentPostInteractor;
+  let create_permanent_post_interactor: CreatePermanentPostInteractor;
   let query_permanent_post_interactor: QueryPermanentPostInteractor;
   let query_permanent_post_collection_interactor: QueryPermanentPostCollectionInteractor;
   let update_user_follow_request_interactor: UpdateUserFollowRequestInteractor;
@@ -48,14 +48,14 @@ defineFeature(feature, (test) => {
     email: 'newuser_123@test.com',
     password: 'Abc123_tr',
     name: 'Juan',
-    date_of_birth: '01/01/2000',
+    date_of_birth: '01/01/2000'
   };
 
   const user_2 = {
     email: 'newuser_1234@test.com',
     password: 'Abc1234_tr',
     name: 'Juana',
-    date_of_birth: '02/01/2000',
+    date_of_birth: '02/01/2000'
   };
 
   const cont1: PermanentPostContentElement = {
@@ -105,12 +105,12 @@ defineFeature(feature, (test) => {
             id: post_id,
             content: post_content_table,
             user_id: post_owner_id,
-            privacy: post_privacy,
+            privacy: post_privacy
           });
-        } catch (e){
+        } catch (e) {
           console.log(e);
         }
-      },
+      }
     );
   }
 
@@ -120,10 +120,10 @@ defineFeature(feature, (test) => {
         owner_id = post_owner_id;
         try {
           await createUserAccount(user_2);
-        } catch (e){
+        } catch (e) {
           console.log(e);
         }
-      },
+      }
     );
   }
 
@@ -137,7 +137,7 @@ defineFeature(feature, (test) => {
         for (const post of posts) {
           await createPost(post);
         }
-      },
+      }
     );
   }
 
@@ -146,17 +146,21 @@ defineFeature(feature, (test) => {
       (post_id, post_owner_id) => {
         existing_post_id = post_id;
         owner_id = post_owner_id;
-      },
+      }
     );
   }
 
-  function andFollowingRelationshipExists(and){
+  function andFollowingRelationshipExists(and) {
     and('there exists a following relationship between the two users',
-      async() => {
+      async () => {
         try {
-          await create_user_follow_request_interactor.execute({user_id: user_id, user_destiny_id: owner_id});
-          await update_user_follow_request_interactor.execute({user_id: user_id, user_destiny_id: owner_id, accept: true});
-        } catch (e){
+          await create_user_follow_request_interactor.execute({ user_id: user_id, user_to_follow_id: owner_id });
+          await update_user_follow_request_interactor.execute({
+            user_id: user_id,
+            user_to_follow_id: owner_id,
+            accept: true
+          });
+        } catch (e) {
           console.log(e);
         }
       }
@@ -167,7 +171,7 @@ defineFeature(feature, (test) => {
     and(/^the user provides the id of the owner being "([^"]*)"$/,
       (post_owner_id) => {
         owner_id = post_owner_id;
-      },
+      }
     );
   }
 
@@ -179,7 +183,7 @@ defineFeature(feature, (test) => {
             user_id: owner_id,
             id: existing_post_id
           });
-        } catch (e){
+        } catch (e) {
           exception = e;
         }
       });
@@ -193,7 +197,7 @@ defineFeature(feature, (test) => {
             user_id: user_id,
             owner_id: owner_id
           });
-        } catch (e){
+        } catch (e) {
           exception = e;
         }
       });
@@ -202,19 +206,19 @@ defineFeature(feature, (test) => {
   beforeEach(async () => {
     const module = await createTestModule();
     create_user_account_interactor = module.get<CreateUserAccountInteractor>(
-      UserDITokens.CreateUserAccountInteractor,
+      UserDITokens.CreateUserAccountInteractor
     );
     create_user_follow_request_interactor = module.get<CreateUserFollowRequestInteractor>(
-      UserDITokens.CreateUserFollowRequestInteractor,
+      UserDITokens.CreateUserFollowRequestInteractor
     );
     update_user_follow_request_interactor = module.get<UpdateUserFollowRequestInteractor>(
-      UserDITokens.UpdateUserFollowRequestInteractor,
+      UserDITokens.UpdateUserFollowRequestInteractor
     );
     create_permanent_post_interactor = module.get<CreatePermanentPostInteractor>(
-      PostDITokens.CreatePermanentPostInteractor,
+      PostDITokens.CreatePermanentPostInteractor
     );
     query_permanent_post_collection_interactor = module.get<QueryPermanentPostCollectionInteractor>(
-      PostDITokens.QueryPermanentPostCollectionInteractor,
+      PostDITokens.QueryPermanentPostCollectionInteractor
     );
     query_permanent_post_interactor = module.get<QueryPermanentPostInteractor>(
       PostDITokens.QueryPermanentPostInteractor
@@ -223,7 +227,7 @@ defineFeature(feature, (test) => {
   });
 
   test('A logged in user tries to query a specific permanent post',
-    ({ given, and, when, then, }) => {
+    ({ given, and, when, then }) => {
       givenAUserExists(given);
       andPostIdentifiedByIdExists(and);
       andUserProvidesIdOfThePostAndIdOfTheOwner(and);
@@ -238,7 +242,7 @@ defineFeature(feature, (test) => {
           };
           expect(output).toBeDefined();
           expect(output.content).toEqual(expected_output.content);
-        },
+        }
       );
     }
   );
@@ -256,14 +260,14 @@ defineFeature(feature, (test) => {
           const expected_output: QueryPermanentPostCollectionOutputModel = {
             posts: [
               {
-                post_id:'1',
+                post_id: '1',
                 content: post1_content,
                 user_id: owner_id,
                 privacy: 'public',
                 created_at: moment().format('YYYY/MM/DD HH:mm:ss')
               },
               {
-                post_id:'2',
+                post_id: '2',
                 content: post2_content,
                 user_id: owner_id,
                 privacy: 'private',
@@ -273,7 +277,7 @@ defineFeature(feature, (test) => {
           };
           expect(output_collection).toBeDefined();
           expect(output_collection.posts).toEqual(expected_output.posts);
-        },
+        }
       );
     }
   );
@@ -294,14 +298,14 @@ defineFeature(feature, (test) => {
           const expected_output: QueryPermanentPostCollectionOutputModel = {
             posts: [
               {
-                post_id:'1',
+                post_id: '1',
                 content: post1_content,
                 user_id: owner_id,
                 privacy: 'public',
                 created_at: moment().format('YYYY/MM/DD HH:mm:ss')
               },
               {
-                post_id:'2',
+                post_id: '2',
                 content: post2_content,
                 user_id: owner_id,
                 privacy: 'private',
@@ -311,7 +315,7 @@ defineFeature(feature, (test) => {
           };
           expect(output_collection).toBeDefined();
           expect(output_collection.posts).toEqual(expected_output.posts);
-        },
+        }
       );
     }
   );
@@ -330,7 +334,7 @@ defineFeature(feature, (test) => {
           const expected_output: QueryPermanentPostCollectionOutputModel = {
             posts: [
               {
-                post_id:'1',
+                post_id: '1',
                 content: post1_content,
                 user_id: owner_id,
                 privacy: 'public',
@@ -340,7 +344,7 @@ defineFeature(feature, (test) => {
           };
           expect(output_collection).toBeDefined();
           expect(output_collection.posts).toEqual(expected_output.posts);
-        },
+        }
       );
     }
   );

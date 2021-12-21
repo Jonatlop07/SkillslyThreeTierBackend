@@ -6,7 +6,7 @@ import CreateTemporalPostInputModel from '@core/domain/temp-post/use-case/input-
 import CreateTemporalPostOutputModel
   from '@core/domain/temp-post/use-case/output-model/create_temporal_post.output_model';
 import { TemporalPostDTO } from '@core/domain/temp-post/use-case/persistence-dto/temporal_post.dto';
-import { isValidURL } from '@core/common/util/permanent_post.validators';
+import { isValidURL } from '@core/common/util/validators/permanent_post.validators';
 import {
   InvalidInputException,
   InvalidReferenceException, InvalidReferenceTypeException,

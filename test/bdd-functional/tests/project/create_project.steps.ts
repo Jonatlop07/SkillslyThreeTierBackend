@@ -17,8 +17,6 @@ const feature = loadFeature(
 );
 
 defineFeature(feature, (test) => {
-  let user_id: string;
-
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_project_interactor: CreateProjectInteractor;
 
@@ -36,8 +34,7 @@ defineFeature(feature, (test) => {
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
-      const { id } = await create_user_account_interactor.execute(input);
-      user_id = id;
+      await create_user_account_interactor.execute(input);
     } catch (e) {
       console.log(e);
     }
@@ -61,7 +58,6 @@ defineFeature(feature, (test) => {
     and(
       /^the user identified by "(.*)", provides the content of the proyect being:$/,
       (owner_user_id, project_content_table) => {
-        console.log(project_content_table);
         input = {
           user_id: owner_user_id,
           title: project_content_table[0].title,
@@ -77,9 +73,7 @@ defineFeature(feature, (test) => {
 
   function whenUserTriesToCreateNewProject(when) {
     when('the user tries to create a new project', async () => {
-      console.log(input);
       output = await createProject(input);
-      console.log(output);
     });
   }
 

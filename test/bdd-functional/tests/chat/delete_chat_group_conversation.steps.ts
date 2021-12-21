@@ -4,7 +4,7 @@ import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-cas
 import {
   ChatException,
   NonExistentConversationChatException,
-  UserDoesNotBelongToConversationChatException
+  UserDoesNotBelongToConversationChatException, UserDoesNotHavePermissionsInConversationChatException
 } from '@core/domain/chat/use-case/exception/chat.exception';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
@@ -57,6 +57,7 @@ defineFeature(feature, (test) => {
         }
         try {
           await create_chat_conversation_interactor.execute({
+            creator_id: conversation_members[0],
             conversation_name,
             conversation_members
           });
@@ -130,6 +131,19 @@ defineFeature(feature, (test) => {
         () => {
           expect(exception).toBeDefined();
           expect(exception).toBeInstanceOf(NonExistentConversationChatException);
+        }
+      );
+    }
+  );
+  test('A user that is not an administrator of a group conversation tries to delete it',
+    ({ given, and, when, then }) => {
+      givenTheseUsersExists(given);
+      andAConversationExists(and);
+      whenUserTriesToDeleteGroupConversation(when);
+      then('an error occurs: the user is not an administrator of the conversation',
+        () => {
+          expect(exception).toBeDefined();
+          expect(exception).toBeInstanceOf(UserDoesNotHavePermissionsInConversationChatException);
         }
       );
     }

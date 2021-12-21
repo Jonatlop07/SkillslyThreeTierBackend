@@ -11,9 +11,9 @@ import UpdateGroupConversationDetailsGateway
 import {
   InvalidGroupConversationDetailsFormatChatException,
   NonExistentConversationChatException,
-  UserDoesNotBelongToConversationChatException
+  UserDoesNotBelongToConversationChatException, UserDoesNotHavePermissionsInConversationChatException
 } from '@core/domain/chat/use-case/exception/chat.exception';
-import { isValidGroupConversationName } from '@core/common/util/chat.validators';
+import { isValidGroupConversationName } from '@core/common/util/validators/chat.validators';
 import { ConversationDTO } from '@core/domain/chat/use-case/persistence-dto/conversation.dto';
 export class UpdateGroupConversationDetailsService implements UpdateGroupConversationDetailsInteractor {
   constructor(
@@ -30,6 +30,8 @@ export class UpdateGroupConversationDetailsService implements UpdateGroupConvers
       throw new UserDoesNotBelongToConversationChatException();
     if (!isValidGroupConversationName(conversation_name))
       throw new InvalidGroupConversationDetailsFormatChatException();
+    if (!await this.gateway.isAdministratorOfTheGroupConversation(user_id, conversation_id))
+      throw new UserDoesNotHavePermissionsInConversationChatException();
     const updated_group_conversation: ConversationDTO = await this.gateway.update({
       conversation_id,
       name: conversation_name,

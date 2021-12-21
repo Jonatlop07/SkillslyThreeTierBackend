@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { QueryResult } from 'neo4j-driver';
-import * as moment from 'moment';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import MessageQueryModel from '@core/domain/chat/use-case/query-model/message.query_model';
 import ChatMessageRepository from '@core/domain/chat/use-case/repository/chat_message.repository';
 import { MessageDTO } from '@core/domain/chat/use-case/persistence-dto/message.dto';
 import { Optional } from '@core/common/type/common_types';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 @Injectable()
 export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository {
@@ -37,7 +37,7 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
           conversation_id: message.conversation_id,
           properties: {
             content: message.content,
-            created_at: moment().local().format('YYYY/MM/DD HH:mm:ss'),
+            created_at: getCurrentDate(),
           },
         },
       ),

@@ -13,7 +13,8 @@ export class ServerApplication {
 
   public async run(): Promise<void> {
     try {
-      const options = {};
+      const options = {
+      };
       if (!this.enable_log) {
         options['logger'] = false;
       }
