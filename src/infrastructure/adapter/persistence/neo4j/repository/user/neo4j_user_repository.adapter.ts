@@ -32,17 +32,15 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       WHERE ${this.user_key}.email CONTAINS $email OR ${this.user_key}.name CONTAINS $name 
       RETURN ${this.user_key}
     `;
-    return await this.neo4j_service.read(
-      find_user_query,
-      {
-        email,
-        name
-      }
-    ).then(
-      (result: QueryResult) =>
-        result.records.map(
-          (record: any) => record._fields[0].properties
-        )
+    return this.neo4j_service.getMultipleResultByKey(
+      await this.neo4j_service.read(
+        find_user_query,
+        {
+          email,
+          name
+        }
+      ),
+      this.user_key
     );
   }
 
@@ -52,18 +50,38 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       WHERE ALL(k in keys($properties) WHERE $properties[k] = ${this.user_key}[k])
       RETURN ${this.user_key}
     `;
-    return {
-      ...this.neo4j_service.getSingleResultProperties(
-        await this.neo4j_service.read(
-          find_user_query,
-          {
-            properties: params
-          }
-        ),
-        this.user_key
+    const found_user: UserDTO = this.neo4j_service.getSingleResultProperties(
+      await this.neo4j_service.read(
+        find_user_query,
+        {
+          properties: params
+        }
       ),
-      roles: [Role.User]
+      this.user_key
+    );
+    return {
+      ...found_user,
+      roles: await this.getRoles(found_user.user_id)
     };
+  }
+
+  private async getRoles(user_id: string): Promise<Array<Role>> {
+    const roles = [Role.User];
+    if (await this.hasInvestorRole(user_id))
+      roles.push(Role.Investor);
+    return roles;
+  }
+
+  private async hasInvestorRole(user_id: string): Promise<boolean> {
+    const has_investor_role_query = `
+      MATCH (${this.user_key}: Investor { user_id: $user_id })
+      RETURN ${this.user_key}
+    `;
+    const has_investor_query_result = await this.neo4j_service.read(
+      has_investor_role_query,
+      { user_id }
+    );
+    return has_investor_query_result.records.length > 0;
   }
 
   public findAllWithRelation() {
@@ -71,8 +89,9 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   }
 
   public async create(user: UserDTO): Promise<UserDTO> {
+    const investor_label = user.roles.includes(Role.Investor) ? ': Investor' : '';
     const create_user_statement = `
-      CREATE (${this.user_key}: User)
+      CREATE (${this.user_key}: User ${investor_label})
       SET ${this.user_key} += $properties, ${this.user_key}.user_id = randomUUID()
       RETURN ${this.user_key}
     `;

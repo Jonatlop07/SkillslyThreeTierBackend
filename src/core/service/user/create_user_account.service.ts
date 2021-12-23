@@ -16,6 +16,7 @@ import {
 } from '@core/common/util/validators/account_data.validators';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import generateHashedPassword from '@core/common/util/validators/generate_hash_password';
+import { Role } from '@core/domain/user/entity/role.enum';
 
 export class CreateUserAccountService implements CreateUserAccountInteractor {
   private readonly logger: Logger = new Logger(CreateUserAccountService.name);
@@ -27,7 +28,7 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
   }
 
   public async execute(input: CreateUserAccountInputModel,): Promise<CreateUserAccountOutputModel> {
-    const { email, password, name, date_of_birth } = input;
+    const { email, password, name, date_of_birth, is_investor } = input;
     const is_a_valid_input = email && password && name && date_of_birth
       && isValidEmail(email) && isValidPassword(password)
       && isValidName(name) && isValidDateOfBirth(date_of_birth);
@@ -38,6 +39,7 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
       password: generateHashedPassword(password),
       name,
       date_of_birth,
+      roles: [is_investor && Role.Investor]
     };
     if (await this.gateway.exists(user_to_create))
       throw new UserAccountAlreadyExistsException();
