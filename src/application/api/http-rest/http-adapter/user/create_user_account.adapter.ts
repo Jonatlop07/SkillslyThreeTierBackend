@@ -7,7 +7,9 @@ export class CreateUserAccountAdapter {
       email: payload.email,
       password: payload.password,
       name: payload.name,
-      date_of_birth: payload.date_of_birth
+      date_of_birth: payload.date_of_birth,
+      is_investor: payload.is_investor,
+      is_requester: payload.is_requester
     };
   }
 }
