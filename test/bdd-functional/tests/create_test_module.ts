@@ -72,6 +72,9 @@ import { GetMyEventCollectionService } from '@core/service/event/get_my_event_co
 import { CreateGroupService } from '@core/service/group/create_group.service';
 import { ProjectInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/project_in_memory.repository';
 import { GroupInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/group_in_memory.repository';
+import { CreateEventAssistantService } from '@core/service/event/assistant/create_event_assistant.service';
+import { GetEventAssistantCollectionService } from '@core/service/event/assistant/get_event_assistant_collection.service';
+import { DeleteEventAssistantService } from '@core/service/event/assistant/delete_event_assistant.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -352,6 +355,21 @@ export async function createTestModule() {
       {
         provide: EventDITokens.GetMyEventCollectionInteractor,
         useFactory: (gateway, user_gateway) => new GetMyEventCollectionService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.CreateEventAssistantInteractor,
+        useFactory: (gateway, user_gateway) => new CreateEventAssistantService(gateway, gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.GetEventAssistantCollectionInteractor,
+        useFactory: (gateway) => new GetEventAssistantCollectionService(gateway, gateway),
+        inject: [EventDITokens.EventRepository]
+      },
+      {
+        provide: EventDITokens.DeleteEventAssistantInteractor,
+        useFactory: (gateway, user_gateway) => new DeleteEventAssistantService(gateway, user_gateway),
         inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
       },
       {

@@ -7,6 +7,9 @@ import { UserModule } from '@application/module/user.module';
 import { EventNeo4jRepositoryAdapter } from "@infrastructure/adapter/persistence/neo4j/repository/event/neo4j_event_repository.adapter";
 import { GetEventCollectionOfFriendsService } from "@core/service/event/get_event_collection_of_friends.service";
 import { GetMyEventCollectionService } from "@core/service/event/get_my_event_collection.service";
+import { CreateEventAssistantService } from "@core/service/event/assistant/create_event_assistant.service";
+import { GetEventAssistantCollectionService } from "@core/service/event/assistant/get_event_assistant_collection.service";
+import { DeleteEventAssistantService } from "@core/service/event/assistant/delete_event_assistant.service";
 
 const persistence_providers: Array<Provider> = [
   {
@@ -29,6 +32,21 @@ const use_case_providers: Array<Provider> = [
   {
     provide: EventDITokens.GetMyEventCollectionInteractor,
     useFactory: (gateway, user_gateway) => new GetMyEventCollectionService(gateway, user_gateway),
+    inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+  },
+  {
+    provide: EventDITokens.CreateEventAssistantInteractor,
+    useFactory: (gateway, user_gateway) => new CreateEventAssistantService(gateway, gateway, user_gateway),
+    inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+  },
+  {
+    provide: EventDITokens.GetEventAssistantCollectionInteractor,
+    useFactory: (gateway) => new GetEventAssistantCollectionService(gateway, gateway),
+    inject: [EventDITokens.EventRepository]
+  },
+  {
+    provide: EventDITokens.DeleteEventAssistantInteractor,
+    useFactory: (gateway, user_gateway) => new DeleteEventAssistantService(gateway, user_gateway),
     inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
   },
 ];

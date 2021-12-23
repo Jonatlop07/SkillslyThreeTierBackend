@@ -4,6 +4,7 @@ import { IsDate, IsNumber, IsString } from "class-validator";
 
 export class CreateEventAdapter implements CreateEventInputModel {
   @Expose()
+  @IsString()
   public user_id: string;
 
   @Expose()
