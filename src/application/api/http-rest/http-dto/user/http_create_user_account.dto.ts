@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
 
 export class CreateUserAccountDTO {
@@ -21,4 +21,9 @@ export class CreateUserAccountDTO {
   @IsNotEmpty()
   @ApiModelProperty()
   public date_of_birth: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  @ApiModelProperty()
+  public is_investor: boolean;
 }
