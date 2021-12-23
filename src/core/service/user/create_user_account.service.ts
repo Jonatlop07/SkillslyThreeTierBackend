@@ -27,19 +27,22 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
   ) {
   }
 
-  public async execute(input: CreateUserAccountInputModel,): Promise<CreateUserAccountOutputModel> {
-    const { email, password, name, date_of_birth, is_investor } = input;
+  public async execute(input: CreateUserAccountInputModel): Promise<CreateUserAccountOutputModel> {
+    const { email, password, name, date_of_birth, is_investor, is_requester } = input;
     const is_a_valid_input = email && password && name && date_of_birth
       && isValidEmail(email) && isValidPassword(password)
       && isValidName(name) && isValidDateOfBirth(date_of_birth);
     if (!is_a_valid_input)
       throw new UserAccountInvalidDataFormatException();
+    const roles = [];
+    if (is_investor) roles.push(Role.Investor);
+    if (is_requester) roles.push(Role.Requester);
     const user_to_create: UserDTO = {
       email,
       password: generateHashedPassword(password),
       name,
       date_of_birth,
-      roles: [is_investor && Role.Investor]
+      roles
     };
     if (await this.gateway.exists(user_to_create))
       throw new UserAccountAlreadyExistsException();

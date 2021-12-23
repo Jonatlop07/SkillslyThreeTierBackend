@@ -26,4 +26,9 @@ export class CreateUserAccountDTO {
   @IsNotEmpty()
   @ApiModelProperty()
   public is_investor: boolean;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  @ApiModelProperty()
+  public is_requester: boolean;
 }
