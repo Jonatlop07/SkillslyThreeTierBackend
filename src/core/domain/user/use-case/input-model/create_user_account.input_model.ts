@@ -4,4 +4,5 @@ export default interface CreateUserAccountInputModel {
   name: string;
   date_of_birth: string;
   is_investor: boolean;
+  is_requester: boolean;
 }

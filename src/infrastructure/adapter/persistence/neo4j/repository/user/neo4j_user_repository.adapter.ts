@@ -69,6 +69,8 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     const roles = [Role.User];
     if (await this.hasInvestorRole(user_id))
       roles.push(Role.Investor);
+    if (await this.hasRequesterRole(user_id))
+      roles.push(Role.Requester);
     return roles;
   }
 
@@ -84,14 +86,27 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     return has_investor_query_result.records.length > 0;
   }
 
+  private async hasRequesterRole(user_id: string): Promise<boolean> {
+    const has_requester_role_query = `
+      MATCH (${this.user_key}: Requester { user_id: $user_id })
+      RETURN ${this.user_key}
+    `;
+    const has_requester_query_result = await this.neo4j_service.read(
+      has_requester_role_query,
+      { user_id }
+    );
+    return has_requester_query_result.records.length > 0;
+  }
+
   public findAllWithRelation() {
     return null;
   }
 
   public async create(user: UserDTO): Promise<UserDTO> {
     const investor_label = user.roles.includes(Role.Investor) ? ': Investor' : '';
+    const requester_label = user.roles.includes(Role.Requester) ? ': Requester' : '';
     const create_user_statement = `
-      CREATE (${this.user_key}: User ${investor_label})
+      CREATE (${this.user_key}: User ${investor_label} ${requester_label})
       SET ${this.user_key} += $properties, ${this.user_key}.user_id = randomUUID()
       RETURN ${this.user_key}
     `;

@@ -1,4 +1,5 @@
 export enum Role {
   User = 'User',
-  Investor = 'Investor'
+  Investor = 'Investor',
+  Requester = 'Requester'
 }
