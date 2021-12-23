@@ -42,6 +42,8 @@ defineFeature(feature, (test) => {
     password: 'Abc123_tr',
     name: 'Juan',
     date_of_birth: '01/01/2000',
+    is_investor: false,
+    is_requester: false
   };
 
   const user_2 = {
@@ -49,6 +51,8 @@ defineFeature(feature, (test) => {
     password: 'Abc1234_tr',
     name: 'Juana',
     date_of_birth: '02/01/2000',
+    is_investor: false,
+    is_requester: false
   };
 
 

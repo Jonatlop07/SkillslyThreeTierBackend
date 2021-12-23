@@ -17,7 +17,9 @@ defineFeature(feature, (test) => {
     email: 'newuser_123@test.com',
     password: 'Abc123_tr',
     name: 'Juan',
-    date_of_birth: '01/01/2000'
+    date_of_birth: '01/01/2000',
+    is_investor: false,
+    is_requester: false
   };
 
   let user_id: string
@@ -25,7 +27,7 @@ defineFeature(feature, (test) => {
   let description: string;
   let lat: number;
   let long : number;
-  let date: Date; 
+  let date: Date;
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_event_interactor: CreateEventInteractor;
@@ -46,7 +48,7 @@ defineFeature(feature, (test) => {
         user_id = id;
         try {
           const resp = await create_user_account_interactor.execute(user_mock);
-          user_id = resp.id; 
+          user_id = resp.id;
         } catch (e) {
           console.log(e);
         }
@@ -60,8 +62,8 @@ defineFeature(feature, (test) => {
       (input_name, input_description, input_lat, input_long, input_date) => {
         name = input_name;
         description = input_description;
-        lat = input_lat; 
-        long = input_long; 
+        lat = input_lat;
+        long = input_long;
         date = new Date(input_date);
       },
     );
@@ -74,7 +76,7 @@ defineFeature(feature, (test) => {
         name,
         description,
         lat,
-        long, 
+        long,
         date
       });
     });

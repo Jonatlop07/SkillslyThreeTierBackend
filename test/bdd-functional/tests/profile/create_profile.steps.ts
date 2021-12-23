@@ -21,6 +21,8 @@ defineFeature(feature, (test) => {
     password: 'Abc123_tr',
     name: 'Juan',
     date_of_birth: '01/01/2000',
+    is_investor: false,
+    is_requester: false
   };
 
   let resume: string;
