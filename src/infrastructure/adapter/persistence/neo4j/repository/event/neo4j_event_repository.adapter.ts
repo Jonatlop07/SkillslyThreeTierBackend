@@ -7,6 +7,8 @@ import { QueryResult } from 'neo4j-driver';
 import { Relationships } from '../../constants/relationships';
 import { Neo4jService } from '../../service/neo4j.service';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import { AssistanceDTO } from '@core/domain/event/use-case/persistence-dto/assistance.dto';
+import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
 
 @Injectable()
 export class EventNeo4jRepositoryAdapter implements EventRepository {
@@ -41,6 +43,55 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
     });
 
     return this.neo4j_service.getSingleResultProperties(created_event, this.event_key) as EventDTO;
+  }
+
+  public async createEventAssistant(params: AssistanceDTO): Promise<Object> {
+    const user_key = 'user';
+    const create_event_assistant_query = ` 
+      MATCH (${user_key}: User { user_id: $user_id }),
+      (${this.event_key}: Event { event_id: $event_id })
+      CREATE (${user_key})-[:${Relationships.EVENT_ASSISTANT_RELATIONSHIP}]->(${this.event_key})
+      RETURN ${this.event_key}
+    `;
+    await this.neo4j_service.write(
+      create_event_assistant_query,
+      {
+        user_id: params.user_id,
+        event_id: params.event_id
+      }
+    );
+    return {};
+  }
+
+  public async exists(t: EventDTO): Promise<boolean> {
+    return false;
+  }
+
+  public async existsEventAssistant(params: AssistanceDTO): Promise<boolean> {
+    const user_key = 'user';
+    const exists_event_assistant_query = `
+      MMATCH (${user_key}: User { user_id: $user_id }) , 
+      (${this.event_key}: Event { event_id: $event_id }), 
+      (${user_key})-[r:${Relationships.EVENT_ASSISTANT_RELATIONSHIP}]->(${this.event_key})
+      RETURN r
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      exists_event_assistant_query,
+      { 
+        user_id: params.user_id, 
+        event_id: params.event_id 
+      }
+    );
+    return result.records.length > 0;
+  }
+
+  public async existsById(id: string): Promise<boolean> {
+    const exists_event_query = `MATCH (${this.event_key}: Event { event_id: $id }) RETURN ${this.event_key}`;
+    const result: QueryResult = await this.neo4j_service.read(
+      exists_event_query,
+      { id }
+    );
+    return result.records.length > 0;
   }
 
   public async getEventsOfFriends(id: string, pagination: PaginationDTO): Promise<EventDTO[]> {
@@ -138,6 +189,51 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
           };
         })
       );
+  }
+
+  public async getEventAssistantCollection(id: string): Promise<SearchedUserDTO[]> {
+    const map_nodes_properties = (result: QueryResult) =>
+    result.records.map(
+      (record: any) => record._fields[0].properties
+    );
+    const map_user_data = (result: any) => ({
+      email: result.email,
+      user_id: result.user_id,
+      date_of_birth: result.date_of_birth,
+      name: result.name
+    });
+    const other_user_key = 'other_user';
+    const get_event_assistant_collection_query = `
+      MATCH (${this.event_key}: Event { event_id: $event_id }),
+      (${other_user_key})-[r:${Relationships.EVENT_ASSISTANT_RELATIONSHIP}]->(${this.event_key})
+      RETURN ${other_user_key}
+    `;
+    const result_request = await this.neo4j_service.read(
+      get_event_assistant_collection_query,
+      {
+        event_id: id
+      }
+    ).then(map_nodes_properties);
+    const mapped_result_request = result_request.map(map_user_data);
+    return mapped_result_request; 
+  }
+
+  public async deleteEventAssistant(params: AssistanceDTO): Promise<Object> {
+    const user_key = 'user';
+    const delete_event_assistant_query = ` 
+      MATCH (${user_key}: User { user_id: $user_id }),
+      (${this.event_key}: Event { event_id: $event_id }),
+      (${user_key})-[r:${Relationships.EVENT_ASSISTANT_RELATIONSHIP}]->(${this.event_key})
+      DELETE r
+    `;
+    await this.neo4j_service.write(
+      delete_event_assistant_query,
+      {
+        user_id: params.user_id,
+        event_id: params.event_id
+      }
+    );
+    return {};
   }
 
 }

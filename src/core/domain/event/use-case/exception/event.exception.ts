@@ -8,7 +8,19 @@ class EmptyEventDescriptionException extends EventException {
   message= 'Empty event description or name';
 }
 
+class EventNotFoundException extends EventException {
+  code = CoreExceptionCodes.NON_EXISTENT_EVENT;
+  message= 'Event not found';
+}
+
+class EventAssistantNotFoundException extends EventException {
+  code = CoreExceptionCodes.NON_EXISTENT_EVENT_ASSISTANT;
+  message= 'Event assistant not found';
+}
+
 export {
   EventException,
-  EmptyEventDescriptionException
+  EmptyEventDescriptionException, 
+  EventNotFoundException, 
+  EventAssistantNotFoundException
 }
