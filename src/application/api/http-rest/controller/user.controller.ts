@@ -218,7 +218,7 @@ export class UserController {
   @ApiBadGatewayResponse({ description: 'Error while creating user follow request' })
   @ApiBearerAuth()
   public async createUserFollowRequest(
-  @HttpUser() http_user: HttpUserPayload,
+    @HttpUser() http_user: HttpUserPayload,
     @Param('user_to_follow_id') user_to_follow_id: string
   ) {
     try {
