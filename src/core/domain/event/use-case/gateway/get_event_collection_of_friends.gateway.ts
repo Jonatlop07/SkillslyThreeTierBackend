@@ -1,3 +1,3 @@
-import GetEvent from "../persistence/get_event";
+import GetEvent from '../persistence/get_event';
 
 export default interface GetEventCollectionOfFriendsGateway extends GetEvent {}

@@ -1,22 +1,22 @@
-import { EventDITokens } from "@core/domain/event/di/event_di_tokens";
-import { EventException } from "@core/domain/event/use-case/exception/event.exception";
-import GetEventAssistantCollectionInputModel from "@core/domain/event/use-case/input-model/assistant/get_event_assistant_collection.input_model";
-import CreateEventInputModel from "@core/domain/event/use-case/input-model/create_event.input_model";
-import { GetEventAssistantCollectionInteractor } from "@core/domain/event/use-case/interactor/assistant/get_event_assistant.interactor";
-import { CreateEventInteractor } from "@core/domain/event/use-case/interactor/create_event.interactor";
-import GetEventAssistantCollectionOutputModel from "@core/domain/event/use-case/output-model/assistant/get_event_assistant_collection.output_model";
-import { defineFeature, loadFeature } from "jest-cucumber";
-import { createTestModule } from "../../create_test_module";
+import { EventDITokens } from '@core/domain/event/di/event_di_tokens';
+import { EventException } from '@core/domain/event/use-case/exception/event.exception';
+import GetEventAssistantCollectionInputModel from '@core/domain/event/use-case/input-model/assistant/get_event_assistant_collection.input_model';
+import CreateEventInputModel from '@core/domain/event/use-case/input-model/create_event.input_model';
+import { GetEventAssistantCollectionInteractor } from '@core/domain/event/use-case/interactor/assistant/get_event_assistant.interactor';
+import { CreateEventInteractor } from '@core/domain/event/use-case/interactor/create_event.interactor';
+import GetEventAssistantCollectionOutputModel from '@core/domain/event/use-case/output-model/assistant/get_event_assistant_collection.output_model';
+import { defineFeature, loadFeature } from 'jest-cucumber';
+import { createTestModule } from '../../create_test_module';
 
 const feature = loadFeature('test/bdd-functional/features/event/assistant/get_event_assistant_collection.feature');
 
 defineFeature( feature, (test) => {
   const event_mock: CreateEventInputModel = {
-    name: 'Poolparty', 
+    name: 'Poolparty',
     description: 'amazing poolparty in my beach house',
-    lat: -71.3, 
-    long: 12.34, 
-    date: new Date(), 
+    lat: -71.3,
+    long: 12.34,
+    date: new Date(),
     user_id: '1'
   };
 
@@ -40,7 +40,7 @@ defineFeature( feature, (test) => {
       async (id: string) => {
         event_id = id;
         try {
-          const resp = await create_event_interactor.execute(event_mock);
+          await create_event_interactor.execute(event_mock);
         } catch (e) {
           console.log(e);
         }

@@ -1,5 +1,5 @@
-import { ApiModelProperty } from "@nestjs/swagger/dist/decorators/api-model-property.decorator";
-import { IsDate, IsNumber, IsString } from "class-validator";
+import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { IsNumber, IsString } from 'class-validator';
 
 export class CreateEventDTO {
   @IsString() @ApiModelProperty() name: string;

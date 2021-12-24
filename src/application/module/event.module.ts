@@ -1,15 +1,15 @@
-import { EventController } from "@application/api/http-rest/controller/event.controller";
-import { EventDITokens } from "@core/domain/event/di/event_di_tokens";
-import { UserDITokens } from "@core/domain/user/di/user_di_tokens";
-import { CreateEventService } from "@core/service/event/create_event.service";
-import { Module, Provider } from "@nestjs/common";
+import { EventController } from '@application/api/http-rest/controller/event.controller';
+import { EventDITokens } from '@core/domain/event/di/event_di_tokens';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { CreateEventService } from '@core/service/event/create_event.service';
+import { Module, Provider } from '@nestjs/common';
 import { UserModule } from '@application/module/user.module';
-import { EventNeo4jRepositoryAdapter } from "@infrastructure/adapter/persistence/neo4j/repository/event/neo4j_event_repository.adapter";
-import { GetEventCollectionOfFriendsService } from "@core/service/event/get_event_collection_of_friends.service";
-import { GetMyEventCollectionService } from "@core/service/event/get_my_event_collection.service";
-import { CreateEventAssistantService } from "@core/service/event/assistant/create_event_assistant.service";
-import { GetEventAssistantCollectionService } from "@core/service/event/assistant/get_event_assistant_collection.service";
-import { DeleteEventAssistantService } from "@core/service/event/assistant/delete_event_assistant.service";
+import { EventNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/event/neo4j_event_repository.adapter';
+import { GetEventCollectionOfFriendsService } from '@core/service/event/get_event_collection_of_friends.service';
+import { GetMyEventCollectionService } from '@core/service/event/get_my_event_collection.service';
+import { CreateEventAssistantService } from '@core/service/event/assistant/create_event_assistant.service';
+import { GetEventAssistantCollectionService } from '@core/service/event/assistant/get_event_assistant_collection.service';
+import { DeleteEventAssistantService } from '@core/service/event/assistant/delete_event_assistant.service';
 
 const persistence_providers: Array<Provider> = [
   {

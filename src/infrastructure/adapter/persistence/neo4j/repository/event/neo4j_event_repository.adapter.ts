@@ -45,7 +45,7 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
     return this.neo4j_service.getSingleResultProperties(created_event, this.event_key) as EventDTO;
   }
 
-  public async createEventAssistant(params: AssistanceDTO): Promise<Object> {
+  public async createEventAssistant(params: AssistanceDTO): Promise<void> {
     const user_key = 'user';
     const create_event_assistant_query = ` 
       MATCH (${user_key}: User { user_id: $user_id }),
@@ -60,11 +60,11 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
         event_id: params.event_id
       }
     );
-    return {};
   }
 
-  public async exists(t: EventDTO): Promise<boolean> {
-    return false;
+  public exists(t: EventDTO): Promise<boolean> {
+    t;
+    return Promise.resolve(false);
   }
 
   public async existsEventAssistant(params: AssistanceDTO): Promise<boolean> {
@@ -77,9 +77,9 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
     `;
     const result: QueryResult = await this.neo4j_service.read(
       exists_event_assistant_query,
-      { 
-        user_id: params.user_id, 
-        event_id: params.event_id 
+      {
+        user_id: params.user_id,
+        event_id: params.event_id
       }
     );
     return result.records.length > 0;
@@ -215,10 +215,10 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
       }
     ).then(map_nodes_properties);
     const mapped_result_request = result_request.map(map_user_data);
-    return mapped_result_request; 
+    return mapped_result_request;
   }
 
-  public async deleteEventAssistant(params: AssistanceDTO): Promise<Object> {
+  public async deleteEventAssistant(params: AssistanceDTO): Promise<void> {
     const user_key = 'user';
     const delete_event_assistant_query = ` 
       MATCH (${user_key}: User { user_id: $user_id }),
@@ -233,7 +233,6 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
         event_id: params.event_id
       }
     );
-    return {};
   }
 
 }

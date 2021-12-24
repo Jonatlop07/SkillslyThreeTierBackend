@@ -26,9 +26,9 @@ export class EventInMemoryRepository implements EventRepository {
     return Promise.resolve(new_event);
   }
 
-  public createEventAssistant(params: AssistanceDTO): Promise<Object> {
+  public createEventAssistant(params: AssistanceDTO): Promise<void> {
     this.currently_available_event_assistant_id = params.user_id.concat(params.event_id);
-    return Promise.resolve({});
+    return Promise.resolve();
   }
 
   public exists(t: EventDTO): Promise<boolean> {
@@ -82,9 +82,9 @@ export class EventInMemoryRepository implements EventRepository {
     return Promise.resolve(event_assistants);
   }
 
-  public deleteEventAssistant(params: AssistanceDTO): Promise<Object> {
+  public deleteEventAssistant(params: AssistanceDTO): Promise<void> {
     params;
     this.currently_available_event_assistant_id = '';
-    return Promise.resolve({});
+    return Promise.resolve();
   }
 }

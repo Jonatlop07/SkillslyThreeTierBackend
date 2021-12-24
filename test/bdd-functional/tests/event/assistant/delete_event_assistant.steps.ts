@@ -1,32 +1,28 @@
-import { EventDITokens } from "@core/domain/event/di/event_di_tokens";
-import { EventException } from "@core/domain/event/use-case/exception/event.exception";
-import DeleteEventAssistantInputModel from "@core/domain/event/use-case/input-model/assistant/delete_event_assistant.input_model";
-import CreateEventInputModel from "@core/domain/event/use-case/input-model/create_event.input_model";
-import { CreateEventAssistantInteractor } from "@core/domain/event/use-case/interactor/assistant/create_event_assistant.interactor";
-import { DeleteEventAssistantInteractor } from "@core/domain/event/use-case/interactor/assistant/delete_event_assistant.interactor";
-import { CreateEventInteractor } from "@core/domain/event/use-case/interactor/create_event.interactor";
-import DeleteEventAssistantOutputModel from "@core/domain/event/use-case/output-model/assistant/delete_event_assistant.output_model";
-import { UserDITokens } from "@core/domain/user/di/user_di_tokens";
-import CreateUserAccountInputModel from "@core/domain/user/use-case/input-model/create_user_account.input_model";
-import { CreateUserAccountInteractor } from "@core/domain/user/use-case/interactor/create_user_account.interactor";
-import { defineFeature, loadFeature } from "jest-cucumber";
-import { createTestModule } from "../../create_test_module";
+import { EventDITokens } from '@core/domain/event/di/event_di_tokens';
+import { EventException } from '@core/domain/event/use-case/exception/event.exception';
+import DeleteEventAssistantInputModel from '@core/domain/event/use-case/input-model/assistant/delete_event_assistant.input_model';
+import CreateEventInputModel from '@core/domain/event/use-case/input-model/create_event.input_model';
+import { CreateEventAssistantInteractor } from '@core/domain/event/use-case/interactor/assistant/create_event_assistant.interactor';
+import { DeleteEventAssistantInteractor } from '@core/domain/event/use-case/interactor/assistant/delete_event_assistant.interactor';
+import { CreateEventInteractor } from '@core/domain/event/use-case/interactor/create_event.interactor';
+import DeleteEventAssistantOutputModel from '@core/domain/event/use-case/output-model/assistant/delete_event_assistant.output_model';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import { defineFeature, loadFeature } from 'jest-cucumber';
+import { createTestModule } from '../../create_test_module';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/event/assistant/delete_event_assistant.feature');
 
 defineFeature( feature, (test) => {
-  const user_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_mock: CreateUserAccountInputModel = createUserMock();
   const event_mock: CreateEventInputModel = {
-    name: 'Poolparty', 
+    name: 'Poolparty',
     description: 'amazing poolparty in my beach house',
-    lat: -71.3, 
-    long: 12.34, 
-    date: new Date(), 
+    lat: -71.3,
+    long: 12.34,
+    date: new Date(),
     user_id: '1'
   };
 
@@ -66,7 +62,7 @@ defineFeature( feature, (test) => {
       async (id: string) => {
         event_id = id;
         try {
-          const resp = await create_event_interactor.execute(event_mock);
+          await create_event_interactor.execute(event_mock);
         } catch (e) {
           console.log(e);
         }
@@ -78,7 +74,7 @@ defineFeature( feature, (test) => {
     and('an event assistant relationship exists between the user and the event',
       async () => {
         try {
-          const resp = await create_event_assistant_interactor.execute({user_id,event_id});
+          await create_event_assistant_interactor.execute({user_id, event_id});
         } catch (e) {
           console.log(e);
         }
@@ -97,7 +93,7 @@ defineFeature( feature, (test) => {
 
   beforeEach(async () => {
     const module = await createTestModule();
-    create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor); 
+    create_user_account_interactor = module.get<CreateUserAccountInteractor>(UserDITokens.CreateUserAccountInteractor);
     create_event_interactor = module.get<CreateEventInteractor>(EventDITokens.CreateEventInteractor);
     create_event_assistant_interactor = module.get<CreateEventAssistantInteractor>(EventDITokens.CreateEventAssistantInteractor);
     delete_event_assistant_interactor = module.get<DeleteEventAssistantInteractor>(EventDITokens.DeleteEventAssistantInteractor);
