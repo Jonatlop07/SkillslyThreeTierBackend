@@ -1,5 +1,5 @@
 import { ChatConversationResponseDTO } from '@application/api/http-rest/http-dto/chat/http_chat_conversation_response.dto';
-import { CreateGroupChatConversationDTO } from '@application/api/http-rest/http-dto/chat/http_create_group_chat_conversation_dto';
+import { CreateGroupChatConversationDTO } from '@application/api/http-rest/http-dto/chat/http_create_group_chat_conversation.dto';
 import CreateGroupChatConversationInputModel
   from '@core/domain/chat/use-case/input-model/create_group_chat_conversation.input_model';
 import CreateGroupChatConversationOutputModel

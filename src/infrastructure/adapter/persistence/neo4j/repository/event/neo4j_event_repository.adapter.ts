@@ -1,4 +1,4 @@
-import { PaginationDTO } from '@application/api/http-rest/http-dtos/http_pagination.dto';
+import { PaginationDTO } from '@application/api/http-rest/http-dto/http_pagination.dto';
 import { EventDTO } from '@core/domain/event/use-case/persistence-dto/event.dto';
 import EventRepository from '@core/domain/event/use-case/repository/event.repository';
 import { Injectable, Logger } from '@nestjs/common';

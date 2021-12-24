@@ -34,7 +34,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.INVALID_TEMP_POST_REFERENCE,
         CoreExceptionCodes.INVALID_TEMP_POST_REFERENCE_TYPE,
         CoreExceptionCodes.INVALID_GROUP_INFO_FORMAT,
-        CoreExceptionCodes.INVALID_GROUP_CONVERSATION_DETAILS_FORMAT
+        CoreExceptionCodes.INVALID_GROUP_CONVERSATION_DETAILS_FORMAT,
+        CoreExceptionCodes.INVALID_SERVICE_OFFER_DETAILS_FORMAT
       ]),
       status_code: HttpStatus.BAD_REQUEST,
     },

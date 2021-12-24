@@ -5,18 +5,12 @@ import { QueryUserAccountInteractor } from '@core/domain/user/use-case/interacto
 import QueryUserAccountOutputModel from '@core/domain/user/use-case/output-model/query_user_interactor.output_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/user/query_user_account.feature');
 
 defineFeature(feature, (test) => {
-  const user_1_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-    is_investor: false,
-    is_requester: false
-  };
+  const user_1_mock: CreateUserAccountInputModel = createUserMock();
 
   let user_id: string;
 

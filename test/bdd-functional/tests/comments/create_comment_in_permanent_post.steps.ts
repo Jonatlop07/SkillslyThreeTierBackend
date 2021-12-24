@@ -16,6 +16,7 @@ import {
   CommentException,
   CommentInvalidDataFormatException,
 } from '@core/domain/comment/use-case/exception/comment.exception';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/comment/create_comment_in_permanent_post.feature');
 
@@ -32,14 +33,7 @@ defineFeature(feature, (test) => {
   let output: CreateCommentInPermanentPostOutputModel = undefined;
   let exception: CommentException;
 
-  const user_1 = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-    is_investor: false,
-    is_requester: false
-  };
+  const user_1 = createUserMock();
 
   const post_1 = {
     id: '1',

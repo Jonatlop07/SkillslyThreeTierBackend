@@ -13,6 +13,7 @@ import {
   InvalidReferenceException, InvalidReferenceTypeException,
   TempPostException,
 } from '@core/domain/temp-post/use-case/exception/temp-post.exception';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 
 const feature = loadFeature('test/bdd-functional/features/temp-posts/create_temporal_post.feature');
@@ -29,14 +30,7 @@ defineFeature(feature, (test) => {
   let output: CreateTemporalPostOutputModel;
   let exception: TempPostException;
 
-  const user_1 = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-    is_investor: false,
-    is_requester: false
-  };
+  const user_1 = createUserMock();
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {

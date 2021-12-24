@@ -10,6 +10,7 @@ import {
   UserAccountInvalidCredentialsException,
   UserAccountNotFoundException
 } from '@core/domain/user/use-case/exception/user_account.exception';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature(
   'test/bdd-functional/features/authentication/validate_credentials.feature',
@@ -46,12 +47,7 @@ defineFeature(feature, (test) => {
     and(
       /^an account exist with credentials: "([^"]*)" and "([^"]*)"$/,
       async (email, password) => {
-        await createUserAccount({
-          email,
-          password,
-          name: 'User',
-          date_of_birth: '01/01/2000',
-        });
+        await createUserAccount(createUserMock(email, password));
       },
     );
   }

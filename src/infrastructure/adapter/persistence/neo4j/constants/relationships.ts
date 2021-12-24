@@ -16,4 +16,5 @@ export class Relationships {
   public static readonly USER_JOIN_GROUP_REQUEST_RELATIONSHIP = 'JOIN_PENDING';
   public static readonly USER_JOINED_GROUP_RELATIONSHIP = 'JOINED';
   public static readonly USER_TEMP_POST_RELATIONSHIP = 'HAS';
+  public static readonly USER_SERVICE_OFFER_RELATIONSHIP = 'OFFERS';
 }

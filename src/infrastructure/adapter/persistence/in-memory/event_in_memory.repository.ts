@@ -1,6 +1,6 @@
-import { PaginationDTO } from "@application/api/http-rest/http-dtos/http_pagination.dto";
-import { EventDTO } from "@core/domain/event/use-case/persistence-dto/event.dto";
-import EventRepository from "@core/domain/event/use-case/repository/event.repository";
+import { PaginationDTO } from '@application/api/http-rest/http-dto/http_pagination.dto';
+import { EventDTO } from '@core/domain/event/use-case/persistence-dto/event.dto';
+import EventRepository from '@core/domain/event/use-case/repository/event.repository';
 
 export class EventInMemoryRepository implements EventRepository {
   private currently_available_event_id: string;
@@ -15,7 +15,7 @@ export class EventInMemoryRepository implements EventRepository {
       name: event.name,
       date: event.date,
       user_id: event.user_id,
-      lat: event.lat, 
+      lat: event.lat,
       long: event.long
     };
     this.events.set(this.currently_available_event_id, new_event);

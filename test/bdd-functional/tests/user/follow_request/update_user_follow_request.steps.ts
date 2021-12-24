@@ -8,22 +8,13 @@ import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/in
 import UpdateUserFollowRequestOutputModel from '@core/domain/user/use-case/output-model/follow_request/update_user_follow_request.output_model';
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import { createTestModule } from '../../create_test_module';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/user/follow_request/update_user_follow_request.feature');
 
 defineFeature( feature, (test) => {
-  const user_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
-  const user_mock_1: CreateUserAccountInputModel = {
-    email: 'newuser_1234@test.com',
-    password: 'Abc123_tr',
-    name: 'JuanDestiny',
-    date_of_birth: '01/01/2000'
-  };
+  const user_mock: CreateUserAccountInputModel = createUserMock();
+  const user_mock_1: CreateUserAccountInputModel = createUserMock('newuser_1234@test.com');
 
   let user_id: string;
   let user_to_follow_id: string;

@@ -6,7 +6,7 @@ import PermanentPostRepository from '@core/domain/post/use-case/repository/perma
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
 import * as moment from 'moment';
-import { PaginationDTO } from '@application/api/http-rest/http-dtos/http_pagination.dto';
+import { PaginationDTO } from '@application/api/http-rest/http-dto/http_pagination.dto';
 
 @Injectable()
 export class PermanentPostNeo4jRepositoryAdapter

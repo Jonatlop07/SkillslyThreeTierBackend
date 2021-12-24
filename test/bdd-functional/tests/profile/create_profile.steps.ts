@@ -12,18 +12,12 @@ import {
   ProfileException,
   ProfileInvalidDataFormatException
 } from '@core/domain/profile/use-case/exception/profile.exception';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/profile/create_profile.feature');
 
 defineFeature(feature, (test) => {
-  const user_mock_1: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-    is_investor: false,
-    is_requester: false
-  };
+  const user_mock_1: CreateUserAccountInputModel = createUserMock();
 
   let resume: string;
   let knowledge: Array<string>;

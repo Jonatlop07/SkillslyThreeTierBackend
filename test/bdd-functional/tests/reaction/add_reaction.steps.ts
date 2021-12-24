@@ -9,6 +9,7 @@ import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import { createTestModule } from '../create_test_module';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/reaction/add_reaction.feature');
 
@@ -23,12 +24,7 @@ defineFeature(feature, (test) => {
   let existing_reaction: AddReactionOutputModel;
   let exception: ReactionException = undefined;
 
-  const user_1 = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
+  const user_1 = createUserMock();
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {

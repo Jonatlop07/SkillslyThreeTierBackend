@@ -9,16 +9,12 @@ import { GroupDITokens } from '@core/domain/group/di/group_di_tokens';
 import { GroupInfo } from '@core/domain/group/entity/type/group_info';
 import UpdateGroupOutputModel from '@core/domain/group/use-case/output-model/update_group.output_model';
 import { UpdateGroupInteractor } from '@core/domain/group/use-case/interactor/update_group.interactor';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/group/update_group.feature');
 
 defineFeature(feature, (test) => {
-  const user_1_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_1_mock: CreateUserAccountInputModel = createUserMock();
 
   let user_id: string;
   let group_id: string;

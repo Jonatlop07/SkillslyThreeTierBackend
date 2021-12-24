@@ -13,6 +13,7 @@ import { EventModule } from './event.module';
 import { GroupModule } from './group.module';
 import { ProjectModule } from './project.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ServiceOfferModule } from '@application/module/service_offer.module';
 
 const event_emitter_configuration = {
   // set this to `true` to use wildcards
@@ -49,7 +50,8 @@ const event_emitter_configuration = {
     GroupModule,
     ProjectModule,
     TempPostModule,
-    ChatModule
+    ChatModule,
+    ServiceOfferModule
   ],
 })
 export class RootModule {

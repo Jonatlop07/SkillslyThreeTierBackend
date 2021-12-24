@@ -1,19 +1,19 @@
-import { EventDITokens } from "@core/domain/event/di/event_di_tokens";
-import { CreateEventInteractor } from "@core/domain/event/use-case/interactor/create_event.interactor";
-import { GetEventCollectionOfFriendsInteractor } from "@core/domain/event/use-case/interactor/get_event_collection_of_friends.interactor";
-import { GetMyEventCollectionInteractor } from "@core/domain/event/use-case/interactor/get_my_event_collection.interactor";
-import { Role } from "@core/domain/user/entity/role.enum";
-import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Logger, Param, Post, Query, ValidationPipe } from "@nestjs/common";
-import { ApiBearerAuth, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiTags } from "@nestjs/swagger";
-import { HttpUser } from "../authentication/decorator/http_user";
-import { HttpUserPayload } from "../authentication/types/http_authentication_types";
-import { Roles } from "../authorization/decorator/roles.decorator";
-import { HttpExceptionMapper } from "../exception/http_exception.mapper";
-import { CreateEventAdapter } from "../http-adapter/event/create_event.adapter";
-import { GetEventOfFriendsCollectionAdapter } from "../http-adapter/event/get_event_collection_of_friends.adapter";
-import { GetMyEventCollectionAdapter } from "../http-adapter/event/get_my_event_collection.adapter";
-import { CreateEventDTO } from "../http-dto/event/http_post.dto";
-import { PaginationDTO } from "../http-dtos/http_pagination.dto";
+import { EventDITokens } from '@core/domain/event/di/event_di_tokens';
+import { CreateEventInteractor } from '@core/domain/event/use-case/interactor/create_event.interactor';
+import { GetEventCollectionOfFriendsInteractor } from '@core/domain/event/use-case/interactor/get_event_collection_of_friends.interactor';
+import { GetMyEventCollectionInteractor } from '@core/domain/event/use-case/interactor/get_my_event_collection.interactor';
+import { Role } from '@core/domain/user/entity/role.enum';
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Logger, Param, Post, Query, ValidationPipe } from '@nestjs/common';
+import { ApiBearerAuth, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
+import { HttpUser } from '../authentication/decorator/http_user';
+import { HttpUserPayload } from '../authentication/types/http_authentication_types';
+import { Roles } from '../authorization/decorator/roles.decorator';
+import { HttpExceptionMapper } from '../exception/http_exception.mapper';
+import { CreateEventAdapter } from '../http-adapter/event/create_event.adapter';
+import { GetEventOfFriendsCollectionAdapter } from '../http-adapter/event/get_event_collection_of_friends.adapter';
+import { GetMyEventCollectionAdapter } from '../http-adapter/event/get_my_event_collection.adapter';
+import { CreateEventDTO } from '../http-dto/event/http_post.dto';
+import { PaginationDTO } from '../http-dto/http_pagination.dto';
 
 @Controller('event')
 @Roles(Role.User)
@@ -36,7 +36,7 @@ export class EventController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'The event was successfully created' })
   public async createSimpleConversation(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateEventDTO
   ) {
     try {
@@ -45,8 +45,8 @@ export class EventController {
           user_id: http_user.id,
           name: body.name,
           description: body.description,
-          lat: body.lat, 
-          long: body.long, 
+          lat: body.lat,
+          long: body.long,
           date: new Date(body.date)
         })
       );
@@ -59,8 +59,8 @@ export class EventController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async getMyEventCollection(
-    @Param('user_id') user_id: string, 
-    @HttpUser() http_user: HttpUserPayload, 
+  @Param('user_id') user_id: string,
+    @HttpUser() http_user: HttpUserPayload,
     @Query() pagination: PaginationDTO
   ){
     return await this.get_my_event_collection_interactor.execute(
@@ -87,7 +87,7 @@ export class EventController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async getPermanentPostOfFriendsCollection(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Query() pagination: PaginationDTO
   ) {
     try {

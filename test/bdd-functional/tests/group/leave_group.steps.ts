@@ -10,18 +10,12 @@ import { LeaveGroupInteractor } from '@core/domain/group/use-case/interactor/lea
 import LeaveGroupOutputModel from '@core/domain/group/use-case/output-model/leave_group.output_model';
 import { CreateJoinGroupRequestInteractor } from '@core/domain/group/use-case/interactor/join-request/create_join_group_request.interactor';
 import { UpdateGroupUserInteractor } from '@core/domain/group/use-case/interactor/join-request/update_group_user.interactor';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/group/leave_group.feature');
 
 defineFeature(feature, (test) => {
-  const user_1_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-    is_investor: false,
-    is_requester: false
-  };
+  const user_1_mock: CreateUserAccountInputModel = createUserMock();
 
   let user_id: string;
   let group_id: string;

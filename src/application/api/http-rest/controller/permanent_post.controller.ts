@@ -40,7 +40,7 @@ import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor
 import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interactor/query_reactions.interactor';
 import { DeletePermanentPostInteractor } from '@core/domain/post/use-case/interactor/delete_permanent_post.interactor';
 import { Role } from '@core/domain/user/entity/role.enum';
-import { PaginationDTO } from '@application/api/http-rest/http-dtos/http_pagination.dto';
+import { PaginationDTO } from '@application/api/http-rest/http-dto/http_pagination.dto';
 import { GetPermanentPostCollectionOfFriendsInteractor } from '@core/domain/post/use-case/interactor/get_permanent_post_collection_of_friends.interactor';
 import { CreatePermanentPostAdapter } from '@application/api/http-rest/http-adapter/post/create_permanent_post.adapter';
 import { QueryPermanentPostCollectionAdapter } from '@application/api/http-rest/http-adapter/post/query_permanent_post_collection.adapter';
@@ -238,6 +238,6 @@ export class PermanentPostController {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
-  
+
 }
 

@@ -11,6 +11,7 @@ import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interact
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { ProjectDITokens } from '@core/domain/project/di/project_di_tokens';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature(
   'test/bdd-functional/features/project/create_project.feature',
@@ -25,14 +26,7 @@ defineFeature(feature, (test) => {
   let output: CreateProjectOutputModel;
   let exception: ProjectException;
 
-  const user_1 = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-    is_investor: false,
-    is_requester: false
-  };
+  const user_1 = createUserMock();
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {

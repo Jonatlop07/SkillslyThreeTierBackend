@@ -1,4 +1,4 @@
-import { PaginationDTO } from '@application/api/http-rest/http-dtos/pagination.dto';
+import { PaginationDTO } from '@application/api/http-rest/http-dto/pagination.dto';
 import { BasicGroupDTO } from '../persistence-dto/basic_group_data.dto';
 
 export default interface FindGroups {

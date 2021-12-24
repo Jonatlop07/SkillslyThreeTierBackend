@@ -12,6 +12,8 @@ function createServiceInputModel(): CreateUserAccountInputModel {
     password: 'Abc123_tr',
     name: v4(),
     date_of_birth: '01/01/2000',
+    is_requester: false,
+    is_investor: false
   };
 }
 

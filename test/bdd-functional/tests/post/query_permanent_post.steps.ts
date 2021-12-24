@@ -21,6 +21,7 @@ import * as moment from 'moment';
 import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-model/create_permanent_post.output_model';
 import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature(
   'test/bdd-functional/features/post/query_permanent_post.feature'
@@ -44,18 +45,15 @@ defineFeature(feature, (test) => {
   let created_post: CreatePermanentPostOutputModel;
   let output_collection: QueryPermanentPostCollectionOutputModel;
 
-  const user_1 = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_1 = createUserMock();
 
   const user_2 = {
     email: 'newuser_1234@test.com',
     password: 'Abc1234_tr',
     name: 'Juana',
-    date_of_birth: '02/01/2000'
+    date_of_birth: '02/01/2000',
+    is_investor: false,
+    is_requester: false
   };
 
   const cont1: PermanentPostContentElement = {

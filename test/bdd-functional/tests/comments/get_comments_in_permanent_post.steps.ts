@@ -16,6 +16,7 @@ import {
   ThereAreNoCommentsException,
 } from '@core/domain/comment/use-case/exception/comment.exception';
 import { GetCommentsInPermanentPostOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_permanent_post.output_model';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/comment/get_comments_in_permanent_post.feature');
 
@@ -33,12 +34,7 @@ defineFeature(feature, (test) => {
   let output: Array<CreateCommentInPermanentPostInputModel> | Array<GetCommentsInPermanentPostOutputModel>;
   let exception: CommentException;
 
-  const user_1 = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
+  const user_1 = createUserMock();
 
   const post_1 = {
     id: '1',

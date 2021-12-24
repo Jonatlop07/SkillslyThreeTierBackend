@@ -3,35 +3,38 @@ import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interact
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
+import {
+  InvalidServiceOfferDetailsFormatException,
+  ServiceOfferException
+} from '@core/domain/service-offer/use-case/exception/service_offer.exception';
+import { CreateServiceOfferInteractor } from '@core/domain/service-offer/use-case/interactor/create_service_offer.interactor';
+import CreateServiceOfferInputModel
+  from '@core/domain/service-offer/use-case/input-model/create_service_offer.input_model';
+import CreateServiceOfferOutputModel
+  from '@core/domain/service-offer/use-case/output-model/create_service_offer.output_model';
+import { ServiceOfferDITokens } from '@core/domain/service-offer/di/service_offer_di_tokens';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
-const feature = loadFeature('test/bdd-functional/features/post/create_service_offer.feature');
+const feature = loadFeature('test/bdd-functional/features/service-offer/create_service_offer.feature');
 
 defineFeature(feature, (test) => {
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_service_offer_interactor: CreateServiceOfferInteractor;
   let input: CreateServiceOfferInputModel = {
     user_id: '',
+    title: '',
     service_brief: '',
     contact_information: '',
     category: ''
   };
   let output: CreateServiceOfferOutputModel;
-  let exception: ServiceException;
+  let exception: ServiceOfferException;
 
-  const user_1 = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-    is_investor: false,
-    is_requester: false
-  };
+  const user_1 = createUserMock();
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
-      const { id } = await create_user_account_interactor.execute(input);
-      input.user_id = id;
+      await create_user_account_interactor.execute(input);
     } catch (e) {
       console.log(e);
     }
@@ -43,12 +46,13 @@ defineFeature(feature, (test) => {
     });
   }
 
-  function andUserProvidesInformationOfTheService(given) {
-    given('the user provides the information of the service being:',
-      (service_information) => {
-        const { user_id, service_brief, contact_information, category } = service_information;
+  function andUserProvidesDetailsOfTheService(given) {
+    given(/the user provides the details of the service being:/,
+      (service_details) => {
+        const { user_id, title, service_brief, contact_information, category } = service_details[0];
         input = {
           user_id,
+          title,
           service_brief,
           contact_information,
           category
@@ -73,29 +77,29 @@ defineFeature(feature, (test) => {
       UserDITokens.CreateUserAccountInteractor
     );
     create_service_offer_interactor = module.get<CreateServiceOfferInteractor>(
-      PostDITokens.CreateServiceOfferInteractor
+      ServiceOfferDITokens.CreateServiceOfferInteractor
     );
     exception = undefined;
   });
 
-  test('A logged in user creates a permanent post successfully',
+  test('A logged in user successfully creates a service offer',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
-      andUserProvidesInformationOfTheService(and);
+      andUserProvidesDetailsOfTheService(and);
       whenUserTriesToCreateServiceOffer(when);
-      then('the service offer is created successfully with the information provided', () => {
+      then('the service offer is created successfully with the details provided', () => {
         expect(output).toBeDefined();
       });
     }
   );
-  test('A logged in user creates a permanent post successfully',
+  test('A logged in user tries to create a service offer but with the details in a valid format',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
-      andUserProvidesInformationOfTheService(and);
+      andUserProvidesDetailsOfTheService(and);
       whenUserTriesToCreateServiceOffer(when);
-      then('an error occurs: the service information is in an invalid format', () => {
+      then('an error occurs: the service details is in an invalid format', () => {
         expect(exception).toBeDefined();
-        expect(exception).toBeInstanceOf(InvalidServiceOfferInformationFormat);
+        expect(exception).toBeInstanceOf(InvalidServiceOfferDetailsFormatException);
       });
     }
   );

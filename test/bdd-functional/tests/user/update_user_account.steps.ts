@@ -9,18 +9,12 @@ import {
   UserAccountException,
   UserAccountInvalidDataFormatException
 } from '@core/domain/user/use-case/exception/user_account.exception';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/user/update_user_account.feature');
 
 defineFeature(feature, (test) => {
-  const user_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-    is_investor: false,
-    is_requester: false
-  };
+  const user_mock: CreateUserAccountInputModel = createUserMock();
 
   let user_id: string;
   let email: string;
