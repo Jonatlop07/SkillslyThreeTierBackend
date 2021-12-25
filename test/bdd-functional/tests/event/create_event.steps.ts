@@ -1,31 +1,27 @@
-import { EventDITokens } from "@core/domain/event/di/event_di_tokens";
-import { EventException } from "@core/domain/event/use-case/exception/event.exception";
-import CreateEventInputModel from "@core/domain/event/use-case/input-model/create_event.input_model";
-import { CreateEventInteractor } from "@core/domain/event/use-case/interactor/create_event.interactor";
-import CreateEventOutputModel from "@core/domain/event/use-case/output-model/create_event.output_model";
-import { UserDITokens } from "@core/domain/user/di/user_di_tokens";
-import CreateUserAccountInputModel from "@core/domain/user/use-case/input-model/create_user_account.input_model";
-import { CreateUserAccountInteractor } from "@core/domain/user/use-case/interactor/create_user_account.interactor";
-import { defineFeature, loadFeature } from "jest-cucumber";
-import { createTestModule } from "../create_test_module";
+import { EventDITokens } from '@core/domain/event/di/event_di_tokens';
+import { EventException } from '@core/domain/event/use-case/exception/event.exception';
+import CreateEventInputModel from '@core/domain/event/use-case/input-model/create_event.input_model';
+import { CreateEventInteractor } from '@core/domain/event/use-case/interactor/create_event.interactor';
+import CreateEventOutputModel from '@core/domain/event/use-case/output-model/create_event.output_model';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import { defineFeature, loadFeature } from 'jest-cucumber';
+import { createTestModule } from '../create_test_module';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/event/create_event.feature');
 
 defineFeature(feature, (test) => {
 
-  const user_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_mock: CreateUserAccountInputModel = createUserMock();
 
-  let user_id: string
+  let user_id: string;
   let name: string;
   let description: string;
   let lat: number;
   let long : number;
-  let date: Date; 
+  let date: Date;
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_event_interactor: CreateEventInteractor;
@@ -46,7 +42,7 @@ defineFeature(feature, (test) => {
         user_id = id;
         try {
           const resp = await create_user_account_interactor.execute(user_mock);
-          user_id = resp.id; 
+          user_id = resp.id;
         } catch (e) {
           console.log(e);
         }
@@ -60,8 +56,8 @@ defineFeature(feature, (test) => {
       (input_name, input_description, input_lat, input_long, input_date) => {
         name = input_name;
         description = input_description;
-        lat = input_lat; 
-        long = input_long; 
+        lat = input_lat;
+        long = input_long;
         date = new Date(input_date);
       },
     );
@@ -74,7 +70,7 @@ defineFeature(feature, (test) => {
         name,
         description,
         lat,
-        long, 
+        long,
         date
       });
     });

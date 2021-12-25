@@ -13,16 +13,12 @@ import { UpdatePermanentPostOutputModel } from '@core/domain/post/use-case/outpu
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
 import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_content_post_element';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/post/update_permanent_post.feature');
 
 defineFeature(feature, (test) => {
-  const user_1_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_1_mock: CreateUserAccountInputModel = createUserMock();
 
   let user_id: string;
   let owner_id: string;

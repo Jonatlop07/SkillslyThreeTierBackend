@@ -8,16 +8,12 @@ import { GroupException, UnauthorizedGroupEditorException } from '@core/domain/g
 import { GroupDITokens } from '@core/domain/group/di/group_di_tokens';
 import { DeleteGroupInteractor } from '@core/domain/group/use-case/interactor/delete_group.interactor';
 import DeleteGroupOutputModel from '@core/domain/group/use-case/output-model/delete_group.output_model';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/group/delete_group.feature');
 
 defineFeature(feature, (test) => {
-  const user_1_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_1_mock: CreateUserAccountInputModel = createUserMock();
 
   let user_id: string;
   let group_id: string;

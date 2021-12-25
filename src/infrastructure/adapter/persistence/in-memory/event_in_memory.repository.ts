@@ -1,8 +1,8 @@
-import { PaginationDTO } from "@application/api/http-rest/http-dtos/http_pagination.dto";
-import { AssistanceDTO } from "@core/domain/event/use-case/persistence-dto/assistance.dto";
-import { EventDTO } from "@core/domain/event/use-case/persistence-dto/event.dto";
-import EventRepository from "@core/domain/event/use-case/repository/event.repository";
-import { SearchedUserDTO } from "@core/domain/user/use-case/persistence-dto/searched_user.dto";
+import { PaginationDTO } from '@application/api/http-rest/http-dto/http_pagination.dto';
+import { EventDTO } from '@core/domain/event/use-case/persistence-dto/event.dto';
+import EventRepository from '@core/domain/event/use-case/repository/event.repository';
+import { AssistanceDTO } from '@core/domain/event/use-case/persistence-dto/assistance.dto';
+import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
 
 export class EventInMemoryRepository implements EventRepository {
   private currently_available_event_id: string;
@@ -18,7 +18,7 @@ export class EventInMemoryRepository implements EventRepository {
       name: event.name,
       date: event.date,
       user_id: event.user_id,
-      lat: event.lat, 
+      lat: event.lat,
       long: event.long
     };
     this.events.set(this.currently_available_event_id, new_event);
@@ -26,14 +26,16 @@ export class EventInMemoryRepository implements EventRepository {
     return Promise.resolve(new_event);
   }
 
-  public createEventAssistant(params: AssistanceDTO): Promise<Object> {
+  public createEventAssistant(params: AssistanceDTO): Promise<void> {
     this.currently_available_event_assistant_id = params.user_id.concat(params.event_id);
-    return Promise.resolve({}); 
+    return Promise.resolve();
   }
 
   public exists(t: EventDTO): Promise<boolean> {
+    t;
     return Promise.resolve(false);
   }
+
   public existsEventAssistant(params: AssistanceDTO): Promise<boolean> {
     if (this.currently_available_event_assistant_id == params.user_id.concat(params.event_id)) {
       return Promise.resolve(true);
@@ -49,6 +51,7 @@ export class EventInMemoryRepository implements EventRepository {
   }
 
   public getEventsOfFriends(id: string, pagination: PaginationDTO): Promise<EventDTO[]> {
+    pagination;
     const user_events: EventDTO[] = [];
     for (const event of this.events.values()) {
       if (id === event['user_id']) {
@@ -59,6 +62,7 @@ export class EventInMemoryRepository implements EventRepository {
   }
 
   public getMyEvents(id: string, pagination: PaginationDTO): Promise<EventDTO[]> {
+    pagination;
     const user_events: EventDTO[] = [];
     for (const event of this.events.values()) {
       if (id === event['user_id']) {
@@ -69,17 +73,18 @@ export class EventInMemoryRepository implements EventRepository {
   }
 
   public getEventAssistantCollection(id: string): Promise<SearchedUserDTO[]> {
-    const event_assistants: SearchedUserDTO[] = []; 
+    const event_assistants: SearchedUserDTO[] = [];
     for (const event of this.events.values()) {
       if (id === event['event_id']) {
-        event_assistants.push({user_id: this.currently_available_event_assistant_id.slice(1,1), email: '', date_of_birth: '', name: ''});
+        event_assistants.push({user_id: this.currently_available_event_assistant_id.slice(1, 1), email: '', date_of_birth: '', name: ''});
       }
     }
     return Promise.resolve(event_assistants);
   }
 
-  public deleteEventAssistant(params: AssistanceDTO): Promise<Object> {
+  public deleteEventAssistant(params: AssistanceDTO): Promise<void> {
+    params;
     this.currently_available_event_assistant_id = '';
-    return Promise.resolve({});
+    return Promise.resolve();
   }
 }

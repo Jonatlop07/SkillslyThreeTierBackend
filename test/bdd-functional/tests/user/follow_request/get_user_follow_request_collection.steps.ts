@@ -7,16 +7,12 @@ import { GetUserFollowRequestCollectionInteractor } from '@core/domain/user/use-
 import GetUserFollowRequestCollectionOutputModel from '@core/domain/user/use-case/output-model/follow_request/get_user_follow_request_collection.output_model';
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import { createTestModule } from '../../create_test_module';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/user/follow_request/get_user_follow_request_collection.feature');
 
 defineFeature( feature, (test) => {
-  const user_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_mock: CreateUserAccountInputModel = createUserMock();
 
   let user_id: string;
   let create_user_account_interactor: CreateUserAccountInteractor;

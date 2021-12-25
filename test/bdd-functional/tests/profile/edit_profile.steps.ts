@@ -12,53 +12,19 @@ import {
   ProfileEditEmptyInputException,
   ProfileException
 } from '@core/domain/profile/use-case/exception/profile.exception';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/profile/edit_profile.feature');
 
 defineFeature(feature, (test) => {
 
-  const user_mock1: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
-  const user_mock2: CreateUserAccountInputModel = {
-    email: 'newuser_1234@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
-  const user_mock3: CreateUserAccountInputModel = {
-    email: 'newuser_12344@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
-  const user_mock4: CreateUserAccountInputModel = {
-    email: 'newuser_12345@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
-  const user_mock5: CreateUserAccountInputModel = {
-    email: 'newuser_12347@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
-  const user_mock6: CreateUserAccountInputModel = {
-    email: 'newuser_124@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
-  const user_mock7: CreateUserAccountInputModel = {
-    email: 'newuse_1234@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
+  const user_mock1: CreateUserAccountInputModel = createUserMock();
+  const user_mock2: CreateUserAccountInputModel = createUserMock('newuser_1234@test.com');
+  const user_mock3: CreateUserAccountInputModel = createUserMock('newuser_12344@test.com');
+  const user_mock4: CreateUserAccountInputModel = createUserMock('newuser_12345@test.com');
+  const user_mock5: CreateUserAccountInputModel = createUserMock('newuser_12347@test.com');
+  const user_mock6: CreateUserAccountInputModel = createUserMock('newuser_124@test.com');
+  const user_mock7: CreateUserAccountInputModel = createUserMock('newuse_1234@test.com');
 
   let user_email: string;
   let profile_new_content: Partial<ProfileDTO>;

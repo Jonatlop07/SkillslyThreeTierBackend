@@ -1,5 +1,5 @@
-import { AssistanceDTO } from "../../persistence-dto/assistance.dto";
+import { AssistanceDTO } from '../../persistence-dto/assistance.dto';
 
 export default interface DeleteEventAssistance {
-  deleteEventAssistant(params: AssistanceDTO): Promise<Object>;
+  deleteEventAssistant(params: AssistanceDTO): Promise<void>;
 }

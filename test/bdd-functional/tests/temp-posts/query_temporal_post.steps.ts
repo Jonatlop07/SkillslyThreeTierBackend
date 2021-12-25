@@ -17,6 +17,7 @@ import {
   NotFoundTemporalPostException,
   TempPostException,
 } from '@core/domain/temp-post/use-case/exception/temp-post.exception';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 
 const feature = loadFeature('./test/bdd-functional/features/temp-posts/query_temporal_post.feature');
@@ -37,18 +38,15 @@ defineFeature(feature, (test) => {
 
   let exception: TempPostException;
 
-  const user_1 = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
+  const user_1 = createUserMock();
 
   const user_2 = {
     email: 'newuser_1234@test.com',
     password: 'Abc1234_tr',
     name: 'Juana',
     date_of_birth: '02/01/2000',
+    is_investor: false,
+    is_requester: false
   };
 
 

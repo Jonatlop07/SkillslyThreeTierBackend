@@ -57,6 +57,8 @@ defineFeature(feature, (test) => {
         password,
         name,
         date_of_birth,
+        is_investor: false,
+        is_requester: false
       });
     });
   }
@@ -113,6 +115,8 @@ defineFeature(feature, (test) => {
             password,
             name,
             date_of_birth,
+            is_investor: false,
+            is_requester: false
           });
         },
       );

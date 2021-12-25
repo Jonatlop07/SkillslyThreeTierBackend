@@ -8,23 +8,14 @@ import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 import { GetProfileInteractor } from '@core/domain/profile/use-case/interactor/get_profile.interactor';
 import { CreateProfileInteractor } from '@core/domain/profile/use-case/interactor/create_profile.interactor';
 import { ProfileException, ProfileNotFoundException } from '@core/domain/profile/use-case/exception/profile.exception';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/profile/get_profile.feature');
 
 defineFeature(feature, (test) => {
-  const user_mock_1: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
+  const user_mock_1: CreateUserAccountInputModel = createUserMock();
 
-  const user_mock_2: CreateUserAccountInputModel = {
-    email: 'newuser_1234@test.com',
-    password: 'Abc123_tr',
-    name: 'Pedro',
-    date_of_birth: '01/01/2000',
-  };
+  const user_mock_2: CreateUserAccountInputModel = createUserMock('newuser_1234@test.com');
 
   let user_email: string;
 

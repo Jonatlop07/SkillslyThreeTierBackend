@@ -9,16 +9,12 @@ import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { loadFeature, defineFeature } from 'jest-cucumber';
 import { createTestModule } from '../../create_test_module';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/group/join_request/get_join_group_requests.feature');
 
 defineFeature(feature, (test) => {
-  const user_1_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_1_mock: CreateUserAccountInputModel = createUserMock();
 
   let group_id: string;
   let group_request_user_id: string;
@@ -99,7 +95,6 @@ defineFeature(feature, (test) => {
     create_group_interactor = module.get<CreateGroupInteractor>(GroupDITokens.CreateGroupInteractor);
     create_join_group_request_interactor = module.get<CreateJoinGroupRequestInteractor>(GroupDITokens.CreateJoinGroupRequestInteractor);
     get_join_requests_interactor = module.get<GetJoinRequestsInteractor>(GroupDITokens.GetJoinRequestsInteractor);
-    exception = undefined;
   });
 
   test('A user gets the collection of join requests to a group',

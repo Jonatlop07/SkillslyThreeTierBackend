@@ -31,7 +31,7 @@ import { CreatePrivateChatConversationAdapter } from '@application/api/http-rest
 import { CreateGroupChatConversationAdapter } from '@application/api/http-rest/http-adapter/chat/create_group_chat_conversation.adapter';
 import { GetConversationMessageCollectionAdapter } from '@application/api/http-rest/http-adapter/chat/get_conversation_message_collection.adapter';
 import { CreatePrivateChatConversationDTO } from '@application/api/http-rest/http-dto/chat/http_create_private_chat_conversation.dto';
-import { CreateGroupChatConversationDTO } from '@application/api/http-rest/http-dto/chat/http_create_group_chat_conversation_dto';
+import { CreateGroupChatConversationDTO } from '@application/api/http-rest/http-dto/chat/http_create_group_chat_conversation.dto';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { CreatePrivateChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_private_chat_conversation.interactor';
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';

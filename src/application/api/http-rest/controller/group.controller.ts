@@ -30,7 +30,7 @@ import { LeaveGroupInteractor } from '@core/domain/group/use-case/interactor/lea
 import { QueryGroupCollectionInteractor } from '@core/domain/group/use-case/interactor/query_group_collection.interactor';
 import { QueryGroupInteractor } from '@core/domain/group/use-case/interactor/query_group.interactor';
 import { QueryGroupCollectionAdapter } from '@application/api/http-rest/http-adapter/group/query_group_collection.adapter';
-import { PaginationDTO } from '../http-dtos/pagination.dto';
+import { PaginationDTO } from '../http-dto/pagination.dto';
 import { QueryGroupAdapter } from '@application/api/http-rest/http-adapter/group/query_group.adapter';
 import { QueryGroupUsersAdapter } from '@application/api/http-rest/http-adapter/group/query_group_users.adapter';
 import { QueryGroupUsersInteractor } from '@core/domain/group/use-case/interactor/query_group_users.interactor';
@@ -143,7 +143,7 @@ export class GroupController {
   @ApiBearerAuth()
   public async updateUserFollowRequest(
   @HttpUser() http_user: HttpUserPayload,
-    @Param('action') action: string, 
+    @Param('action') action: string,
     @Param('group_id') group_id: string,
     @Body() body
   ){

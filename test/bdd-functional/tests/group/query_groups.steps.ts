@@ -14,18 +14,14 @@ import QueryGroupCollectionOutputModel from '@core/domain/group/use-case/output-
 import QueryGroupOutputModel from '@core/domain/group/use-case/output-model/query_group.output_model';
 import { QueryGroupInteractor } from '@core/domain/group/use-case/interactor/query_group.interactor';
 import { QueryGroupCollectionInteractor } from '@core/domain/group/use-case/interactor/query_group_collection.interactor';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature(
   'test/bdd-functional/features/group/query_groups.feature',
 );
 
 defineFeature(feature, (test) => {
-  const user_1_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000',
-  };
+  const user_1_mock: CreateUserAccountInputModel = createUserMock();
 
   let search_name = '';
   let search_category = '';

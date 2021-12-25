@@ -1,5 +1,5 @@
-import { CoreException } from "@core/common/exception/core.exception";
-import { CoreExceptionCodes } from "@core/common/exception/core_exception_codes";
+import { CoreException } from '@core/common/exception/core.exception';
+import { CoreExceptionCodes } from '@core/common/exception/core_exception_codes';
 
 abstract class EventException extends CoreException {}
 
@@ -20,7 +20,7 @@ class EventAssistantNotFoundException extends EventException {
 
 export {
   EventException,
-  EmptyEventDescriptionException, 
-  EventNotFoundException, 
+  EmptyEventDescriptionException,
+  EventNotFoundException,
   EventAssistantNotFoundException
-}
+};

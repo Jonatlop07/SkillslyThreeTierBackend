@@ -12,6 +12,7 @@ import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_post_content_element';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/post/create_permanent_post.feature');
 
@@ -26,12 +27,7 @@ defineFeature(feature, (test) => {
   let output: CreatePermanentPostOutputModel;
   let exception: PermanentPostException;
 
-  const user_1 = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_1 = createUserMock();
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {

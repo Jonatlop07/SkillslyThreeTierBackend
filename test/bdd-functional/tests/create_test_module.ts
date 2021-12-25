@@ -72,9 +72,13 @@ import { GetMyEventCollectionService } from '@core/service/event/get_my_event_co
 import { CreateGroupService } from '@core/service/group/create_group.service';
 import { ProjectInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/project_in_memory.repository';
 import { GroupInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/group_in_memory.repository';
+import { ServiceOfferDITokens } from '@core/domain/service-offer/di/service_offer_di_tokens';
+import { ServiceOfferInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/service_offer_in_memory.repository';
+import { CreateServiceOfferService } from '@core/service/service-offer/create_service_offer.service';
 import { CreateEventAssistantService } from '@core/service/event/assistant/create_event_assistant.service';
 import { GetEventAssistantCollectionService } from '@core/service/event/assistant/get_event_assistant_collection.service';
 import { DeleteEventAssistantService } from '@core/service/event/assistant/delete_event_assistant.service';
+
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -373,6 +377,11 @@ export async function createTestModule() {
         inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
       },
       {
+        provide: ServiceOfferDITokens.CreateServiceOfferInteractor,
+        useFactory: (gateway) => new CreateServiceOfferService(gateway),
+        inject: [ServiceOfferDITokens.ServiceOfferRepository]
+      },
+      {
         provide: UserDITokens.UserRepository,
         useFactory: () => new UserInMemoryRepository(new Map()),
       },
@@ -415,6 +424,10 @@ export async function createTestModule() {
       {
         provide: ProjectDITokens.ProjectRepository,
         useFactory: () => new ProjectInMemoryRepository(new Map())
+      },
+      {
+        provide: ServiceOfferDITokens.ServiceOfferRepository,
+        useFactory: () => new ServiceOfferInMemoryRepository(new Map())
       }
     ],
   }).compile();

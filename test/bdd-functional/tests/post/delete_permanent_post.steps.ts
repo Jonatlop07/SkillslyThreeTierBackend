@@ -11,6 +11,7 @@ import {
   NonExistentPermanentPostException
 } from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/post/delete_permanent_post.feature');
 
@@ -24,12 +25,7 @@ defineFeature(feature, (test) => {
   let query_permanent_post_interactor: QueryPermanentPostInteractor;
   let delete_permanent_post_interactor: DeletePermanentPostInteractor;
 
-  const user_1_mock: CreateUserAccountInputModel = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_1_mock: CreateUserAccountInputModel = createUserMock();
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {

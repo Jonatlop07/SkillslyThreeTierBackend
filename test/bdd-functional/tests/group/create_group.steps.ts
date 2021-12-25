@@ -8,6 +8,7 @@ import { CreateGroupInteractor } from '@core/domain/group/use-case/interactor/cr
 import CreateGroupOutputModel from '@core/domain/group/use-case/output-model/create_group.output_model';
 import CreateGroupInputModel from '@core/domain/group/use-case/input-model/create_group.input_model';
 import { GroupDITokens } from '@core/domain/group/di/group_di_tokens';
+import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/group/create_group.feature');
 
@@ -19,12 +20,7 @@ defineFeature(feature, (test) => {
   let output: CreateGroupOutputModel;
   let exception: GroupException = undefined;
 
-  const user_1 = {
-    email: 'newuser_123@test.com',
-    password: 'Abc123_tr',
-    name: 'Juan',
-    date_of_birth: '01/01/2000'
-  };
+  const user_1 = createUserMock();
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
