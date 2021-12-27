@@ -78,6 +78,7 @@ import { CreateServiceOfferService } from '@core/service/service-offer/create_se
 import { CreateEventAssistantService } from '@core/service/event/assistant/create_event_assistant.service';
 import { GetEventAssistantCollectionService } from '@core/service/event/assistant/get_event_assistant_collection.service';
 import { DeleteEventAssistantService } from '@core/service/event/assistant/delete_event_assistant.service';
+import { UpdateEventService } from '@core/service/event/udpate_event.service';
 
 
 export async function createTestModule() {
@@ -374,6 +375,11 @@ export async function createTestModule() {
       {
         provide: EventDITokens.DeleteEventAssistantInteractor,
         useFactory: (gateway, user_gateway) => new DeleteEventAssistantService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.UpdateEventInteractor,
+        useFactory: (gateway, user_gateway) => new UpdateEventService(gateway, user_gateway),
         inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
       },
       {

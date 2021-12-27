@@ -10,6 +10,7 @@ import { GetMyEventCollectionService } from '@core/service/event/get_my_event_co
 import { CreateEventAssistantService } from '@core/service/event/assistant/create_event_assistant.service';
 import { GetEventAssistantCollectionService } from '@core/service/event/assistant/get_event_assistant_collection.service';
 import { DeleteEventAssistantService } from '@core/service/event/assistant/delete_event_assistant.service';
+import { UpdateEventService } from '@core/service/event/udpate_event.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -47,6 +48,11 @@ const use_case_providers: Array<Provider> = [
   {
     provide: EventDITokens.DeleteEventAssistantInteractor,
     useFactory: (gateway, user_gateway) => new DeleteEventAssistantService(gateway, user_gateway),
+    inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+  },
+  {
+    provide: EventDITokens.UpdateEventInteractor,
+    useFactory: (gateway, user_gateway) => new UpdateEventService(gateway, user_gateway),
     inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
   },
 ];

@@ -3,8 +3,8 @@ import { CreateEventInteractor } from '@core/domain/event/use-case/interactor/cr
 import { GetEventCollectionOfFriendsInteractor } from '@core/domain/event/use-case/interactor/get_event_collection_of_friends.interactor';
 import { GetMyEventCollectionInteractor } from '@core/domain/event/use-case/interactor/get_my_event_collection.interactor';
 import { Role } from '@core/domain/user/entity/role.enum';
-import { Body, Controller,  Delete, Get, HttpCode, HttpStatus, Inject, Logger, Param, Post, Query, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller,  Delete, Get, HttpCode, HttpStatus, Inject, Logger, Param, Post, Put, Query, ValidationPipe } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { HttpUser } from '../authentication/decorator/http_user';
 import { HttpUserPayload } from '../authentication/types/http_authentication_types';
 import { Roles } from '../authorization/decorator/roles.decorator';
@@ -21,6 +21,7 @@ import { GetEventAssistantCollectionAdapter } from '../http-adapter/event/assist
 import { AssistanceDTO } from '@core/domain/event/use-case/persistence-dto/assistance.dto';
 import { DeleteEventAssistantInteractor } from '@core/domain/event/use-case/interactor/assistant/delete_event_assistant.interactor';
 import { DeleteEventAssistantAdapter } from '../http-adapter/event/assistant/delete_event_assistant.adapter';
+import { UpdateEventInteractor } from '@core/domain/event/use-case/interactor/update_event.interactor';
 
 
 
@@ -44,7 +45,9 @@ export class EventController {
     @Inject(EventDITokens.GetEventAssistantCollectionInteractor)
     private readonly get_event_assistant_collection_interactor: GetEventAssistantCollectionInteractor,
     @Inject(EventDITokens.DeleteEventAssistantInteractor)
-    private readonly delete_event_assistant_interactor: DeleteEventAssistantInteractor
+    private readonly delete_event_assistant_interactor: DeleteEventAssistantInteractor, 
+    @Inject(EventDITokens.UpdateEventInteractor)
+    private readonly update_event_interactor: UpdateEventInteractor
   ) {}
 
   @Post()
@@ -68,6 +71,39 @@ export class EventController {
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
+  }
+
+  @Put('/:event_id')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'Event successfully updated' })
+  @ApiNotFoundResponse({ description: 'The provided event does not exists' })
+  public async updateEvent(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('event_id') event_id: string,
+    @Body() body) {
+      return await this.update_event_interactor.execute({
+        id: event_id,
+        name: body.name, 
+        description: body.description, 
+        lat: body.lat,
+        long: body.long, 
+        date: body.date,
+        user_id: http_user.id,
+      });
+      try {
+        return await this.update_event_interactor.execute({
+          id: event_id,
+          name: body.name, 
+          description: body.description, 
+          lat: body.lat,
+          long: body.long, 
+          date: body.date,
+          user_id: http_user.id,
+        });
+      } catch (e) {
+        throw HttpExceptionMapper.toHttpException(e);
+      }
   }
 
   @Post('assistant/:event_id')
