@@ -23,4 +23,30 @@ export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
     this.current_available_service_offer_id = String(Number(this.current_available_service_offer_id) + 1);
     return Promise.resolve(new_service_offer);
   }
+
+  exists(t: ServiceOfferDTO): Promise<boolean> {
+    t;
+    return Promise.resolve(false);
+  }
+
+  public async existsById(id: string): Promise<boolean> {
+    for (const _service_offer of this.service_offers.values())
+      if (_service_offer.service_offer_id === id)
+        return Promise.resolve(true);
+    return Promise.resolve(false);
+  }
+
+  public async update(service_offer: ServiceOfferDTO): Promise<ServiceOfferDTO> {
+    const service_offer_to_update: ServiceOfferDTO = {
+      service_offer_id: service_offer.service_offer_id,
+      title: service_offer.title,
+      service_brief: service_offer.service_brief,
+      contact_information: service_offer.contact_information,
+      category: service_offer.category,
+      owner_id: service_offer.owner_id,
+      updated_at: getCurrentDate(),
+    };
+    this.service_offers.set(service_offer.service_offer_id, service_offer_to_update);
+    return Promise.resolve(service_offer_to_update);
+  }
 }

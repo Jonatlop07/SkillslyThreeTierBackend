@@ -19,7 +19,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.NOT_FOUND_FRIENDS_TEMP_POSTS,
         CoreExceptionCodes.NON_EXISTENT_POST_OWNER,
         CoreExceptionCodes.NON_EXISTENT_JOIN_GROUP_REQUEST,
-        CoreExceptionCodes.NON_EXISTENT_GROUP
+        CoreExceptionCodes.NON_EXISTENT_GROUP,
+        CoreExceptionCodes.NON_EXISTENT_SERVICE_OFFER
       ]),
       status_code: HttpStatus.NOT_FOUND
     },

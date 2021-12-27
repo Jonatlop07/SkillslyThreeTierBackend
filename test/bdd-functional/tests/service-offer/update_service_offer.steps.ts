@@ -3,23 +3,27 @@ import { createTestModule } from '@test/bdd-functional/tests/create_test_module'
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import {
-  InvalidServiceOfferDetailsFormatException,
+  InvalidServiceOfferDetailsFormatException, NonExistentServiceOfferException,
   ServiceOfferException
 } from '@core/domain/service-offer/use-case/exception/service_offer.exception';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateServiceOfferInteractor } from '@core/domain/service-offer/use-case/interactor/create_service_offer.interactor';
 import { ServiceOfferDITokens } from '@core/domain/service-offer/di/service_offer_di_tokens';
+import { UpdateServiceOfferInteractor } from '@core/domain/service-offer/use-case/interactor/update_service_offer.interactor';
+import UpdateServiceOfferInputModel
+  from '@core/domain/service-offer/use-case/input-model/update_service_offer.input_model';
+import UpdateServiceOfferOutputModel
+  from '@core/domain/service-offer/use-case/output-model/update_service_offer.output_model';
 
 const feature = loadFeature('test/bdd-functional/features/service-offer/update_service_offer.feature');
 
 defineFeature(feature, (test) => {
+  let owner_id: string;
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_service_offer_interactor: CreateServiceOfferInteractor;
   let update_service_offer_interactor: UpdateServiceOfferInteractor;
-  let input: UpdateServiceOfferInputModel = {
-
-  };
+  let input: UpdateServiceOfferInputModel = null;
   let output: UpdateServiceOfferOutputModel;
   let exception: ServiceOfferException;
 
@@ -27,7 +31,8 @@ defineFeature(feature, (test) => {
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
-      await create_user_account_interactor.execute(input);
+      const { id } = await create_user_account_interactor.execute(input);
+      owner_id = id;
     } catch (e) {
       console.log(e);
     }
@@ -43,6 +48,7 @@ defineFeature(feature, (test) => {
     given(/there exists a service offer with the details being:/,
       async (service_details) => {
         const { user_id, title, service_brief, contact_information, category } = service_details[0];
+        owner_id = user_id;
         try {
           await create_service_offer_interactor.execute({
             user_id,
@@ -64,6 +70,7 @@ defineFeature(feature, (test) => {
         const { service_offer_id, title, service_brief, contact_information, category } = service_details[0];
         input = {
           service_offer_id,
+          owner_id,
           title,
           service_brief,
           contact_information,
@@ -123,7 +130,6 @@ defineFeature(feature, (test) => {
   test('A logged in user tries to update a service offer that does not exist',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
-      andAServiceOfferExists(and);
       andUserProvidesDetailsOfServiceOfferToBeUpdated(and);
       whenUserTriesToUpdateServiceOfferDetails(when);
       then('an error occurs: the service offer to be updated does not exist', () => {

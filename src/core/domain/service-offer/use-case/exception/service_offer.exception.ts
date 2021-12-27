@@ -8,7 +8,13 @@ class InvalidServiceOfferDetailsFormatException extends ServiceOfferException {
   message = 'The details of the service offer are in an invalid format';
 }
 
+class NonExistentServiceOfferException extends ServiceOfferException {
+  code = CoreExceptionCodes.NON_EXISTENT_SERVICE_OFFER;
+  message = 'The service offer does not exist';
+}
+
 export {
   ServiceOfferException,
-  InvalidServiceOfferDetailsFormatException
+  InvalidServiceOfferDetailsFormatException,
+  NonExistentServiceOfferException
 };

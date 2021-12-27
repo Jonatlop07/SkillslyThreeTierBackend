@@ -214,8 +214,8 @@ implements PermanentPostRepository {
       RETURN ${friend_key}
     `;
     const friends_ids = await this.neo4j_service
-    .read(get_friends_collection_query, { id })
-    .then((result: QueryResult) => result.records.map((record:any) => record._fields[0].properties.user_id));
+      .read(get_friends_collection_query, { id })
+      .then((result: QueryResult) => result.records.map((record:any) => record._fields[0].properties.user_id));
     const get_posts_of_friends_collection_query = `
       UNWIND $friends_ids as friend_id
       MATCH (${friend_key}: User {user_id: friend_id})
