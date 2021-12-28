@@ -307,4 +307,20 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
     );
   }
 
+  public async delete(params: EventDTO): Promise<EventDTO> {
+    return {}; 
+  }
+
+  public async deleteById(id: string): Promise<EventDTO> {
+    const user_key = 'user';
+    const delete_permanent_post_statement = `
+      MATCH (${this.event_key}: Event { event_id: $id })
+        <-[:${Relationships.USER_EVENT_RELATIONSHIP}]
+        -(${user_key}: User)
+      DETACH DELETE ${this.event_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.write(delete_permanent_post_statement, { id });
+    return {};
+  }
+
 }

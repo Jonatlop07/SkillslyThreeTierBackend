@@ -22,6 +22,7 @@ import { AssistanceDTO } from '@core/domain/event/use-case/persistence-dto/assis
 import { DeleteEventAssistantInteractor } from '@core/domain/event/use-case/interactor/assistant/delete_event_assistant.interactor';
 import { DeleteEventAssistantAdapter } from '../http-adapter/event/assistant/delete_event_assistant.adapter';
 import { UpdateEventInteractor } from '@core/domain/event/use-case/interactor/update_event.interactor';
+import { DeleteEventInteractor } from '@core/domain/event/use-case/interactor/delete_event.interactor';
 
 
 
@@ -47,7 +48,9 @@ export class EventController {
     @Inject(EventDITokens.DeleteEventAssistantInteractor)
     private readonly delete_event_assistant_interactor: DeleteEventAssistantInteractor, 
     @Inject(EventDITokens.UpdateEventInteractor)
-    private readonly update_event_interactor: UpdateEventInteractor
+    private readonly update_event_interactor: UpdateEventInteractor, 
+    @Inject(EventDITokens.DeleteEventInteractor)
+    private readonly delete_event_interactor: DeleteEventInteractor
   ) {}
 
   @Post()
@@ -81,16 +84,8 @@ export class EventController {
   public async updateEvent(
     @HttpUser() http_user: HttpUserPayload,
     @Param('event_id') event_id: string,
-    @Body() body) {
-      return await this.update_event_interactor.execute({
-        id: event_id,
-        name: body.name, 
-        description: body.description, 
-        lat: body.lat,
-        long: body.long, 
-        date: body.date,
-        user_id: http_user.id,
-      });
+    @Body() body
+  ){
       try {
         return await this.update_event_interactor.execute({
           id: event_id,
@@ -99,6 +94,25 @@ export class EventController {
           lat: body.lat,
           long: body.long, 
           date: body.date,
+          user_id: http_user.id,
+        });
+      } catch (e) {
+        throw HttpExceptionMapper.toHttpException(e);
+      }
+  }
+
+  @Delete('/:event_id')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'Event successfully deleted' })
+  @ApiNotFoundResponse({ description: 'The provided event does not exists' })
+  public async deleteEvent(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('event_id') event_id: string,
+  ) {
+      try {
+        return await this.delete_event_interactor.execute({
+          event_id,
           user_id: http_user.id,
         });
       } catch (e) {

@@ -7,5 +7,6 @@ export class EventDITokens {
   public static readonly GetEventAssistantCollectionInteractor: unique symbol = Symbol('GetEventAssistantCollectionInteractor');
   public static readonly DeleteEventAssistantInteractor: unique symbol = Symbol('DeleteEventAssistantInteractor');
   public static readonly UpdateEventInteractor: unique symbol = Symbol('UpdateEventInteractor');
+  public static readonly DeleteEventInteractor: unique symbol = Symbol('DeleteEventInteractor');
 
 }

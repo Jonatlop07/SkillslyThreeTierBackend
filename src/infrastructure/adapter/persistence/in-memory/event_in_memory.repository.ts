@@ -121,4 +121,18 @@ export class EventInMemoryRepository implements EventRepository {
     this.currently_available_event_assistant_id = '';
     return Promise.resolve();
   }
+
+  public delete(params: EventDTO): Promise<EventDTO> {
+    return Promise.resolve({});
+  }
+
+  public deleteById(event_id: string): Promise<EventDTO> {
+    for (const _event of this.events.values()) {
+      if (_event.event_id === event_id) {
+        this.events.delete(event_id);
+        return Promise.resolve(_event);
+      }
+    }
+    return Promise.resolve({});
+  }
 }
