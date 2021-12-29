@@ -80,6 +80,7 @@ import { GetEventAssistantCollectionService } from '@core/service/event/assistan
 import { DeleteEventAssistantService } from '@core/service/event/assistant/delete_event_assistant.service';
 import { UpdateEventService } from '@core/service/event/udpate_event.service';
 import { DeleteEventService } from '@core/service/event/delete_event.service';
+import { GetMyEventAssistantCollectionService } from '@core/service/event/assistant/get_my_event_assistant_collection.service';
 
 
 export async function createTestModule() {
@@ -386,6 +387,11 @@ export async function createTestModule() {
       {
         provide: EventDITokens.DeleteEventInteractor,
         useFactory: (gateway, user_gateway) => new DeleteEventService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.GetMyEventAssistantCollectionInteractor,
+        useFactory: (gateway, user_gateway) => new GetMyEventAssistantCollectionService(gateway, user_gateway),
         inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
       },
       {

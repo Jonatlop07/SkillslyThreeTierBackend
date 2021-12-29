@@ -1,4 +1,4 @@
-Feature: Get User Follow Request Collection
+Feature: Get event assitant Collection
 
   Scenario Outline: An event gets a collection of existing assitants
     Given an event exists, and has an id "<EventId>"

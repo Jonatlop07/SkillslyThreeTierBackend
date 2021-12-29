@@ -206,7 +206,7 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
     const other_user_key = 'other_user';
     const get_event_assistant_collection_query = `
       MATCH (${this.event_key}: Event { event_id: $event_id }),
-      (${other_user_key})-[r:${Relationships.EVENT_ASSISTANT_RELATIONSHIP}]->(${this.event_key})
+      (${other_user_key})-[:${Relationships.EVENT_ASSISTANT_RELATIONSHIP}]->(${this.event_key})
       RETURN ${other_user_key}
     `;
     const result_request = await this.neo4j_service.read(
@@ -216,6 +216,35 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
       }
     ).then(map_nodes_properties);
     const mapped_result_request = result_request.map(map_user_data);
+    return mapped_result_request;
+  }
+
+  public async getMyEventAssistantCollection(id: string): Promise<EventDTO[]> {
+    const map_nodes_properties = (result: QueryResult) =>
+    result.records.map(
+      (record: any) => record._fields[0].properties
+    );
+    const map_event_data = (result: any) => ({
+      name: result.name,
+      event_id: result.event_id,
+      description: result.description,
+      lat: result.lat, 
+      long: result.long, 
+      date: result.date
+    });
+    const user_key = 'user';
+    const get_my_event_assistant_collection_query = `
+      MATCH (${user_key}: User { user_id: $user_id }),
+      (${user_key})-[:${Relationships.EVENT_ASSISTANT_RELATIONSHIP}]->(${this.event_key})
+      RETURN ${this.event_key}
+    `;
+    const result_request = await this.neo4j_service.read(
+      get_my_event_assistant_collection_query,
+      {
+        user_id: id
+      }
+    ).then(map_nodes_properties);
+    const mapped_result_request = result_request.map(map_event_data);
     return mapped_result_request;
   }
 

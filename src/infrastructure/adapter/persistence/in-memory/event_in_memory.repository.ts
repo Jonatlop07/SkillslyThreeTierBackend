@@ -84,6 +84,16 @@ export class EventInMemoryRepository implements EventRepository {
     return Promise.resolve(event_assistants);
   }
 
+  public getMyEventAssistantCollection(id: string): Promise<EventDTO[]> {
+    const events: EventDTO[] = [];
+    for (const event of this.events.values()) {
+      if (this.currently_available_event_assistant_id.slice(1,1) == id) {
+        events.push(event);
+      }
+    }
+    return Promise.resolve(events);
+  }
+
   public findAll(params: eventQuery_model): Promise<EventDTO[]> {
     return Promise.resolve([]);
   }

@@ -23,6 +23,7 @@ import { DeleteEventAssistantInteractor } from '@core/domain/event/use-case/inte
 import { DeleteEventAssistantAdapter } from '../http-adapter/event/assistant/delete_event_assistant.adapter';
 import { UpdateEventInteractor } from '@core/domain/event/use-case/interactor/update_event.interactor';
 import { DeleteEventInteractor } from '@core/domain/event/use-case/interactor/delete_event.interactor';
+import { GetMyEventAssistantCollectionInteractor } from '@core/domain/event/use-case/interactor/assistant/get_my_event_assistant_collection.interactor';
 
 
 
@@ -50,7 +51,9 @@ export class EventController {
     @Inject(EventDITokens.UpdateEventInteractor)
     private readonly update_event_interactor: UpdateEventInteractor, 
     @Inject(EventDITokens.DeleteEventInteractor)
-    private readonly delete_event_interactor: DeleteEventInteractor
+    private readonly delete_event_interactor: DeleteEventInteractor,
+    @Inject(EventDITokens.GetMyEventAssistantCollectionInteractor)
+    private readonly get_my_event_assistant_collection_interactor: GetMyEventAssistantCollectionInteractor
   ) {}
 
   @Post()
@@ -84,7 +87,7 @@ export class EventController {
   public async updateEvent(
     @HttpUser() http_user: HttpUserPayload,
     @Param('event_id') event_id: string,
-    @Body() body
+    @Body(new ValidationPipe()) body
   ){
       try {
         return await this.update_event_interactor.execute({
@@ -120,7 +123,7 @@ export class EventController {
       }
   }
 
-  @Post('assistant/:event_id')
+  @Post('/assistant/:event_id')
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'The event assistant was successfully created' })
   public async createEventAssistant(
@@ -139,7 +142,7 @@ export class EventController {
     }
   }
 
-  @Get('assistant/:event_id')
+  @Get('/assistant/:event_id')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async getEventAssistantCollection(
@@ -156,7 +159,7 @@ export class EventController {
     }
   }
 
-  @Get(':user_id')
+  @Get('/:user_id')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async getMyEventCollection(
@@ -197,7 +200,7 @@ export class EventController {
     }
   }
 
-  @Delete('assistant')
+  @Delete('/assistant')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async deleteEventAssistant(
@@ -214,4 +217,20 @@ export class EventController {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
+
+  @Get('/assistant/my-assistant/:user_id')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  public async getMyEventAssistantCollection(
+    @HttpUser() http_user: HttpUserPayload,
+  ){
+    try {
+      return await this.get_my_event_assistant_collection_interactor.execute({
+        user_id: http_user.id
+      });
+    } catch (e){
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
 }

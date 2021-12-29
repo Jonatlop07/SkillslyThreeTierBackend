@@ -7,18 +7,12 @@ import { CreateEventInteractor } from '@core/domain/event/use-case/interactor/cr
 import GetEventAssistantCollectionOutputModel from '@core/domain/event/use-case/output-model/assistant/get_event_assistant_collection.output_model';
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import { createTestModule } from '../../create_test_module';
+import { createEventMock } from '../../utils/create_event_mock';
 
 const feature = loadFeature('test/bdd-functional/features/event/assistant/get_event_assistant_collection.feature');
 
 defineFeature( feature, (test) => {
-  const event_mock: CreateEventInputModel = {
-    name: 'Poolparty',
-    description: 'amazing poolparty in my beach house',
-    lat: -71.3,
-    long: 12.34,
-    date: new Date(),
-    user_id: '1'
-  };
+  const event_mock: CreateEventInputModel = createEventMock();
 
   let event_id: string;
   let create_event_interactor: CreateEventInteractor;
