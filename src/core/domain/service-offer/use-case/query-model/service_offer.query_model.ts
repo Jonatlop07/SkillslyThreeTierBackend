@@ -1,3 +1,4 @@
 export default interface ServiceOfferQueryModel {
-  owner_id: string;
+  service_offer_id?: string;
+  owner_id?: string;
 }

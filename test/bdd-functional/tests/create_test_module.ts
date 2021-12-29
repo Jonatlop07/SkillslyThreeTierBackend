@@ -79,6 +79,7 @@ import { CreateEventAssistantService } from '@core/service/event/assistant/creat
 import { GetEventAssistantCollectionService } from '@core/service/event/assistant/get_event_assistant_collection.service';
 import { DeleteEventAssistantService } from '@core/service/event/assistant/delete_event_assistant.service';
 import { UpdateServiceOfferService } from '@core/service/service-offer/update_service_offer.service';
+import { DeleteServiceOfferService } from '@core/service/service-offer/delete_service_offer.service';
 
 
 export async function createTestModule() {
@@ -385,6 +386,11 @@ export async function createTestModule() {
       {
         provide: ServiceOfferDITokens.UpdateServiceOfferInteractor,
         useFactory: (gateway) => new UpdateServiceOfferService(gateway),
+        inject: [ServiceOfferDITokens.ServiceOfferRepository]
+      },
+      {
+        provide: ServiceOfferDITokens.DeleteServiceOfferInteractor,
+        useFactory: (gateway) => new DeleteServiceOfferService(gateway),
         inject: [ServiceOfferDITokens.ServiceOfferRepository]
       },
       {

@@ -5,6 +5,7 @@ import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import { Injectable, Logger } from '@nestjs/common';
 import { QueryResult } from 'neo4j-driver-core';
+import ServiceOfferQueryModel from '@core/domain/service-offer/use-case/query-model/service_offer.query_model';
 
 @Injectable()
 export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepository {
@@ -86,6 +87,36 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
         }
       ),
       this.service_offer_key
+    );
+  }
+
+  public async delete(params: ServiceOfferQueryModel): Promise<void> {
+    const { service_offer_id, owner_id } = params;
+    const delete_service_offer_statement = `
+      MATCH (${this.service_offer_key}: ServiceOffer { service_offer_id: $service_offer_id })
+        <-[:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP}]
+        -(${this.user_key}: User { user_id: $owner_id })
+      DETACH DELETE ${this.service_offer_key}
+    `;
+    await this.neo4j_service.write(
+      delete_service_offer_statement,
+      {
+        service_offer_id,
+        owner_id
+      }
+    );
+  }
+
+  public async deleteById(id: string): Promise<void> {
+    const delete_service_offer_statement = `
+      MATCH (${this.service_offer_key}: ServiceOffer { service_offer_id: $service_offer_id })
+      DETACH DELETE ${this.service_offer_key}
+    `;
+    await this.neo4j_service.write(
+      delete_service_offer_statement,
+      {
+        service_offer_id: id
+      }
     );
   }
 }

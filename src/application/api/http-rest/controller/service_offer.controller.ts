@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Delete,
   HttpCode,
   HttpStatus,
   Inject,
@@ -15,7 +15,7 @@ import { Role } from '@core/domain/user/entity/role.enum';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
-  ApiCreatedResponse,
+  ApiCreatedResponse, ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags
@@ -30,6 +30,7 @@ import { CreateServiceOfferAdapter } from '@application/api/http-rest/http-adapt
 import { UpdateServiceOfferInteractor } from '@core/domain/service-offer/use-case/interactor/update_service_offer.interactor';
 import { UpdateServiceOfferDTO } from '@application/api/http-rest/http-dto/service-offer/http_update_service_offer.dto';
 import { UpdateServiceOfferAdapter } from '@application/api/http-rest/http-adapter/service-offer/update_service_offer.adapter';
+import { DeleteServiceOfferInteractor } from '@core/domain/service-offer/use-case/interactor/delete_service_offer.interactor';
 
 @Controller('service-offers')
 @Roles(Role.User)
@@ -41,7 +42,9 @@ export class ServiceOfferController {
     @Inject(ServiceOfferDITokens.CreateServiceOfferInteractor)
     private readonly create_service_offer_interactor: CreateServiceOfferInteractor,
     @Inject(ServiceOfferDITokens.UpdateServiceOfferInteractor)
-    private readonly update_service_offer_interactor: UpdateServiceOfferInteractor
+    private readonly update_service_offer_interactor: UpdateServiceOfferInteractor,
+    @Inject(ServiceOfferDITokens.DeleteServiceOfferInteractor)
+    private readonly delete_service_offer_interactor: DeleteServiceOfferInteractor
   ) {}
 
   @Post()
@@ -85,6 +88,25 @@ export class ServiceOfferController {
           )
         )
       );
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
+  @Delete(':service_offer_id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiNoContentResponse({ description: 'The service offer was successfully deleted' })
+  @ApiNotFoundResponse({ description: 'The service offer does not exist' })
+  public async deleteServiceOffer(
+    @HttpUser() http_user: HttpUserPayload,
+    @Param('service_offer_id') service_offer_id: string
+  ) {
+    try {
+      return await this.delete_service_offer_interactor.execute({
+        service_offer_id,
+        owner_id: http_user.id
+      });
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }

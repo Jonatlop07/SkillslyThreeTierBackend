@@ -1,6 +1,7 @@
 import ServiceOfferRepository from '@core/domain/service-offer/use-case/repository/service_offer.repository';
 import { ServiceOfferDTO } from '@core/domain/service-offer/use-case/persistence-dto/service_offer.dto';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import ServiceOfferQueryModel from '@core/domain/service-offer/use-case/query-model/service_offer.query_model';
 
 export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
   private current_available_service_offer_id: string;
@@ -48,5 +49,15 @@ export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
     };
     this.service_offers.set(service_offer.service_offer_id, service_offer_to_update);
     return Promise.resolve(service_offer_to_update);
+  }
+
+  public async delete(params: ServiceOfferQueryModel): Promise<void> {
+    this.service_offers.delete(params.service_offer_id);
+    return Promise.resolve();
+  }
+
+  deleteById(id: string): Promise<void> {
+    id;
+    throw new Error('Method not implemented');
   }
 }
