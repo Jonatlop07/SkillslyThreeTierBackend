@@ -1,4 +1,4 @@
-Feature: Query Service Offers of User
+Feature: Query Service Offers by User
 
   Scenario Outline: A user successfully queries the service offers of another user
     Given these users exists:

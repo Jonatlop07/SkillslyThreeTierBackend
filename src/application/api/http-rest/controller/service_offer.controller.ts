@@ -1,13 +1,13 @@
 import {
   Body,
-  Controller, Delete,
+  Controller, Delete, Get,
   HttpCode,
   HttpStatus,
   Inject,
   Logger,
   Param,
   Post,
-  Put,
+  Put, Query,
   ValidationPipe
 } from '@nestjs/common';
 import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
@@ -31,6 +31,9 @@ import { UpdateServiceOfferInteractor } from '@core/domain/service-offer/use-cas
 import { UpdateServiceOfferDTO } from '@application/api/http-rest/http-dto/service-offer/http_update_service_offer.dto';
 import { UpdateServiceOfferAdapter } from '@application/api/http-rest/http-adapter/service-offer/update_service_offer.adapter';
 import { DeleteServiceOfferInteractor } from '@core/domain/service-offer/use-case/interactor/delete_service_offer.interactor';
+import { QueryServiceOfferCollectionInteractor } from '@core/domain/service-offer/use-case/interactor/query_service_offer_collection.interactor';
+import { QueryServiceOfferCollectionDTO } from '@application/api/http-rest/http-dto/service-offer/http_query_service_offer_collection.dto';
+import { QueryServiceOfferCollectionAdapter } from '@application/api/http-rest/http-adapter/service-offer/query_service_offer_collection.adapter';
 
 @Controller('service-offers')
 @Roles(Role.User)
@@ -44,7 +47,9 @@ export class ServiceOfferController {
     @Inject(ServiceOfferDITokens.UpdateServiceOfferInteractor)
     private readonly update_service_offer_interactor: UpdateServiceOfferInteractor,
     @Inject(ServiceOfferDITokens.DeleteServiceOfferInteractor)
-    private readonly delete_service_offer_interactor: DeleteServiceOfferInteractor
+    private readonly delete_service_offer_interactor: DeleteServiceOfferInteractor,
+    @Inject(ServiceOfferDITokens.QueryServiceOfferCollectionInteractor)
+    private readonly query_service_offer_collection_interactor: QueryServiceOfferCollectionInteractor
   ) {}
 
   @Post()
@@ -107,6 +112,25 @@ export class ServiceOfferController {
         service_offer_id,
         owner_id: http_user.id
       });
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'The service offers were successfully retrieved' })
+  public async queryServiceOffers(
+    @HttpUser() http_user: HttpUserPayload,
+    @Query() parameters: QueryServiceOfferCollectionDTO
+  ) {
+    try {
+      return QueryServiceOfferCollectionAdapter.toResponseDTO(
+        await this.query_service_offer_collection_interactor.execute(
+          QueryServiceOfferCollectionAdapter.toInputModel(parameters)
+        )
+      );
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }

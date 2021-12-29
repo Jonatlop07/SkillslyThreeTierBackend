@@ -2,6 +2,7 @@ import ServiceOfferRepository from '@core/domain/service-offer/use-case/reposito
 import { ServiceOfferDTO } from '@core/domain/service-offer/use-case/persistence-dto/service_offer.dto';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import ServiceOfferQueryModel from '@core/domain/service-offer/use-case/query-model/service_offer.query_model';
+import { Optional } from '@core/common/type/common_types';
 
 export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
   private current_available_service_offer_id: string;
@@ -45,7 +46,7 @@ export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
       contact_information: service_offer.contact_information,
       category: service_offer.category,
       owner_id: service_offer.owner_id,
-      updated_at: getCurrentDate(),
+      updated_at: getCurrentDate()
     };
     this.service_offers.set(service_offer.service_offer_id, service_offer_to_update);
     return Promise.resolve(service_offer_to_update);
@@ -59,5 +60,48 @@ export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
   deleteById(id: string): Promise<void> {
     id;
     throw new Error('Method not implemented');
+  }
+
+  public async findAllByCategories(categories: Array<string>): Promise<Array<ServiceOfferDTO>> {
+    const service_offers = [];
+    for (const _service_offer of this.service_offers.values())
+      if (categories.includes(_service_offer.category))
+        service_offers.push(_service_offer);
+    return Promise.resolve(service_offers);
+  }
+
+  public async findAllByUser(user_id: string): Promise<Array<ServiceOfferDTO>> {
+    const service_offers = [];
+    for (const _service_offer of this.service_offers.values())
+      if (_service_offer.owner_id === user_id)
+        service_offers.push(_service_offer);
+    return Promise.resolve(service_offers);
+  }
+
+  public async findAll(params: ServiceOfferQueryModel): Promise<ServiceOfferDTO[]> {
+    params;
+    const service_offers = [];
+    for (const _service_offer of this.service_offers.values())
+      service_offers.push(_service_offer);
+    return Promise.resolve(service_offers);
+  }
+
+  public async findAllByUserAndCategories(params: ServiceOfferQueryModel): Promise<Array<ServiceOfferDTO>> {
+    const service_offers = [];
+    for (const _service_offer of this.service_offers.values())
+      if (params.categories.includes(_service_offer.category)
+        || _service_offer.owner_id === params.owner_id)
+        service_offers.push(_service_offer);
+    return Promise.resolve(service_offers);
+  }
+
+  findAllWithRelation(params: ServiceOfferQueryModel): Promise<any> {
+    params;
+    return Promise.resolve(undefined);
+  }
+
+  findOne(params: ServiceOfferQueryModel): Promise<Optional<ServiceOfferDTO>> {
+    params;
+    return Promise.resolve(undefined);
   }
 }

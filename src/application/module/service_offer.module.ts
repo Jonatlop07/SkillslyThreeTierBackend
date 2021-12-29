@@ -5,6 +5,7 @@ import { CreateServiceOfferService } from '@core/service/service-offer/create_se
 import { ServiceOfferController } from '@application/api/http-rest/controller/service_offer.controller';
 import { UpdateServiceOfferService } from '@core/service/service-offer/update_service_offer.service';
 import { DeleteServiceOfferService } from '@core/service/service-offer/delete_service_offer.service';
+import { QueryServiceOfferCollectionService } from '@core/service/service-offer/query_service_offer_collection.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -27,6 +28,11 @@ const use_case_providers: Array<Provider> = [
   {
     provide: ServiceOfferDITokens.DeleteServiceOfferInteractor,
     useFactory: (gateway) => new DeleteServiceOfferService(gateway),
+    inject: [ServiceOfferDITokens.ServiceOfferRepository]
+  },
+  {
+    provide: ServiceOfferDITokens.QueryServiceOfferCollectionInteractor,
+    useFactory: (gateway) => new QueryServiceOfferCollectionService(gateway),
     inject: [ServiceOfferDITokens.ServiceOfferRepository]
   }
 ];

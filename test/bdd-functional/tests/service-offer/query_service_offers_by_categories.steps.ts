@@ -7,15 +7,22 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { ServiceOfferDITokens } from '@core/domain/service-offer/di/service_offer_di_tokens';
 import CreateServiceOfferInputModel
   from '@core/domain/service-offer/use-case/input-model/create_service_offer.input_model';
+import { QueryServiceOfferCollectionInteractor } from '@core/domain/service-offer/use-case/interactor/query_service_offer_collection.interactor';
+import QueryServiceOfferCollectionInputModel
+  from '@core/domain/service-offer/use-case/input-model/query_service_offer_collection.input_model';
+import QueryServiceOfferCollectionOutputModel
+  from '@core/domain/service-offer/use-case/output-model/query_service_offer_collection.output_model';
 
 const feature = loadFeature('test/bdd-functional/features/service-offer/query_service_offers_by_categories.feature');
 
 defineFeature(feature, (test) => {
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_service_offer_interactor: CreateServiceOfferInteractor;
-  let query_service_offers_by_categories_interactor: QueryServiceOffersByCategoriesInteractor;
-  let input: QueryServiceOffersByCategoriesInputModel;
-  let output: QueryServiceOffersByCategoriesOutputModel;
+  let query_service_offer_collection_interactor: QueryServiceOfferCollectionInteractor;
+  const input: QueryServiceOfferCollectionInputModel = {
+    categories: []
+  };
+  let output: QueryServiceOfferCollectionOutputModel;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
@@ -60,7 +67,7 @@ defineFeature(feature, (test) => {
   function whenUserQueriesServiceOffersByCategories(when) {
     when('the user queries the service offers by the provided categories', async () => {
       try {
-        output = await query_service_offers_by_categories_interactor.execute(input);
+        output = await query_service_offer_collection_interactor.execute(input);
       } catch (e) {
         console.error(e);
       }
@@ -75,12 +82,12 @@ defineFeature(feature, (test) => {
     create_service_offer_interactor = module.get<CreateServiceOfferInteractor>(
       ServiceOfferDITokens.CreateServiceOfferInteractor
     );
-    query_service_offers_by_categories_interactor = module.get<QueryServiceOffersByCategoriesInteractor>(
-      ServiceOfferDITokens.QueryServiceOffersByCategoriesInteractor
+    query_service_offer_collection_interactor = module.get<QueryServiceOfferCollectionInteractor>(
+      ServiceOfferDITokens.QueryServiceOfferCollectionInteractor
     );
   });
 
-  test('',
+  test('A user successfully queries the service offers by categories',
     ({ given, and, when, then }) => {
       givenTheseUsersExists(given);
       andTheseServiceOffersExist(and);

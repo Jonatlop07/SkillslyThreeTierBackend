@@ -7,15 +7,22 @@ import { CreateServiceOfferInteractor } from '@core/domain/service-offer/use-cas
 import { ServiceOfferDITokens } from '@core/domain/service-offer/di/service_offer_di_tokens';
 import CreateServiceOfferInputModel
   from '@core/domain/service-offer/use-case/input-model/create_service_offer.input_model';
+import { QueryServiceOfferCollectionInteractor } from '@core/domain/service-offer/use-case/interactor/query_service_offer_collection.interactor';
+import QueryServiceOfferCollectionInputModel
+  from '@core/domain/service-offer/use-case/input-model/query_service_offer_collection.input_model';
+import QueryServiceOfferCollectionOutputModel
+  from '@core/domain/service-offer/use-case/output-model/query_service_offer_collection.output_model';
 
-const feature = loadFeature('test/bdd-functional/features/service-offer/query_user_service_offers.feature');
+const feature = loadFeature('test/bdd-functional/features/service-offer/query_service_offers_by_user.feature');
 
 defineFeature(feature, (test) => {
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_service_offer_interactor: CreateServiceOfferInteractor;
-  let query_user_service_offers: QueryUserServiceOffersInteractor;
-  let input: QueryUserServiceOffersInputModel;
-  let output: QueryUserServiceOffersOutputModel;
+  let query_service_offers_by_user: QueryServiceOfferCollectionInteractor;
+  const input: QueryServiceOfferCollectionInputModel = {
+    owner_id: ''
+  };
+  let output: QueryServiceOfferCollectionOutputModel;
 
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
@@ -54,7 +61,7 @@ defineFeature(feature, (test) => {
       async (provided_owner_id: string) => {
         try {
           input.owner_id = provided_owner_id;
-          output = await query_user_service_offers.execute(input);
+          output = await query_service_offers_by_user.execute(input);
         } catch (e) {
           console.error(e);
         }
@@ -70,12 +77,12 @@ defineFeature(feature, (test) => {
     create_service_offer_interactor = module.get<CreateServiceOfferInteractor>(
       ServiceOfferDITokens.CreateServiceOfferInteractor
     );
-    query_user_service_offers = module.get<QueryUserServiceOffersInteractor>(
-      ServiceOfferDITokens.QueryUserServiceOffersInteractor
+    query_service_offers_by_user = module.get<QueryServiceOfferCollectionInteractor>(
+      ServiceOfferDITokens.QueryServiceOfferCollectionInteractor
     );
   });
 
-  test('',
+  test('A user successfully queries the service offers of another user',
     ({ given, and, when, then }) => {
       givenTheseUsersExists(given);
       andTheseServiceOffersExist(and);
