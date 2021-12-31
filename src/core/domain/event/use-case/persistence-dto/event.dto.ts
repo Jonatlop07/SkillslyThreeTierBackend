@@ -1,6 +1,6 @@
 export interface EventDTO {
   event_id?: string;
-  name: string;
+  name?: string;
   description?: string;
   lat?: number;
   long?: number;
@@ -8,4 +8,5 @@ export interface EventDTO {
   user_id?: string;
   created_at?: string;
   updated_at?: string;
+  id?: string;
 }

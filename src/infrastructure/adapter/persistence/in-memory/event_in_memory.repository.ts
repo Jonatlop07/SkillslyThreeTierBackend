@@ -3,6 +3,8 @@ import { EventDTO } from '@core/domain/event/use-case/persistence-dto/event.dto'
 import EventRepository from '@core/domain/event/use-case/repository/event.repository';
 import { AssistanceDTO } from '@core/domain/event/use-case/persistence-dto/assistance.dto';
 import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
+import eventQuery_model from '@core/domain/event/use-case/query-model/event.query_model';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 export class EventInMemoryRepository implements EventRepository {
   private currently_available_event_id: string;
@@ -82,9 +84,68 @@ export class EventInMemoryRepository implements EventRepository {
     return Promise.resolve(event_assistants);
   }
 
+  public getMyEventAssistantCollection(id: string): Promise<EventDTO[]> {
+    const events: EventDTO[] = [];
+    for (const event of this.events.values()) {
+      if (this.currently_available_event_assistant_id.slice(1, 1) == id) {
+        events.push(event);
+      }
+    }
+    return Promise.resolve(events);
+  }
+
+  public findAll(params: eventQuery_model): Promise<EventDTO[]> {
+    params;
+    return Promise.resolve([]);
+  }
+
+  public findOne(params: eventQuery_model): Promise<EventDTO> {
+    for (const event of this.events.values()) {
+      if (Object.keys(params).every((key: string) => params[key] === event[key])) {
+        return Promise.resolve(event);
+      }
+    }
+    return Promise.resolve({});
+  }
+
+  public findAllWithRelation(params: eventQuery_model): Promise<any> {
+    params;
+    return Promise.resolve({});
+  }
+
+  public update(event: EventDTO): Promise<EventDTO> {
+    const event_to_update: EventDTO = {
+      event_id: event.event_id,
+      name: event.name,
+      description: event.description,
+      lat: event.lat,
+      long: event.long,
+      date: event.date,
+      user_id: event.user_id,
+      updated_at: getCurrentDate(),
+    };
+    this.events.set(event.event_id, event_to_update);
+    return Promise.resolve(event_to_update);
+  }
+
   public deleteEventAssistant(params: AssistanceDTO): Promise<void> {
     params;
     this.currently_available_event_assistant_id = '';
     return Promise.resolve();
+  }
+
+  public delete(params: EventDTO): Promise<EventDTO> {
+    params;
+    return Promise.resolve({});
+  }
+
+  public deleteById(event_id: string): Promise<EventDTO> {
+    for (const _event of this.events.values()) {
+      if (_event.event_id === event_id) {
+        this.events.delete(event_id);
+        return Promise.resolve(_event);
+      }
+    }
+    return Promise.resolve({});
   }
 }

@@ -78,6 +78,9 @@ import { CreateServiceOfferService } from '@core/service/service-offer/create_se
 import { CreateEventAssistantService } from '@core/service/event/assistant/create_event_assistant.service';
 import { GetEventAssistantCollectionService } from '@core/service/event/assistant/get_event_assistant_collection.service';
 import { DeleteEventAssistantService } from '@core/service/event/assistant/delete_event_assistant.service';
+import { UpdateEventService } from '@core/service/event/udpate_event.service';
+import { DeleteEventService } from '@core/service/event/delete_event.service';
+import { GetMyEventAssistantCollectionService } from '@core/service/event/assistant/get_my_event_assistant_collection.service';
 import { UpdateServiceOfferService } from '@core/service/service-offer/update_service_offer.service';
 import { DeleteServiceOfferService } from '@core/service/service-offer/delete_service_offer.service';
 import { QueryServiceOfferCollectionService } from '@core/service/service-offer/query_service_offer_collection.service';
@@ -376,6 +379,21 @@ export async function createTestModule() {
       {
         provide: EventDITokens.DeleteEventAssistantInteractor,
         useFactory: (gateway, user_gateway) => new DeleteEventAssistantService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.UpdateEventInteractor,
+        useFactory: (gateway, user_gateway) => new UpdateEventService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.DeleteEventInteractor,
+        useFactory: (gateway, user_gateway) => new DeleteEventService(gateway, user_gateway),
+        inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
+      },
+      {
+        provide: EventDITokens.GetMyEventAssistantCollectionInteractor,
+        useFactory: (gateway, user_gateway) => new GetMyEventAssistantCollectionService(gateway, user_gateway),
         inject: [EventDITokens.EventRepository, UserDITokens.UserRepository]
       },
       {

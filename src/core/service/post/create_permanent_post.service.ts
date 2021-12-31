@@ -10,8 +10,7 @@ import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-mo
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 
 export class CreatePermanentPostService
-  implements CreatePermanentPostInteractor
-{
+  implements CreatePermanentPostInteractor {
   constructor(
     @Inject(PostDITokens.PermanentPostRepository)
     private readonly gateway: CreatePermanentPostGateway,

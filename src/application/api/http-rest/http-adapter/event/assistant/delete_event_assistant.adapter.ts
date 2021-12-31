@@ -1,6 +1,6 @@
-import DeleteEventAssistantInputModel from "@core/domain/event/use-case/input-model/assistant/delete_event_assistant.input_model";
-import { Expose, plainToClass } from "class-transformer";
-import { IsString } from "class-validator";
+import DeleteEventAssistantInputModel from '@core/domain/event/use-case/input-model/assistant/delete_event_assistant.input_model';
+import { Expose, plainToClass } from 'class-transformer';
+import { IsString } from 'class-validator';
 
 export class DeleteEventAssistantAdapter implements DeleteEventAssistantInputModel {
   @Expose()
