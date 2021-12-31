@@ -1,6 +1,6 @@
-import CreateEventInputModel from "@core/domain/event/use-case/input-model/create_event.input_model";
-import { Expose, plainToClass } from "class-transformer";
-import { IsDate, IsNumber, IsString } from "class-validator";
+import CreateEventInputModel from '@core/domain/event/use-case/input-model/create_event.input_model';
+import { Expose, plainToClass } from 'class-transformer';
+import { IsDate, IsNumber, IsString } from 'class-validator';
 
 export class CreateEventAdapter implements CreateEventInputModel {
   @Expose()

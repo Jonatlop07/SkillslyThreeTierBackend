@@ -1,14 +1,14 @@
-import { EventDITokens } from "@core/domain/event/di/event_di_tokens";
-import { EventException } from "@core/domain/event/use-case/exception/event.exception";
-import GetMyEventAssistantCollectionInputModel from "@core/domain/event/use-case/input-model/assistant/get_my_event_assistant_collection.input_model";
-import { GetMyEventAssistantCollectionInteractor } from "@core/domain/event/use-case/interactor/assistant/get_my_event_assistant_collection.interactor";
-import GetMyEventAssistantCollectionOutputModel from "@core/domain/event/use-case/output-model/assistant/get_my_event_assistant_collection.output_model";
-import { UserDITokens } from "@core/domain/user/di/user_di_tokens";
-import CreateUserAccountInputModel from "@core/domain/user/use-case/input-model/create_user_account.input_model";
-import { CreateUserAccountInteractor } from "@core/domain/user/use-case/interactor/create_user_account.interactor";
-import { defineFeature, loadFeature } from "jest-cucumber";
-import { createTestModule } from "../../create_test_module";
-import { createUserMock } from "../../utils/create_user_mock";
+import { EventDITokens } from '@core/domain/event/di/event_di_tokens';
+import { EventException } from '@core/domain/event/use-case/exception/event.exception';
+import GetMyEventAssistantCollectionInputModel from '@core/domain/event/use-case/input-model/assistant/get_my_event_assistant_collection.input_model';
+import { GetMyEventAssistantCollectionInteractor } from '@core/domain/event/use-case/interactor/assistant/get_my_event_assistant_collection.interactor';
+import GetMyEventAssistantCollectionOutputModel from '@core/domain/event/use-case/output-model/assistant/get_my_event_assistant_collection.output_model';
+import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
+import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
+import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
+import { defineFeature, loadFeature } from 'jest-cucumber';
+import { createTestModule } from '../../create_test_module';
+import { createUserMock } from '../../utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/event/assistant/get_my_event_assistant_collection.feature');
 
