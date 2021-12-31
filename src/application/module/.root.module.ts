@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { setEnvironment } from '@application/environments';
 import { UserModule } from './user.module';
 import { PostModule } from './post.module';
@@ -14,6 +15,8 @@ import { GroupModule } from './group.module';
 import { ProjectModule } from './project.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ServiceOfferModule } from '@application/module/service_offer.module';
+import { APP_GUARD } from '@nestjs/core';
+
 
 const event_emitter_configuration = {
   // set this to `true` to use wildcards
@@ -38,6 +41,14 @@ const event_emitter_configuration = {
       isGlobal: true,
       envFilePath: `env/${setEnvironment()}`,
     }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        ttl: config.get('THROTTLE_TTL'),
+        limit: config.get('THROTTLE_LIMIT'),
+      }),
+    }),
     EventEmitterModule.forRoot(event_emitter_configuration),
     InfrastructureModule,
     UserModule,
@@ -53,6 +64,11 @@ const event_emitter_configuration = {
     ChatModule,
     ServiceOfferModule
   ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    }
+  ]
 })
-export class RootModule {
-}
+export class RootModule {}
