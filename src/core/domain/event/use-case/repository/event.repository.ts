@@ -5,8 +5,10 @@ import CreateEventAssistantGateway from '@core/domain/event/use-case/gateway/ass
 import ExistsEventGateway from '@core/domain/event/use-case/gateway/exists_event_gateway.gateway';
 import GetEventAssistantCollectionGateway from '@core/domain/event/use-case/gateway/assistance/get_event_assistant_collection.gateway';
 import DeleteEventAssistantGateway from '@core/domain/event/use-case/gateway/assistance/delete_event_assistance.gateway';
+import { UpdateEventGateway } from '@core/domain/event/use-case/gateway/update_event.gateway';
+import { DeleteEventGateway } from '@core/domain/event/use-case/gateway/delete_event.gateway';
 
 export default interface EventRepository
   extends CreateEventGateway, GetEventCollectionOfFriendsGateway, GetMyEventCollectionGateway,
   CreateEventAssistantGateway, ExistsEventGateway, GetEventAssistantCollectionGateway, 
-  DeleteEventAssistantGateway {}
+  DeleteEventAssistantGateway, UpdateEventGateway, DeleteEventGateway {}
