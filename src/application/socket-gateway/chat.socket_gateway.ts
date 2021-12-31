@@ -51,7 +51,6 @@ export class ChatSocketGateway implements OnGatewayInit, OnGatewayConnection, On
 
   @SubscribeMessage('send_message_to_conversation')
   public async handleSendMessageToConversation(client: Socket, payload: SocketMessageDTO) {
-    this.logger.log('conn');
     try {
       const created_message: CreateChatMessageOutputModel = await this.create_chat_message_interactor.execute({
         user_id: payload.user_id,
