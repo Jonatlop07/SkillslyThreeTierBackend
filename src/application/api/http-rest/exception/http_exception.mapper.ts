@@ -1,6 +1,6 @@
 import { CoreException } from '@core/common/exception/core.exception';
 import { CoreExceptionCodes } from '@core/common/exception/core_exception_codes';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Logger } from '@nestjs/common';
 
 export class HttpExceptionMapper {
 
@@ -19,7 +19,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.NOT_FOUND_FRIENDS_TEMP_POSTS,
         CoreExceptionCodes.NON_EXISTENT_POST_OWNER,
         CoreExceptionCodes.NON_EXISTENT_JOIN_GROUP_REQUEST,
-        CoreExceptionCodes.NON_EXISTENT_GROUP
+        CoreExceptionCodes.NON_EXISTENT_GROUP,
+        CoreExceptionCodes.NON_EXISTENT_SERVICE_OFFER
       ]),
       status_code: HttpStatus.NOT_FOUND
     },
@@ -75,6 +76,7 @@ export class HttpExceptionMapper {
   }
 
   public static toHttpException(exception: CoreException) {
+    Logger.error(exception.stack || exception.message);
     if (exception.code) {
       for (const exception_type of Object.keys(this.http_exceptions)) {
         if (this.http_exceptions[exception_type].mappings.has(exception.code)) {

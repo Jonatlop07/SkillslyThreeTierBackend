@@ -81,7 +81,9 @@ import { DeleteEventAssistantService } from '@core/service/event/assistant/delet
 import { UpdateEventService } from '@core/service/event/udpate_event.service';
 import { DeleteEventService } from '@core/service/event/delete_event.service';
 import { GetMyEventAssistantCollectionService } from '@core/service/event/assistant/get_my_event_assistant_collection.service';
-
+import { UpdateServiceOfferService } from '@core/service/service-offer/update_service_offer.service';
+import { DeleteServiceOfferService } from '@core/service/service-offer/delete_service_offer.service';
+import { QueryServiceOfferCollectionService } from '@core/service/service-offer/query_service_offer_collection.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -397,6 +399,21 @@ export async function createTestModule() {
       {
         provide: ServiceOfferDITokens.CreateServiceOfferInteractor,
         useFactory: (gateway) => new CreateServiceOfferService(gateway),
+        inject: [ServiceOfferDITokens.ServiceOfferRepository]
+      },
+      {
+        provide: ServiceOfferDITokens.UpdateServiceOfferInteractor,
+        useFactory: (gateway) => new UpdateServiceOfferService(gateway),
+        inject: [ServiceOfferDITokens.ServiceOfferRepository]
+      },
+      {
+        provide: ServiceOfferDITokens.DeleteServiceOfferInteractor,
+        useFactory: (gateway) => new DeleteServiceOfferService(gateway),
+        inject: [ServiceOfferDITokens.ServiceOfferRepository]
+      },
+      {
+        provide: ServiceOfferDITokens.QueryServiceOfferCollectionInteractor,
+        useFactory: (gateway) => new QueryServiceOfferCollectionService(gateway),
         inject: [ServiceOfferDITokens.ServiceOfferRepository]
       },
       {

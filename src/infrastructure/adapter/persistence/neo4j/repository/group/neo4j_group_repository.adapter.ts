@@ -7,7 +7,7 @@ import { QueryResult } from 'neo4j-driver-core';
 import GroupQueryModel from '@core/domain/group/use-case/query-model/group.query_model';
 import { JoinRequestDTO } from '@core/domain/group/use-case/persistence-dto/join_request.dto';
 import { BasicGroupDTO } from '@core/domain/group/use-case/persistence-dto/basic_group_data.dto';
-import { PaginationDTO } from '@application/api/http-rest/http-dto/pagination.dto';
+import { PaginationDTO } from '@core/common/persistence/pagination.dto';
 import { GroupUserDTO } from '@core/domain/group/use-case/persistence-dto/group_users.dto';
 
 @Injectable()
