@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import * as helmet from 'helmet';
 import * as chalk from 'chalk';
 import { RootModule } from '@application/module/.root.module';
 import { APIServerConfiguration } from '@infrastructure/config/api_server.config';
@@ -26,6 +27,17 @@ export class ServerApplication {
         origin: this.origin
       });
       app.setGlobalPrefix('api/v1');
+
+      app.use(helmet.contentSecurityPolicy({
+        useDefaults: true,
+        directives: {
+          'frame-ancestors': ['\'self\'']
+        }
+      }));
+      app.use(helmet.xssFilter());
+      app.use(helmet.ieNoOpen());
+      app.use(helmet.frameguard());
+      app.use(helmet.permittedCrossDomainPolicies());
 
       this.buildAPIDocumentation(app);
 
