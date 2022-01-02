@@ -8,12 +8,17 @@ import CreatePermanentPostGateway from '@core/domain/post/use-case/gateway/creat
 import { PermanentPostMapper } from '@core/domain/post/use-case/mapper/permanent_post.mapper';
 import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-model/create_permanent_post.output_model';
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
+import { UnexistentGroupException } from '@core/domain/group/use-case/exception/group.exception';
+import { GroupDITokens } from '@core/domain/group/di/group_di_tokens';
+import QueryGroupGateway from '@core/domain/group/use-case/gateway/query_group.gateway';
+import { Console } from 'console';
 
-export class CreatePermanentPostService
-  implements CreatePermanentPostInteractor {
+export class CreatePermanentPostService implements CreatePermanentPostInteractor {
   constructor(
     @Inject(PostDITokens.PermanentPostRepository)
     private readonly gateway: CreatePermanentPostGateway,
+    @Inject(GroupDITokens.GroupRepository)
+    private readonly group_gateway: QueryGroupGateway,
   ) {}
 
   async execute(
@@ -25,7 +30,6 @@ export class CreatePermanentPostService
     if (!post_to_create.hasNonEmptyContent()) {
       throw new EmptyPermanentPostContentException();
     }
-    const created_post: PermanentPostDTO = await this.gateway.create(input);
-    return created_post as CreatePermanentPostOutputModel;
+    return await this.gateway.create(input) as CreatePermanentPostOutputModel;
   }
 }

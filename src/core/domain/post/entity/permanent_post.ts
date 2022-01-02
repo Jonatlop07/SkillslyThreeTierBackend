@@ -8,14 +8,16 @@ export class PermanentPost extends Entity<string> {
   private readonly _content: PermanentPostContentElement[];
   private readonly _user_id: string;
   private readonly _privacy: string;
+  private readonly _group_id: string;
 
   constructor(payload: CreatePermanentPostEntityPayload) {
     super();
-    const { id, content, user_id, privacy } = payload;
+    const { id, content, user_id, privacy, group_id } = payload;
     this._id = id;
     this._content = content;
     this._user_id = user_id;
     this._privacy = privacy ? privacy : 'public';
+    this._group_id = group_id ?  group_id: undefined;
   }
 
   public hasNonEmptyContent() {

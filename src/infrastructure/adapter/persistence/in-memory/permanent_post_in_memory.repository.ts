@@ -12,6 +12,18 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   constructor(private readonly posts: Map<string, PermanentPostDTO>) {
     this.currently_available_post_id = '1';
   }
+
+  public getGroupPosts(group_id: string, pagination: PaginationDTO): Promise<PermanentPostDTO[]> {
+    pagination;
+    const group_posts: PermanentPostDTO[] = [];
+    for (const post of this.posts.values()){
+      if (post.group_id === group_id){
+        group_posts.push(post);
+      }
+    }
+    return Promise.resolve(group_posts);
+  }
+  
   delete(params: string): Promise<PermanentPostDTO> {
     params;
     throw new Error('Method not implemented.');
@@ -23,7 +35,8 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
       content: post.content,
       user_id: post.user_id,
       privacy: post.privacy,
-      created_at: getCurrentDate()
+      created_at: getCurrentDate(),
+      group_id: post.group_id ? post.group_id : '0'
     };
     this.posts.set(this.currently_available_post_id, new_post);
     this.currently_available_post_id = `${Number(this.currently_available_post_id) + 1}`;
@@ -116,5 +129,15 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
       }
     }
     return Promise.resolve(undefined);
+  }
+
+  deleteGroupPost(post_id: string, group_id: string): Promise<void> {
+    group_id;
+    for (const post of this.posts.values()){
+      if (post.post_id === post_id){
+        this.posts.delete(post_id);
+      }
+    }
+    return Promise.resolve();
   }
 }

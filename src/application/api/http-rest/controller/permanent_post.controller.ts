@@ -10,8 +10,7 @@ import {
   Get,
   Post,
   Put,
-  Delete,
-  Query
+  Query,
 } from '@nestjs/common';
 import {
   ApiBadGatewayResponse,
@@ -21,7 +20,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiTags
+  ApiTags,
 } from '@nestjs/swagger';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
@@ -51,7 +50,9 @@ import { GetPermanentPostOfFriendsCollectionAdapter } from '@application/api/htt
 @Controller('permanent-posts')
 @Roles(Role.User)
 @ApiTags('permanent-posts')
-@ApiInternalServerErrorResponse({ description: 'An internal server error occurred' })
+@ApiInternalServerErrorResponse({
+  description: 'An internal server error occurred',
+})
 export class PermanentPostController {
   private readonly logger: Logger = new Logger(PermanentPostController.name);
 
@@ -73,20 +74,24 @@ export class PermanentPostController {
     @Inject(ReactionDITokens.QueryReactionsInteractor)
     private readonly query_reactions_interactor: QueryReactionsInteractor,
     @Inject(PostDITokens.GetPermanentPostCollectionOfFriendsInteractor)
-    private readonly get_permanent_post_of_friends_collection_interactor: GetPermanentPostCollectionOfFriendsInteractor
-  ) { }
+    private readonly get_permanent_post_of_friends_collection_interactor: GetPermanentPostCollectionOfFriendsInteractor,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async createPermanentPost(@HttpUser() http_user: HttpUserPayload, @Body() body) {
+  public async createPermanentPost(
+  @HttpUser() http_user: HttpUserPayload,
+    @Body() body,
+  ) {
     try {
       return await this.create_permanent_post_interactor.execute(
         await CreatePermanentPostAdapter.new({
           content: body.content,
           user_id: http_user.id,
-          privacy: body.privacy
-        })
+          privacy: body.privacy,
+          group_id: body.group_id,
+        }),
       );
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
@@ -97,70 +102,94 @@ export class PermanentPostController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOkResponse({ description: 'Permanent post successfully updated' })
-  @ApiBadRequestResponse({ description: 'The content of the permanent post should not be empty' })
-  @ApiNotFoundResponse({ description: 'The provided permanent post does not exist' })
+  @ApiBadRequestResponse({
+    description: 'The content of the permanent post should not be empty',
+  })
+  @ApiNotFoundResponse({
+    description: 'The provided permanent post does not exist',
+  })
   public async updatePermanentPost(
   @HttpUser() http_user: HttpUserPayload,
     @Param('post_id') post_id: string,
-    @Body() body) {
+    @Body() body,
+  ) {
     if (body.user_id !== http_user.id)
-      throw new HttpException({
-        status: HttpStatus.UNAUTHORIZED,
-        error: 'Cannot update a post that does not belong to you'
-      }, HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        {
+          status: HttpStatus.UNAUTHORIZED,
+          error: 'Cannot update a post that does not belong to you',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
     try {
       return await this.update_permanent_post_interactor.execute({
         id: post_id,
         content: body.content,
         user_id: http_user.id,
-        privacy: body.privacy
+        privacy: body.privacy,
       });
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
-  @Get(':user_id')
+  @Post('posts')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async queryPermanentPostCollection(@Param('user_id') user_id: string, @HttpUser() http_user: HttpUserPayload){
+  public async queryPermanentPostCollection(
+  @Body() body,
+    @HttpUser() http_user: HttpUserPayload,
+  ) {
     try {
       return await this.query_permanent_post_collection_interactor.execute(
         await QueryPermanentPostCollectionAdapter.new({
           user_id: http_user.id,
-          owner_id: user_id,
-        })
+          owner_id: body.user_id,
+          group_id: body.group_id,
+          limit: body.limit,
+          offset: body.offset,
+        }),
       );
-    } catch (e){
+    } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
   @Get('post/:post_id')
   @HttpCode(HttpStatus.OK)
-  public async queryPermanentPost(@Param('post_id') post_id: string, @Query() queryParams) {
+  public async queryPermanentPost(
+  @Param('post_id') post_id: string,
+    @Query() queryParams,
+  ) {
     try {
       return await this.query_permanent_post_interactor.execute(
         await QueryPermanentPostAdapter.new({
           user_id: queryParams.user_id,
-          id: post_id
-        })
+          id: post_id,
+        }),
       );
-    } catch (e){
+    } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
-  @Delete('post/:post_id')
+  @Put('dele/:post_id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiCreatedResponse({ description: 'Post has been successfully delete' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while deleting post' })
   @ApiBearerAuth()
-  public async deletePermanentPost(@Param('post_id') post_id: string) {
+  public async deletePermanentPost(
+  @Param('post_id') post_id: string,
+    @Body() body,
+    @HttpUser() http_user: HttpUserPayload
+  ) {
     try {
-      return await this.delete_permanent_post_interactor.execute({ post_id: post_id }
-      );
+      return await this.delete_permanent_post_interactor.execute({
+        post_id: post_id,
+        group_id: body.group_id,
+        user_id: http_user.id
+      });
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
@@ -174,14 +203,14 @@ export class PermanentPostController {
   @ApiBearerAuth()
   public async sharePermanentPost(
   @Param('post_id') post_id: string,
-    @Body(new ValidationPipe()) body: SharePermanentPostDTO
+    @Body(new ValidationPipe()) body: SharePermanentPostDTO,
   ) {
     try {
       return await this.share_permanent_post_interactor.execute(
         await SharePermanentPostAdapter.new({
           post_id: post_id,
-          user_id: body.user_id
-        })
+          user_id: body.user_id,
+        }),
       );
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
@@ -191,14 +220,16 @@ export class PermanentPostController {
   @Post(':post_id/react')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async addOrRemoveReaction(@HttpUser() http_user: HttpUserPayload,
+  public async addOrRemoveReaction(
+  @HttpUser() http_user: HttpUserPayload,
     @Param('post_id') post_id: string,
-    @Body() body) {
+    @Body() body,
+  ) {
     try {
       return await this.add_reaction_interactor.execute({
         post_id: post_id,
         reactor_id: http_user.id,
-        reaction_type: body.reaction_type
+        reaction_type: body.reaction_type,
       });
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
@@ -208,8 +239,10 @@ export class PermanentPostController {
   @Get(':post_id/reactions')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async queryReactions(@HttpUser() http_user: HttpUserPayload,
-    @Param('post_id') post_id: string) {
+  public async queryReactions(
+  @HttpUser() http_user: HttpUserPayload,
+    @Param('post_id') post_id: string,
+  ) {
     try {
       return await this.query_reactions_interactor.execute({
         post_id: post_id,
@@ -223,21 +256,19 @@ export class PermanentPostController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async getPermanentPostOfFriendsCollection(
-    @HttpUser() http_user: HttpUserPayload,
-    @Query() pagination: PaginationDTO
+  @HttpUser() http_user: HttpUserPayload,
+    @Query() pagination: PaginationDTO,
   ) {
     try {
       return await this.get_permanent_post_of_friends_collection_interactor.execute(
         await GetPermanentPostOfFriendsCollectionAdapter.new({
           user_id: http_user.id,
           limit: pagination.limit,
-          offset: pagination.offset
-        })
+          offset: pagination.offset,
+        }),
       );
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
-
 }
-

@@ -51,3 +51,15 @@ Feature: Create permanent post
     And the user provides the privacy of the post being "private"
     When the user tries to create a new post
     Then a post is then created with the content provided and will be available for friends only
+
+  Scenario: A logged in user creates a group permanent post
+    Given a user exists
+    And the user provides the content of the post being:
+    | description         | reference                                           | reference_type |
+    |                     | https://www.gstatic.com/webp/gallery/1.jpg          | jpg            |
+    |                     | https://www.gstatic.com/webp/gallery/2.jpg          | jpg            |
+    |                     | http://techslides.com/demos/sample-videos/small.mp4 | mp4            |
+
+    And the user provides the group identified by "1"  
+    When the user tries to create a new post
+    Then a group post is then created with the content provided

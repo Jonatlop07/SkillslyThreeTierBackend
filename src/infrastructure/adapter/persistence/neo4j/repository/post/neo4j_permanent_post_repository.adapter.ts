@@ -15,12 +15,7 @@ implements PermanentPostRepository {
     PermanentPostNeo4jRepositoryAdapter.name,
   );
 
-  constructor(private readonly neo4j_service: Neo4jService) { }
-
-  delete(params: string): Promise<PermanentPostDTO> {
-    params;
-    throw new Error('Method not implemented.');
-  }
+  constructor(private readonly neo4j_service: Neo4jService) {}
 
   private readonly post_key = 'post';
   private readonly user_key = 'user';
@@ -29,21 +24,33 @@ implements PermanentPostRepository {
     const content = post.content.map((content_element) => {
       return JSON.stringify(content_element);
     });
+    const group_id = post.group_id ? post.group_id : '0';
     const post_with_content_as_json = {
       ...post,
       content,
     };
-    const create_post_statement = `
+    let create_post_statement = `
       MATCH (${this.user_key}: User { user_id: $user_id })
       CREATE (${this.post_key}: PermanentPost)
       SET ${this.post_key} += $properties, ${this.post_key}.post_id = randomUUID()
       CREATE (${this.user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${this.post_key})
       RETURN ${this.post_key}
     `;
+    if (post.group_id) {
+      create_post_statement = `
+        MATCH (${this.user_key}: User { user_id: $user_id }), ( group: Group { group_id: $group_id })
+        CREATE (${this.post_key}: PermanentPost)
+        SET ${this.post_key} += $properties, ${this.post_key}.post_id = randomUUID()
+        CREATE (${this.user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${this.post_key})
+        CREATE (group)-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(${this.post_key})
+        RETURN ${this.post_key}
+      `;
+    }
     const result: QueryResult = await this.neo4j_service.write(
       create_post_statement,
       {
         user_id: post.user_id,
+        group_id: group_id,
         properties: {
           content: post_with_content_as_json.content,
           created_at: moment().local().format('YYYY-MM-DD HH:mm:ss'),
@@ -79,7 +86,7 @@ implements PermanentPostRepository {
       properties: {
         content,
         privacy,
-        updated_at: moment().local().format('YYYY-MM-DD HH:mm:ss')
+        updated_at: moment().local().format('YYYY-MM-DD HH:mm:ss'),
       },
     });
     const updated_post = this.neo4j_service.getSingleResultProperties(
@@ -92,7 +99,7 @@ implements PermanentPostRepository {
       privacy: updated_post.privacy,
       created_at: updated_post.created_at,
       updated_at: updated_post.updated_at,
-      user_id: post.user_id
+      user_id: post.user_id,
     };
   }
 
@@ -109,7 +116,9 @@ implements PermanentPostRepository {
     return {};
   }
 
-  public async findOne(params: PermanentPostQueryModel): Promise<PermanentPostDTO> {
+  public async findOne(
+    params: PermanentPostQueryModel,
+  ): Promise<PermanentPostDTO> {
     const { post_id } = params;
     const user_id_key = 'user_id';
     const find_post_query = `
@@ -118,24 +127,26 @@ implements PermanentPostRepository {
         ->(${this.post_key}: PermanentPost { post_id: $post_id })
       RETURN ${this.post_key}, ${this.user_key}.user_id AS ${user_id_key}
     `;
-    const result: QueryResult = await this.neo4j_service.read(
-      find_post_query,
-      {
-        post_id
-      }
+    const result: QueryResult = await this.neo4j_service.read(find_post_query, {
+      post_id,
+    });
+    const found_post = this.neo4j_service.getSingleResultProperties(
+      result,
+      this.post_key,
     );
-    const found_post = this.neo4j_service.getSingleResultProperties(result, this.post_key);
     return {
       post_id: found_post.post_id,
-      content: found_post.content.map(
-        content_element => JSON.parse(content_element),
+      content: found_post.content.map((content_element) =>
+        JSON.parse(content_element),
       ),
       user_id: this.neo4j_service.getSingleResultProperty(result, user_id_key),
-      privacy: found_post.privacy
+      privacy: found_post.privacy,
     };
   }
 
-  public async findAll(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
+  public async findAll(
+    params: PermanentPostQueryModel,
+  ): Promise<PermanentPostDTO[]> {
     const { user_id } = params;
     const find_post_collection_query = `
       MATCH (${this.user_key}: User { user_id: $user_id })
@@ -171,8 +182,9 @@ implements PermanentPostRepository {
     return null;
   }
 
-
-  async getPublicPosts(params: PermanentPostQueryModel): Promise<PermanentPostDTO[]> {
+  async getPublicPosts(
+    params: PermanentPostQueryModel,
+  ): Promise<PermanentPostDTO[]> {
     const { user_id } = params;
     const find_public_posts_collection_query = `
       MATCH (${this.user_key}: User { user_id: $user_id })
@@ -191,18 +203,21 @@ implements PermanentPostRepository {
             user_id: record._fields[1],
             content: record._fields[0].properties.content,
           };
-        })
+        }),
       );
 
     return result.map((post) => ({
       ...post,
       content: post.content.map((content_element) =>
-        JSON.parse(content_element)
+        JSON.parse(content_element),
       ),
     }));
   }
 
-  public async getPostsOfFriends(id: string, pagination: PaginationDTO): Promise<PermanentPostDTO[]> {
+  public async getPostsOfFriends(
+    id: string,
+    pagination: PaginationDTO,
+  ): Promise<PermanentPostDTO[]> {
     const limit = pagination.limit || 25;
     const offset = pagination.offset || 0;
     const result_key = 'result';
@@ -215,7 +230,11 @@ implements PermanentPostRepository {
     `;
     const friends_ids = await this.neo4j_service
       .read(get_friends_collection_query, { id })
-      .then((result: QueryResult) => result.records.map((record:any) => record._fields[0].properties.user_id));
+      .then((result: QueryResult) =>
+        result.records.map(
+          (record: any) => record._fields[0].properties.user_id,
+        ),
+      );
     const get_posts_of_friends_collection_query = `
       UNWIND $friends_ids as friend_id
       MATCH (${friend_key}: User {user_id: friend_id})
@@ -237,23 +256,56 @@ implements PermanentPostRepository {
       .read(get_posts_of_friends_collection_query, { friends_ids })
       .then((result: QueryResult) =>
         result.records.map((record: any) => {
-          const { privacy, created_at, post_id, content, user_id } = record._fields[0];
+          const { privacy, created_at, post_id, content, user_id } =
+            record._fields[0];
           return {
             privacy,
             created_at,
             post_id,
             content,
-            user_id
+            user_id,
           };
-        })
+        }),
       );
     result.map((post) => ({
       ...post,
       content: post.content.map((content_element) =>
-        JSON.parse(content_element)
+        JSON.parse(content_element),
       ),
     }));
     return result;
+  }
+
+  async getGroupPosts(group_id: string, pagination: PaginationDTO): Promise<PermanentPostDTO[]> {
+    const limit = pagination.limit || 25;
+    const offset = pagination.offset || 0;
+    const get_group_posts_query = `
+      MATCH (group: Group { group_id: $group_id })
+        -[:${Relationships.GROUP_POST_RELATIONSHIP}]
+        ->(${this.post_key}: PermanentPost)
+      RETURN ${this.post_key}
+      ORDER BY ${this.post_key}.created_at DESC
+      SKIP ${offset}
+      LIMIT ${limit}
+    `;
+    const result = await this.neo4j_service
+      .read(get_group_posts_query, { group_id })
+      .then((result: QueryResult) =>
+        result.records.map((record: any) => {
+          return {
+            created_at: record._fields[0].properties.created_at,
+            post_id: record._fields[0].properties.post_id,
+            content: record._fields[0].properties.content,
+          };
+        }),
+      );
+
+    return result.map((post) => ({
+      ...post,
+      content: post.content.map((content_element) =>
+        JSON.parse(content_element),
+      ),
+    }));
   }
 
   public async exists(post: PermanentPostDTO): Promise<boolean> {
@@ -282,7 +334,23 @@ implements PermanentPostRepository {
       DETACH DELETE ${post_key}
       RETURN ${post_key}
     `;
-    const result: QueryResult = await this.neo4j_service.write(delete_permanent_post_statement, { id });
+    const result: QueryResult = await this.neo4j_service.write(
+      delete_permanent_post_statement,
+      { id },
+    );
     return this.neo4j_service.getSingleResultProperties(result, post_key);
+  }
+
+  async deleteGroupPost(post_id: string, group_id: string): Promise<void> {
+    const delete_group_post_query = `
+      MATCH (group:Group { group_id:$group_id })-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(${this.post_key}:PermanentPost { post_id:$post_id })
+      DETACH DELETE ${this.post_key}
+    `;
+    await this.neo4j_service.write(delete_group_post_query, { group_id, post_id });
+  }
+
+  delete(params: string): Promise<PermanentPostDTO> {
+    params;
+    throw new Error('Method not implemented.');
   }
 }

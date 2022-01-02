@@ -20,6 +20,7 @@ defineFeature(feature, (test) => {
   let user_id: string;
   let post_content: Array<PermanentPostContentElement>;
   let post_privacy = 'public';
+  let group_id: string;
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_permanent_post_interactor: CreatePermanentPostInteractor;
@@ -76,9 +77,18 @@ defineFeature(feature, (test) => {
           id: '1',
           content: post_content,
           user_id,
-          privacy: post_privacy
+          privacy: post_privacy,
+          group_id: group_id
         });
       });
+  }
+
+  function andAGroupIdIsProvided(and) {
+    and(/^the user provides the group identified by "([^"]*)"$/,
+      (provided_group_id) => {
+        group_id = provided_group_id;
+      }
+    );
   }
 
   beforeEach(async () => {
@@ -185,6 +195,16 @@ defineFeature(feature, (test) => {
     }
   );
 
-
+  test('A logged in user creates a group permanent post',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andUserProvidesTheContentOfThePost(and);
+      andAGroupIdIsProvided(and);
+      whenUserTriesToCreateNewPost(when);
+      then('a group post is then created with the content provided', () => {
+        expect(output).toBeDefined();
+      });
+    }
+  );
 
 });

@@ -52,3 +52,14 @@ Scenario: A logged in user tries to query the collection of permanent posts that
     And the user provides the id of the post being "1" and the id of the owner user being "2"
     When the user tries to query the post
     Then an error occurs: the user with the provided id does not exist
+
+  Scenario: A logged in user tries to query the collection of permanent posts from a specific group
+    Given a user exists
+    And there exists a group identified by "1", owned by user with id "2", with info being:
+      | name       | description                        | category       | picture                                                              |
+      | Tech Group | This is a new group of tech stuff  | Development    | https://static-cse.canva.com/blob/573718/beautifultwitterbanners.jpg | 
+    And there exists a collection of posts that belongs to group identified by "1"
+    And a user identified by "1" is part of the group with id "1"
+    And the user provides the group identified by "1"
+    When the user tries to query a collection of posts that belong to the group
+    Then the collection of posts is then returned
