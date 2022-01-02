@@ -283,7 +283,9 @@ implements PermanentPostRepository {
       MATCH (group: Group { group_id: $group_id })
         -[:${Relationships.GROUP_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost)
-      RETURN ${this.post_key}
+        <-[:${Relationships.USER_POST_RELATIONSHIP}]
+        -(${this.user_key}:User)
+      RETURN ${this.post_key}, ${this.user_key}.user_id
       ORDER BY ${this.post_key}.created_at DESC
       SKIP ${offset}
       LIMIT ${limit}
@@ -295,6 +297,7 @@ implements PermanentPostRepository {
           return {
             created_at: record._fields[0].properties.created_at,
             post_id: record._fields[0].properties.post_id,
+            user_id: record._fields[1],
             content: record._fields[0].properties.content,
           };
         }),
