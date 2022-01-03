@@ -17,6 +17,12 @@ export class QueryPermanentPostCollectionAdapter implements QueryPermanentPostCo
   @IsString()
   public group_id: string;
 
+  @Expose()
+  public limit?: string;
+
+  @Expose()
+  public offset?: string;
+
   public static new(
     payload: QueryPermanentPostCollectionInputModel,
   ): QueryPermanentPostCollectionAdapter {

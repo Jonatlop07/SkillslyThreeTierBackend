@@ -64,7 +64,9 @@ implements PermanentPostRepository {
     );
     return {
       post_id: created_post.post_id,
-      content: created_post.content,
+      content: created_post.content.map((content_element) => {
+        return JSON.parse(content_element);
+      }),
       user_id: post.user_id,
       created_at: created_post.created_at,
       privacy: created_post.privacy,
@@ -152,6 +154,7 @@ implements PermanentPostRepository {
       MATCH (${this.user_key}: User { user_id: $user_id })
         -[:${Relationships.USER_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost)
+      WHERE NOT (:Group)-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(${this.post_key})  
       RETURN ${this.post_key}, ${this.user_key}.user_id
     `;
     const result = await this.neo4j_service
@@ -240,6 +243,7 @@ implements PermanentPostRepository {
       MATCH (${friend_key}: User {user_id: friend_id})
         -[:${Relationships.USER_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost)
+      WHERE NOT (:Group)-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(${this.post_key})  
       WITH {
         privacy: ${this.post_key}.privacy,
         created_at: ${this.post_key}.created_at,
@@ -267,13 +271,13 @@ implements PermanentPostRepository {
           };
         }),
       );
-    result.map((post) => ({
+    return result.map((post) => ({
       ...post,
-      content: post.content.map((content_element) =>
-        JSON.parse(content_element),
+      content: post.content.map((content_element) =>{
+        return JSON.parse(content_element);
+      }
       ),
     }));
-    return result;
   }
 
   async getGroupPosts(group_id: string, pagination: PaginationDTO): Promise<PermanentPostDTO[]> {
@@ -302,7 +306,6 @@ implements PermanentPostRepository {
           };
         }),
       );
-
     return result.map((post) => ({
       ...post,
       content: post.content.map((content_element) =>
