@@ -38,6 +38,7 @@
     "class-validator": "^0.13.1",
     "dotenv": "^10.0.0",
     "env-var": "^7.1.1",
+    "helmet": "^5.0.0",
     "moment": "^2.29.1",
     "neo4j-driver": "^4.4.0",
     "passport": "^0.4.1",
