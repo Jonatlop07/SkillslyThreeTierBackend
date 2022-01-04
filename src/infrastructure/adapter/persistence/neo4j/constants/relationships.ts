@@ -18,4 +18,5 @@ export class Relationships {
   public static readonly USER_TEMP_POST_RELATIONSHIP = 'HAS';
   public static readonly EVENT_ASSISTANT_RELATIONSHIP = 'ASSIST';
   public static readonly USER_SERVICE_OFFER_RELATIONSHIP = 'OFFERS';
+  public static readonly REQUESTER_SERVICE_REQUEST_RELATIONSHIP = 'REQUESTS';
 }

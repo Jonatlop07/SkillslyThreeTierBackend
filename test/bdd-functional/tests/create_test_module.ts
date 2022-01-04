@@ -84,6 +84,9 @@ import { GetMyEventAssistantCollectionService } from '@core/service/event/assist
 import { UpdateServiceOfferService } from '@core/service/service-offer/update_service_offer.service';
 import { DeleteServiceOfferService } from '@core/service/service-offer/delete_service_offer.service';
 import { QueryServiceOfferCollectionService } from '@core/service/service-offer/query_service_offer_collection.service';
+import { ServiceRequestDITokens } from '@core/domain/service-request/di/service_request_di_tokens';
+import { CreateServiceRequestService } from '@core/service/service_request/create_service_request.service';
+import { ServiceRequestInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/service_request_in_memory.repository';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -417,6 +420,11 @@ export async function createTestModule() {
         inject: [ServiceOfferDITokens.ServiceOfferRepository]
       },
       {
+        provide: ServiceRequestDITokens.CreateServiceRequestInteractor,
+        useFactory: (gateway) => new CreateServiceRequestService(gateway),
+        inject: [ServiceRequestDITokens.ServiceRequestRepository]
+      },
+      {
         provide: UserDITokens.UserRepository,
         useFactory: () => new UserInMemoryRepository(new Map()),
       },
@@ -463,6 +471,10 @@ export async function createTestModule() {
       {
         provide: ServiceOfferDITokens.ServiceOfferRepository,
         useFactory: () => new ServiceOfferInMemoryRepository(new Map())
+      },
+      {
+        provide: ServiceRequestDITokens.ServiceRequestRepository,
+        useFactory: () => new ServiceRequestInMemoryRepository(new Map())
       }
     ],
   }).compile();

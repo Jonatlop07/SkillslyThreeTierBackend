@@ -16,6 +16,7 @@ import { ProjectModule } from './project.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ServiceOfferModule } from '@application/module/service_offer.module';
 import { APP_GUARD } from '@nestjs/core';
+import { ServiceRequestModule } from '@application/module/service_request.module';
 
 
 const event_emitter_configuration = {
@@ -62,7 +63,8 @@ const event_emitter_configuration = {
     ProjectModule,
     TempPostModule,
     ChatModule,
-    ServiceOfferModule
+    ServiceOfferModule,
+    ServiceRequestModule
   ],
   providers: [
     {

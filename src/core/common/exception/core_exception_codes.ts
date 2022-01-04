@@ -54,4 +54,7 @@ export class CoreExceptionCodes {
 
   public static readonly INVALID_SERVICE_OFFER_DETAILS_FORMAT = 1100;
   public static readonly NON_EXISTENT_SERVICE_OFFER = 1101;
+
+  public static readonly INVALID_SERVICE_REQUEST_DETAILS_FORMAT = 1200;
+  public static readonly NON_EXISTENT_SERVICE_REQUEST = 1201;
 }

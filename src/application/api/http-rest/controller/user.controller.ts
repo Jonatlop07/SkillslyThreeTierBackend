@@ -51,7 +51,7 @@ import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/in
 import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
 import { DeleteUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/delete_user_follow_request.interactor';
 import { GetUserFollowRequestCollectionInteractor } from '@core/domain/user/use-case/interactor/follow_request/get_user_follow_request_collection.interactor';
-import { Role } from '@core/domain/user/entity/role.enum';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { CreatePrivateChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_private_chat_conversation.interactor';
 import { ConversationEventsNames } from '@application/events/conversation.event_names';

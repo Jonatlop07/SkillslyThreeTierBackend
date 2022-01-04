@@ -6,20 +6,20 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import {
   InvalidServiceRequestDetailsFormatException,
   ServiceRequestException
-} from '@core/domain/service-offer/use-case/exception/service_request.exception';
-import { CreateServiceRequestInteractor } from '@core/domain/service-offer/use-case/interactor/create_service_request.interactor';
+} from '@core/domain/service-request/use-case/exception/service_request.exception';
+import { CreateServiceRequestInteractor } from '@core/domain/service-request/use-case/interactor/create_service_request.interactor';
 import CreateServiceRequestInputModel
-  from '@core/domain/service-offer/use-case/input-model/create_service_request.input_model';
+  from '@core/domain/service-request/use-case/input-model/create_service_request.input_model';
 import CreateServiceRequestOutputModel
-  from '@core/domain/service-offer/use-case/output-model/create_service_request.output_model';
-import { ServiceRequestDITokens } from '@core/domain/service-offer/di/service_request_di_tokens';
+  from '@core/domain/service-request/use-case/output-model/create_service_request.output_model';
+import { ServiceRequestDITokens } from '@core/domain/service-request/di/service_request_di_tokens';
 import { createRequesterMock } from '@test/bdd-functional/tests/utils/create_requester_mock';
 
-const feature = loadFeature('test/bdd-functional/features/service-offer/create_service_offer.feature');
+const feature = loadFeature('test/bdd-functional/features/service-request/create_service_request.feature');
 
 defineFeature(feature, (test) => {
   let create_user_account_interactor: CreateUserAccountInteractor;
-  let create_service_request_interactor: CreateServiceReqquestInteractor;
+  let create_service_request_interactor: CreateServiceRequestInteractor;
   let input: CreateServiceRequestInputModel = {
     requester_id: '',
     title: '',
@@ -64,7 +64,7 @@ defineFeature(feature, (test) => {
   function whenRequesterTriesToCreateServiceRequest(when) {
     when('the requester tries to create the service request', async () => {
       try {
-        output = await create_service_requester_interactor.execute(input);
+        output = await create_service_request_interactor.execute(input);
       } catch (e) {
         exception = e;
       }

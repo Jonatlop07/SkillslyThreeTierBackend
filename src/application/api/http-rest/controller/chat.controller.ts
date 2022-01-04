@@ -37,7 +37,7 @@ import { CreatePrivateChatConversationInteractor } from '@core/domain/chat/use-c
 import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_group_chat_conversation.interactor';
 import { GetChatMessageCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_message_collection.interactor';
 import { GetChatConversationCollectionInteractor } from '@core/domain/chat/use-case/interactor/get_chat_conversation_collection.interactor';
-import { Role } from '@core/domain/user/entity/role.enum';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 import { AddMembersToGroupConversationDTO } from '@application/api/http-rest/http-dto/chat/http_add_members_to_group_conversation.dto';
 import { AddMembersToGroupConversationAdapter } from '@application/api/http-rest/http-adapter/chat/add_members_to_group_conversation.adapter';
 import { AddMembersToGroupConversationInteractor } from '@core/domain/chat/use-case/interactor/add_members_to_group_conversation.interactor';

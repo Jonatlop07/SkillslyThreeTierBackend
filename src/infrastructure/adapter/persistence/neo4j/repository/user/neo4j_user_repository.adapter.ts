@@ -7,7 +7,7 @@ import UserRepository from '@core/domain/user/use-case/repository/user.repositor
 import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
 import { FollowRequestDTO } from '@core/domain/user/use-case/persistence-dto/follow_request.dto';
 import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
-import { Role } from '@core/domain/user/entity/role.enum';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 @Injectable()
