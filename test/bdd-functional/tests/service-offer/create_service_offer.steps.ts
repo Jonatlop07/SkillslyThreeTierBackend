@@ -92,12 +92,12 @@ defineFeature(feature, (test) => {
       });
     }
   );
-  test('A logged in user tries to create a service offer but with the details in a valid format',
+  test('A logged in user tries to create a service offer but with the details in a invalid format',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andUserProvidesDetailsOfTheService(and);
       whenUserTriesToCreateServiceOffer(when);
-      then('an error occurs: the service details is in an invalid format', () => {
+      then('an error occurs: the service details are in an invalid format', () => {
         expect(exception).toBeDefined();
         expect(exception).toBeInstanceOf(InvalidServiceOfferDetailsFormatException);
       });
