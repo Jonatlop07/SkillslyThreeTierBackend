@@ -1,6 +1,6 @@
-import GetMyEventCollectionInputModel from "@core/domain/event/use-case/input-model/get_my_event_collection.input_model";
-import { Expose, plainToClass } from "class-transformer";
-import { IsNumber } from "class-validator";
+import GetMyEventCollectionInputModel from '@core/domain/event/use-case/input-model/get_my_event_collection.input_model';
+import { Expose, plainToClass } from 'class-transformer';
+import { IsNumber } from 'class-validator';
 
 export class GetMyEventCollectionAdapter implements GetMyEventCollectionInputModel {
   @Expose()

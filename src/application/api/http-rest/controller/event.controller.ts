@@ -3,8 +3,29 @@ import { CreateEventInteractor } from '@core/domain/event/use-case/interactor/cr
 import { GetEventCollectionOfFriendsInteractor } from '@core/domain/event/use-case/interactor/get_event_collection_of_friends.interactor';
 import { GetMyEventCollectionInteractor } from '@core/domain/event/use-case/interactor/get_my_event_collection.interactor';
 import { Role } from '@core/domain/user/entity/role.enum';
-import { Body, Controller,  Delete, Get, HttpCode, HttpStatus, Inject, Logger, Param, Post, Put, Query, ValidationPipe } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Logger,
+  Param,
+  Post,
+  Put,
+  Query,
+  ValidationPipe
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags
+} from '@nestjs/swagger';
 import { HttpUser } from '../authentication/decorator/http_user';
 import { HttpUserPayload } from '../authentication/types/http_authentication_types';
 import { Roles } from '../authorization/decorator/roles.decorator';
@@ -24,7 +45,6 @@ import { DeleteEventAssistantAdapter } from '../http-adapter/event/assistant/del
 import { UpdateEventInteractor } from '@core/domain/event/use-case/interactor/update_event.interactor';
 import { DeleteEventInteractor } from '@core/domain/event/use-case/interactor/delete_event.interactor';
 import { GetMyEventAssistantCollectionInteractor } from '@core/domain/event/use-case/interactor/assistant/get_my_event_assistant_collection.interactor';
-
 
 
 @Controller('event')
@@ -47,14 +67,15 @@ export class EventController {
     @Inject(EventDITokens.GetEventAssistantCollectionInteractor)
     private readonly get_event_assistant_collection_interactor: GetEventAssistantCollectionInteractor,
     @Inject(EventDITokens.DeleteEventAssistantInteractor)
-    private readonly delete_event_assistant_interactor: DeleteEventAssistantInteractor, 
+    private readonly delete_event_assistant_interactor: DeleteEventAssistantInteractor,
     @Inject(EventDITokens.UpdateEventInteractor)
-    private readonly update_event_interactor: UpdateEventInteractor, 
+    private readonly update_event_interactor: UpdateEventInteractor,
     @Inject(EventDITokens.DeleteEventInteractor)
     private readonly delete_event_interactor: DeleteEventInteractor,
     @Inject(EventDITokens.GetMyEventAssistantCollectionInteractor)
     private readonly get_my_event_assistant_collection_interactor: GetMyEventAssistantCollectionInteractor
-  ) {}
+  ) {
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -88,20 +109,20 @@ export class EventController {
     @HttpUser() http_user: HttpUserPayload,
     @Param('event_id') event_id: string,
     @Body(new ValidationPipe()) body
-  ){
-      try {
-        return await this.update_event_interactor.execute({
-          id: event_id,
-          name: body.name, 
-          description: body.description, 
-          lat: body.lat,
-          long: body.long, 
-          date: body.date,
-          user_id: http_user.id,
-        });
-      } catch (e) {
-        throw HttpExceptionMapper.toHttpException(e);
-      }
+  ) {
+    try {
+      return await this.update_event_interactor.execute({
+        id: event_id,
+        name: body.name,
+        description: body.description,
+        lat: body.lat,
+        long: body.long,
+        date: body.date,
+        user_id: http_user.id
+      });
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
   }
 
   @Delete('/:event_id')
@@ -111,16 +132,16 @@ export class EventController {
   @ApiNotFoundResponse({ description: 'The provided event does not exists' })
   public async deleteEvent(
     @HttpUser() http_user: HttpUserPayload,
-    @Param('event_id') event_id: string,
+    @Param('event_id') event_id: string
   ) {
-      try {
-        return await this.delete_event_interactor.execute({
-          event_id,
-          user_id: http_user.id,
-        });
-      } catch (e) {
-        throw HttpExceptionMapper.toHttpException(e);
-      }
+    try {
+      return await this.delete_event_interactor.execute({
+        event_id,
+        user_id: http_user.id
+      });
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
   }
 
   @Post('/assistant/:event_id')
@@ -146,15 +167,15 @@ export class EventController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async getEventAssistantCollection(
-    @Param('event_id') event_id: string,
-  ){
+    @Param('event_id') event_id: string
+  ) {
     try {
       return await this.get_event_assistant_collection_interactor.execute(
         await GetEventAssistantCollectionAdapter.new({
           event_id
         })
       );
-    } catch (e){
+    } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -166,7 +187,7 @@ export class EventController {
     @Param('user_id') user_id: string,
     @HttpUser() http_user: HttpUserPayload,
     @Query() pagination: PaginationDTO
-  ){
+  ) {
     try {
       return await this.get_my_event_collection_interactor.execute(
         await GetMyEventCollectionAdapter.new({
@@ -175,7 +196,7 @@ export class EventController {
           offset: pagination.offset
         })
       );
-    } catch (e){
+    } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -204,13 +225,13 @@ export class EventController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async deleteEventAssistant(
-    @Body() assistant : AssistanceDTO
+    @Body() assistant: AssistanceDTO
   ) {
     try {
       return await this.delete_event_assistant_interactor.execute(
         await DeleteEventAssistantAdapter.new({
           user_id: assistant.user_id,
-          event_id : assistant.event_id
+          event_id: assistant.event_id
         })
       );
     } catch (e) {
@@ -222,13 +243,13 @@ export class EventController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async getMyEventAssistantCollection(
-    @HttpUser() http_user: HttpUserPayload,
-  ){
+    @HttpUser() http_user: HttpUserPayload
+  ) {
     try {
       return await this.get_my_event_assistant_collection_interactor.execute({
         user_id: http_user.id
       });
-    } catch (e){
+    } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }

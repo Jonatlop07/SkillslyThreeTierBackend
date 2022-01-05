@@ -87,7 +87,7 @@ export class EventInMemoryRepository implements EventRepository {
   public getMyEventAssistantCollection(id: string): Promise<EventDTO[]> {
     const events: EventDTO[] = [];
     for (const event of this.events.values()) {
-      if (this.currently_available_event_assistant_id.slice(1,1) == id) {
+      if (this.currently_available_event_assistant_id.slice(1, 1) == id) {
         events.push(event);
       }
     }
@@ -95,6 +95,7 @@ export class EventInMemoryRepository implements EventRepository {
   }
 
   public findAll(params: eventQuery_model): Promise<EventDTO[]> {
+    params;
     return Promise.resolve([]);
   }
 
@@ -108,6 +109,7 @@ export class EventInMemoryRepository implements EventRepository {
   }
 
   public findAllWithRelation(params: eventQuery_model): Promise<any> {
+    params;
     return Promise.resolve({});
   }
 
@@ -115,9 +117,9 @@ export class EventInMemoryRepository implements EventRepository {
     const event_to_update: EventDTO = {
       event_id: event.event_id,
       name: event.name,
-      description: event.description, 
-      lat: event.lat, 
-      long: event.long, 
+      description: event.description,
+      lat: event.lat,
+      long: event.long,
       date: event.date,
       user_id: event.user_id,
       updated_at: getCurrentDate(),
@@ -133,6 +135,7 @@ export class EventInMemoryRepository implements EventRepository {
   }
 
   public delete(params: EventDTO): Promise<EventDTO> {
+    params;
     return Promise.resolve({});
   }
 

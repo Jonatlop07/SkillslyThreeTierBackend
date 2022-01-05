@@ -61,7 +61,6 @@ import { FollowRequestSentToUserEvent } from '@application/events/user/follow_re
 import { FollowRequestAcceptedEvent } from '@application/events/user/follow_request_accepted.event';
 import { FollowRequestDeletedEvent } from '@application/events/user/follow_request_deleted.event';
 
-
 @Controller('users')
 @ApiTags('user')
 @ApiInternalServerErrorResponse({ description: 'An internal server error occurred' })

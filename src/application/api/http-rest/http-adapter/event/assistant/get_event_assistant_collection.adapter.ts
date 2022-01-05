@@ -1,6 +1,6 @@
-import GetEventAssistantCollectionInputModel from "@core/domain/event/use-case/input-model/assistant/get_event_assistant_collection.input_model";
-import { Expose, plainToClass } from "class-transformer";
-import { IsString } from "class-validator";
+import GetEventAssistantCollectionInputModel from '@core/domain/event/use-case/input-model/assistant/get_event_assistant_collection.input_model';
+import { Expose, plainToClass } from 'class-transformer';
+import { IsString } from 'class-validator';
 
 export class GetEventAssistantCollectionAdapter implements GetEventAssistantCollectionInputModel {
   @Expose()
