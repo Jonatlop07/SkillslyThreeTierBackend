@@ -26,11 +26,17 @@ export class QueryPermanentPostCollectionService implements QueryPermanentPostCo
   ) {}
 
   async execute(input: QueryPermanentPostCollectionInputModel): Promise<QueryPermanentPostCollectionOutputModel> {
-    const { user_id, owner_id } = input;
+    const { user_id, owner_id, group_id, limit, offset } = input;
+    let posts: Array<PermanentPostDTO> = [];
+    if ( group_id ){
+      posts = await this.post_gateway.getGroupPosts(group_id, { limit, offset });
+      return Promise.resolve ({
+        posts
+      });
+    } 
     const owner = await this.search_user_gateway.findOne({ user_id: owner_id });
     if (!owner)
-      throw new NonExistentUserException();
-    let posts: Array<PermanentPostDTO> = [];
+      throw new NonExistentUserException();   
     if (user_id === owner_id) {
       posts = await this.post_gateway.findAll({ user_id: owner_id });
     } else {

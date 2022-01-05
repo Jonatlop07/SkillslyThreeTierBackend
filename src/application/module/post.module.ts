@@ -15,6 +15,8 @@ import { QueryReactionsService } from '@core/service/reaction/query_reactions.se
 import { ReactionNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/reaction/neo4j_reaction_repository.adapter';
 import { DeletePermanentPostService } from '@core/service/post/delete_permanent_post.service';
 import { GetPermanentPostCollectionOfFriendsService } from '@core/service/post/get_permanent_post_collection_of_friends.service';
+import { GroupModule } from './group.module';
+import { GroupDITokens } from '@core/domain/group/di/group_di_tokens';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -29,8 +31,8 @@ const persistence_providers: Array<Provider> = [
 const use_case_providers: Array<Provider> = [
   {
     provide: PostDITokens.CreatePermanentPostInteractor,
-    useFactory: (gateway) => new CreatePermanentPostService(gateway),
-    inject: [PostDITokens.PermanentPostRepository]
+    useFactory: (gateway, group_gateway) => new CreatePermanentPostService(gateway, group_gateway),
+    inject: [PostDITokens.PermanentPostRepository, GroupDITokens.GroupRepository]
   },
   {
     provide: PostDITokens.UpdatePermanentPostInteractor,
@@ -54,8 +56,8 @@ const use_case_providers: Array<Provider> = [
   },
   {
     provide: PostDITokens.DeletePermanentPostInteractor,
-    useFactory: (post_gateway) => new DeletePermanentPostService(post_gateway),
-    inject: [PostDITokens.PermanentPostRepository]
+    useFactory: (post_gateway, group_gateway) => new DeletePermanentPostService(post_gateway, group_gateway),
+    inject: [PostDITokens.PermanentPostRepository, GroupDITokens.GroupRepository]
   },
   {
     provide: PostDITokens.SharePermanentPostInteractor,
@@ -75,7 +77,7 @@ const use_case_providers: Array<Provider> = [
 ];
 
 @Module({
-  imports: [UserModule],
+  imports: [UserModule, GroupModule],
   controllers: [
     PermanentPostController
   ],

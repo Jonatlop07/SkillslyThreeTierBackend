@@ -7,4 +7,5 @@ export interface PermanentPostDTO {
   created_at?: string;
   updated_at?: string;
   privacy?: string;
+  group_id?: string;
 }

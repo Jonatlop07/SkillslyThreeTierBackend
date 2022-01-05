@@ -5,4 +5,5 @@ export default interface CreatePermanentPostInputModel {
   content: Array<PermanentPostContentElement>;
   user_id: string;
   privacy?: string;
+  group_id?: string;
 }

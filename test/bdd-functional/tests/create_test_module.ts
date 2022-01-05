@@ -155,8 +155,8 @@ export async function createTestModule() {
       },
       {
         provide: PostDITokens.CreatePermanentPostInteractor,
-        useFactory: (gateway) => new CreatePermanentPostService(gateway),
-        inject: [PostDITokens.PermanentPostRepository],
+        useFactory: (gateway, group_gateway) => new CreatePermanentPostService(gateway, group_gateway),
+        inject: [PostDITokens.PermanentPostRepository, GroupDITokens.GroupRepository],
       },
       {
         provide: TempPostDITokens.CreateTempPostInteractor,
@@ -204,8 +204,8 @@ export async function createTestModule() {
       },
       {
         provide: PostDITokens.DeletePermanentPostInteractor,
-        useFactory: (post_gateway) => new DeletePermanentPostService(post_gateway),
-        inject: [PostDITokens.PermanentPostRepository],
+        useFactory: (post_gateway, group_gateway) => new DeletePermanentPostService(post_gateway, group_gateway),
+        inject: [PostDITokens.PermanentPostRepository, GroupDITokens.GroupRepository],
       },
       {
         provide: PostDITokens.QueryPermanentPostCollectionInteractor,

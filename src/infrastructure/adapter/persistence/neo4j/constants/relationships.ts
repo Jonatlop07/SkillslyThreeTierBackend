@@ -1,5 +1,6 @@
 export class Relationships {
   public static readonly USER_POST_RELATIONSHIP = 'HAS';
+  public static readonly GROUP_POST_RELATIONSHIP = 'POSTED_IN';
   public static readonly USER_EVENT_RELATIONSHIP = 'SCHEDULE';
   public static readonly USER_PROJECT_RELATIONSHIP = 'HAS';
   public static readonly USER_PROFILE_RELATIONSHIP = 'HAS';
