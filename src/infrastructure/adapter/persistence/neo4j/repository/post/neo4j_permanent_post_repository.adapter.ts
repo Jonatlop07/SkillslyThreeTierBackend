@@ -19,6 +19,7 @@ implements PermanentPostRepository {
 
   private readonly post_key = 'post';
   private readonly user_key = 'user';
+  private readonly group_key = 'group';
 
   public async create(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const content = post.content.map((content_element) => {
@@ -42,7 +43,7 @@ implements PermanentPostRepository {
         CREATE (${this.post_key}: PermanentPost)
         SET ${this.post_key} += $properties, ${this.post_key}.post_id = randomUUID()
         CREATE (${this.user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${this.post_key})
-        CREATE (group)-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(${this.post_key})
+        CREATE (${this.group_key})<-[:${Relationships.GROUP_POST_RELATIONSHIP}]-(${this.post_key})
         RETURN ${this.post_key}
       `;
     }
@@ -154,7 +155,7 @@ implements PermanentPostRepository {
       MATCH (${this.user_key}: User { user_id: $user_id })
         -[:${Relationships.USER_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost)
-      WHERE NOT (:Group)-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(${this.post_key})  
+      WHERE NOT (${this.post_key})-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(:Group)
       RETURN ${this.post_key}, ${this.user_key}.user_id
     `;
     const result = await this.neo4j_service
@@ -243,7 +244,7 @@ implements PermanentPostRepository {
       MATCH (${friend_key}: User {user_id: friend_id})
         -[:${Relationships.USER_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost)
-      WHERE NOT (:Group)-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(${this.post_key})  
+      WHERE NOT (:Group)<-[:${Relationships.GROUP_POST_RELATIONSHIP}]-(${this.post_key})  
       WITH {
         privacy: ${this.post_key}.privacy,
         created_at: ${this.post_key}.created_at,
@@ -284,9 +285,9 @@ implements PermanentPostRepository {
     const limit = pagination.limit || 25;
     const offset = pagination.offset || 0;
     const get_group_posts_query = `
-      MATCH (group: Group { group_id: $group_id })
-        -[:${Relationships.GROUP_POST_RELATIONSHIP}]
-        ->(${this.post_key}: PermanentPost)
+      MATCH (${this.group_key}: Group { group_id: $group_id })
+        <-[:${Relationships.GROUP_POST_RELATIONSHIP}]
+        -(${this.post_key}: PermanentPost)
         <-[:${Relationships.USER_POST_RELATIONSHIP}]
         -(${this.user_key}:User)
       RETURN ${this.post_key}, ${this.user_key}.user_id
@@ -349,7 +350,7 @@ implements PermanentPostRepository {
 
   async deleteGroupPost(post_id: string, group_id: string): Promise<void> {
     const delete_group_post_query = `
-      MATCH (group:Group { group_id:$group_id })-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(${this.post_key}:PermanentPost { post_id:$post_id })
+      MATCH (${this.group_key}:Group { group_id:$group_id })<-[:${Relationships.GROUP_POST_RELATIONSHIP}]-(${this.post_key}:PermanentPost { post_id:$post_id })
       DETACH DELETE ${this.post_key}
     `;
     await this.neo4j_service.write(delete_group_post_query, { group_id, post_id });
