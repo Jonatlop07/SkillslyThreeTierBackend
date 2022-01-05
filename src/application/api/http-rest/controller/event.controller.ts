@@ -221,7 +221,7 @@ export class EventController {
     }
   }
 
-  @Delete('/assistant')
+  @Post('/assistant')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async deleteEventAssistant(

@@ -71,7 +71,7 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
   public async existsEventAssistant(params: AssistanceDTO): Promise<boolean> {
     const user_key = 'user';
     const exists_event_assistant_query = `
-      MMATCH (${user_key}: User { user_id: $user_id }) , 
+      MATCH (${user_key}: User { user_id: $user_id }) , 
       (${this.event_key}: Event { event_id: $event_id }), 
       (${user_key})-[r:${Relationships.EVENT_ASSISTANT_RELATIONSHIP}]->(${this.event_key})
       RETURN r
