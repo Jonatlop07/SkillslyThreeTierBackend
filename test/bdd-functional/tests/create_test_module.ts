@@ -87,6 +87,8 @@ import { QueryServiceOfferCollectionService } from '@core/service/service-offer/
 import { ServiceRequestDITokens } from '@core/domain/service-request/di/service_request_di_tokens';
 import { CreateServiceRequestService } from '@core/service/service_request/create_service_request.service';
 import { ServiceRequestInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/service_request_in_memory.repository';
+import { UpdateServiceRequestService } from '@core/service/service_request/update_service_request.service';
+import { DeleteServiceRequestService } from '@core/service/service_request/delete_service_request.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -422,6 +424,16 @@ export async function createTestModule() {
       {
         provide: ServiceRequestDITokens.CreateServiceRequestInteractor,
         useFactory: (gateway) => new CreateServiceRequestService(gateway),
+        inject: [ServiceRequestDITokens.ServiceRequestRepository]
+      },
+      {
+        provide: ServiceRequestDITokens.UpdateServiceRequestInteractor,
+        useFactory: (gateway) => new UpdateServiceRequestService(gateway),
+        inject: [ServiceRequestDITokens.ServiceRequestRepository]
+      },
+      {
+        provide: ServiceRequestDITokens.DeleteServiceRequestInteractor,
+        useFactory: (gateway) => new DeleteServiceRequestService(gateway),
         inject: [ServiceRequestDITokens.ServiceRequestRepository]
       },
       {

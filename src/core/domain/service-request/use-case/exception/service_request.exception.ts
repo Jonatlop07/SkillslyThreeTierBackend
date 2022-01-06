@@ -13,8 +13,14 @@ class NonExistentServiceRequestException extends ServiceRequestException {
   message = 'The service request does not exist';
 }
 
+class InvalidPhaseToDeleteServiceRequestException extends ServiceRequestException {
+  code = CoreExceptionCodes.INVALID_PHASE_TO_DELETE_SERVICE_REQUEST;
+  message = 'You can not delete the service request while in the current phase';
+}
+
 export {
   ServiceRequestException,
   InvalidServiceRequestDetailsFormatException,
-  NonExistentServiceRequestException
+  NonExistentServiceRequestException,
+  InvalidPhaseToDeleteServiceRequestException
 };

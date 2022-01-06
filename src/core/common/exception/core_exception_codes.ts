@@ -57,4 +57,5 @@ export class CoreExceptionCodes {
 
   public static readonly INVALID_SERVICE_REQUEST_DETAILS_FORMAT = 1200;
   public static readonly NON_EXISTENT_SERVICE_REQUEST = 1201;
+  public static readonly INVALID_PHASE_TO_DELETE_SERVICE_REQUEST = 1202;
 }

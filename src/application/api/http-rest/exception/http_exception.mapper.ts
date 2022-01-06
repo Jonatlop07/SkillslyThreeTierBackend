@@ -63,6 +63,7 @@ export class HttpExceptionMapper {
       mappings: new Set([
         CoreExceptionCodes.INVALID_ACCOUNT_DATA_FORMAT,
         CoreExceptionCodes.INVALID_REACTION_TYPE,
+        CoreExceptionCodes.INVALID_PHASE_TO_DELETE_SERVICE_REQUEST
       ]),
       status_code: HttpStatus.FORBIDDEN,
     },

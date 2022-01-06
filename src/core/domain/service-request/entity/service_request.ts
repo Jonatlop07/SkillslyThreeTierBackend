@@ -32,4 +32,43 @@ export class ServiceRequest extends Entity<string> {
     this._phase = phase;
     this._id = payload.id || '';
   }
+
+  public canBeDeleted() {
+    return [
+      ServiceRequestPhase.Open,
+      ServiceRequestPhase.Canceled
+    ].includes(this._phase);
+  }
+
+  public get owner_id() {
+    return this._owner_id;
+  }
+
+  public get title() {
+    return this._title;
+  }
+
+  public get service_brief() {
+    return this._service_brief;
+  }
+
+  public get contact_information() {
+    return this._contact_information;
+  }
+
+  public get category() {
+    return this._category;
+  }
+
+  public get service_provider() {
+    return this._service_provider;
+  }
+
+  public get applicants() {
+    return this._applicants;
+  }
+
+  public get phase() {
+    return this._phase;
+  }
 }

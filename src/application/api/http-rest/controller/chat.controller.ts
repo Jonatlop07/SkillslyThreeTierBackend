@@ -47,7 +47,7 @@ import { UpdateGroupConversationDetailsDTO } from '@application/api/http-rest/ht
 import { DeleteChatGroupConversationInteractor } from '@core/domain/chat/use-case/interactor/delete_chat_group_conversation.interactor';
 import AddMembersToGroupConversationOutputModel
   from '@core/domain/chat/use-case/output-model/add_members_to_group_conversation.output_model';
-import { ConversationEventsNames } from '@application/events/conversation.event_names';
+import { EventsNames } from '@application/events/event_names';
 import { AddedMembersToGroupConversationEvent } from '@application/events/chat/added_members_to_group_conversation.event';
 
 
@@ -174,7 +174,7 @@ export class ChatController {
       );
       result.added_members.forEach((added_member) => {
         this.event_emitter.emit(
-          ConversationEventsNames.ADDED_MEMBERS_TO_GROUP_CONVERSATION,
+          EventsNames.ADDED_MEMBERS_TO_GROUP_CONVERSATION,
           new AddedMembersToGroupConversationEvent({
             user_id: added_member.user_id,
             conversation: result.conversation
