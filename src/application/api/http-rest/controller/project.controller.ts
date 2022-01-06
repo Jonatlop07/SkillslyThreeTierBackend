@@ -18,7 +18,7 @@ import { Roles } from '@application/api/http-rest/authorization/decorator/roles.
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
 import { CreateProjectInteractor } from '@core/domain/project/use-case/interactor/create_project.interactor';
 import { ProjectDITokens } from '@core/domain/project/di/project_di_tokens';
-import { Role } from '@core/domain/user/entity/role.enum';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 import { CreateProjectAdapter } from '@application/api/http-rest/http-adapter/project/create_project.adapter';
 
 @Controller('projects')

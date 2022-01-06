@@ -11,7 +11,7 @@ import {
   ValidationPipe
 } from '@nestjs/common';
 import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
-import { Role } from '@core/domain/user/entity/role.enum';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,

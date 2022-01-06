@@ -15,7 +15,7 @@ import {
   ProfileInvalidDataFormatException,
   ProfileNotFoundException
 } from '@core/domain/profile/use-case/exception/profile.exception';
-import { Role } from '@core/domain/user/entity/role.enum';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 
 @Controller('users/profile')
 @Roles(Role.User)

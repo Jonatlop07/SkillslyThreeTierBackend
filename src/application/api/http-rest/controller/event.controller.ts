@@ -2,7 +2,7 @@ import { EventDITokens } from '@core/domain/event/di/event_di_tokens';
 import { CreateEventInteractor } from '@core/domain/event/use-case/interactor/create_event.interactor';
 import { GetEventCollectionOfFriendsInteractor } from '@core/domain/event/use-case/interactor/get_event_collection_of_friends.interactor';
 import { GetMyEventCollectionInteractor } from '@core/domain/event/use-case/interactor/get_my_event_collection.interactor';
-import { Role } from '@core/domain/user/entity/role.enum';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 import {
   Body,
   Controller,

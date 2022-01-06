@@ -51,10 +51,10 @@ import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/in
 import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
 import { DeleteUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/delete_user_follow_request.interactor';
 import { GetUserFollowRequestCollectionInteractor } from '@core/domain/user/use-case/interactor/follow_request/get_user_follow_request_collection.interactor';
-import { Role } from '@core/domain/user/entity/role.enum';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { CreatePrivateChatConversationInteractor } from '@core/domain/chat/use-case/interactor/create_private_chat_conversation.interactor';
-import { ConversationEventsNames } from '@application/events/conversation.event_names';
+import { EventsNames } from '@application/events/event_names';
 import CreateUserFollowRequestOutputModel
   from '@core/domain/user/use-case/output-model/follow_request/create_user_follow_request.output_model';
 import { FollowRequestSentToUserEvent } from '@application/events/user/follow_request_sent_to_user.event';
@@ -228,7 +228,7 @@ export class UserController {
         })
       );
       this.event_emitter.emit(
-        ConversationEventsNames.FOLLOW_REQUEST_SENT,
+        EventsNames.FOLLOW_REQUEST_SENT,
         new FollowRequestSentToUserEvent({
           user_to_follow_id,
           user_id: result.user_id,
@@ -264,7 +264,7 @@ export class UserController {
       );
       if (accept) {
         this.event_emitter.emit(
-          ConversationEventsNames.FOLLOW_REQUEST_ACCEPTED,
+          EventsNames.FOLLOW_REQUEST_ACCEPTED,
           new FollowRequestAcceptedEvent({
             user_to_follow_id,
             user_id: result.user_id,
@@ -304,7 +304,7 @@ export class UserController {
         })
       );
       this.event_emitter.emit(
-        ConversationEventsNames.FOLLOW_REQUEST_DELETED,
+        EventsNames.FOLLOW_REQUEST_DELETED,
         new FollowRequestDeletedEvent({
           user_to_follow_id,
           user_id: result.user_id

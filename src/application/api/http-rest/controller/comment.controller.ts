@@ -22,7 +22,7 @@ import {
   ThereAreNoCommentsException,
 } from '@core/domain/comment/use-case/exception/comment.exception';
 import { GetCommentsInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/get_comments_in_permanent_post.interactor';
-import { Role } from '@core/domain/user/entity/role.enum';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 
 @Controller('permanent-posts')
 @Roles(Role.User)

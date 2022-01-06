@@ -37,7 +37,7 @@ import { QueryGroupUsersInteractor } from '@core/domain/group/use-case/interacto
 import { GetJoinRequestsInteractor } from '@core/domain/group/use-case/interactor/join-request/get_join_requests.interactor';
 import { GetJoinRequestsAdapter } from '@application/api/http-rest/http-adapter/group/get_join_requests.adapter';
 import { Roles } from '../authorization/decorator/roles.decorator';
-import { Role } from '@core/domain/user/entity/role.enum';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 
 @Controller('groups')
 @Roles(Role.User)
