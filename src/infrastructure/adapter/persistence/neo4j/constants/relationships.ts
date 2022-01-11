@@ -21,4 +21,5 @@ export class Relationships {
   public static readonly USER_SERVICE_OFFER_RELATIONSHIP = 'OFFERS';
   public static readonly REQUESTER_SERVICE_REQUEST_RELATIONSHIP = 'REQUESTS';
   public static readonly APPLICANT_SERVICE_REQUEST_RELATIONSHIP = 'APPLIES';
+  public static readonly SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP = 'PROVIDES';
 }
