@@ -18,9 +18,21 @@ class InvalidPhaseToDeleteServiceRequestException extends ServiceRequestExceptio
   message = 'You can not delete the service request while in the current phase';
 }
 
+class InvalidServiceRequestPhaseOperationException extends ServiceRequestException {
+  code = CoreExceptionCodes.UNAUTHORIZED_SERVICE_REQUEST_APPLICATION_ACTION;
+  message = 'You can not perform this actions in the current service request phase';
+}
+
+class NonExistentServiceRequestApplicationException extends ServiceRequestException {
+  code = CoreExceptionCodes.NON_EXISTENT_SERVICE_REQUEST_APPLICATION;
+  message = 'The service request application does not exist';
+}
+
 export {
   ServiceRequestException,
   InvalidServiceRequestDetailsFormatException,
   NonExistentServiceRequestException,
-  InvalidPhaseToDeleteServiceRequestException
+  InvalidPhaseToDeleteServiceRequestException,
+  InvalidServiceRequestPhaseOperationException,
+  NonExistentServiceRequestApplicationException
 };

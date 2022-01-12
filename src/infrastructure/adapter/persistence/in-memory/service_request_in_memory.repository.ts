@@ -4,9 +4,11 @@ import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import { ServiceRequestPhase } from '@core/domain/service-request/entity/type/service_request_phase.enum';
 import ServiceRequestQueryModel from '@core/domain/service-request/use-case/query-model/service_request.query_model';
 import { Optional } from '@core/common/type/common_types';
+import { ServiceRequestApplicationDTO } from '@core/domain/service-request/use-case/persistence-dto/service-request-applications/service_request_application.dto';
 
 export class ServiceRequestInMemoryRepository implements ServiceRequestRepository {
   private current_available_service_request_id: string;
+  private current_available_service_request_application_id: string;
 
   constructor(private readonly service_requests: Map<string, ServiceRequestDTO>) {
     this.current_available_service_request_id = '1';
@@ -69,6 +71,14 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
       if (_service_request.service_request_id === params.service_request_id)
         return Promise.resolve(_service_request);
     return Promise.resolve(null);
+  }
+
+  public async createApplication(params: ServiceRequestApplicationDTO): Promise<ServiceRequestApplicationDTO> {
+    this.current_available_service_request_application_id = params.applicant_id.concat(params.request_id);
+    return Promise.resolve({
+      request_id: params.request_id,
+      applicant_id: params.applicant_id,
+    });
   }
 
   deleteById(id: string): Promise<void> {
