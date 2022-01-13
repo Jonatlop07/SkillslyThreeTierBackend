@@ -6,7 +6,8 @@ import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constan
 
 @Injectable()
 export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) {
+  }
 
   public async create(profile: ProfileDTO): Promise<ProfileDTO> {
     const user_key = 'user';
@@ -38,7 +39,7 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     const user_key = 'user';
     const profile_key = 'profile';
     const get_profile_query = ` 
-      MATCH (${user_key} { email : $email })--(${profile_key})
+      MATCH (${user_key} { email : $email })--(${profile_key}: Profile)
       RETURN ${profile_key}
     `;
     const get_profile_result = await this.neo4j_service.read(get_profile_query, { email: user_email });

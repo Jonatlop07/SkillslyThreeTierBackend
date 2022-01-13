@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
 import { CreateProfileDto } from '@application/api/http-rest/http-dto/profile/http_create_profile.dto';
@@ -13,9 +13,11 @@ import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profil
 import { EditProfileInteractor } from '@core/domain/profile/use-case/interactor/edit_profile.interactor';
 import {
   ProfileInvalidDataFormatException,
-  ProfileNotFoundException
+  ProfileNotFoundException,
 } from '@core/domain/profile/use-case/exception/profile.exception';
 import { Role } from '@core/domain/user/entity/type/role.enum';
+import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
+import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 
 @Controller('users/profile')
 @Roles(Role.User)
@@ -62,16 +64,16 @@ export class ProfileController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public async getProfile(@Query() queryParams): Promise<ProfileDTO> {
-    if (Object.keys(queryParams).length === 0) {
-      throw new HttpException({
-        status: HttpStatus.BAD_REQUEST,
-        error: 'Query data required',
-      }, HttpStatus.BAD_REQUEST);
-    }
+  public async getProfile(@HttpUser() http_user: HttpUserPayload): Promise<ProfileDTO> {
+    // if (Object.keys(queryParams).length === 0) {
+    //   throw new HttpException({
+    //     status: HttpStatus.BAD_REQUEST,
+    //     error: 'Query data required',
+    //   }, HttpStatus.BAD_REQUEST);
+    // }
     try {
       return await this.get_profile_interactor.execute(GetProfileAdapter.new({
-        user_email: queryParams['user_email'],
+        user_email: http_user.email,
       }));
     } catch (e) {
       if (e instanceof ProfileNotFoundException) {
