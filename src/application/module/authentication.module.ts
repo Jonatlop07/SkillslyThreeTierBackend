@@ -9,6 +9,7 @@ import { HttpJwtStrategy } from '@application/api/http-rest/authentication/passp
 import { AuthenticationController } from '@application/api/http-rest/controller/authentication.controller';
 import { HttpJwtAuthenticationGuard } from '@application/api/http-rest/authentication/guard/http_jwt_authentication.guard';
 import { UserModule } from './user.module';
+import { RolesGuard } from '@application/api/http-rest/authorization/guard/roles.guard';
 
 @Module({
   controllers: [
@@ -37,6 +38,10 @@ import { UserModule } from './user.module';
       provide: APP_GUARD,
       useClass: HttpJwtAuthenticationGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard
+    }
   ],
   exports: [
     HttpAuthenticationService

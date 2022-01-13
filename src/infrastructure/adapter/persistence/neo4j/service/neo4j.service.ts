@@ -13,7 +13,7 @@ export class Neo4jService {
   ) {}
 
   public getSingleResultProperties = (result: QueryResult, key: string) => {
-    return result.records[0]?.get(key).properties;
+    return result.records[0]?.get(key) ? result.records[0]?.get(key).properties : null;
   };
 
   public getSingleResultProperty = (result: QueryResult, key: string) => {
@@ -21,7 +21,10 @@ export class Neo4jService {
   };
 
   public getMultipleResultByKey = (result: QueryResult, key: string) => {
-    return result.records.map((record) => record.get(key).properties);
+    if (result.records[0].get(key)) {
+      return result.records.map((record) => record.get(key) ? record.get(key).properties : null);
+    }
+    return [];
   };
 
 
