@@ -18,9 +18,11 @@ implements ServiceRequestRepository {
 
   private readonly requester_key = 'requester';
   private readonly user_key = 'user';
+  private readonly users_key = 'users';
   private readonly service_request_key = 'service_request';
 
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) {
+  }
 
   public async create(
     service_request: ServiceRequestDTO,
@@ -132,15 +134,35 @@ implements ServiceRequestRepository {
     params: ServiceRequestQueryModel,
   ): Promise<Optional<ServiceRequestDTO>> {
     const find_service_request_query = `
-      MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
-      RETURN ${this.service_request_key}
+      MATCH (${this.service_request_key}: ServiceRequest: ServiceRequest { service_request_id: $service_request_id }),
+        (${this.service_request_key})
+        <-[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
+        -(${this.user_key}: User),
+        (${this.service_request_key})
+        <-[:${Relationships.APPLICANT_SERVICE_REQUEST_RELATIONSHIP}]
+        -(${this.users_key}: User),
+      RETURN ${this.service_request_key}, ${this.user_key}, ${this.users_key}
     `;
-    return this.neo4j_service.getSingleResultProperties(
-      await this.neo4j_service.read(find_service_request_query, {
-        service_request_id: params.service_request_id,
-      }),
-      this.service_request_key,
+    const result: QueryResult = await this.neo4j_service.read(
+      find_service_request_query,
+      {
+        service_request_id: params.service_request_id
+      }
     );
+    return {
+      ...this.neo4j_service.getSingleResultProperties(
+        result,
+        this.service_request_key
+      ),
+      service_provider: this.neo4j_service.getSingleResultProperties(
+        result,
+        this.user_key
+      ),
+      applicants: this.neo4j_service.getMultipleResultByKey(
+        result,
+        this.users_key
+      )
+    };
   }
 
   async createApplication(
