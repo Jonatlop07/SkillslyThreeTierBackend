@@ -5,7 +5,7 @@ import UpdateServiceRequestInputModel
   from '@core/domain/service-request/use-case/input-model/update_service_request.input_model';
 import UpdateServiceRequestOutputModel
   from '@core/domain/service-request/use-case/output-model/update_service_request.output_model';
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import {
   InvalidServiceRequestDetailsFormatException,
   NonExistentServiceRequestException
@@ -19,6 +19,8 @@ import {
 import { ServiceRequestDTO } from '@core/domain/service-request/use-case/persistence-dto/service_request.dto';
 
 export class UpdateServiceRequestService implements UpdateServiceRequestInteractor {
+  private readonly logger: Logger = new Logger(UpdateServiceRequestService.name);
+
   constructor(
     @Inject(ServiceRequestDITokens.UpdateServiceRequestInteractor)
     private readonly gateway: UpdateServiceRequestGateway

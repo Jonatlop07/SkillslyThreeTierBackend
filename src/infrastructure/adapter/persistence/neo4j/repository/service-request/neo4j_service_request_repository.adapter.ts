@@ -82,33 +82,32 @@ implements ServiceRequestRepository {
     return result.records.length > 0;
   }
 
-  public async update(
-    service_offer: ServiceRequestDTO,
-  ): Promise<ServiceRequestDTO> {
-    const {
-      service_request_id,
-      title,
-      service_brief,
-      contact_information,
-      category,
-    } = service_offer;
+  public async update(service_request: ServiceRequestDTO): Promise<ServiceRequestDTO> {
+    const { service_request_id, title, service_brief, contact_information, category } = service_request;
     const update_service_request_statement = `
       MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
       SET ${this.service_request_key} += $properties
       RETURN ${this.service_request_key}
     `;
-    return this.neo4j_service.getSingleResultProperties(
-      await this.neo4j_service.write(update_service_request_statement, {
-        service_request_id,
-        properties: {
-          title,
-          service_brief,
-          contact_information,
-          category,
-        },
-      }),
-      this.service_request_key,
-    );
+    return {
+      ...this.neo4j_service.getSingleResultProperties(
+        await this.neo4j_service.write(
+          update_service_request_statement,
+          {
+            service_request_id,
+            properties: {
+              title,
+              service_brief,
+              contact_information,
+              category
+            }
+          }
+        ),
+        this.service_request_key
+      ),
+      applicants: service_request.applicants,
+      service_provider: service_request.service_provider
+    };
   }
 
   public async delete(params: ServiceRequestQueryModel): Promise<void> {
@@ -116,7 +115,7 @@ implements ServiceRequestRepository {
     const delete_service_request_statement = `
       MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
         <-[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
-        -(${this.requester_key}: Requester { requester_id: $owner_id })
+        -(${this.requester_key}: Requester { user_id: $owner_id })
       DETACH DELETE ${this.service_request_key}
     `;
     await this.neo4j_service.write(delete_service_request_statement, {
@@ -134,13 +133,15 @@ implements ServiceRequestRepository {
     params: ServiceRequestQueryModel,
   ): Promise<Optional<ServiceRequestDTO>> {
     const find_service_request_query = `
-      MATCH (${this.service_request_key}: ServiceRequest: ServiceRequest { service_request_id: $service_request_id }),
-        (${this.service_request_key})
+      MATCH (${this.service_request_key}: ServiceRequest: ServiceRequest { service_request_id: $service_request_id })
+      WITH ${this.service_request_key}
+      OPTIONAL MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
         <-[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
-        -(${this.user_key}: User),
-        (${this.service_request_key})
+        -(${this.user_key}: User)
+      WITH ${this.service_request_key}, ${this.user_key} 
+      OPTIONAL MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
         <-[:${Relationships.APPLICANT_SERVICE_REQUEST_RELATIONSHIP}]
-        -(${this.users_key}: User),
+        -(${this.users_key}: User)
       RETURN ${this.service_request_key}, ${this.user_key}, ${this.users_key}
     `;
     const result: QueryResult = await this.neo4j_service.read(
