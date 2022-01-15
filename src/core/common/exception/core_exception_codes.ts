@@ -60,4 +60,5 @@ export class CoreExceptionCodes {
   public static readonly INVALID_PHASE_TO_DELETE_SERVICE_REQUEST = 1202;
   public static readonly NON_EXISTENT_SERVICE_REQUEST_APPLICATION = 1203;
   public static readonly UNAUTHORIZED_SERVICE_REQUEST_APPLICATION_ACTION = 1204;
+  public static readonly SERVICE_REQUEST_STATUS_UPDATE_REQUEST_ALREADY_EXISTS = 1203;
 }

@@ -18,6 +18,7 @@ import { FollowRequestAcceptedEvent } from '@application/events/user/follow_requ
 import { FollowRequestDeletedEvent } from '@application/events/user/follow_request_deleted.event';
 import { ServiceRequestDeletedEvent } from '@application/events/service_request/service_request_deleted.event';
 import { ServiceRequestUpdatedEvent } from '@application/events/service_request/service_request_updated.event';
+import { ServiceRequestStatusUpdateRequestedEvent } from '@application/events/service_request/service_request_status_update.event';
 
 @WebSocketGateway({
   cors: {
@@ -108,5 +109,14 @@ export class NotificationSocketGateway implements OnGatewayInit, OnGatewayConnec
         service_request_title
       })
     );
+  }
+
+  @OnEvent(EventsNames.STATUS_UPDATE_REQUEST)
+  public handleServiceRequestStatusUpdateRequestedEvent(payload: ServiceRequestStatusUpdateRequestedEvent) {
+    this.server.to(payload.requester_id).emit('status_update_request.created', {
+      service_request_id: payload.service_request_id,
+      update_action: payload.action,
+      request_date: payload.request_date
+    });
   }
 }

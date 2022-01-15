@@ -28,11 +28,17 @@ class NonExistentServiceRequestApplicationException extends ServiceRequestExcept
   message = 'The service request application does not exist';
 }
 
+class AlreadyExistingStatusUpdateRequestException extends ServiceRequestException {
+  code = CoreExceptionCodes.SERVICE_REQUEST_STATUS_UPDATE_REQUEST_ALREADY_EXISTS;
+  message = 'A request to complete or cancel the service already exists';
+}
+
 export {
   ServiceRequestException,
   InvalidServiceRequestDetailsFormatException,
   NonExistentServiceRequestException,
   InvalidPhaseToDeleteServiceRequestException,
   InvalidServiceRequestPhaseOperationException,
-  NonExistentServiceRequestApplicationException
+  NonExistentServiceRequestApplicationException,
+  AlreadyExistingStatusUpdateRequestException
 };

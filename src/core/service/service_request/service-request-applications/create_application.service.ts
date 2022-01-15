@@ -17,9 +17,16 @@ export class CreateServiceRequestApplicationService implements CreateServiceRequ
 
   public async execute(input: CreateServiceRequestApplicationInputModel): Promise<CreateServiceRequestApplicationOutputModel> {
     const { applicant_id, request_id, message } = input;
-    const existing_request = this.gateway.findOne({ service_request_id: request_id });
+    const existing_request = await this.gateway.findOne({ service_request_id: request_id });
     if (!existing_request){
       throw new NonExistentServiceRequestException();
+    }
+    const existing_application = await this.gateway.existsApplication( { service_request_id: request_id, owner_id: applicant_id });
+    if (existing_application){
+      return await this.gateway.removeApplication({
+        request_id,
+        applicant_id,
+      });
     }
     return await this.gateway.createApplication({
       request_id,

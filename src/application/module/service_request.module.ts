@@ -5,6 +5,10 @@ import { ServiceRequestNeo4jRepositoryAdapter } from '@infrastructure/adapter/pe
 import { ServiceRequestController } from '@application/api/http-rest/controller/service_request.controller';
 import { UpdateServiceRequestService } from '@core/service/service_request/update_service_request.service';
 import { DeleteServiceRequestService } from '@core/service/service_request/delete_service_request.service';
+import { CreateServiceRequestApplicationService } from '@core/service/service_request/service-request-applications/create_application.service';
+import { UpdateServiceRequestApplicationService } from '@core/service/service_request/service-request-applications/update_application.service';
+import { GetServiceRequestApplicationsService } from '@core/service/service_request/service-request-applications/get_applications.service';
+import { CreateServiceStatusUpdateRequestService } from '@core/service/service_request/request_cancel_or_completion.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -28,7 +32,27 @@ const use_case_providers: Array<Provider> = [
     provide: ServiceRequestDITokens.DeleteServiceRequestInteractor,
     useFactory: (gateway) => new DeleteServiceRequestService(gateway),
     inject: [ServiceRequestDITokens.ServiceRequestRepository]
-  }
+  },
+  {
+    provide: ServiceRequestDITokens.CreateServiceRequestApplicationInteractor,
+    useFactory: (gateway) =>  new CreateServiceRequestApplicationService(gateway),
+    inject: [ServiceRequestDITokens.ServiceRequestRepository]
+  },
+  {
+    provide: ServiceRequestDITokens.UpdateServiceRequestApplicationInteractor,
+    useFactory: (gateway) =>  new UpdateServiceRequestApplicationService(gateway),
+    inject: [ServiceRequestDITokens.ServiceRequestRepository]
+  },
+  {
+    provide: ServiceRequestDITokens.GetServiceRequestApplicationsInteractor,
+    useFactory: (gateway) =>  new GetServiceRequestApplicationsService(gateway),
+    inject: [ServiceRequestDITokens.ServiceRequestRepository]
+  },
+  {
+    provide: ServiceRequestDITokens.CreateServiceStatusUpdateRequestInteractor,
+    useFactory: (gateway) =>  new CreateServiceStatusUpdateRequestService(gateway),
+    inject: [ServiceRequestDITokens.ServiceRequestRepository]
+  },
 ];
 
 @Module({

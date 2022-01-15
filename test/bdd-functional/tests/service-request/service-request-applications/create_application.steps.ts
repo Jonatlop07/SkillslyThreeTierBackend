@@ -61,6 +61,22 @@ defineFeature(feature, (test) => {
     );
   }
 
+  function andAServiceRequestApplicationExists(and) {
+    and('there exists a service request application from the user',
+      async () => {
+        try {
+          await create_service_request_application_interactor.execute({
+            applicant_id: user_id,
+            request_id: '1',
+            message: ''
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    );
+  }
+
   function andUserProvidesRequestIdAndMessage(and) {
     and(/^the user provides the service request id being "([^"]*)" and application message being "([^"]*)"$/,
       (provided_request_id, request_message) => {
@@ -75,7 +91,7 @@ defineFeature(feature, (test) => {
       try {
         output = await create_service_request_application_interactor.execute({
           applicant_id: user_id,
-          request_id,
+          request_id: request_id,
           message: request_application_message
         });
       } catch (e) {
@@ -98,17 +114,6 @@ defineFeature(feature, (test) => {
     exception = undefined;
   });
 
-  test('A user applies to a service request',
-    ({ given, and, when, then }) => {
-      givenAUserExists(given);
-      andAServiceRequestExists(and);
-      andUserProvidesRequestIdAndMessage(and);
-      whenUserTriesToCreateServiceRequestApplication(when);
-      then('the appliance is created', () => {
-        expect(output).toBeDefined();
-      });
-    }
-  );
   test('A user tries to apply to a service request that does not exist',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
@@ -119,4 +124,30 @@ defineFeature(feature, (test) => {
       });
     }
   );
+
+  test('A user applies to a service request',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andAServiceRequestExists(and);
+      andUserProvidesRequestIdAndMessage(and);
+      whenUserTriesToCreateServiceRequestApplication(when);
+      then('the application is created', () => {
+        expect(output).toBeDefined();
+      });
+    }
+  );
+
+  test('A user applies to a service request they have already applied to',
+    ({ given, and, when, then }) => {
+      givenAUserExists(given);
+      andAServiceRequestExists(and);
+      andAServiceRequestApplicationExists(and);
+      andUserProvidesRequestIdAndMessage(and);
+      whenUserTriesToCreateServiceRequestApplication(when);
+      then('the application is removed', () => {
+        expect(output).toBeDefined();
+      });
+    }
+  );
+
 });

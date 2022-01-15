@@ -14,6 +14,7 @@ import { ServiceRequestDITokens } from '@core/domain/service-request/di/service_
 import { CreateServiceRequestApplicationInteractor } from '@core/domain/service-request/use-case/interactor/service-request-applications/create_application.interactor';
 import UpdateServiceRequestApplicationOutputModel from '@core/domain/service-request/use-case/output-model/service-request-applications/update_application.output_model';
 import { UpdateServiceRequestApplicationInteractor } from '@core/domain/service-request/use-case/interactor/service-request-applications/update_application.interactor';
+import { ServiceRequestPhase } from '@core/domain/service-request/entity/type/service_request_phase.enum';
 
 const feature = loadFeature('test/bdd-functional/features/service-request/service-request-applications/update_request_application.feature');
 
@@ -157,6 +158,7 @@ defineFeature(feature, (test) => {
       whenUserTriesToUpdateServiceRequestApplication(when);
       then('the application is accepted and the service phase is updated to evaluation', () => {
         expect(output).toBeDefined();
+        expect(output.request_phase).toEqual(ServiceRequestPhase.Evaluation);
       });
     }
   );
@@ -170,6 +172,7 @@ defineFeature(feature, (test) => {
       whenUserTriesToUpdateServiceRequestApplication(when);
       then('the application is accepted and the service phase is updated to execution', () => {
         expect(output).toBeDefined();
+        expect(output.request_phase).toEqual(ServiceRequestPhase.Execution);
       });
     }
   );
@@ -183,6 +186,7 @@ defineFeature(feature, (test) => {
       whenUserTriesToUpdateServiceRequestApplication(when);
       then('the application is denied and the service goes back to open', () => {
         expect(output).toBeDefined();
+        expect(output.request_phase).toEqual(ServiceRequestPhase.Open);
       });
     }
   );

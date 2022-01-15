@@ -2,4 +2,5 @@ import { ServiceRequestApplicationDTO } from '../../persistence-dto/service-requ
 
 export default interface CreateServiceRequestApplication{
   createApplication(params: ServiceRequestApplicationDTO): Promise<ServiceRequestApplicationDTO>;
+  removeApplication(params: ServiceRequestApplicationDTO): Promise<ServiceRequestApplicationDTO>;
 }
