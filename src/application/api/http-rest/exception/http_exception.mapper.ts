@@ -55,7 +55,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.USER_DOES_NOT_BELONG_TO_CONVERSATION_CHAT,
         CoreExceptionCodes.USER_DOES_NOT_HAVE_PERMISSIONS_IN_CONVERSATION,
         CoreExceptionCodes.UNAUTHORIZED_GROUP_EDITOR,
-        CoreExceptionCodes.UNIQUE_GROUP_OWNER
+        CoreExceptionCodes.UNIQUE_GROUP_OWNER,
+        CoreExceptionCodes.SERVICE_OFFER_DOES_NOT_BELONG_TO_USER
       ]),
       status_code: HttpStatus.UNAUTHORIZED,
     },

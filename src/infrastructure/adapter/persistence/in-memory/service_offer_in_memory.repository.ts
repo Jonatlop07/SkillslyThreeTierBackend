@@ -104,4 +104,8 @@ export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
     params;
     return Promise.resolve(undefined);
   }
+
+  belongsServiceOfferToUser(service_offer_id: string, user_id: string): Promise<boolean> {
+    return Promise.resolve(this.service_offers.get(service_offer_id).owner_id === user_id);
+  }
 }

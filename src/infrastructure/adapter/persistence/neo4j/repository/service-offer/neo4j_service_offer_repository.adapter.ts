@@ -84,7 +84,8 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
             title,
             service_brief,
             contact_information,
-            category
+            category,
+            updated_at: getCurrentDate()
           }
         }
       ),
@@ -144,7 +145,7 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
     const { limit, offset } = pagination;
     const find_all_by_categories_statement = `
       MATCH (${this.service_offer_key}: ServiceOffer)
-        <-(:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP})
+        <-[:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP}]
         -(${this.user_key}: User { user_id: $user_id })
       WHERE ${this.service_offer_key}.categories IN $categories
       RETURN DISTINCT ${this.service_offer_key}
@@ -189,7 +190,7 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
     const { limit, offset } = pagination;
     const find_all_by_user_id = `
       MATCH (${this.service_offer_key}: ServiceOffer)
-        <-(:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP})
+        <-[:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP}]
         -(${this.user_key}: User { user_id: $user_id })
       RETURN DISTINCT ${this.service_offer_key}
       SKIP ${offset}
@@ -204,6 +205,23 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
       ),
       this.service_offer_key
     );
+  }
+
+  public async belongsServiceOfferToUser(service_offer_id: string, user_id: string): Promise<boolean> {
+    const belongs_service_offer_to_user_query = `
+      MATCH (${this.user_key}: User { user_id: $user_id })
+        -[:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP}]
+        ->(${this.service_offer_key}: ServiceOffer { service_offer_id: $service_offer_id })
+      RETURN ${this.service_offer_key}
+    `;
+    const result = await this.neo4j_service.read(
+      belongs_service_offer_to_user_query,
+      {
+        user_id,
+        service_offer_id
+      }
+    );
+    return result.records.length > 0;
   }
 
   findAllWithRelation(params: ServiceOfferQueryModel): Promise<any> {
