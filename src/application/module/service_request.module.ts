@@ -9,6 +9,7 @@ import { CreateServiceRequestApplicationService } from '@core/service/service_re
 import { UpdateServiceRequestApplicationService } from '@core/service/service_request/service-request-applications/update_application.service';
 import { GetServiceRequestApplicationsService } from '@core/service/service_request/service-request-applications/get_applications.service';
 import { CreateServiceStatusUpdateRequestService } from '@core/service/service_request/request_cancel_or_completion.service';
+import { QueryServiceRequestCollectionService } from '@core/service/service_request/query_service_request_collection.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -53,6 +54,11 @@ const use_case_providers: Array<Provider> = [
     useFactory: (gateway) =>  new CreateServiceStatusUpdateRequestService(gateway),
     inject: [ServiceRequestDITokens.ServiceRequestRepository]
   },
+  {
+    provide: ServiceRequestDITokens.QueryServiceRequestCollectionInteractor,
+    useFactory: (gateway) =>  new QueryServiceRequestCollectionService(gateway),
+    inject: [ServiceRequestDITokens.ServiceRequestRepository]
+  }
 ];
 
 @Module({

@@ -16,7 +16,7 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
   constructor(private readonly service_requests: Map<string, ServiceRequestDTO>) {
     this.current_available_service_request_id = '1';
     this.current_available_service_request_evaluation_applicant = '';
-  } 
+  }
 
   public async create(service_request: ServiceRequestDTO): Promise<ServiceRequestDTO> {
     const new_service_request: ServiceRequestDTO = {
@@ -143,13 +143,13 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
     return Promise.resolve(this.service_requests.get(request_id).applicants.map((applicant)=> {
       return {
         applicant_id: applicant,
-        request_id: request_id, 
+        request_id: request_id,
       };
     }));
   }
-  
+
   public async existsRequest(params: UpdateRequestDTO): Promise<boolean> {
-    if ( this.current_service_request_cancel_request 
+    if ( this.current_service_request_cancel_request
       || this.current_service_request_completion_request ){
       return Promise.resolve(true);
     }
@@ -179,13 +179,41 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
     throw new Error('Method not implemented');
   }
 
-  findAll(params: ServiceRequestQueryModel): Promise<ServiceRequestDTO[]> {
-    params;
-    return Promise.resolve([]);
-  }
-
   findAllWithRelation(params: ServiceRequestQueryModel): Promise<any> {
     params;
     return Promise.resolve(undefined);
+  }
+
+  public async findAllByCategories(categories: Array<string>): Promise<Array<ServiceRequestDTO>> {
+    const service_requests = [];
+    for (const _service_request of this.service_requests.values())
+      if (categories.includes(_service_request.category))
+        service_requests.push(_service_request);
+    return Promise.resolve(service_requests);
+  }
+
+  public async findAllByUser(user_id: string): Promise<Array<ServiceRequestDTO>> {
+    const service_requests = [];
+    for (const _service_request of this.service_requests.values())
+      if (_service_request.owner_id === user_id)
+        service_requests.push(_service_request);
+    return Promise.resolve(service_requests);
+  }
+
+  public async findAll(params: ServiceRequestQueryModel): Promise<ServiceRequestDTO[]> {
+    params;
+    const service_requests = [];
+    for (const _service_request of this.service_requests.values())
+      service_requests.push(_service_request);
+    return Promise.resolve(service_requests);
+  }
+
+  public async findAllByUserAndCategories(params: ServiceRequestQueryModel): Promise<Array<ServiceRequestDTO>> {
+    const service_requests = [];
+    for (const _service_request of this.service_requests.values())
+      if (params.categories.includes(_service_request.category)
+        || _service_request.owner_id === params.owner_id)
+        service_requests.push(_service_request);
+    return Promise.resolve(service_requests);
   }
 }

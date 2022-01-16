@@ -6,5 +6,6 @@ export class ServiceRequestDITokens {
   public static readonly UpdateServiceRequestApplicationInteractor: unique symbol = Symbol('UpdateServiceRequestApplicationInteractor');
   public static readonly GetServiceRequestApplicationsInteractor: unique symbol = Symbol('GetServiceRequestApplicationsInteractor');
   public static readonly CreateServiceStatusUpdateRequestInteractor: unique symbol = Symbol('CreateServiceStatusUpdateRequestInteractor');
+  public static readonly QueryServiceRequestCollectionInteractor: unique symbol = Symbol('QueryServiceRequestCollectionInteractor');
   public static readonly ServiceRequestRepository: unique symbol = Symbol('ServiceRequestRepository');
 }

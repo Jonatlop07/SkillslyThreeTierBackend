@@ -10,12 +10,13 @@ import { Optional } from '@core/common/type/common_types';
 import { ServiceRequestApplicationDTO } from '@core/domain/service-request/use-case/persistence-dto/service-request-applications/service_request_application.dto';
 import { UpdateRequestDTO } from '@core/domain/service-request/use-case/persistence-dto/service_request_update_request.dto';
 import { ServiceRequestPhase } from '@core/domain/service-request/entity/type/service_request_phase.enum';
+import { PaginationDTO } from '@core/common/persistence/pagination.dto';
 
 @Injectable()
 export class ServiceRequestNeo4jRepositoryAdapter
-implements ServiceRequestRepository {
+  implements ServiceRequestRepository {
   private readonly logger: Logger = new Logger(
-    ServiceRequestNeo4jRepositoryAdapter.name,
+    ServiceRequestNeo4jRepositoryAdapter.name
   );
 
   private readonly requester_key = 'requester';
@@ -26,13 +27,13 @@ implements ServiceRequestRepository {
   private readonly provider_key = 'provider';
   private readonly phase_key = 'phase';
   private readonly user_key2 = 'user2';
-
+  private readonly relationship = 'r';
 
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
   public async create(
-    service_request: ServiceRequestDTO,
+    service_request: ServiceRequestDTO
   ): Promise<ServiceRequestDTO> {
     const {
       owner_id,
@@ -40,7 +41,7 @@ implements ServiceRequestRepository {
       service_brief,
       contact_information,
       category,
-      phase,
+      phase
     } = service_request;
     const create_service_request_statement = `
       MATCH (${this.requester_key}: Requester { user_id: $user_id })
@@ -59,14 +60,14 @@ implements ServiceRequestRepository {
             contact_information,
             category,
             phase,
-            created_at: getCurrentDate(),
-          },
+            created_at: getCurrentDate()
+          }
         }),
-        this.service_request_key,
+        this.service_request_key
       );
     return {
       ...created_service_request,
-      owner_id,
+      owner_id
     };
   }
 
@@ -83,8 +84,8 @@ implements ServiceRequestRepository {
     const result: QueryResult = await this.neo4j_service.read(
       exists_service_request_query,
       {
-        service_request_id: id,
-      },
+        service_request_id: id
+      }
     );
     return result.records.length > 0;
   }
@@ -127,7 +128,7 @@ implements ServiceRequestRepository {
     `;
     await this.neo4j_service.write(delete_service_request_statement, {
       service_request_id,
-      owner_id,
+      owner_id
     });
   }
 
@@ -136,46 +137,8 @@ implements ServiceRequestRepository {
     throw new Error('Not implemented');
   }
 
-  public async findOne(params: ServiceRequestQueryModel): Promise<Optional<ServiceRequestDTO>> {
-    const find_service_request_query = `
-      MATCH (${this.service_request_key}: ServiceRequest: ServiceRequest { service_request_id: $service_request_id })
-      WITH ${this.service_request_key}
-      OPTIONAL MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
-        <-[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
-        -(${this.user_key}: User)
-      WITH ${this.service_request_key}, ${this.user_key} 
-      OPTIONAL MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
-        <-[:${Relationships.APPLICANT_SERVICE_REQUEST_RELATIONSHIP}]
-        -(${this.users_key}: User)
-      RETURN ${this.service_request_key}, ${this.user_key}, ${this.users_key}
-    `;
-    const result: QueryResult = await this.neo4j_service.read(
-      find_service_request_query,
-      {
-        service_request_id: params.service_request_id
-      }
-    );
-    if (!result.records[0]){
-      return undefined;
-    }
-    return {
-      ...this.neo4j_service.getSingleResultProperties(
-        result,
-        this.service_request_key
-      ),
-      service_provider: this.neo4j_service.getSingleResultProperties(
-        result,
-        this.user_key
-      ),
-      applicants: this.neo4j_service.getMultipleResultByKey(
-        result,
-        this.users_key
-      )
-    };
-  }
-
   async createApplication(
-    params: ServiceRequestApplicationDTO,
+    params: ServiceRequestApplicationDTO
   ): Promise<ServiceRequestApplicationDTO> {
     const { request_id, applicant_id, message } = params;
     const create_application_query = `
@@ -188,11 +151,11 @@ implements ServiceRequestRepository {
     const result = await this.neo4j_service.write(create_application_query, {
       applicant_id,
       request_id,
-      message,
+      message
     });
     return {
       applicant_id: this.neo4j_service.getSingleResultProperty(result, this.applicant_key),
-      request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
+      request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key)
     };
   }
 
@@ -208,11 +171,11 @@ implements ServiceRequestRepository {
 
     const result = await this.neo4j_service.write(cancel_application_query, {
       applicant_id,
-      request_id,
+      request_id
     });
     return {
       applicant_id: this.neo4j_service.getSingleResultProperty(result, this.applicant_key),
-      request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
+      request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key)
     };
   }
 
@@ -230,7 +193,11 @@ implements ServiceRequestRepository {
       RETURN ${this.user_key}.user_id as ${this.applicant_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.service_request_key}.phase as ${this.phase_key}
     `;
 
-    const result = await this.neo4j_service.write(accept_applicaction_query, { applicant_id, request_id, phase: ServiceRequestPhase.Evaluation });
+    const result = await this.neo4j_service.write(accept_applicaction_query, {
+      applicant_id,
+      request_id,
+      phase: ServiceRequestPhase.Evaluation
+    });
     return {
       request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
       applicant_id: this.neo4j_service.getSingleResultProperty(result, this.applicant_key),
@@ -252,7 +219,11 @@ implements ServiceRequestRepository {
       RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.service_request_key}.phase as ${this.phase_key}
     `;
 
-    const result = await this.neo4j_service.write(confirm_applicaction_query, { applicant_id, request_id, phase: ServiceRequestPhase.Execution });
+    const result = await this.neo4j_service.write(confirm_applicaction_query, {
+      applicant_id,
+      request_id,
+      phase: ServiceRequestPhase.Execution
+    });
     return {
       request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
       applicant_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
@@ -271,7 +242,11 @@ implements ServiceRequestRepository {
       RETURN ${this.user_key}.user_id as ${this.applicant_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.service_request_key}.phase as ${this.phase_key}
     `;
 
-    const result = await this.neo4j_service.write(deny_applicaction_query, { applicant_id, request_id, phase: ServiceRequestPhase.Open });
+    const result = await this.neo4j_service.write(deny_applicaction_query, {
+      applicant_id,
+      request_id,
+      phase: ServiceRequestPhase.Open
+    });
     return {
       request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
       applicant_id: this.neo4j_service.getSingleResultProperty(result, this.applicant_key),
@@ -299,17 +274,18 @@ implements ServiceRequestRepository {
       MATCH (${this.user_key}: User)
       -[r:${Relationships.APPLICANT_SERVICE_REQUEST_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$request_id })
-      RETURN ${this.user_key}.user_id, ${this.user_key}.email, ${this.service_request_key}.service_request_id, r.application_message
+      RETURN ${this.user_key}.user_id, ${this.user_key}.email, ${this.user_key}.name, ${this.service_request_key}.service_request_id, r.application_message
     `;
     const result = await this.neo4j_service
       .read(get_service_request_applications_query, { request_id })
       .then((result: QueryResult) =>
-        result.records.map((record:any) => {
+        result.records.map((record: any) => {
           return {
             applicant_id: record._fields[0],
             applicant_email: record._fields[1],
-            request_id: record._fields[2],
-            message: record._fields[3]
+            applicant_name: record._fields[2],
+            request_id: record._fields[3],
+            message: record._fields[4]
           };
         })
       );
@@ -350,7 +326,11 @@ implements ServiceRequestRepository {
       RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.user_key2}.user_id as ${this.requester_key}
     `;
 
-    const result = await this.neo4j_service.write(create_complete_service_request_query, { provider_id, service_request_id, date  });
+    const result = await this.neo4j_service.write(create_complete_service_request_query, {
+      provider_id,
+      service_request_id,
+      date
+    });
     return {
       service_request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
       provider_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
@@ -375,7 +355,11 @@ implements ServiceRequestRepository {
       RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.user_key2}.user_id as ${this.requester_key}
     `;
 
-    const result = await this.neo4j_service.write(create_cancel_service_request_query, { provider_id, service_request_id, date  });
+    const result = await this.neo4j_service.write(create_cancel_service_request_query, {
+      provider_id,
+      service_request_id,
+      date
+    });
     return {
       service_request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
       provider_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
@@ -384,9 +368,248 @@ implements ServiceRequestRepository {
     };
   }
 
-  findAll(params: ServiceRequestQueryModel): Promise<ServiceRequestDTO[]> {
-    params;
-    return Promise.resolve([]);
+  public async findOne(params: ServiceRequestQueryModel): Promise<Optional<ServiceRequestDTO>> {
+    const find_service_request_query = `
+      MATCH (${this.service_request_key}: ServiceRequest: ServiceRequest { service_request_id: $service_request_id })
+        <-[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
+        -(${this.requester_key}: Requester)
+      WITH ${this.service_request_key}, ${this.requester_key}
+      OPTIONAL MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
+        <-[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
+        -(${this.user_key}: User)
+      WITH ${this.service_request_key}, ${this.requester_key}, ${this.user_key} 
+      OPTIONAL MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
+        <-[:${Relationships.APPLICANT_SERVICE_REQUEST_RELATIONSHIP}]
+        -(${this.users_key}: User)
+      RETURN ${this.service_request_key}, ${this.requester_key}, ${this.user_key}, ${this.users_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      find_service_request_query,
+      {
+        service_request_id: params.service_request_id
+      }
+    );
+    if (!result.records[0]) {
+      return undefined;
+    }
+    return {
+      ...this.neo4j_service.getSingleResultProperties(
+        result,
+        this.service_request_key
+      ),
+      owner_id: this.neo4j_service.getSingleResultProperties(
+        result,
+        this.requester_key
+      ).user_id,
+      service_provider: this.neo4j_service.getSingleResultProperties(
+        result,
+        this.user_key
+      ),
+      applicants: this.neo4j_service.getMultipleResultByKey(
+        result,
+        this.users_key
+      )
+    };
+  }
+
+  public async findAll(params: ServiceRequestQueryModel, pagination: PaginationDTO): Promise<Array<ServiceRequestDTO>> {
+    const { limit, offset } = pagination;
+    const find_all_statement = `
+      MATCH (${this.service_request_key}: ServiceRequest)
+        <-[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
+        -(${this.requester_key}: Requester)
+      WITH ${this.service_request_key}, ${this.requester_key}
+      OPTIONAL MATCH (${this.service_request_key})
+        <-[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
+        -(${this.user_key}: User)
+      WITH ${this.service_request_key}, ${this.requester_key}, ${this.user_key}
+      OPTIONAL MATCH (${this.user_key})
+        -[${this.relationship}: ${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP} | ${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP}]
+        ->(${this.service_request_key})
+      RETURN ${this.service_request_key}, ${this.requester_key}, ${this.user_key}, ${this.relationship}
+      ORDER BY ${this.service_request_key}.created_at DESC
+      SKIP ${offset}
+      LIMIT ${limit}
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      find_all_statement,
+      {}
+    );
+    const service_requests_without_applicants = result.records.map(
+      (record): ServiceRequestDTO =>
+        ({
+          ...record.get(this.service_request_key).properties,
+          owner_id: record.get(this.requester_key).user_id,
+          service_provider: record.get(this.user_key) ? record.get(this.user_key).user_id : null,
+          applicants: [],
+          provider_requested_status_update: !!record.get(this.relationship)
+        })
+    );
+    return await Promise.all(
+      service_requests_without_applicants
+        .map(
+          async (service_request: ServiceRequestDTO): Promise<ServiceRequestDTO> =>
+            ({
+              ...service_request,
+              applicants: (await this.getApplications(service_request.service_request_id))
+                .map((applicant) => applicant.applicant_id)
+            })
+        )
+    );
+  }
+
+  public async findAllByUserAndCategories(params: ServiceRequestQueryModel, pagination: PaginationDTO) {
+    const { owner_id, categories } = params;
+    const { limit, offset } = pagination;
+    const find_all_by_user_and_categories_statement = `
+      MATCH 
+        (${this.requester_key}: Requester { user_id: $user_id })
+        -[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
+        ->(${this.service_request_key}: ServiceRequest)
+      WHERE ${this.service_request_key}.category IN $categories
+      WITH ${this.service_request_key}
+      OPTIONAL MATCH (${this.service_request_key})
+        <-[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
+        -(${this.user_key}: User)
+      WITH ${this.service_request_key}, ${this.user_key}
+      OPTIONAL MATCH (${this.user_key})
+        -[${this.relationship}: ${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP} | ${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP}]
+        ->(${this.service_request_key})
+      RETURN ${this.service_request_key}, ${this.user_key}, ${this.relationship}
+      ORDER BY ${this.service_request_key}.created_at DESC
+      SKIP ${offset}
+      LIMIT ${limit}
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      find_all_by_user_and_categories_statement,
+      {
+        user_id: owner_id,
+        categories
+      }
+    );
+    const service_requests_without_applicants = result.records.map(
+      (record): ServiceRequestDTO =>
+        ({
+          ...record.get(this.service_request_key).properties,
+          owner_id,
+          service_provider: record.get(this.user_key) ? record.get(this.user_key).user_id : null,
+          applicants: [],
+          provider_requested_status_update: !!record.get(this.relationship)
+        })
+    );
+    return await Promise.all(
+      service_requests_without_applicants
+        .map(
+          async (service_request: ServiceRequestDTO): Promise<ServiceRequestDTO> =>
+            ({
+              ...service_request,
+              applicants: (await this.getApplications(service_request.service_request_id))
+                .map((applicant) => applicant.applicant_id)
+            })
+        )
+    );
+  }
+
+  public async findAllByCategories(categories: Array<string>, pagination: PaginationDTO)
+    : Promise<Array<ServiceRequestDTO>> {
+    const { limit, offset } = pagination;
+    const find_all_by_categories_statement = `
+      MATCH
+        (${this.requester_key}: Requester)
+        -[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
+        ->(${this.service_request_key}: ServiceRequest)
+      WHERE ${this.service_request_key}.category IN $categories
+      WITH ${this.service_request_key}, ${this.requester_key}
+      OPTIONAL MATCH (${this.service_request_key})
+        <-[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
+        -(${this.user_key}: User)
+      WITH ${this.service_request_key}, ${this.requester_key}, ${this.user_key}
+      OPTIONAL MATCH (${this.user_key})
+        -[${this.relationship}: ${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP} | ${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP}]
+        ->(${this.service_request_key})
+      RETURN ${this.service_request_key}, ${this.requester_key}, ${this.user_key}, ${this.relationship}
+      ORDER BY ${this.service_request_key}.created_at DESC
+      SKIP ${offset}
+      LIMIT ${limit}
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      find_all_by_categories_statement,
+      {
+        categories
+      }
+    );
+    const service_requests_without_applicants = result.records.map(
+      (record): ServiceRequestDTO =>
+        ({
+          ...record.get(this.service_request_key).properties,
+          owner_id: record.get(this.requester_key).user_id,
+          service_provider: record.get(this.user_key) ? record.get(this.user_key).user_id : null,
+          applicants: [],
+          provider_requested_status_update: !!record.get(this.relationship)
+        })
+    );
+    return await Promise.all(
+      service_requests_without_applicants
+        .map(
+          async (service_request: ServiceRequestDTO): Promise<ServiceRequestDTO> =>
+            ({
+              ...service_request,
+              applicants: (await this.getApplications(service_request.service_request_id))
+                .map((applicant) => applicant.applicant_id)
+            })
+        )
+    );
+  }
+
+  public async findAllByUser(user_id: string, pagination: PaginationDTO)
+    : Promise<Array<ServiceRequestDTO>> {
+    const { limit, offset } = pagination;
+    const find_all_by_user_id = `
+      MATCH 
+        (${this.requester_key}: Requester { user_id: $user_id })
+        -[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
+        ->(${this.service_request_key}: ServiceRequest)
+      WITH ${this.service_request_key}
+      OPTIONAL MATCH (${this.service_request_key})
+        <-[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
+        -(${this.user_key}: User)
+      WITH ${this.service_request_key}, ${this.user_key}
+      OPTIONAL MATCH (${this.user_key})
+        -[${this.relationship}: ${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP} | ${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP}]
+        ->(${this.service_request_key})
+      RETURN ${this.service_request_key}, ${this.user_key}, ${this.relationship}
+      ORDER BY ${this.service_request_key}.created_at DESC
+      SKIP ${offset}
+      LIMIT ${limit}
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      find_all_by_user_id,
+      {
+        user_id
+      }
+    );
+    this.logger.log(result);
+    const service_requests_without_applicants = result.records.map(
+      (record): ServiceRequestDTO =>
+        ({
+          ...record.get(this.service_request_key).properties,
+          owner_id: user_id,
+          service_provider: record.get(this.user_key) ? record.get(this.user_key).user_id : null,
+          applicants: [],
+          provider_requested_status_update: !!record.get(this.relationship)
+        })
+    );
+    return await Promise.all(
+      service_requests_without_applicants
+        .map(
+          async (service_request: ServiceRequestDTO): Promise<ServiceRequestDTO> =>
+            ({
+              ...service_request,
+              applicants: (await this.getApplications(service_request.service_request_id))
+                .map((applicant) => applicant.applicant_id)
+            })
+        )
+    );
   }
 
   findAllWithRelation(params: ServiceRequestQueryModel): Promise<any> {
