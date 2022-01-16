@@ -12,5 +12,6 @@ export interface ServiceRequestDTO {
   applicants: Array<string>;
   phase: ServiceRequestPhase;
   created_at?: string;
-  updated_at?: string;
+  updated_at?: string
+  provider_requested_status_update?: boolean;
 }

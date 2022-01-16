@@ -8,7 +8,7 @@ import {
   Inject,
   Logger, Param,
   Post,
-  Put,
+  Put, Query,
   ValidationPipe
 } from '@nestjs/common';
 import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
@@ -29,7 +29,6 @@ import { HttpUserPayload } from '@application/api/http-rest/authentication/types
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
 import { CreateServiceRequestDTO } from '@application/api/http-rest/http-dto/service-request/http_create_service_request.dto';
 import { CreateServiceRequestAdapter } from '@application/api/http-rest/http-adapter/service-request/create_service_request.adapter';
-import { UpdateServiceRequestInteractor } from '@core/domain/service-request/use-case/interactor/update_service_offer.interactor';
 import { DeleteServiceRequestInteractor } from '@core/domain/service-request/use-case/interactor/delete_service_request.interactor';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventsNames } from '@application/events/event_names';
@@ -44,7 +43,10 @@ import { CreateServiceStatusUpdateRequestInteractor } from '@core/domain/service
 import { CreateServiceRequestApplicationAdapter } from '../http-adapter/service-request/service-request-applications/create_service_request_application.adapter';
 import { UpdateServiceRequestApplicationAdapter } from '../http-adapter/service-request/service-request-applications/update_service_request_application.adapter';
 import { CreateServiceStatusUpdateRequestAdapter } from '../http-adapter/service-request/create_cancel_or_completion_request.adapter';
-import { ServiceRequestStatusUpdateRequestedEvent } from '@application/events/service_request/service_request_status_update.event';
+import { QueryServiceRequestCollectionInteractor } from '@core/domain/service-request/use-case/interactor/query_service_request_collection.interactor';
+import { UpdateServiceRequestInteractor } from '@core/domain/service-request/use-case/interactor/update_service_offer.interactor';
+import { QueryServiceRequestCollectionDTO } from '@application/api/http-rest/http-dto/service-request/http_query_service_request_collection.dto';
+import { QueryServiceRequestCollectionAdapter } from '@application/api/http-rest/http-adapter/service-request/query_service_request_collection.adapter';
 
 
 @Controller('service-requests')
@@ -68,7 +70,9 @@ export class ServiceRequestController {
     @Inject(ServiceRequestDITokens.UpdateServiceRequestApplicationInteractor)
     private readonly update_service_request_application_interactor: UpdateServiceRequestApplicationInteractor,
     @Inject(ServiceRequestDITokens.CreateServiceStatusUpdateRequestInteractor)
-    private readonly create_service_status_update_request_interactor: CreateServiceStatusUpdateRequestInteractor,    
+    private readonly create_service_status_update_request_interactor: CreateServiceStatusUpdateRequestInteractor,
+    @Inject(ServiceRequestDITokens.QueryServiceRequestCollectionInteractor)
+    private readonly query_service_request_collection_interactor: QueryServiceRequestCollectionInteractor
   ) {}
 
   @Roles(Role.Requester)
@@ -220,7 +224,7 @@ export class ServiceRequestController {
   @ApiConflictResponse({ description: 'The status update request already exists' })
   public async createServiceRequestStatusUpdateRequest( @HttpUser() http_user: HttpUserPayload, @Body() body ) {
     try {
-      // const { action, request_date, service_request_id, requester_id } = 
+      // const { action, request_date, service_request_id, requester_id } =
       return await this.create_service_status_update_request_interactor.execute(
         CreateServiceStatusUpdateRequestAdapter.new({
           provider_id: http_user.id,
@@ -242,4 +246,22 @@ export class ServiceRequestController {
     }
   }
 
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'The service requests were successfully retrieved' })
+  public async queryServiceRequests(
+    @HttpUser() http_user: HttpUserPayload,
+    @Query() parameters: QueryServiceRequestCollectionDTO
+  ) {
+    try {
+      return QueryServiceRequestCollectionAdapter.toResponseDTO(
+        await this.query_service_request_collection_interactor.execute(
+          QueryServiceRequestCollectionAdapter.toInputModel(parameters)
+        )
+      );
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
 }
