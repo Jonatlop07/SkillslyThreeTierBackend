@@ -1,5 +1,4 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { CreateServiceOfferInteractor } from '@core/domain/service-offer/use-case/interactor/create_service_offer.interactor';
@@ -9,7 +8,7 @@ import DeleteServiceOfferInputModel
 import DeleteServiceOfferOutputModel
   from '@core/domain/service-offer/use-case/output-model/delete_service_offer.output_model';
 import {
-  NonExistentServiceOfferException,
+  NonExistentServiceOfferException, ServiceOfferDoesNotBelongToUserException,
   ServiceOfferException
 } from '@core/domain/service-offer/use-case/exception/service_offer.exception';
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
@@ -19,7 +18,6 @@ import { ServiceOfferDITokens } from '@core/domain/service-offer/di/service_offe
 const feature = loadFeature('test/bdd-functional/features/service-offer/delete_service_offer.feature');
 
 defineFeature(feature, (test) => {
-  let owner_id: string;
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_service_offer_interactor: CreateServiceOfferInteractor;
   let delete_service_offer_interactor: DeleteServiceOfferInteractor;
@@ -27,28 +25,28 @@ defineFeature(feature, (test) => {
   let output: DeleteServiceOfferOutputModel;
   let exception: ServiceOfferException;
 
-  const user_1 = createUserMock();
-
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
-      const { id } = await create_user_account_interactor.execute(input);
-      owner_id = id;
+      return await create_user_account_interactor.execute(input);
     } catch (e) {
       console.log(e);
     }
   }
 
-  function givenAUserExists(given) {
-    given(/^a user exists$/, async () => {
-      await createUserAccount(user_1);
-    });
+  function givenTheseUsersExists(given) {
+    given(/^these users exists:$/,
+      (users: Array<CreateUserAccountInputModel>) => {
+        users.forEach(async (user: CreateUserAccountInputModel) => {
+          await createUserAccount(user);
+        });
+      }
+    );
   }
 
   function andAServiceOfferExists(given) {
     given(/there exists a service offer with the details being:/,
       async (service_details) => {
         const { user_id, title, service_brief, contact_information, category } = service_details[0];
-        owner_id = user_id;
         try {
           await create_service_offer_interactor.execute({
             user_id,
@@ -65,8 +63,8 @@ defineFeature(feature, (test) => {
   }
 
   function whenUserTriesToDeleteServiceOffer(when) {
-    when(/^the user tries to delete the service offer with id "([^"]*)"$/,
-      async (service_offer_id: string) => {
+    when(/^the user identified by "([^"]*)" tries to delete the service offer with id "([^"]*)"$/,
+      async (owner_id: string, service_offer_id: string) => {
         try {
           input = {
             service_offer_id,
@@ -96,7 +94,7 @@ defineFeature(feature, (test) => {
 
   test('A logged in user successfully deletes a service offer',
     ({ given, and, when, then }) => {
-      givenAUserExists(given);
+      givenTheseUsersExists(given);
       andAServiceOfferExists(and);
       whenUserTriesToDeleteServiceOffer(when);
       then('the service offer is successfully deleted', () => {
@@ -106,11 +104,22 @@ defineFeature(feature, (test) => {
   );
   test('A logged in user tries to delete a service offer that does not exist',
     ({ given, when, then }) => {
-      givenAUserExists(given);
+      givenTheseUsersExists(given);
       whenUserTriesToDeleteServiceOffer(when);
       then('an error occurs: the service offer to be deleted does not exist', () => {
         expect(exception).toBeDefined();
         expect(exception).toBeInstanceOf(NonExistentServiceOfferException);
+      });
+    }
+  );
+  test('A logged in user tries to delete a service offer that does not belong to them',
+    ({ given, and, when, then }) => {
+      givenTheseUsersExists(given);
+      andAServiceOfferExists(and);
+      whenUserTriesToDeleteServiceOffer(when);
+      then('an error occurs: the service offer does not belong to the user', () => {
+        expect(exception).toBeDefined();
+        expect(exception).toBeInstanceOf(ServiceOfferDoesNotBelongToUserException);
       });
     }
   );

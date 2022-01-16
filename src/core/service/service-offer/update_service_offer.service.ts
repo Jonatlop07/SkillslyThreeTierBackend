@@ -13,7 +13,7 @@ import {
 } from '@core/common/util/validators/service_offer.validators';
 import {
   InvalidServiceOfferDetailsFormatException,
-  NonExistentServiceOfferException
+  NonExistentServiceOfferException, ServiceOfferDoesNotBelongToUserException
 } from '@core/domain/service-offer/use-case/exception/service_offer.exception';
 import UpdateServiceOfferGateway from '@core/domain/service-offer/use-case/gateway/update_service_offer.gateway';
 import { ServiceOfferDTO } from '@core/domain/service-offer/use-case/persistence-dto/service_offer.dto';
@@ -26,9 +26,11 @@ export class UpdateServiceOfferService implements UpdateServiceOfferInteractor {
   }
 
   public async execute(input: UpdateServiceOfferInputModel): Promise<UpdateServiceOfferOutputModel> {
-    const { service_offer_id, title, service_brief, contact_information, category } = input;
+    const { service_offer_id, title, service_brief, contact_information, category, owner_id } = input;
     if (!await this.gateway.existsById(service_offer_id))
       throw new NonExistentServiceOfferException();
+    if (!await this.gateway.belongsServiceOfferToUser(service_offer_id, owner_id))
+      throw new ServiceOfferDoesNotBelongToUserException();
     if (
       !isValidServiceOfferTitle(title)
       || !isValidServiceOfferServiceBrief(service_brief)

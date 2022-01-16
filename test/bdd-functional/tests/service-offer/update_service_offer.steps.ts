@@ -3,10 +3,9 @@ import { createTestModule } from '@test/bdd-functional/tests/create_test_module'
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import {
-  InvalidServiceOfferDetailsFormatException, NonExistentServiceOfferException,
+  InvalidServiceOfferDetailsFormatException, NonExistentServiceOfferException, ServiceOfferDoesNotBelongToUserException,
   ServiceOfferException
 } from '@core/domain/service-offer/use-case/exception/service_offer.exception';
-import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateServiceOfferInteractor } from '@core/domain/service-offer/use-case/interactor/create_service_offer.interactor';
 import { ServiceOfferDITokens } from '@core/domain/service-offer/di/service_offer_di_tokens';
@@ -19,7 +18,6 @@ import UpdateServiceOfferOutputModel
 const feature = loadFeature('test/bdd-functional/features/service-offer/update_service_offer.feature');
 
 defineFeature(feature, (test) => {
-  let owner_id: string;
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_service_offer_interactor: CreateServiceOfferInteractor;
   let update_service_offer_interactor: UpdateServiceOfferInteractor;
@@ -27,28 +25,28 @@ defineFeature(feature, (test) => {
   let output: UpdateServiceOfferOutputModel;
   let exception: ServiceOfferException;
 
-  const user_1 = createUserMock();
-
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
-      const { id } = await create_user_account_interactor.execute(input);
-      owner_id = id;
+      return await create_user_account_interactor.execute(input);
     } catch (e) {
       console.log(e);
     }
   }
 
-  function givenAUserExists(given) {
-    given(/^a user exists$/, async () => {
-      await createUserAccount(user_1);
-    });
+  function givenTheseUsersExists(given) {
+    given(/^these users exists:$/,
+      (users: Array<CreateUserAccountInputModel>) => {
+        users.forEach(async (user: CreateUserAccountInputModel) => {
+          await createUserAccount(user);
+        });
+      }
+    );
   }
 
   function andAServiceOfferExists(given) {
     given(/there exists a service offer with the details being:/,
       async (service_details) => {
         const { user_id, title, service_brief, contact_information, category } = service_details[0];
-        owner_id = user_id;
         try {
           await create_service_offer_interactor.execute({
             user_id,
@@ -65,8 +63,8 @@ defineFeature(feature, (test) => {
   }
 
   function andUserProvidesDetailsOfServiceOfferToBeUpdated(and) {
-    and(/the user provides the details of the offer to be updated:/,
-      (service_details) => {
+    and(/^the user identified by "([^"]*)" provides the details of the offer to be updated:$/,
+      (owner_id: string, service_details) => {
         const { service_offer_id, title, service_brief, contact_information, category } = service_details[0];
         input = {
           service_offer_id,
@@ -106,7 +104,7 @@ defineFeature(feature, (test) => {
 
   test('A logged in user successfully updates a service offer',
     ({ given, and, when, then }) => {
-      givenAUserExists(given);
+      givenTheseUsersExists(given);
       andAServiceOfferExists(and);
       andUserProvidesDetailsOfServiceOfferToBeUpdated(and);
       whenUserTriesToUpdateServiceOfferDetails(when);
@@ -117,7 +115,7 @@ defineFeature(feature, (test) => {
   );
   test('A logged in user tries to update a service offer but with the details in a invalid format',
     ({ given, and, when, then }) => {
-      givenAUserExists(given);
+      givenTheseUsersExists(given);
       andAServiceOfferExists(and);
       andUserProvidesDetailsOfServiceOfferToBeUpdated(and);
       whenUserTriesToUpdateServiceOfferDetails(when);
@@ -129,12 +127,24 @@ defineFeature(feature, (test) => {
   );
   test('A logged in user tries to update a service offer that does not exist',
     ({ given, and, when, then }) => {
-      givenAUserExists(given);
+      givenTheseUsersExists(given);
       andUserProvidesDetailsOfServiceOfferToBeUpdated(and);
       whenUserTriesToUpdateServiceOfferDetails(when);
       then('an error occurs: the service offer to be updated does not exist', () => {
         expect(exception).toBeDefined();
         expect(exception).toBeInstanceOf(NonExistentServiceOfferException);
+      });
+    }
+  );
+  test('A logged in user tries to update a service offer that does not belong to them',
+    ({ given, and, when, then }) => {
+      givenTheseUsersExists(given);
+      andAServiceOfferExists(and);
+      andUserProvidesDetailsOfServiceOfferToBeUpdated(and);
+      whenUserTriesToUpdateServiceOfferDetails(when);
+      then('an error occurs: the service offer does not belong to the user', () => {
+        expect(exception).toBeDefined();
+        expect(exception).toBeInstanceOf(ServiceOfferDoesNotBelongToUserException);
       });
     }
   );

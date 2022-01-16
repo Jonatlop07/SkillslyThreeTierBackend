@@ -6,7 +6,10 @@ import DeleteServiceOfferOutputModel
 import { Inject, Logger } from '@nestjs/common';
 import { ServiceOfferDITokens } from '@core/domain/service-offer/di/service_offer_di_tokens';
 import DeleteServiceOfferGateway from '@core/domain/service-offer/use-case/gateway/delete_service_offer.gateway';
-import { NonExistentServiceOfferException } from '@core/domain/service-offer/use-case/exception/service_offer.exception';
+import {
+  NonExistentServiceOfferException,
+  ServiceOfferDoesNotBelongToUserException
+} from '@core/domain/service-offer/use-case/exception/service_offer.exception';
 
 export class DeleteServiceOfferService implements DeleteServiceOfferInteractor {
   private readonly logger: Logger = new Logger(DeleteServiceOfferService.name);
@@ -20,6 +23,8 @@ export class DeleteServiceOfferService implements DeleteServiceOfferInteractor {
     const { service_offer_id, owner_id } = input;
     if (!await this.gateway.existsById(service_offer_id))
       throw new NonExistentServiceOfferException();
+    if (!await this.gateway.belongsServiceOfferToUser(service_offer_id, owner_id))
+      throw new ServiceOfferDoesNotBelongToUserException();
     await this.gateway.delete({
       service_offer_id,
       owner_id

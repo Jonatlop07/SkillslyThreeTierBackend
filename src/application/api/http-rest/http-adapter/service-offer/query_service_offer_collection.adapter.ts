@@ -4,14 +4,16 @@ import { QueryServiceOfferCollectionResponseDTO } from '@application/api/http-re
 import { QueryServiceOfferCollectionDTO } from '@application/api/http-rest/http-dto/service-offer/http_query_service_offer_collection.dto';
 import QueryServiceOfferCollectionOutputModel
   from '@core/domain/service-offer/use-case/output-model/query_service_offer_collection.output_model';
-import { PaginationDTO } from '@core/common/persistence/pagination.dto';
 
 export class QueryServiceOfferCollectionAdapter {
   public static toInputModel(payload: QueryServiceOfferCollectionDTO): QueryServiceOfferCollectionInputModel {
     return {
       owner_id: payload.owner_id,
-      categories: payload.categories,
-      pagination: payload.pagination as PaginationDTO
+      categories: payload.categories ? JSON.parse(payload.categories) : undefined,
+      pagination: {
+        limit: payload.limit ? payload.limit : 10000,
+        offset: payload.offset ? payload.offset : 0
+      }
     };
   }
 

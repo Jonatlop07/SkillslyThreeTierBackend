@@ -13,11 +13,19 @@ export class Neo4jService {
   ) {}
 
   public getSingleResultProperties = (result: QueryResult, key: string) => {
-    return result.records[0]?.get(key) ? result.records[0]?.get(key).properties : null;
+    if (result.records && result.records[0] && result.records[0].get(key)) {
+      return result.records[0]?.get(key).properties;
+    }
+    return;
+
   };
 
   public getSingleResultProperty = (result: QueryResult, key: string) => {
-    return result.records[0]?.get(key);
+    if (result.records && result.records[0]) {
+      return result.records[0].get(key);
+    }
+    return;
+
   };
 
   public getMultipleResultByKey = (result: QueryResult, key: string) => {

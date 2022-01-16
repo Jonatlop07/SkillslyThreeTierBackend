@@ -16,7 +16,8 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
   private readonly user_key = 'user';
   private readonly service_offer_key = 'service_offer';
 
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) {
+  }
 
   public async create(service_offer: ServiceOfferDTO): Promise<ServiceOfferDTO> {
     const { owner_id, title, service_brief, contact_information, category } = service_offer;
@@ -84,7 +85,8 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
             title,
             service_brief,
             contact_information,
-            category
+            category,
+            updated_at: getCurrentDate()
           }
         }
       ),
@@ -125,17 +127,24 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
   public async findAll(params: ServiceOfferQueryModel, pagination: PaginationDTO): Promise<Array<ServiceOfferDTO>> {
     const { limit, offset } = pagination;
     const find_all_statement = `
-      MATCH (${this.service_offer_key}: ServiceOffers)
-      RETURN DISTINCT ${this.service_offer_key}
+      MATCH (${this.service_offer_key}: ServiceOffer)
+        <-[:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP}]
+        -(${this.user_key}: User)
+      RETURN ${this.service_offer_key}, ${this.user_key}
+      ORDER BY ${this.service_offer_key}.created_at DESC
       SKIP ${offset}
       LIMIT ${limit}
     `;
-    return this.neo4j_service.getMultipleResultByKey(
-      await this.neo4j_service.read(
-        find_all_statement,
-        {}
-      ),
-      this.service_offer_key
+    const result: QueryResult = await this.neo4j_service.read(
+      find_all_statement,
+      {}
+    );
+    return result.records.map(
+      (record) =>
+        ({
+          ...record.get(this.service_offer_key).properties,
+          owner_id: record.get(this.user_key).properties.user_id
+        })
     );
   }
 
@@ -144,7 +153,7 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
     const { limit, offset } = pagination;
     const find_all_by_categories_statement = `
       MATCH (${this.service_offer_key}: ServiceOffer)
-        <-(:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP})
+        <-[:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP}]
         -(${this.user_key}: User { user_id: $user_id })
       WHERE ${this.service_offer_key}.categories IN $categories
       RETURN DISTINCT ${this.service_offer_key}
@@ -160,6 +169,12 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
         }
       ),
       this.service_offer_key
+    ).map(
+      (service_offer: ServiceOfferDTO) =>
+        ({
+          ...service_offer,
+          owner_id
+        })
     );
   }
 
@@ -168,7 +183,7 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
     const { limit, offset } = pagination;
     const find_all_by_categories_statement = `
       MATCH (${this.service_offer_key}: ServiceOffer)
-      WHERE ${this.service_offer_key}.categories IN $categories
+      WHERE ${this.service_offer_key}.category IN $categories
       RETURN DISTINCT ${this.service_offer_key}
       SKIP ${offset}
       LIMIT ${limit}
@@ -189,7 +204,7 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
     const { limit, offset } = pagination;
     const find_all_by_user_id = `
       MATCH (${this.service_offer_key}: ServiceOffer)
-        <-(:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP})
+        <-[:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP}]
         -(${this.user_key}: User { user_id: $user_id })
       RETURN DISTINCT ${this.service_offer_key}
       SKIP ${offset}
@@ -203,7 +218,30 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
         }
       ),
       this.service_offer_key
+    ).map(
+      (service_offer: ServiceOfferDTO) =>
+        ({
+          ...service_offer,
+          owner_id: user_id
+        })
     );
+  }
+
+  public async belongsServiceOfferToUser(service_offer_id: string, user_id: string): Promise<boolean> {
+    const belongs_service_offer_to_user_query = `
+      MATCH (${this.user_key}: User { user_id: $user_id })
+        -[:${Relationships.USER_SERVICE_OFFER_RELATIONSHIP}]
+        ->(${this.service_offer_key}: ServiceOffer { service_offer_id: $service_offer_id })
+      RETURN ${this.service_offer_key}
+    `;
+    const result = await this.neo4j_service.read(
+      belongs_service_offer_to_user_query,
+      {
+        user_id,
+        service_offer_id
+      }
+    );
+    return result.records.length > 0;
   }
 
   findAllWithRelation(params: ServiceOfferQueryModel): Promise<any> {
