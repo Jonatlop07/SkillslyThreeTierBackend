@@ -3,12 +3,14 @@ import QueryServiceOfferCollectionInputModel
   from '@core/domain/service-offer/use-case/input-model/query_service_offer_collection.input_model';
 import QueryServiceOfferCollectionOutputModel
   from '@core/domain/service-offer/use-case/output-model/query_service_offer_collection.output_model';
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { ServiceOfferDITokens } from '@core/domain/service-offer/di/service_offer_di_tokens';
 import QueryServiceOfferCollectionGateway
   from '@core/domain/service-offer/use-case/gateway/query_service_offer_collection.gateway';
 
 export class QueryServiceOfferCollectionService implements QueryServiceOfferCollectionInteractor {
+  private readonly logger: Logger = new Logger(QueryServiceOfferCollectionService.name);
+
   constructor(
     @Inject(ServiceOfferDITokens.ServiceOfferRepository)
     private readonly gateway: QueryServiceOfferCollectionGateway

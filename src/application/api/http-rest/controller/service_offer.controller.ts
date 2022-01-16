@@ -18,7 +18,7 @@ import {
   ApiCreatedResponse, ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiTags
+  ApiTags, ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { CreateServiceOfferDTO } from '@application/api/http-rest/http-dto/service-offer/http_create_service_offer.dto';
@@ -78,6 +78,7 @@ export class ServiceOfferController {
   @ApiOkResponse({ description: 'The service offer was successfully updated' })
   @ApiNotFoundResponse({ description: 'The service offer does not exist' })
   @ApiBadRequestResponse({ description: 'The service details to be updated were provided in an invalid format' })
+  @ApiUnauthorizedResponse({ description: 'The service offer does not belong to the user' })
   public async updateServiceOffer(
     @HttpUser() http_user: HttpUserPayload,
     @Param('service_offer_id') service_offer_id: string,
@@ -103,6 +104,7 @@ export class ServiceOfferController {
   @ApiBearerAuth()
   @ApiNoContentResponse({ description: 'The service offer was successfully deleted' })
   @ApiNotFoundResponse({ description: 'The service offer does not exist' })
+  @ApiUnauthorizedResponse({ description: 'The service offer does not belong to the user' })
   public async deleteServiceOffer(
     @HttpUser() http_user: HttpUserPayload,
     @Param('service_offer_id') service_offer_id: string

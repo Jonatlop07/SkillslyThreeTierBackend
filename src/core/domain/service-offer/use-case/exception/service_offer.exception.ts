@@ -13,8 +13,14 @@ class NonExistentServiceOfferException extends ServiceOfferException {
   message = 'The service offer does not exist';
 }
 
+class ServiceOfferDoesNotBelongToUserException extends ServiceOfferException {
+  code = CoreExceptionCodes.SERVICE_OFFER_DOES_NOT_BELONG_TO_USER;
+  message = 'Cannot update a service offer that does not belong to you';
+}
+
 export {
   ServiceOfferException,
   InvalidServiceOfferDetailsFormatException,
-  NonExistentServiceOfferException
+  NonExistentServiceOfferException,
+  ServiceOfferDoesNotBelongToUserException
 };
