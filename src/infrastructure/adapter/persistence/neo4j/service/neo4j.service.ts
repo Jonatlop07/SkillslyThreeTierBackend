@@ -29,7 +29,7 @@ export class Neo4jService {
   };
 
   public getMultipleResultByKey = (result: QueryResult, key: string) => {
-    if (result.records && result.records[0]) {
+    if (result.records[0] && result.records[0].get(key)) {
       return result.records.map((record) => record.get(key) ? record.get(key).properties : null);
     }
     return [];

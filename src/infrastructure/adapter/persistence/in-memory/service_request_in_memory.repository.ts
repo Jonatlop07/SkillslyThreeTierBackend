@@ -4,13 +4,19 @@ import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import { ServiceRequestPhase } from '@core/domain/service-request/entity/type/service_request_phase.enum';
 import ServiceRequestQueryModel from '@core/domain/service-request/use-case/query-model/service_request.query_model';
 import { Optional } from '@core/common/type/common_types';
+import { ServiceRequestApplicationDTO } from '@core/domain/service-request/use-case/persistence-dto/service-request-applications/service_request_application.dto';
+import { UpdateRequestDTO } from '@core/domain/service-request/use-case/persistence-dto/service_request_update_request.dto';
 
 export class ServiceRequestInMemoryRepository implements ServiceRequestRepository {
   private current_available_service_request_id: string;
+  private current_available_service_request_evaluation_applicant: string;
+  private current_service_request_completion_request: string;
+  private current_service_request_cancel_request: string;
 
   constructor(private readonly service_requests: Map<string, ServiceRequestDTO>) {
     this.current_available_service_request_id = '1';
-  }
+    this.current_available_service_request_evaluation_applicant = '';
+  } 
 
   public async create(service_request: ServiceRequestDTO): Promise<ServiceRequestDTO> {
     const new_service_request: ServiceRequestDTO = {
@@ -69,6 +75,103 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
       if (_service_request.service_request_id === params.service_request_id)
         return Promise.resolve(_service_request);
     return Promise.resolve(null);
+  }
+
+  public async createApplication(params: ServiceRequestApplicationDTO): Promise<ServiceRequestApplicationDTO> {
+    const { request_id, applicant_id } = params;
+    this.service_requests.get(request_id).applicants.push(applicant_id);
+    return Promise.resolve({
+      request_id: params.request_id,
+      applicant_id: params.applicant_id,
+    });
+  }
+
+  public async removeApplication(params: ServiceRequestApplicationDTO): Promise<ServiceRequestApplicationDTO> {
+    const { request_id, applicant_id } = params;
+    const applicants = this.service_requests.get(request_id).applicants;
+    const existing_application = applicants.indexOf(applicant_id);
+    this.service_requests.get(request_id).applicants.splice(existing_application, 1);
+    return Promise.resolve({
+      request_id,
+      applicant_id
+    });
+  }
+
+
+  public async acceptApplication(params: ServiceRequestApplicationDTO): Promise<ServiceRequestApplicationDTO> {
+    const { request_id, applicant_id } = params;
+    this.current_available_service_request_evaluation_applicant = applicant_id;
+    this.service_requests.set(request_id, { ...this.service_requests.get(request_id), phase: ServiceRequestPhase.Evaluation });
+    return Promise.resolve({
+      request_id: request_id,
+      applicant_id: this.current_available_service_request_evaluation_applicant,
+      request_phase: this.service_requests.get(request_id).phase
+    });
+  }
+
+  public async confirmApplication(params: ServiceRequestApplicationDTO): Promise<ServiceRequestApplicationDTO> {
+    const { request_id, applicant_id } = params;
+    this.current_available_service_request_evaluation_applicant = '';
+    this.service_requests.set(request_id, { ...this.service_requests.get(request_id), phase: ServiceRequestPhase.Execution, service_provider: applicant_id });
+    return Promise.resolve({
+      request_id: request_id,
+      applicant_id: this.service_requests.get(request_id).service_provider,
+      request_phase: this.service_requests.get(request_id).phase
+    });
+  }
+
+  public async denyApplication(params: ServiceRequestApplicationDTO): Promise<ServiceRequestApplicationDTO> {
+    const { request_id, applicant_id } = params;
+    this.current_available_service_request_evaluation_applicant = '';
+    this.service_requests.set(request_id, { ...this.service_requests.get(request_id), phase: ServiceRequestPhase.Open });
+    return Promise.resolve({
+      request_id: request_id,
+      applicant_id: applicant_id,
+      request_phase: this.service_requests.get(request_id).phase
+    });
+  }
+
+  public async existsApplication(params: ServiceRequestQueryModel): Promise<boolean> {
+    for (const application of this.service_requests.get(params.service_request_id).applicants){
+      if (application === params.owner_id)
+        return Promise.resolve(true);
+    }
+    return Promise.resolve(false);
+  }
+
+  public async getApplications(request_id: string): Promise<ServiceRequestApplicationDTO[]> {
+    return Promise.resolve(this.service_requests.get(request_id).applicants.map((applicant)=> {
+      return {
+        applicant_id: applicant,
+        request_id: request_id, 
+      };
+    }));
+  }
+  
+  public async existsRequest(params: UpdateRequestDTO): Promise<boolean> {
+    if ( this.current_service_request_cancel_request 
+      || this.current_service_request_completion_request ){
+      return Promise.resolve(true);
+    }
+    params;
+    return Promise.resolve(false);
+  }
+
+  public async createCompleteRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
+    const {service_request_id, provider_id } = params;
+    this.current_service_request_completion_request = provider_id.concat(service_request_id);
+    return Promise.resolve({
+      service_request_id,
+      provider_id
+    });
+  }
+  public async createCancelRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
+    const {service_request_id, provider_id } = params;
+    this.current_service_request_cancel_request = provider_id.concat(service_request_id);
+    return Promise.resolve({
+      service_request_id,
+      provider_id
+    });
   }
 
   deleteById(id: string): Promise<void> {

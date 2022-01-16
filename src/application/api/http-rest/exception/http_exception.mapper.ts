@@ -20,7 +20,9 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.NON_EXISTENT_POST_OWNER,
         CoreExceptionCodes.NON_EXISTENT_JOIN_GROUP_REQUEST,
         CoreExceptionCodes.NON_EXISTENT_GROUP,
-        CoreExceptionCodes.NON_EXISTENT_SERVICE_OFFER
+        CoreExceptionCodes.NON_EXISTENT_SERVICE_OFFER,
+        CoreExceptionCodes.NON_EXISTENT_SERVICE_REQUEST,
+        CoreExceptionCodes.NON_EXISTENT_SERVICE_REQUEST_APPLICATION
       ]),
       status_code: HttpStatus.NOT_FOUND
     },
@@ -45,7 +47,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.ACCOUNT_ALREADY_EXISTS,
         CoreExceptionCodes.PRIVATE_CONVERSATION_ALREADY_EXISTS_CHAT,
         CoreExceptionCodes.USER_FOLLOW_REQUEST_ALREADY_EXISTS,
-        CoreExceptionCodes.JOIN_REQUEST_ALREADY_EXISTS
+        CoreExceptionCodes.JOIN_REQUEST_ALREADY_EXISTS,
+        CoreExceptionCodes.SERVICE_REQUEST_STATUS_UPDATE_REQUEST_ALREADY_EXISTS
       ]),
       status_code: HttpStatus.CONFLICT,
     },
@@ -56,6 +59,7 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.USER_DOES_NOT_HAVE_PERMISSIONS_IN_CONVERSATION,
         CoreExceptionCodes.UNAUTHORIZED_GROUP_EDITOR,
         CoreExceptionCodes.UNIQUE_GROUP_OWNER,
+        CoreExceptionCodes.UNAUTHORIZED_SERVICE_REQUEST_APPLICATION_ACTION,
         CoreExceptionCodes.SERVICE_OFFER_DOES_NOT_BELONG_TO_USER
       ]),
       status_code: HttpStatus.UNAUTHORIZED,

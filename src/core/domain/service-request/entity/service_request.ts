@@ -40,6 +40,14 @@ export class ServiceRequest extends Entity<string> {
     ].includes(this._phase);
   }
 
+  public canBeAccepted(){
+    return this._phase === ServiceRequestPhase.Open;
+  }
+
+  public canBeConfirmedOrDenied(){
+    return this._phase === ServiceRequestPhase.Evaluation;
+  }
+
   public get owner_id() {
     return this._owner_id;
   }
