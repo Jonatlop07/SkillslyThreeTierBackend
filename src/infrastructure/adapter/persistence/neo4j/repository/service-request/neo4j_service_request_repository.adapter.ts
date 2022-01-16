@@ -9,6 +9,7 @@ import ServiceRequestQueryModel from '@core/domain/service-request/use-case/quer
 import { Optional } from '@core/common/type/common_types';
 import { ServiceRequestApplicationDTO } from '@core/domain/service-request/use-case/persistence-dto/service-request-applications/service_request_application.dto';
 import { UpdateRequestDTO } from '@core/domain/service-request/use-case/persistence-dto/service_request_update_request.dto';
+import { ServiceRequestPhase } from '@core/domain/service-request/entity/type/service_request_phase.enum';
 
 @Injectable()
 export class ServiceRequestNeo4jRepositoryAdapter
@@ -21,6 +22,11 @@ implements ServiceRequestRepository {
   private readonly user_key = 'user';
   private readonly users_key = 'users';
   private readonly service_request_key = 'service_request';
+  private readonly applicant_key = 'applicant';
+  private readonly provider_key = 'provider';
+  private readonly phase_key = 'phase';
+  private readonly user_key2 = 'user2';
+
 
   constructor(private readonly neo4j_service: Neo4jService) {
   }
@@ -176,7 +182,7 @@ implements ServiceRequestRepository {
       MATCH (${this.user_key}:User { user_id: $applicant_id }), 
             (${this.service_request_key}: ServiceRequest { service_request_id: $request_id })
       CREATE (${this.user_key})-[r:${Relationships.APPLICANT_SERVICE_REQUEST_RELATIONSHIP} {application_message: $message}]->(${this.service_request_key})
-      RETURN ${this.user_key}.user_id as applicant, ${this.service_request_key}.service_request_id as request
+      RETURN ${this.user_key}.user_id as ${this.applicant_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}
     `;
 
     const result = await this.neo4j_service.write(create_application_query, {
@@ -185,8 +191,8 @@ implements ServiceRequestRepository {
       message,
     });
     return {
-      applicant_id: this.neo4j_service.getSingleResultProperty(result, 'applicant'),
-      request_id: this.neo4j_service.getSingleResultProperty(result, 'request'),
+      applicant_id: this.neo4j_service.getSingleResultProperty(result, this.applicant_key),
+      request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
     };
   }
 
@@ -197,7 +203,7 @@ implements ServiceRequestRepository {
       -[r:${Relationships.APPLICANT_SERVICE_REQUEST_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$request_id })
       DELETE r
-      RETURN ${this.user_key}.user_id as applicant, ${this.service_request_key}.service_request_id as request
+      RETURN ${this.user_key}.user_id as ${this.applicant_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}
     `;
 
     const result = await this.neo4j_service.write(cancel_application_query, {
@@ -205,8 +211,8 @@ implements ServiceRequestRepository {
       request_id,
     });
     return {
-      applicant_id: this.neo4j_service.getSingleResultProperty(result, 'applicant'),
-      request_id: this.neo4j_service.getSingleResultProperty(result, 'request'),
+      applicant_id: this.neo4j_service.getSingleResultProperty(result, this.applicant_key),
+      request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
     };
   }
 
@@ -219,16 +225,16 @@ implements ServiceRequestRepository {
       CREATE (${this.user_key})
       -[:${Relationships.APPLICANT_SERVICE_REQUEST_EVALUATION_RELATIONSHIP}]
       ->(${this.service_request_key})
-      SET ${this.service_request_key}.phase = 'Evaluation'
+      SET ${this.service_request_key}.phase = $phase
       DELETE r
-      RETURN ${this.user_key}.user_id as applicant, ${this.service_request_key}.service_request_id as request, ${this.service_request_key}.phase as phase
+      RETURN ${this.user_key}.user_id as ${this.applicant_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.service_request_key}.phase as ${this.phase_key}
     `;
 
-    const result = await this.neo4j_service.write(accept_applicaction_query, { applicant_id, request_id });
+    const result = await this.neo4j_service.write(accept_applicaction_query, { applicant_id, request_id, phase: ServiceRequestPhase.Evaluation });
     return {
-      request_id: this.neo4j_service.getSingleResultProperty(result, 'request'),
-      applicant_id: this.neo4j_service.getSingleResultProperty(result, 'applicant'),
-      request_phase: this.neo4j_service.getSingleResultProperty(result, 'phase')
+      request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
+      applicant_id: this.neo4j_service.getSingleResultProperty(result, this.applicant_key),
+      request_phase: this.neo4j_service.getSingleResultProperty(result, this.phase_key)
     };
   }
 
@@ -241,16 +247,16 @@ implements ServiceRequestRepository {
       CREATE (${this.user_key})
       -[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
       ->(${this.service_request_key})
-      SET ${this.service_request_key}.phase = 'Execution'
+      SET ${this.service_request_key}.phase = $phase
       DELETE r
-      RETURN ${this.user_key}.user_id as provider, ${this.service_request_key}.service_request_id as request, ${this.service_request_key}.phase as phase
+      RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.service_request_key}.phase as ${this.phase_key}
     `;
 
-    const result = await this.neo4j_service.write(confirm_applicaction_query, { applicant_id, request_id });
+    const result = await this.neo4j_service.write(confirm_applicaction_query, { applicant_id, request_id, phase: ServiceRequestPhase.Execution });
     return {
-      request_id: this.neo4j_service.getSingleResultProperty(result, 'request'),
-      applicant_id: this.neo4j_service.getSingleResultProperty(result, 'provider'),
-      request_phase: this.neo4j_service.getSingleResultProperty(result, 'phase')
+      request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
+      applicant_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
+      request_phase: this.neo4j_service.getSingleResultProperty(result, this.phase_key)
     };
   }
 
@@ -260,16 +266,16 @@ implements ServiceRequestRepository {
       MATCH (${this.user_key}:User { user_id:$applicant_id })
       -[r:${Relationships.APPLICANT_SERVICE_REQUEST_EVALUATION_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$request_id })
-      SET ${this.service_request_key}.phase = 'Open'
+      SET ${this.service_request_key}.phase = $phase
       DELETE r
-      RETURN ${this.user_key}.user_id as applicant, ${this.service_request_key}.service_request_id as request, ${this.service_request_key}.phase as phase
+      RETURN ${this.user_key}.user_id as ${this.applicant_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.service_request_key}.phase as ${this.phase_key}
     `;
 
-    const result = await this.neo4j_service.write(deny_applicaction_query, { applicant_id, request_id });
+    const result = await this.neo4j_service.write(deny_applicaction_query, { applicant_id, request_id, phase: ServiceRequestPhase.Open });
     return {
-      request_id: this.neo4j_service.getSingleResultProperty(result, 'request'),
-      applicant_id: this.neo4j_service.getSingleResultProperty(result, 'applicant'),
-      request_phase: this.neo4j_service.getSingleResultProperty(result, 'phase')
+      request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
+      applicant_id: this.neo4j_service.getSingleResultProperty(result, this.applicant_key),
+      request_phase: this.neo4j_service.getSingleResultProperty(result, this.phase_key)
     };
   }
 
@@ -335,21 +341,21 @@ implements ServiceRequestRepository {
       MATCH (${this.user_key}:User { user_id:$provider_id })
       -[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id }),
-      (${this.user_key}2:User)
+      (${this.user_key2}:User)
       -[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id })
       CREATE (${this.user_key})
       -[r:${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP} { request_date:$date }]
       ->(${this.service_request_key})
-      RETURN ${this.user_key}.user_id as provider_id, ${this.service_request_key}.service_request_id as request_id, ${this.user_key}2.user_id as requester_id
+      RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.user_key2}.user_id as ${this.requester_key}
     `;
 
     const result = await this.neo4j_service.write(create_complete_service_request_query, { provider_id, service_request_id, date  });
     return {
-      service_request_id: this.neo4j_service.getSingleResultProperty(result, 'request_id'),
-      provider_id: this.neo4j_service.getSingleResultProperty(result, 'provider_id'),
+      service_request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
+      provider_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
       request_date: date,
-      requester_id: this.neo4j_service.getSingleResultProperty(result, 'requester_id')
+      requester_id: this.neo4j_service.getSingleResultProperty(result, this.requester_key)
     };
   }
 
@@ -360,21 +366,21 @@ implements ServiceRequestRepository {
       MATCH (${this.user_key}:User { user_id:$provider_id })
       -[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id }),
-      (${this.user_key}2:User)
+      (${this.user_key2}:User)
       -[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id })
       CREATE (${this.user_key})
       -[r:${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP} { request_date:$date }]
       ->(${this.service_request_key})
-      RETURN ${this.user_key}.user_id as provider_id, ${this.service_request_key}.service_request_id as request_id, ${this.user_key}2.user_id as requester_id
+      RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.user_key2}.user_id as ${this.requester_key}
     `;
 
     const result = await this.neo4j_service.write(create_cancel_service_request_query, { provider_id, service_request_id, date  });
     return {
-      service_request_id: this.neo4j_service.getSingleResultProperty(result, 'request_id'),
-      provider_id: this.neo4j_service.getSingleResultProperty(result, 'provider_id'),
+      service_request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
+      provider_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
       request_date: date,
-      requester_id: this.neo4j_service.getSingleResultProperty(result, 'requester_id')
+      requester_id: this.neo4j_service.getSingleResultProperty(result, this.requester_key)
     };
   }
 

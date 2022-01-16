@@ -22,7 +22,7 @@ export class UpdateServiceRequestApplicationService implements UpdateServiceRequ
     const existing_request = await this.gateway.findOne({ service_request_id: request_id });
     const existing_application = await this.gateway.existsApplication({ service_request_id: request_id, owner_id: applicant_id });
     let updated_application: ServiceRequestApplicationDTO;
-    if (!existing_request.service_request_id){
+    if (!existing_request){
       throw new NonExistentServiceRequestException();
     }
     const service_request_entity = ServiceRequestMapper.toServiceRequest(existing_request);
