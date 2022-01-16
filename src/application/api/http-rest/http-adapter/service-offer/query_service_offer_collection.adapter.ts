@@ -9,9 +9,9 @@ export class QueryServiceOfferCollectionAdapter {
   public static toInputModel(payload: QueryServiceOfferCollectionDTO): QueryServiceOfferCollectionInputModel {
     return {
       owner_id: payload.owner_id,
-      categories: payload.categories,
+      categories: payload.categories ? JSON.parse(payload.categories) : undefined,
       pagination: {
-        limit: payload.limit ? payload.limit : 20,
+        limit: payload.limit ? payload.limit : 10000,
         offset: payload.offset ? payload.offset : 0
       }
     };
