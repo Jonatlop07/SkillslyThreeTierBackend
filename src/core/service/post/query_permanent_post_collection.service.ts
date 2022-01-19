@@ -38,7 +38,7 @@ export class QueryPermanentPostCollectionService implements QueryPermanentPostCo
     if (!owner)
       throw new NonExistentUserException();   
     if (user_id === owner_id) {
-      posts = await this.post_gateway.findAll({ user_id: owner_id });
+      posts = await this.post_gateway.findAll({ user_id: owner_id});
     } else {
       const exists_relationship = await this.relationship_gateway.existsUserFollowRelationship(
         {

@@ -34,6 +34,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
       post_id: this.currently_available_post_id,
       content: post.content,
       user_id: post.user_id,
+      user_name: post.user_name,
       privacy: post.privacy,
       created_at: getCurrentDate(),
       group_id: post.group_id ? post.group_id : '0'
