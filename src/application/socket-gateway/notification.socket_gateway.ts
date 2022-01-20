@@ -93,10 +93,11 @@ export class NotificationSocketGateway implements OnGatewayInit, OnGatewayConnec
 
   @OnEvent(EventsNames.UPDATED_SERVICE_REQUEST)
   public handleUpdatedServiceRequestEvent(payload: ServiceRequestUpdatedEvent) {
-    const { service_request_id } = payload;
+    const { service_request_id, service_request_title } = payload;
     payload.applicants.forEach((applicant_id: string) =>
       this.server.to(applicant_id).emit('service_request_updated', {
-        service_request_id
+        service_request_id,
+        service_request_title
       })
     );
   }
@@ -113,9 +114,11 @@ export class NotificationSocketGateway implements OnGatewayInit, OnGatewayConnec
 
   @OnEvent(EventsNames.STATUS_UPDATE_REQUEST)
   public handleServiceRequestStatusUpdateRequestedEvent(payload: ServiceRequestStatusUpdateRequestedEvent) {
-    this.server.to(payload.requester_id).emit('status_update_request.created', {
+    this.server.to(payload.requester_id).emit('status_update_request', {
       service_request_id: payload.service_request_id,
+      service_request_title: payload.service_request_title,
       update_action: payload.action,
+      requester_name: payload.requester_name,
       request_date: payload.request_date
     });
   }

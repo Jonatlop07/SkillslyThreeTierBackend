@@ -11,6 +11,7 @@ import { ServiceRequestApplicationDTO } from '@core/domain/service-request/use-c
 import { UpdateRequestDTO } from '@core/domain/service-request/use-case/persistence-dto/service_request_update_request.dto';
 import { ServiceRequestPhase } from '@core/domain/service-request/entity/type/service_request_phase.enum';
 import { PaginationDTO } from '@core/common/persistence/pagination.dto';
+import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 
 @Injectable()
 export class ServiceRequestNeo4jRepositoryAdapter
@@ -25,8 +26,8 @@ export class ServiceRequestNeo4jRepositoryAdapter
   private readonly service_request_key = 'service_request';
   private readonly applicant_key = 'applicant';
   private readonly provider_key = 'provider';
+  private readonly service_request_title_key = 'service_request_title';
   private readonly phase_key = 'phase';
-  private readonly user_key2 = 'user2';
   private readonly relationship = 'r';
 
   constructor(private readonly neo4j_service: Neo4jService) {
@@ -190,7 +191,8 @@ export class ServiceRequestNeo4jRepositoryAdapter
       ->(${this.service_request_key})
       SET ${this.service_request_key}.phase = $phase
       DELETE r
-      RETURN ${this.user_key}.user_id as ${this.applicant_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.service_request_key}.phase as ${this.phase_key}
+      RETURN ${this.user_key}.user_id as ${this.applicant_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key},
+       ${this.service_request_key}.phase as ${this.phase_key}
     `;
 
     const result = await this.neo4j_service.write(accept_applicaction_query, {
@@ -201,7 +203,7 @@ export class ServiceRequestNeo4jRepositoryAdapter
     return {
       request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
       applicant_id: this.neo4j_service.getSingleResultProperty(result, this.applicant_key),
-      request_phase: this.neo4j_service.getSingleResultProperty(result, this.phase_key)
+      request_phase: this.neo4j_service.getSingleResultProperty(result, this.phase_key),
     };
   }
 
@@ -317,25 +319,28 @@ export class ServiceRequestNeo4jRepositoryAdapter
       MATCH (${this.user_key}:User { user_id:$provider_id })
       -[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id }),
-      (${this.user_key2}:User)
+      (${this.requester_key}:Requester)
       -[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id })
       CREATE (${this.user_key})
       -[r:${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP} { request_date:$date }]
       ->(${this.service_request_key})
-      RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.user_key2}.user_id as ${this.requester_key}
+      RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key},
+       ${this.requester_key}, ${this.service_request_key}.title as ${this.service_request_title_key}
     `;
-
     const result = await this.neo4j_service.write(create_complete_service_request_query, {
       provider_id,
       service_request_id,
       date
     });
+    const requester: UserDTO = this.neo4j_service.getSingleResultProperties(result, this.requester_key);
     return {
       service_request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
+      service_request_title: this.neo4j_service.getSingleResultProperty(result, this.service_request_title_key),
       provider_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
       request_date: date,
-      requester_id: this.neo4j_service.getSingleResultProperty(result, this.requester_key)
+      requester_id: requester.user_id,
+      requester_name: requester.name
     };
   }
 
@@ -343,28 +348,31 @@ export class ServiceRequestNeo4jRepositoryAdapter
     const { service_request_id, provider_id } = params;
     const date = getCurrentDate();
     const create_cancel_service_request_query = `
-    MATCH (${this.user_key}:User { user_id:$provider_id })
-    -[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
-    ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id }),
-    (${this.user_key2}:User)
-    -[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
-    ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id })
-    CREATE (${this.user_key})
-    -[r:${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP} { request_date:$date }]
-    ->(${this.service_request_key})
-    RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, ${this.user_key2}.user_id as ${this.requester_key}
+      MATCH (${this.user_key}:User { user_id:$provider_id })
+      -[:${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
+      ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id }),
+      (${this.requester_key}: Requester)
+      -[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
+      ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id })
+      CREATE (${this.user_key})
+      -[r:${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP} { request_date:$date }]
+      ->(${this.service_request_key})
+      RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key},
+        ${this.service_request_key}.title as ${this.service_request_title_key}, ${this.requester_key}
     `;
-
     const result = await this.neo4j_service.write(create_cancel_service_request_query, {
       provider_id,
       service_request_id,
       date
     });
+    const requester: UserDTO = this.neo4j_service.getSingleResultProperties(result, this.requester_key);
     return {
       service_request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
+      service_request_title: this.neo4j_service.getSingleResultProperty(result, this.service_request_title_key),
       provider_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
       request_date: date,
-      requester_id: this.neo4j_service.getSingleResultProperty(result, this.requester_key)
+      requester_id: requester.user_id,
+      requester_name: requester.name
     };
   }
 
@@ -635,7 +643,6 @@ export class ServiceRequestNeo4jRepositoryAdapter
         user_id
       }
     );
-    this.logger.log(result);
     const service_requests_without_applicants = result.records.map(
       (record): ServiceRequestDTO =>
         ({

@@ -49,6 +49,9 @@ import { QueryServiceRequestCollectionDTO } from '@application/api/http-rest/htt
 import { QueryServiceRequestCollectionAdapter } from '@application/api/http-rest/http-adapter/service-request/query_service_request_collection.adapter';
 import { UpdateServiceStatusUpdateRequestInteractor } from '@core/domain/service-request/use-case/interactor/update_service_status_update_request.interactor';
 import { UpdateServiceStatusUpdateRequestAdapter } from '../http-adapter/service-request/update_service_status_update_request.adapter';
+import CreateServiceStatusUpdateRequestOutputModel
+  from '@core/domain/service-request/use-case/output-model/request_cancel_or_completion.output_model';
+import { ServiceRequestStatusUpdateRequestedEvent } from '@application/events/service_request/service_request_status_update.event';
 
 
 @Controller('service-requests')
@@ -77,7 +80,8 @@ export class ServiceRequestController {
     private readonly update_service_status_update_request_interactor: UpdateServiceStatusUpdateRequestInteractor,
     @Inject(ServiceRequestDITokens.QueryServiceRequestCollectionInteractor)
     private readonly query_service_request_collection_interactor: QueryServiceRequestCollectionInteractor
-  ) {}
+  ) {
+  }
 
   @Roles(Role.Requester)
   @Post()
@@ -86,7 +90,7 @@ export class ServiceRequestController {
   @ApiCreatedResponse({ description: 'The service request was successfully created' })
   @ApiBadRequestResponse({ description: 'The new service details were provided in an invalid format' })
   public async createServiceRequest(
-  @HttpUser() http_user: HttpUserPayload,
+    @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateServiceRequestDTO
   ) {
     try {
@@ -107,9 +111,8 @@ export class ServiceRequestController {
   @ApiOkResponse({ description: 'The service request was successfully updated' })
   @ApiNotFoundResponse({ description: 'The service request does not exist' })
   @ApiBadRequestResponse({ description: 'The service request details to be updated are in an invalid format' })
-
   public async updateServiceRequest(
-  @HttpUser() http_user: HttpUserPayload,
+    @HttpUser() http_user: HttpUserPayload,
     @Param('service_request_id') service_request_id: string,
     @Body(new ValidationPipe()) body: UpdateServiceRequestDTO
   ) {
@@ -123,7 +126,8 @@ export class ServiceRequestController {
         EventsNames.UPDATED_SERVICE_REQUEST,
         new ServiceRequestUpdatedEvent({
           applicants: result.applicants,
-          service_request_id: result.service_request_id
+          service_request_id: result.service_request_id,
+          service_request_title: result.title
         })
       );
       return result;
@@ -140,7 +144,7 @@ export class ServiceRequestController {
   @ApiNotFoundResponse({ description: 'The service request does not exist' })
   @ApiForbiddenResponse({ description: 'The service request cannot be deleted while in the current phase' })
   public async deleteServiceRequest(
-  @HttpUser() http_user: HttpUserPayload,
+    @HttpUser() http_user: HttpUserPayload,
     @Param('service_request_id') service_request_id: string
   ) {
     try {
@@ -166,7 +170,7 @@ export class ServiceRequestController {
   @ApiBearerAuth()
   @ApiCreatedResponse({ description: 'The service request application was successfully created' })
   @ApiNotFoundResponse({ description: 'The service request does not exist' })
-  public async createServiceRequestApplication( @HttpUser() http_user: HttpUserPayload, @Body() body ) {
+  public async createServiceRequestApplication(@HttpUser() http_user: HttpUserPayload, @Body() body) {
     try {
       return await this.create_service_request_application_interactor.execute(
         CreateServiceRequestApplicationAdapter.new({
@@ -185,12 +189,12 @@ export class ServiceRequestController {
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiNotFoundResponse({ description: 'The service request does not exist' })
-  public async getServiceRequestApplications( @Param('service_request_id') service_request_id: string ){
+  public async getServiceRequestApplications(@Param('service_request_id') service_request_id: string) {
     try {
       return await this.get_service_request_applications_interactor.execute({
         request_id: service_request_id
       });
-    } catch (e){
+    } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
@@ -203,7 +207,7 @@ export class ServiceRequestController {
   @ApiNotFoundResponse({ description: 'The service request application does not exist' })
   @ApiUnauthorizedResponse({ description: 'The service request phase does not allow the current action' })
   public async updateServiceRequestApplication(
-  @HttpUser() http_user: HttpUserPayload,
+    @HttpUser() http_user: HttpUserPayload,
     @Param('service_request_id') service_request_id: string,
     @Body() body
   ) {
@@ -226,25 +230,28 @@ export class ServiceRequestController {
   @ApiBearerAuth()
   @ApiCreatedResponse({ description: 'The status update request was successfully created' })
   @ApiConflictResponse({ description: 'The status update request already exists' })
-  public async createServiceRequestStatusUpdateRequest( @HttpUser() http_user: HttpUserPayload, @Body() body ) {
+  public async createServiceRequestStatusUpdateRequest(@HttpUser() http_user: HttpUserPayload, @Body() body) {
     try {
-      // const { action, request_date, service_request_id, requester_id } =
-      return await this.create_service_status_update_request_interactor.execute(
+
+      const result: CreateServiceStatusUpdateRequestOutputModel = await this.create_service_status_update_request_interactor.execute(
         CreateServiceStatusUpdateRequestAdapter.new({
           provider_id: http_user.id,
           service_request_id: body.service_request_id,
           update_request_action: body.update_request_action
         })
       );
-      // this.event_emitter.emit(
-      //   EventsNames.STATUS_UPDATE_REQUEST,
-      //   new ServiceRequestStatusUpdateRequestedEvent({
-      //     action,
-      //     requester_id,
-      //     request_date,
-      //     service_request_id
-      //   })
-      // );
+      this.event_emitter.emit(
+        EventsNames.STATUS_UPDATE_REQUEST,
+        new ServiceRequestStatusUpdateRequestedEvent({
+          action: result.action,
+          requester_id: result.requester_id,
+          requester_name: result.requester_name,
+          request_date: result.request_date,
+          service_request_id: result.service_request_id,
+          service_request_title: result.service_request_title,
+        })
+      );
+      return result;
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
