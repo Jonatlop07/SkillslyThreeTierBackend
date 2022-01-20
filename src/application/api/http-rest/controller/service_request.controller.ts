@@ -47,6 +47,8 @@ import { QueryServiceRequestCollectionInteractor } from '@core/domain/service-re
 import { UpdateServiceRequestInteractor } from '@core/domain/service-request/use-case/interactor/update_service_offer.interactor';
 import { QueryServiceRequestCollectionDTO } from '@application/api/http-rest/http-dto/service-request/http_query_service_request_collection.dto';
 import { QueryServiceRequestCollectionAdapter } from '@application/api/http-rest/http-adapter/service-request/query_service_request_collection.adapter';
+import { UpdateServiceStatusUpdateRequestInteractor } from '@core/domain/service-request/use-case/interactor/update_service_status_update_request.interactor';
+import { UpdateServiceStatusUpdateRequestAdapter } from '../http-adapter/service-request/update_service_status_update_request.adapter';
 import CreateServiceStatusUpdateRequestOutputModel
   from '@core/domain/service-request/use-case/output-model/request_cancel_or_completion.output_model';
 import { ServiceRequestStatusUpdateRequestedEvent } from '@application/events/service_request/service_request_status_update.event';
@@ -74,6 +76,8 @@ export class ServiceRequestController {
     private readonly update_service_request_application_interactor: UpdateServiceRequestApplicationInteractor,
     @Inject(ServiceRequestDITokens.CreateServiceStatusUpdateRequestInteractor)
     private readonly create_service_status_update_request_interactor: CreateServiceStatusUpdateRequestInteractor,
+    @Inject(ServiceRequestDITokens.UpdateServiceStatusUpdateRequestInteractor)
+    private readonly update_service_status_update_request_interactor: UpdateServiceStatusUpdateRequestInteractor,
     @Inject(ServiceRequestDITokens.QueryServiceRequestCollectionInteractor)
     private readonly query_service_request_collection_interactor: QueryServiceRequestCollectionInteractor
   ) {
@@ -248,6 +252,26 @@ export class ServiceRequestController {
         })
       );
       return result;
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
+  @Put('status-update')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @ApiCreatedResponse({ description: 'The status update request was successfully updated' })
+  @ApiConflictResponse({ description: 'The status update request does not exists' })
+  public async updateServiceRequestStatusUpdateRequest( @HttpUser() http_user: HttpUserPayload, @Body() body ) {
+    try {
+      return await this.update_service_status_update_request_interactor.execute(
+        UpdateServiceStatusUpdateRequestAdapter.new({
+          requester_id: http_user.id,
+          provider_id: body.provider_id,
+          service_request_id: body.service_request_id,
+          update_service_status_update_request_action: body.update_request_action
+        })
+      );
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
