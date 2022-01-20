@@ -1,0 +1,3 @@
+import CreateServiceStatusUpdateRequestOutputModel from '@core/domain/service-request/use-case/output-model/request_cancel_or_completion.output_model';
+
+export default interface UpdateServiceStatusUpdateRequestOutputModel extends CreateServiceStatusUpdateRequestOutputModel {}

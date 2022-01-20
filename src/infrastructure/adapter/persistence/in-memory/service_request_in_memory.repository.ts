@@ -12,6 +12,7 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
   private current_available_service_request_evaluation_applicant: string;
   private current_service_request_completion_request: string;
   private current_service_request_cancel_request: string;
+  private current_service_request_closed: string;
 
   constructor(private readonly service_requests: Map<string, ServiceRequestDTO>) {
     this.current_available_service_request_id = '1';
@@ -168,6 +169,32 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
   public async createCancelRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
     const {service_request_id, provider_id } = params;
     this.current_service_request_cancel_request = provider_id.concat(service_request_id);
+    return Promise.resolve({
+      service_request_id,
+      provider_id
+    });
+  }
+
+  public async completeRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
+    const {service_request_id, provider_id } = params;
+    if (this.current_service_request_cancel_request) {
+      this.current_service_request_closed = this.current_service_request_cancel_request;
+    } else if (this.current_service_request_completion_request) {
+      this.current_service_request_closed = this.current_service_request_completion_request;
+    }
+    return Promise.resolve({
+      service_request_id,
+      provider_id
+    });
+  }
+
+  public async cancelRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
+    const {service_request_id, provider_id } = params;
+    if (this.current_service_request_cancel_request) {
+      this.current_service_request_cancel_request = '';
+    } else if (this.current_service_request_completion_request) {
+      this.current_service_request_completion_request = '';
+    }
     return Promise.resolve({
       service_request_id,
       provider_id
