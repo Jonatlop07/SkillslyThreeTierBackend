@@ -29,10 +29,12 @@ export class UpdateServiceStatusUpdateRequestService implements UpdateServiceSta
     }
     return {
       service_request_id: updated_request.service_request_id,
+      service_request_title: updated_request.service_request_title,
       provider_id: updated_request.provider_id,
       request_date: updated_request.request_date ? updated_request.request_date : '',
       action: update_service_status_update_request_action,
-      requester_id
+      requester_id: updated_request.requester_id ? updated_request.requester_id : '',
+      requester_name: updated_request.requester_name ? updated_request.requester_name : ''
     };
   }
 }
