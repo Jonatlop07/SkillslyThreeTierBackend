@@ -74,7 +74,7 @@ export class ServiceRequestController {
     @Inject(ServiceRequestDITokens.CreateServiceStatusUpdateRequestInteractor)
     private readonly create_service_status_update_request_interactor: CreateServiceStatusUpdateRequestInteractor,
     @Inject(ServiceRequestDITokens.UpdateServiceStatusUpdateRequestInteractor)
-    private readonly update_service_status_update_request_interactor: UpdateServiceScletatusUpdateRequestInteractor,
+    private readonly update_service_status_update_request_interactor: UpdateServiceStatusUpdateRequestInteractor,
     @Inject(ServiceRequestDITokens.QueryServiceRequestCollectionInteractor)
     private readonly query_service_request_collection_interactor: QueryServiceRequestCollectionInteractor
   ) {}
