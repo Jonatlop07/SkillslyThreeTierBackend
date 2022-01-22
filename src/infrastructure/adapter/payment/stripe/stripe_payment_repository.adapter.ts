@@ -18,7 +18,7 @@ export class StripePaymentRepositoryAdapter implements PaymentRepository {
   public async chargeAmountToCustomer(details: ChargeAmountDTO): Promise<void> {
     const { customer_id, amount, payment_method_id } = details;
     await this.stripe.paymentIntents.create({
-      amount,
+      amount: amount * 100,
       customer: customer_id,
       payment_method: payment_method_id,
       currency: 'COP',

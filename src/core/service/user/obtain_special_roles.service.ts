@@ -24,7 +24,7 @@ export class ObtainSpecialRolesService implements ObtainSpecialRolesInteractor {
   ) {}
 
   public async execute(input: ObtainSpecialRolesInputModel): Promise<ObtainSpecialRolesOutputModel> {
-    const SINGLE_ROLE_ACQUISITION_PRICE = 2000.0;
+    const SINGLE_ROLE_ACQUISITION_PRICE = 5000;
     const {
       user_id, customer_id, current_roles,
       obtain_investor_role, obtain_requester_role,

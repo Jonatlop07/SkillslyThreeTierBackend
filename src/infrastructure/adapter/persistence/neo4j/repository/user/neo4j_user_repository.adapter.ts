@@ -61,6 +61,9 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       ),
       this.user_key
     );
+    if (!found_user) {
+      return null;
+    }
     return {
       ...found_user,
       roles: await this.getRoles(found_user.user_id)
