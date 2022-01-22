@@ -52,6 +52,7 @@ import { UpdateServiceStatusUpdateRequestAdapter } from '../http-adapter/service
 import CreateServiceStatusUpdateRequestOutputModel
   from '@core/domain/service-request/use-case/output-model/request_cancel_or_completion.output_model';
 import { ServiceRequestStatusUpdateRequestedEvent } from '@application/events/service_request/service_request_status_update.event';
+import { GetServiceRequestEvaluationApplicantInteractor } from '@core/domain/service-request/use-case/interactor/service-request-applications/get_evaluation_applicant.interactor';
 
 
 @Controller('service-requests')
@@ -79,7 +80,9 @@ export class ServiceRequestController {
     @Inject(ServiceRequestDITokens.UpdateServiceStatusUpdateRequestInteractor)
     private readonly update_service_status_update_request_interactor: UpdateServiceStatusUpdateRequestInteractor,
     @Inject(ServiceRequestDITokens.QueryServiceRequestCollectionInteractor)
-    private readonly query_service_request_collection_interactor: QueryServiceRequestCollectionInteractor
+    private readonly query_service_request_collection_interactor: QueryServiceRequestCollectionInteractor,
+    @Inject(ServiceRequestDITokens.GetServiceRequestEvaluationApplicantInteractor)
+    private readonly get_service_request_evaluation_applicant_interactor: GetServiceRequestEvaluationApplicantInteractor
   ) {
   }
 
@@ -90,7 +93,7 @@ export class ServiceRequestController {
   @ApiCreatedResponse({ description: 'The service request was successfully created' })
   @ApiBadRequestResponse({ description: 'The new service details were provided in an invalid format' })
   public async createServiceRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateServiceRequestDTO
   ) {
     try {
@@ -112,7 +115,7 @@ export class ServiceRequestController {
   @ApiNotFoundResponse({ description: 'The service request does not exist' })
   @ApiBadRequestResponse({ description: 'The service request details to be updated are in an invalid format' })
   public async updateServiceRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('service_request_id') service_request_id: string,
     @Body(new ValidationPipe()) body: UpdateServiceRequestDTO
   ) {
@@ -144,7 +147,7 @@ export class ServiceRequestController {
   @ApiNotFoundResponse({ description: 'The service request does not exist' })
   @ApiForbiddenResponse({ description: 'The service request cannot be deleted while in the current phase' })
   public async deleteServiceRequest(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('service_request_id') service_request_id: string
   ) {
     try {
@@ -207,7 +210,7 @@ export class ServiceRequestController {
   @ApiNotFoundResponse({ description: 'The service request application does not exist' })
   @ApiUnauthorizedResponse({ description: 'The service request phase does not allow the current action' })
   public async updateServiceRequestApplication(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Param('service_request_id') service_request_id: string,
     @Body() body
   ) {
@@ -282,7 +285,7 @@ export class ServiceRequestController {
   @ApiBearerAuth()
   @ApiOkResponse({ description: 'The service requests were successfully retrieved' })
   public async queryServiceRequests(
-    @HttpUser() http_user: HttpUserPayload,
+  @HttpUser() http_user: HttpUserPayload,
     @Query() parameters: QueryServiceRequestCollectionDTO
   ) {
     try {
@@ -291,6 +294,21 @@ export class ServiceRequestController {
           QueryServiceRequestCollectionAdapter.toInputModel(parameters)
         )
       );
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
+  @Roles(Role.Requester)
+  @Get('applications/evaluated/:service_request_id')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiNotFoundResponse({ description: 'The service request does not exist' })
+  public async getServiceRequestEvaluationApplicant(@Param('service_request_id') service_request_id: string) {
+    try {
+      return await this.get_service_request_evaluation_applicant_interactor.execute({
+        request_id: service_request_id
+      });
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }

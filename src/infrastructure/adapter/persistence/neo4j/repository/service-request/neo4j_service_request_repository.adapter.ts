@@ -15,7 +15,7 @@ import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 
 @Injectable()
 export class ServiceRequestNeo4jRepositoryAdapter
-  implements ServiceRequestRepository {
+implements ServiceRequestRepository {
   private readonly logger: Logger = new Logger(
     ServiceRequestNeo4jRepositoryAdapter.name
   );
@@ -295,6 +295,26 @@ export class ServiceRequestNeo4jRepositoryAdapter
     return result.map((application) => ({
       ...application
     }));
+  }
+
+  async getEvaluationApplicant(request_id: string): Promise<ServiceRequestApplicationDTO> {
+    const get_service_request_evaluated_applicant_query = `
+      MATCH (${this.user_key}:User)
+      -[:${Relationships.APPLICANT_SERVICE_REQUEST_EVALUATION_RELATIONSHIP}]
+      ->(${this.service_request_key}:ServiceRequest { service_request_id:$request_id })
+      RETURN ${this.user_key}, ${this.service_request_key}.service_request_id as request
+    `;
+    const result: QueryResult = await this.neo4j_service.read(
+      get_service_request_evaluated_applicant_query,
+      { request_id }
+    );
+    const applicant = this.neo4j_service.getSingleResultProperties(result, this.user_key);
+    return {
+      applicant_id: applicant.user_id,
+      applicant_email: applicant.email,
+      applicant_name: applicant.name,
+      request_id: this.neo4j_service.getSingleResultProperty(result, 'request')
+    };
   }
 
   async existsRequest(params: UpdateRequestDTO): Promise<boolean> {

@@ -243,4 +243,11 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
         service_requests.push(_service_request);
     return Promise.resolve(service_requests);
   }
+
+  public async getEvaluationApplicant(request_id: string): Promise<ServiceRequestApplicationDTO> {
+    return Promise.resolve({
+      request_id,
+      applicant_id: this.current_available_service_request_evaluation_applicant
+    });
+  }
 }
