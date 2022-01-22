@@ -588,7 +588,6 @@ export class ServiceRequestNeo4jRepositoryAdapter
         user_id
       }
     );
-    this.logger.log(result);
     const service_requests_without_applicants = result.records.map(
       (record): ServiceRequestDTO =>
         ({

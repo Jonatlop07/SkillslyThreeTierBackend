@@ -60,6 +60,14 @@ import CreateUserFollowRequestOutputModel
 import { FollowRequestSentToUserEvent } from '@application/events/user/follow_request_sent_to_user.event';
 import { FollowRequestAcceptedEvent } from '@application/events/user/follow_request_accepted.event';
 import { FollowRequestDeletedEvent } from '@application/events/user/follow_request_deleted.event';
+import { PaymentDITokens } from '@core/domain/payment/di/payment_di_tokens';
+import {
+  CreatePaymentCustomerInteractor
+} from '@core/domain/payment/use-case/interactor/create_payment_customer.interactor';
+import { AddCustomerDetailsInteractor } from '@core/domain/user/use-case/interactor/add_customer_details.interactor';
+import { ObtainSpecialRolesInteractor } from '@core/domain/user/use-case/interactor/obtain_special_roles.interactor';
+import { ObtainSpecialRolesDTO } from '@application/api/http-rest/http-dto/user/http_obtain_special_roles.dto';
+import { ObtainSpecialRolesAdapter } from '@application/api/http-rest/http-adapter/user/obtain_special_roles.adapter';
 
 @Controller('users')
 @ApiTags('user')
@@ -71,12 +79,18 @@ export class UserController {
     private readonly event_emitter: EventEmitter2,
     @Inject(UserDITokens.CreateUserAccountInteractor)
     private readonly create_user_account_interactor: CreateUserAccountInteractor,
+    @Inject(PaymentDITokens.CreatePaymentCustomerInteractor)
+    private readonly create_payment_customer_interactor: CreatePaymentCustomerInteractor,
+    @Inject(UserDITokens.AddCustomerDetailsInteractor)
+    private readonly add_customer_details_interactor: AddCustomerDetailsInteractor,
     @Inject(UserDITokens.UpdateUserAccountInteractor)
     private readonly update_user_account_interactor: UpdateUserAccountInteractor,
     @Inject(UserDITokens.QueryUserAccountInteractor)
     private readonly query_user_account_interactor: QueryUserAccountInteractor,
     @Inject(UserDITokens.DeleteUserAccountInteractor)
     private readonly delete_user_account_interactor: DeleteUserAccountInteractor,
+    @Inject(UserDITokens.ObtainSpecialRolesInteractor)
+    private readonly obtain_special_roles_interactor: ObtainSpecialRolesInteractor,
     @Inject(UserDITokens.SearchUsersInteractor)
     private readonly search_users_interactor: SearchUsersInteractor,
     @Inject(UserDITokens.CreateUserFollowRequestInteractor)
@@ -100,9 +114,18 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   public async createUserAccount(@Body(new ValidationPipe()) create_user_account_details: CreateUserAccountDTO) {
     try {
-      return await this.create_user_account_interactor.execute(
+      const result = await this.create_user_account_interactor.execute(
         await CreateUserAccountAdapter.toInputModel(create_user_account_details)
       );
+      const { customer_id } = await this.create_payment_customer_interactor.execute({
+        name: create_user_account_details.name,
+        email: create_user_account_details.email
+      });
+      await this.add_customer_details_interactor.execute({
+        user_id: result.id,
+        customer_id
+      });
+      return CreateUserAccountAdapter.toResponseDTO(result, customer_id);
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
@@ -163,10 +186,30 @@ export class UserController {
     try {
       return await this.delete_user_account_interactor.execute({ id: user_id });
     } catch (e) {
-      throw new HttpException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        error: 'Internal database error'
-      }, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+  }
+
+  @Post('account/roles')
+  @Roles(Role.User)
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'Special roles have been successfully obtained' })
+  @ApiBadRequestResponse({ description: 'User did not specify any special role to obtain' })
+  @ApiConflictResponse({ description: 'User already has special role or roles' })
+  public async obtainSpecialRoles(
+    @HttpUser() http_user: HttpUserPayload,
+    @Body(new ValidationPipe()) body: ObtainSpecialRolesDTO
+  ) {
+    try {
+      return await this.obtain_special_roles_interactor.execute(
+        ObtainSpecialRolesAdapter.toInputModel(
+          http_user,
+          body
+        )
+      );
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 

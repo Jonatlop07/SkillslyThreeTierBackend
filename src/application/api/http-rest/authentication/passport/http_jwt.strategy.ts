@@ -28,10 +28,12 @@ export class HttpJwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException();
     }
+    const { user_id, customer_id, email, roles } = user;
     return {
-      id: user.user_id,
-      email: user.email,
-      roles: user.roles
+      id: user_id,
+      customer_id,
+      email,
+      roles
     };
   }
 }
