@@ -194,6 +194,7 @@ implements PermanentPostRepository {
       MATCH (${this.user_key}: User { user_id: $user_id })
         -[:${Relationships.USER_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost { privacy: 'public'})
+      WHERE NOT (${this.post_key})-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(:Group)
       RETURN ${this.post_key}, ${this.user_key}.user_id
     `;
     const result = await this.neo4j_service

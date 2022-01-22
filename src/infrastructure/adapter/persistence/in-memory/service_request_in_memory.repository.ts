@@ -12,6 +12,7 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
   private current_available_service_request_evaluation_applicant: string;
   private current_service_request_completion_request: string;
   private current_service_request_cancel_request: string;
+  private current_service_request_closed: string;
 
   constructor(private readonly service_requests: Map<string, ServiceRequestDTO>) {
     this.current_available_service_request_id = '1';
@@ -174,6 +175,32 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
     });
   }
 
+  public async completeRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
+    const {service_request_id, provider_id } = params;
+    if (this.current_service_request_cancel_request) {
+      this.current_service_request_closed = this.current_service_request_cancel_request;
+    } else if (this.current_service_request_completion_request) {
+      this.current_service_request_closed = this.current_service_request_completion_request;
+    }
+    return Promise.resolve({
+      service_request_id,
+      provider_id
+    });
+  }
+
+  public async cancelRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
+    const {service_request_id, provider_id } = params;
+    if (this.current_service_request_cancel_request) {
+      this.current_service_request_cancel_request = '';
+    } else if (this.current_service_request_completion_request) {
+      this.current_service_request_completion_request = '';
+    }
+    return Promise.resolve({
+      service_request_id,
+      provider_id
+    });
+  }
+
   deleteById(id: string): Promise<void> {
     id;
     throw new Error('Method not implemented');
@@ -215,5 +242,12 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
         || _service_request.owner_id === params.owner_id)
         service_requests.push(_service_request);
     return Promise.resolve(service_requests);
+  }
+
+  public async getEvaluationApplicant(request_id: string): Promise<ServiceRequestApplicationDTO> {
+    return Promise.resolve({
+      request_id,
+      applicant_id: this.current_available_service_request_evaluation_applicant
+    });
   }
 }

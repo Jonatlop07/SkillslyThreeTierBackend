@@ -33,6 +33,11 @@ class AlreadyExistingStatusUpdateRequestException extends ServiceRequestExceptio
   message = 'A request to complete or cancel the service already exists';
 }
 
+class NonExistentStatusUpdateRequestException extends ServiceRequestException {
+  code = CoreExceptionCodes.NON_EXISTENT_SERVICE_REQUEST_STATUS_UPDATE_REQUEST;
+  message = 'A request to complete or cancel the service does not exists';
+}
+
 export {
   ServiceRequestException,
   InvalidServiceRequestDetailsFormatException,
@@ -40,5 +45,6 @@ export {
   InvalidPhaseToDeleteServiceRequestException,
   InvalidServiceRequestPhaseOperationException,
   NonExistentServiceRequestApplicationException,
-  AlreadyExistingStatusUpdateRequestException
+  AlreadyExistingStatusUpdateRequestException, 
+  NonExistentStatusUpdateRequestException
 };
