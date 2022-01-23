@@ -11,6 +11,7 @@ import { Role } from '@core/domain/user/entity/type/role.enum';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import { AddCustomerDetailsDTO } from '@core/domain/user/use-case/persistence-dto/add_customer_details.dto';
 import { UpdateUserRolesDTO } from '@core/domain/user/use-case/persistence-dto/update_user_roles.dto';
+import { PartialUserUpdateDTO } from '@core/domain/user/use-case/persistence-dto/partial_user_update.dto';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -123,6 +124,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
           password: user.password,
           name: user.name,
           date_of_birth: user.date_of_birth,
+          is_two_factor_auth_enabled: false,
           created_at: getCurrentDate()
         }
       });
@@ -208,7 +210,6 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       {
         user_id: user.user_id,
         properties: {
-          user_id: user.user_id,
           email: user.email,
           password: user.password,
           name: user.name,
@@ -422,6 +423,25 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     if (investor)
       roles.push(Role.Investor);
     return roles;
+  }
+
+  public async partialUpdate(params: UserQueryModel, updates: PartialUserUpdateDTO): Promise<UserDTO> {
+    const update_user_statement = `
+      MATCH (${this.user_key})
+      WHERE ALL(k in keys($params) WHERE $params[k] = ${this.user_key}[k])
+      SET ${this.user_key} += $properties
+      RETURN ${this.user_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.write(
+      update_user_statement,
+      {
+        params,
+        properties: {
+          ...updates
+        }
+      }
+    );
+    return this.neo4j_service.getSingleResultProperties(result, this.user_key) as UserDTO;
   }
 }
 

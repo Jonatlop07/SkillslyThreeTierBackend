@@ -8,7 +8,7 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
-import { HttpAuthenticationService } from '@application/api/http-rest/authentication/http_authentication.service';
+import { HttpAuthenticationService } from '@application/api/http-rest/authentication/service/http_authentication.service';
 import { HttpLocalAuthenticationGuard } from '@application/api/http-rest/authentication/guard/http_local_authentication.guard';
 import {
   HttpLoggedInUser,
