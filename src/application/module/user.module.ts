@@ -13,6 +13,10 @@ import { UpdateUserFollowRequestService } from '@core/service/user/follow_reques
 import { DeleteUserFollowRequestService } from '@core/service/user/follow_request/delete_user_follow_request.service';
 import { GetUserFollowRequestCollectionService } from '@core/service/user/follow_request/get_user_follow_request_collection.service';
 import { ChatModule } from '@application/module/chat.module';
+import { PaymentModule } from '@application/module/payment.module';
+import { AddCustomerDetailsService } from '@core/service/user/add_customer_details.service';
+import { ObtainSpecialRolesService } from '@core/service/user/obtain_special_roles.service';
+import { PaymentDITokens } from '@core/domain/payment/di/payment_di_tokens';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -25,6 +29,11 @@ const use_case_providers: Array<Provider> = [
   {
     provide: UserDITokens.CreateUserAccountInteractor,
     useFactory: (gateway) => new CreateUserAccountService(gateway),
+    inject: [UserDITokens.UserRepository]
+  },
+  {
+    provide: UserDITokens.AddCustomerDetailsInteractor,
+    useFactory: (gateway => new AddCustomerDetailsService(gateway)),
     inject: [UserDITokens.UserRepository]
   },
   {
@@ -41,6 +50,11 @@ const use_case_providers: Array<Provider> = [
     provide: UserDITokens.DeleteUserAccountInteractor,
     useFactory: (gateway) => new DeleteUserAccountService(gateway),
     inject: [UserDITokens.UserRepository]
+  },
+  {
+    provide: UserDITokens.ObtainSpecialRolesInteractor,
+    useFactory: (payment_gateway, persistence_gateway) => new ObtainSpecialRolesService(payment_gateway, persistence_gateway),
+    inject: [PaymentDITokens.PaymentRepository, UserDITokens.UserRepository]
   },
   {
     provide: UserDITokens.UpdateUserAccountInteractor,
@@ -76,7 +90,8 @@ const use_case_providers: Array<Provider> = [
 
 @Module({
   imports: [
-    ChatModule
+    ChatModule,
+    PaymentModule
   ],
   controllers: [
     UserController

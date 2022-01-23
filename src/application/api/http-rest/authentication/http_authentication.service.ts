@@ -34,6 +34,7 @@ export class HttpAuthenticationService {
     const payload: HttpJwtPayload = { id: user.id };
     return {
       id: user.id,
+      customer_id: user.customer_id,
       email: user.email,
       roles: user.roles,
       access_token: this.jwt_service.sign(payload),

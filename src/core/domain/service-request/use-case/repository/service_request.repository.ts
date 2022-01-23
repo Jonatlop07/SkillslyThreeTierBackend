@@ -7,6 +7,7 @@ import GetServiceRequestApplicationsGateway from '../gateway/service-request-app
 import CreateServiceStatusUpdateRequestGateway from '../gateway/request_cancel_or_completion.gateway';
 import QueryServiceRequestCollectionGateway
   from '@core/domain/service-request/use-case/gateway/query_service_request_collection.gateway';
+import GetServiceRequestEvaluationApplicantGateway from '../gateway/service-request-applications/get_evaluation_applicant.gateway';
 
 export default interface ServiceRequestRepository
   extends CreateServiceRequestGateway,
@@ -16,4 +17,5 @@ export default interface ServiceRequestRepository
   UpdateServiceRequestApplicationGateway,
   GetServiceRequestApplicationsGateway,
   CreateServiceStatusUpdateRequestGateway,
-  QueryServiceRequestCollectionGateway {}
+  QueryServiceRequestCollectionGateway,
+  GetServiceRequestEvaluationApplicantGateway {}

@@ -10,6 +10,8 @@ import { UpdateServiceRequestApplicationService } from '@core/service/service_re
 import { GetServiceRequestApplicationsService } from '@core/service/service_request/service-request-applications/get_applications.service';
 import { CreateServiceStatusUpdateRequestService } from '@core/service/service_request/request_cancel_or_completion.service';
 import { QueryServiceRequestCollectionService } from '@core/service/service_request/query_service_request_collection.service';
+import { UpdateServiceStatusUpdateRequestService } from '@core/service/service_request/update_service_status_update_request.service';
+import { GetServiceRequestEvaluationApplicantService } from '@core/service/service_request/service-request-applications/get_evaluation_applicant.service';
 
 const persistence_providers: Array<Provider> = [
   {
@@ -55,10 +57,20 @@ const use_case_providers: Array<Provider> = [
     inject: [ServiceRequestDITokens.ServiceRequestRepository]
   },
   {
+    provide: ServiceRequestDITokens.UpdateServiceStatusUpdateRequestInteractor,
+    useFactory: (gateway) =>  new UpdateServiceStatusUpdateRequestService(gateway),
+    inject: [ServiceRequestDITokens.ServiceRequestRepository]
+  },
+  {
     provide: ServiceRequestDITokens.QueryServiceRequestCollectionInteractor,
     useFactory: (gateway) =>  new QueryServiceRequestCollectionService(gateway),
     inject: [ServiceRequestDITokens.ServiceRequestRepository]
-  }
+  },
+  {
+    provide: ServiceRequestDITokens.GetServiceRequestEvaluationApplicantInteractor,
+    useFactory: (gateway) =>  new GetServiceRequestEvaluationApplicantService(gateway),
+    inject: [ServiceRequestDITokens.ServiceRequestRepository]
+  },
 ];
 
 @Module({

@@ -2,6 +2,10 @@ export class CoreExceptionCodes {
   public static readonly ACCOUNT_ALREADY_EXISTS = 0;
   public static readonly INVALID_ACCOUNT_DATA_FORMAT = 1;
   public static readonly INVALID_CREDENTIALS = 2;
+  public static readonly NO_SPECIAL_ROLE_TO_OBTAIN = 3;
+  public static readonly USER_ALREADY_HAS_SPECIAL_ROLES = 4;
+  public static readonly USER_ALREADY_HAS_REQUESTER_ROLE = 5;
+  public static readonly USER_ALREADY_HAS_INVESTOR_ROLE = 6;
 
   // User exception codes range form 100 to 199
   public static readonly NON_EXISTENT_USER = 100;
@@ -61,5 +65,7 @@ export class CoreExceptionCodes {
   public static readonly INVALID_PHASE_TO_DELETE_SERVICE_REQUEST = 1202;
   public static readonly NON_EXISTENT_SERVICE_REQUEST_APPLICATION = 1203;
   public static readonly UNAUTHORIZED_SERVICE_REQUEST_APPLICATION_ACTION = 1204;
-  public static readonly SERVICE_REQUEST_STATUS_UPDATE_REQUEST_ALREADY_EXISTS = 1203;
+  public static readonly SERVICE_REQUEST_STATUS_UPDATE_REQUEST_ALREADY_EXISTS = 1205;
+  public static readonly NON_EXISTENT_SERVICE_REQUEST_STATUS_UPDATE_REQUEST = 1206;
+
 }

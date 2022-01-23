@@ -23,10 +23,34 @@ class UserAccountInvalidCredentialsException extends UserAccountException {
   message = 'Provided invalid credentials';
 }
 
+class NoSpecialRoleToObtainException extends UserAccountException {
+  code = CoreExceptionCodes.NO_SPECIAL_ROLE_TO_OBTAIN;
+  message = 'No special roles to obtain were provided';
+}
+
+class UserAlreadyHasSpecialRolesException extends UserAccountException {
+  code = CoreExceptionCodes.USER_ALREADY_HAS_SPECIAL_ROLES;
+  message = 'User is already investor and requester';
+}
+
+class UserAlreadyHasRequesterRoleException extends UserAccountException {
+  code = CoreExceptionCodes.USER_ALREADY_HAS_REQUESTER_ROLE;
+  message = 'User is already requester';
+}
+
+class UserAlreadyHasInvestorRoleException extends UserAccountException {
+  code = CoreExceptionCodes.USER_ALREADY_HAS_INVESTOR_ROLE;
+  message = 'User is already investor';
+}
+
 export {
   UserAccountException,
   UserAccountAlreadyExistsException,
   UserAccountInvalidDataFormatException,
   UserAccountNotFoundException,
-  UserAccountInvalidCredentialsException
+  UserAccountInvalidCredentialsException,
+  NoSpecialRoleToObtainException,
+  UserAlreadyHasSpecialRolesException,
+  UserAlreadyHasRequesterRoleException,
+  UserAlreadyHasInvestorRoleException
 };
