@@ -9,6 +9,8 @@ import { FollowRequestDTO } from '@core/domain/user/use-case/persistence-dto/fol
 import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
 import { Role } from '@core/domain/user/entity/type/role.enum';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import { AddCustomerDetailsDTO } from '@core/domain/user/use-case/persistence-dto/add_customer_details.dto';
+import { UpdateUserRolesDTO } from '@core/domain/user/use-case/persistence-dto/update_user_roles.dto';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -59,6 +61,9 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       ),
       this.user_key
     );
+    if (!found_user) {
+      return null;
+    }
     return {
       ...found_user,
       roles: await this.getRoles(found_user.user_id)
@@ -384,6 +389,39 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       mapped_followers,
       mapped_result_request
     ];
+  }
+
+  public async addCustomerDetails(customer_details: AddCustomerDetailsDTO): Promise<string> {
+    const { user_id, customer_id } = customer_details;
+    const customer_key = 'customer';
+    const make_customer_statement = `
+      MATCH (${this.user_key}: User { user_id: $user_id })
+      SET ${this.user_key}.customer_id = $customer_id
+      RETURN ${this.user_key}.customer_id as ${customer_key}
+    `;
+    return this.neo4j_service.getSingleResultProperty(
+      await this.neo4j_service.write(make_customer_statement, { user_id, customer_id }),
+      customer_key
+    );
+  }
+
+  public async updateUserRoles(user_roles: UpdateUserRolesDTO): Promise<Array<Role>> {
+    const { user_id, requester, investor } = user_roles;
+    const roles: Array<Role> = [];
+    const update_user_roles_statement = `
+      MATCH (${this.user_key}: User { user_id: $user_id })
+      ${requester ? `SET ${this.user_key}: Requester` : '' }
+      ${investor ? `SET ${this.user_key}: Investor` : '' }
+      RETURN ${this.user_key}
+    `;
+    await this.neo4j_service.write(update_user_roles_statement, {
+      user_id
+    });
+    if (requester)
+      roles.push(Role.Requester);
+    if (investor)
+      roles.push(Role.Investor);
+    return roles;
   }
 }
 

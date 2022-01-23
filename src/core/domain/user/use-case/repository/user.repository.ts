@@ -8,9 +8,13 @@ import CreateUserFollowRequestGateway from '@core/domain/user/use-case/gateway/f
 import DeleteUserFollowRequestGateway from '@core/domain/user/use-case/gateway/follow_request/delete_user_follow_request.gateway';
 import UpdateUserFollowRequestGateway from '@core/domain/user/use-case/gateway/follow_request/update_user_follow_request.gateway';
 import GetUserFollowRequestCollectionGateway from '@core/domain/user/use-case/gateway/follow_request/get_user_follow_request.gateway';
+import { AddCustomerDetailsGateway } from '@core/domain/user/use-case/gateway/add_customer_details.gateway';
+import ObtainSpecialRolesPersistenceGateway
+  from '@core/domain/user/use-case/gateway/obtain_special_roles_persistence.gateway';
 
 export default interface UserRepository
   extends CreateUserAccountGateway, ValidateCredentialsGateway,
   UpdateUserAccountGateway, QueryUserAccountGateway, DeleteUserAccountGateway,
-  SearchUsersGateway, CreateUserFollowRequestGateway, UpdateUserFollowRequestGateway, 
-  DeleteUserFollowRequestGateway, GetUserFollowRequestCollectionGateway {}
+  SearchUsersGateway, CreateUserFollowRequestGateway, UpdateUserFollowRequestGateway,
+  DeleteUserFollowRequestGateway, GetUserFollowRequestCollectionGateway,
+  AddCustomerDetailsGateway, ObtainSpecialRolesPersistenceGateway {}

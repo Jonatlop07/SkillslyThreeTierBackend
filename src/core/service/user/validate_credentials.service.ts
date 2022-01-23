@@ -28,6 +28,7 @@ export class ValidateCredentialsService implements ValidateCredentialsInteractor
       throw new UserAccountInvalidCredentialsException();
     return {
       id: resulting_user.user_id,
+      customer_id: resulting_user.customer_id,
       email: resulting_user.email,
       roles: resulting_user.roles
     };

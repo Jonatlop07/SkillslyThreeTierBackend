@@ -5,6 +5,9 @@ import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_mo
 import { FollowRequestDTO } from '@core/domain/user/use-case/persistence-dto/follow_request.dto';
 import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import { AddCustomerDetailsDTO } from '@core/domain/user/use-case/persistence-dto/add_customer_details.dto';
+import { UpdateUserRolesDTO } from '@core/domain/user/use-case/persistence-dto/update_user_roles.dto';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 
 export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
@@ -140,5 +143,19 @@ export class UserInMemoryRepository implements UserRepository {
   public async getUserFollowRequestCollection(id: string): Promise<Array<Array<SearchedUserDTO>>> {
     id;
     return Promise.resolve([[], [], []]);
+  }
+
+  public async addCustomerDetails(customer_details: AddCustomerDetailsDTO): Promise<string> {
+    return Promise.resolve(customer_details.customer_id);
+  }
+
+  public async updateUserRoles(user_roles: UpdateUserRolesDTO): Promise<Array<Role>> {
+    const { requester, investor } = user_roles;
+    const roles: Array<Role> = [];
+    if (requester)
+      roles.push(Role.Requester);
+    if (investor)
+      roles.push(Role.Investor);
+    return Promise.resolve(roles);
   }
 }

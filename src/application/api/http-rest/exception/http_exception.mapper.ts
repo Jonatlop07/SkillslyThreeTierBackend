@@ -38,7 +38,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.INVALID_TEMP_POST_REFERENCE_TYPE,
         CoreExceptionCodes.INVALID_GROUP_INFO_FORMAT,
         CoreExceptionCodes.INVALID_GROUP_CONVERSATION_DETAILS_FORMAT,
-        CoreExceptionCodes.INVALID_SERVICE_OFFER_DETAILS_FORMAT
+        CoreExceptionCodes.INVALID_SERVICE_OFFER_DETAILS_FORMAT,
+        CoreExceptionCodes.NO_SPECIAL_ROLE_TO_OBTAIN,
       ]),
       status_code: HttpStatus.BAD_REQUEST,
     },
@@ -48,7 +49,10 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.PRIVATE_CONVERSATION_ALREADY_EXISTS_CHAT,
         CoreExceptionCodes.USER_FOLLOW_REQUEST_ALREADY_EXISTS,
         CoreExceptionCodes.JOIN_REQUEST_ALREADY_EXISTS,
-        CoreExceptionCodes.SERVICE_REQUEST_STATUS_UPDATE_REQUEST_ALREADY_EXISTS
+        CoreExceptionCodes.SERVICE_REQUEST_STATUS_UPDATE_REQUEST_ALREADY_EXISTS,
+        CoreExceptionCodes.USER_ALREADY_HAS_SPECIAL_ROLES,
+        CoreExceptionCodes.USER_ALREADY_HAS_REQUESTER_ROLE,
+        CoreExceptionCodes.USER_ALREADY_HAS_INVESTOR_ROLE
       ]),
       status_code: HttpStatus.CONFLICT,
     },
