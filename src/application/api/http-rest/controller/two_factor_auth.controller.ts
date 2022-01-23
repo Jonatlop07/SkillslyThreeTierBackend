@@ -39,7 +39,7 @@ export class TwoFactorAuthController {
     return this.two_factor_auth_service.pipeQRCodeStream(response, otp_auth_url);
   }
 
-  @Post('turn-on-qr')
+  @Post('turn-on')
   @HttpCode(HttpStatus.OK)
   @HttpAuth()
   @ApiBearerAuth()
