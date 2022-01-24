@@ -9,7 +9,6 @@ export class ProjectInMemoryRepository implements ProjectRepository {
   }
 
   public create(project: ProjectDTO): Promise<ProjectDTO> {
-    console.log(project);
     const new_project: ProjectDTO = {
       project_id: this.currently_available_project_id,
       user_id: project.user_id,

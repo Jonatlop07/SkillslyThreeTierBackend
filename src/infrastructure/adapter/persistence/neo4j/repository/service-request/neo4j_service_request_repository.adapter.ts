@@ -421,8 +421,6 @@ implements ServiceRequestRepository {
       requester_id,
       date
     });
-    console.log(this.neo4j_service.getSingleResultProperty(result, this.service_request_key))
-    console.log(this.neo4j_service.getSingleResultProperty(result, this.provider_key))
     const requester: UserDTO = this.neo4j_service.getSingleResultProperties(result, this.requester_key);
     return {
       service_request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
