@@ -3,6 +3,7 @@ import { PermanentPostContentElement } from '@core/domain/post/entity/type/perma
 export default interface QueryPermanentPostOutputModel {
   post_id: string;
   user_id: string;
+  user_name?: string;
   content: Array<PermanentPostContentElement>;
   privacy?: string
 }

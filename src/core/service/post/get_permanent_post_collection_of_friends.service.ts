@@ -25,6 +25,7 @@ export class GetPermanentPostCollectionOfFriendsService implements GetPermanentP
       throw new UserAccountNotFoundException();
     }
     const posts = await this.post_gateway.getPostsOfFriends(user_id, {limit, offset});
+
     return { posts: posts };
   }
 }

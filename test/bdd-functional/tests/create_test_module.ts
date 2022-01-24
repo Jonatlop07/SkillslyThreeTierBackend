@@ -59,6 +59,7 @@ import { QueryGroupCollectionService } from '@core/service/group/query_group_col
 import { GetJoinRequestsService } from '@core/service/group/join-request/get_join_requests.service';
 import { QueryGroupUsersService } from '@core/service/group/query_group_users.service';
 import { CreateProjectService } from '@core/service/project/create_project.service';
+import { QueryProjectService } from '@core/service/project/query_project.service';
 import { AddMembersToGroupConversationService } from '@core/service/chat/add_members_to_group_conversation.service';
 import { UpdateGroupConversationDetailsService } from '@core/service/chat/update_group_conversation_details.service';
 import { DeleteChatGroupConversationService } from '@core/service/chat/delete_chat_group_conversation.service';
@@ -307,6 +308,11 @@ export async function createTestModule() {
         provide: ProjectDITokens.CreateProjectInteractor,
         useFactory: (gateway) => new CreateProjectService(gateway),
         inject: [ProjectDITokens.ProjectRepository],
+      },
+      {
+        provide: ProjectDITokens.QueryProjectInteractor,
+        useFactory: (gateway, user_gateway) => new QueryProjectService(gateway, user_gateway),
+        inject: [ProjectDITokens.ProjectRepository, UserDITokens.UserRepository],
       },
       {
         provide: GroupDITokens.CreateGroupInteractor,
