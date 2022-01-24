@@ -61,7 +61,6 @@ export class CommentController {
           status: HttpStatus.BAD_REQUEST,
         }, HttpStatus.BAD_REQUEST);
       } else {
-        console.log(e);
         throw new HttpException({
           status: HttpStatus.BAD_GATEWAY,
           error: 'Internal error',
@@ -98,7 +97,6 @@ export class CommentController {
           error: 'There are no comments in this post',
         }, HttpStatus.NOT_FOUND);
       } else {
-        console.log(e);
         throw new HttpException({
           status: HttpStatus.BAD_GATEWAY,
           error: 'Internal error',
