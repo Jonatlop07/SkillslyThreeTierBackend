@@ -25,7 +25,8 @@ export class GetServiceRequestEvaluationApplicantService implements GetServiceRe
     return {
       applicant_email: applicant.applicant_email,
       applicant_name: applicant.applicant_name,
-      applicant_id: applicant.applicant_id
+      applicant_id: applicant.applicant_id, 
+      request_phase: applicant.request_phase || ''
     };
   }
 }

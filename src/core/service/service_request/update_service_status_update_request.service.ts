@@ -23,9 +23,9 @@ export class UpdateServiceStatusUpdateRequestService implements UpdateServiceSta
       throw new NonExistentStatusUpdateRequestException();
     }
     if (update_service_status_update_request_action === 'complete'){
-      updated_request = await this.gateway.completeRequest({ provider_id,  service_request_id });
+      updated_request = await this.gateway.completeRequest({ provider_id,  service_request_id, requester_id });
     } else if (update_service_status_update_request_action === 'cancel'){
-      updated_request = await this.gateway.cancelRequest({ provider_id, service_request_id });
+      updated_request = await this.gateway.cancelRequest({ provider_id, service_request_id, requester_id });
     }
     return {
       service_request_id: updated_request.service_request_id,

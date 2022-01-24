@@ -260,7 +260,7 @@ export class ServiceRequestController {
     }
   }
 
-  @Put('status-update')
+  @Post('status-update-requester')
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth()
   @ApiCreatedResponse({ description: 'The status update request was successfully updated' })
