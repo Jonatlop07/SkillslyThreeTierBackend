@@ -248,7 +248,7 @@ export class ServiceRequestController {
         new ServiceRequestStatusUpdateRequestedEvent({
           action: result.action,
           requester_id: result.requester_id,
-          requester_name: result.requester_name,
+          provider_name: result.provider_name,
           request_date: result.request_date,
           service_request_id: result.service_request_id,
           service_request_title: result.service_request_title,

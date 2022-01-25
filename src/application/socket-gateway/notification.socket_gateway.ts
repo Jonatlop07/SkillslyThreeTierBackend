@@ -118,7 +118,7 @@ export class NotificationSocketGateway implements OnGatewayInit, OnGatewayConnec
       service_request_id: payload.service_request_id,
       service_request_title: payload.service_request_title,
       update_action: payload.action,
-      requester_name: payload.requester_name,
+      provider_name: payload.provider_name,
       request_date: payload.request_date
     });
   }

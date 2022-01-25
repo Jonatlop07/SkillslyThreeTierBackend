@@ -3,7 +3,7 @@ interface ServiceRequestUpdateRequestPayload {
   service_request_id: string;
   service_request_title: string;
   requester_id: string;
-  requester_name: string;
+  provider_name: string;
   request_date: string
 }
 
@@ -12,7 +12,7 @@ export class ServiceRequestStatusUpdateRequestedEvent {
   public readonly service_request_id: string;
   public readonly service_request_title: string;
   public readonly requester_id: string;
-  public readonly requester_name: string;
+  public readonly provider_name: string;
   public readonly request_date: string;
 
   constructor(private readonly payload: ServiceRequestUpdateRequestPayload) {
@@ -20,7 +20,7 @@ export class ServiceRequestStatusUpdateRequestedEvent {
     this.service_request_id = payload.service_request_id;
     this.service_request_title = payload.service_request_title;
     this.requester_id = payload.requester_id;
-    this.requester_name = payload.requester_name;
+    this.provider_name = payload.provider_name;
     this.request_date = payload.request_date;
   }
 }
