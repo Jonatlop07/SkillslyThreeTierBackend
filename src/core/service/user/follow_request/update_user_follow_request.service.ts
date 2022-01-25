@@ -47,6 +47,6 @@ export class UpdateUserFollowRequestService implements UpdateUserFollowRequestIn
     } else {
       await this.user_gateway.rejectUserFollowRequest(follow_request);
     }
-    return requesting_user as UserDetailsOutputModel;
+    return user_to_follow as UserDetailsOutputModel;
   }
 }
