@@ -3,5 +3,5 @@ export enum ServiceRequestPhase {
   Evaluation = 'Evaluation',
   Execution = 'Execution',
   Finished = 'Finished',
-  Canceled = 'Canceled'
+  Canceled = 'Canceled',
 }
