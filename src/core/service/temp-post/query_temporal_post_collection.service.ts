@@ -29,9 +29,6 @@ export class QueryTemporalPostCollectionService implements QueryTemporalPostColl
       throw new NonExistentUserException();
     }
     const posts = await this.temp_post_gateway.findAll({ user_id: owner_id });
-    if (posts.length === 0) {
-      throw new NotFoundUserTemporalPostsException();
-    }
     return posts;
   }
 
