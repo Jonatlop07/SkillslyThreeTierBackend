@@ -6,7 +6,7 @@ import GetProfileInputModel from '@core/domain/profile/use-case/input-model/get_
 export class GetProfileAdapter implements GetProfileInputModel {
   @Expose()
   @IsString()
-  public user_email: string;
+  public user_id: string;
 
   public static new(payload: GetProfileInputModel): GetProfileAdapter {
     return plainToClass(GetProfileAdapter, payload);

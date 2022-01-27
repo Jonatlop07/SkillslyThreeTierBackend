@@ -26,7 +26,8 @@ export class CreateProfileAdapter implements CreateProfileInputModel {
 
   @Expose()
   @IsString()
-  public user_email: string;
+  public user_id: string;
+
 
   public static new(payload: CreateProfileInputModel): CreateProfileAdapter {
     return plainToClass(CreateProfileAdapter, payload);

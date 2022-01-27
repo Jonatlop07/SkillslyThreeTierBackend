@@ -1,3 +1,3 @@
 export default interface GetProfileInputModel {
-  user_email: string;
+  user_id: string;
 }

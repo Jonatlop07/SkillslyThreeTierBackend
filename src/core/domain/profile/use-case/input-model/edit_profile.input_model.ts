@@ -1,4 +1,4 @@
-export default interface CreateProfileInputModel {
+export default interface EditProfileInputModel {
   resume: string,
   knowledge: Array<string>,
   talents: Array<string>,
