@@ -3,6 +3,7 @@ import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/
 import ProfileRepository from '@core/domain/profile/use-case/repository/profile.repository';
 import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
+import GetProfileInputModel from '@core/domain/profile/use-case/input-model/get_profile.input_model';
 
 @Injectable()
 export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
@@ -35,15 +36,23 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     return this.neo4j_service.getSingleResultProperties(created_profile, profile_key) as ProfileDTO;
   }
 
-  public async get(user_id: string): Promise<ProfileDTO> {
+  public async findOne(input: GetProfileInputModel): Promise<ProfileDTO> {
     const user_key = 'user';
     const profile_key = 'profile';
     const get_profile_query = ` 
       MATCH (${user_key} :User { user_id : $user_id })--(${profile_key}: Profile)
       RETURN ${profile_key}
     `;
-    const get_profile_result = await this.neo4j_service.read(get_profile_query, { user_id: user_id });
+    const get_profile_result = await this.neo4j_service.read(get_profile_query, { user_id: input.user_id });
     return this.neo4j_service.getSingleResultProperties(get_profile_result, profile_key);
+  }
+
+  public findAll() {
+    return null;
+  }
+
+  public findAllWithRelation() {
+    return null;
   }
 
   public async partialUpdate(old_profile: ProfileDTO, new_profile: Partial<ProfileDTO>): Promise<ProfileDTO> {
