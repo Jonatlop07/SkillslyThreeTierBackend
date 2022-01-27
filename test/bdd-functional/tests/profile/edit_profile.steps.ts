@@ -5,7 +5,6 @@ import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profil
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { ProfileDITokens } from '@core/domain/profile/di/profile_di_tokens';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
-import CreateProfileOutputModel from '@core/domain/profile/use-case/output-model/create_profile.output_model';
 import { CreateProfileInteractor } from '@core/domain/profile/use-case/interactor/create_profile.interactor';
 import { EditProfileInteractor } from '@core/domain/profile/use-case/interactor/edit_profile.interactor';
 import {
@@ -13,6 +12,7 @@ import {
   ProfileException,
 } from '@core/domain/profile/use-case/exception/profile.exception';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
+import EditProfileOutputModel from '@core/domain/profile/use-case/output-model/edit_profile.output_model';
 
 const feature = loadFeature('test/bdd-functional/features/profile/edit_profile.feature');
 
@@ -28,7 +28,7 @@ defineFeature(feature, (test) => {
 
   let user_id: string;
   let profile_new_content: Partial<ProfileDTO>;
-  let output: CreateProfileOutputModel;
+  let output: EditProfileOutputModel;
   let exception: ProfileException;
 
   let create_user_account_interactor: CreateUserAccountInteractor;

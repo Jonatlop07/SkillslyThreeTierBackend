@@ -1,5 +1,11 @@
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Post, Put } from '@nestjs/common';
-import { ApiBearerAuth, ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiTags
+} from '@nestjs/swagger';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
 import { CreateProfileDto } from '@application/api/http-rest/http-dto/profile/http_create_profile.dto';
 import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
@@ -11,13 +17,10 @@ import { CreateProfileInteractor } from '@core/domain/profile/use-case/interacto
 import { GetProfileInteractor } from '@core/domain/profile/use-case/interactor/get_profile.interactor';
 import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
 import { EditProfileInteractor } from '@core/domain/profile/use-case/interactor/edit_profile.interactor';
-import {
-  ProfileInvalidDataFormatException,
-  ProfileNotFoundException,
-} from '@core/domain/profile/use-case/exception/profile.exception';
 import { Role } from '@core/domain/user/entity/type/role.enum';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
+import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
 
 @Controller('users/profile')
 @Roles(Role.User)
@@ -37,6 +40,7 @@ export class ProfileController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth()
+  @ApiBadRequestResponse({ description: 'The details of the profile were provided in an invalid format' })
   public async createProfile(@Body(new ValidationPipe()) body: CreateProfileDto, @HttpUser() http_user: HttpUserPayload) {
     try {
       return await this.create_profile_interactor.execute(CreateProfileAdapter.new({
@@ -48,45 +52,28 @@ export class ProfileController {
         user_id: http_user.id,
       }));
     } catch (e) {
-      if (e instanceof ProfileInvalidDataFormatException) {
-        throw new HttpException({
-          status: HttpStatus.BAD_REQUEST,
-        }, HttpStatus.BAD_REQUEST);
-      } else {
-        throw new HttpException({
-          status: HttpStatus.BAD_GATEWAY,
-          error: 'Internal error',
-        }, HttpStatus.BAD_GATEWAY);
-      }
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
+  @ApiNotFoundResponse({ description: 'The user does not have a profile' })
   public async getProfile(@HttpUser() http_user: HttpUserPayload): Promise<ProfileDTO> {
     try {
       return await this.get_profile_interactor.execute(GetProfileAdapter.new({
         user_id: http_user.id,
       }));
     } catch (e) {
-      if (e instanceof ProfileNotFoundException) {
-        throw new HttpException({
-          status: HttpStatus.NOT_FOUND,
-          error: 'Profile asociated to given profile doesn\'t exist',
-        }, HttpStatus.NOT_FOUND);
-      } else {
-        throw new HttpException({
-          status: HttpStatus.BAD_GATEWAY,
-          error: 'Internal error',
-        }, HttpStatus.BAD_GATEWAY);
-      }
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
   @Put()
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiBearerAuth()
+  @ApiBadRequestResponse({ description: 'No new changes to the profile were provided' })
   public async editProfile(@Body(new ValidationPipe()) body: Partial<CreateProfileDto>, @HttpUser() http_user: HttpUserPayload) {
     if (Object.keys(body).length === 0) {
       throw new HttpException({
@@ -97,17 +84,7 @@ export class ProfileController {
     try {
       return await this.edit_profile_interactor.execute(EditProfileAdapter.new({ ...body, user_id: http_user.id }));
     } catch (e) {
-      if (e instanceof ProfileNotFoundException) {
-        throw new HttpException({
-          status: HttpStatus.NOT_FOUND,
-          error: 'Profile asociated to given user doesn\'t exist',
-        }, HttpStatus.NOT_FOUND);
-      } else {
-        throw new HttpException({
-          status: HttpStatus.BAD_GATEWAY,
-          error: 'Internal error',
-        }, HttpStatus.BAD_GATEWAY);
-      }
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 }

@@ -1,6 +1,6 @@
 import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
 import ProfileRepository from '@core/domain/profile/use-case/repository/profile.repository';
-import GetProfileInputModel from '@core/domain/profile/use-case/input-model/get_profile.input_model';
+import { ProfileQueryModel } from '@core/domain/profile/use-case/query-model/profile.query_model';
 
 export class ProfileInMemoryRepository implements ProfileRepository {
   private currently_available_profile_id: string;
@@ -24,7 +24,7 @@ export class ProfileInMemoryRepository implements ProfileRepository {
     return Promise.resolve(new_profile);
   }
 
-  async findOne(input: GetProfileInputModel): Promise<ProfileDTO> {
+  async findOne(input: ProfileQueryModel): Promise<ProfileDTO> {
     let query: ProfileDTO = undefined;
     this.profiles.forEach((profile) => {
       if (profile.user_id === input.user_id) {

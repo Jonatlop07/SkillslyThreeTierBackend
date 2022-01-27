@@ -3,7 +3,7 @@ import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/
 import ProfileRepository from '@core/domain/profile/use-case/repository/profile.repository';
 import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
-import GetProfileInputModel from '@core/domain/profile/use-case/input-model/get_profile.input_model';
+import { ProfileQueryModel } from '@core/domain/profile/use-case/query-model/profile.query_model';
 
 @Injectable()
 export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
@@ -36,7 +36,7 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     return this.neo4j_service.getSingleResultProperties(created_profile, profile_key) as ProfileDTO;
   }
 
-  public async findOne(input: GetProfileInputModel): Promise<ProfileDTO> {
+  public async findOne(input: ProfileQueryModel): Promise<ProfileDTO> {
     const user_key = 'user';
     const profile_key = 'profile';
     const get_profile_query = ` 

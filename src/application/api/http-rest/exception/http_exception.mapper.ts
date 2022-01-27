@@ -14,6 +14,7 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.NON_EXISTENT_USER,
         CoreExceptionCodes.NON_EXISTENT_POST,
         CoreExceptionCodes.NON_EXISTENT_POST_OWNER,
+        CoreExceptionCodes.NOT_FOUND_PROFILE,
         CoreExceptionCodes.NOT_FOUND_TEMP_POST,
         CoreExceptionCodes.NOT_FOUND_USER_TEMP_POSTS,
         CoreExceptionCodes.NOT_FOUND_FRIENDS_TEMP_POSTS,
@@ -40,6 +41,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.INVALID_GROUP_CONVERSATION_DETAILS_FORMAT,
         CoreExceptionCodes.INVALID_SERVICE_OFFER_DETAILS_FORMAT,
         CoreExceptionCodes.NO_SPECIAL_ROLE_TO_OBTAIN,
+        CoreExceptionCodes.INVALID_FORMAT_PROFILE_DATA,
+        CoreExceptionCodes.PROFILE_EMPTY_DETAILS
       ]),
       status_code: HttpStatus.BAD_REQUEST,
     },

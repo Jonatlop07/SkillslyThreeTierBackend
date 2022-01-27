@@ -17,7 +17,9 @@ export class GetProfileService implements GetProfileInteractor {
   }
 
   async execute(input: GetProfileInputModel): Promise<GetProfileOutputModel> {
-    const profile: ProfileDTO = await this.gateway.findOne(input);
+    const profile: ProfileDTO = await this.gateway.findOne({
+      user_id: input.user_id
+    });
     if (!profile) {
       throw new ProfileNotFoundException();
     }
