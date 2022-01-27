@@ -16,17 +16,17 @@ export class ProfileInMemoryRepository implements ProfileRepository {
       talents: profile.talents,
       knowledge: profile.knowledge,
       resume: profile.resume,
-      user_email: profile.user_email,
+      user_id: profile.user_id,
     };
     this.profiles.set(this.currently_available_profile_id, new_profile);
     this.currently_available_profile_id = `${Number(this.currently_available_profile_id) + 1}`;
     return Promise.resolve(new_profile);
   }
 
-  async get(userEmail: string): Promise<ProfileDTO> {
+  async get(userID: string): Promise<ProfileDTO> {
     let query: ProfileDTO = undefined;
     this.profiles.forEach((profile) => {
-      if (profile.user_email === userEmail) {
+      if (profile.user_id === userID) {
         query = profile;
       }
     });

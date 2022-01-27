@@ -9,8 +9,7 @@ import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interact
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { CreateProfileInteractor } from '@core/domain/profile/use-case/interactor/create_profile.interactor';
 import {
-  ProfileException,
-  ProfileInvalidDataFormatException
+  ProfileException, ProfileInvalidDataFormatException,
 } from '@core/domain/profile/use-case/exception/profile.exception';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
@@ -24,7 +23,7 @@ defineFeature(feature, (test) => {
   let talents: Array<string>;
   let activities: Array<string>;
   let interests: Array<string>;
-  let user_email: string;
+  let user_id: string;
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_profile_interactor: CreateProfileInteractor;
@@ -33,8 +32,8 @@ defineFeature(feature, (test) => {
 
   const createUserAccount = async (input: CreateUserAccountInputModel) => {
     try {
-      const { email } = await create_user_account_interactor.execute(input);
-      user_email = email;
+      const { id } = await create_user_account_interactor.execute(input);
+      user_id = id;
     } catch (e) {
       // console.log(e);
     }
@@ -74,7 +73,7 @@ defineFeature(feature, (test) => {
           talents,
           activities,
           interests,
-          user_email,
+          user_id,
         },
       );
     });
@@ -98,7 +97,7 @@ defineFeature(feature, (test) => {
         talents,
         activities,
         interests,
-        user_email,
+        user_id,
       };
       expect(output).toBeDefined();
       expect(output).toEqual(expected_output);

@@ -37,7 +37,7 @@ export class ProfileController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth()
-  public async createProfile(@Body(new ValidationPipe()) body: CreateProfileDto) {
+  public async createProfile(@Body(new ValidationPipe()) body: CreateProfileDto, @HttpUser() http_user: HttpUserPayload) {
     try {
       return await this.create_profile_interactor.execute(CreateProfileAdapter.new({
         resume: body.resume,
@@ -45,7 +45,7 @@ export class ProfileController {
         activities: body.activities,
         knowledge: body.knowledge,
         talents: body.talents,
-        user_email: body.user_email,
+        user_id: http_user.id,
       }));
     } catch (e) {
       if (e instanceof ProfileInvalidDataFormatException) {
@@ -65,15 +65,9 @@ export class ProfileController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   public async getProfile(@HttpUser() http_user: HttpUserPayload): Promise<ProfileDTO> {
-    // if (Object.keys(queryParams).length === 0) {
-    //   throw new HttpException({
-    //     status: HttpStatus.BAD_REQUEST,
-    //     error: 'Query data required',
-    //   }, HttpStatus.BAD_REQUEST);
-    // }
     try {
       return await this.get_profile_interactor.execute(GetProfileAdapter.new({
-        user_email: http_user.email,
+        user_id: http_user.id,
       }));
     } catch (e) {
       if (e instanceof ProfileNotFoundException) {
@@ -93,20 +87,15 @@ export class ProfileController {
   @Put()
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiBearerAuth()
-  public async editProfile(@Body(new ValidationPipe()) body: Partial<CreateProfileDto>) {
+  public async editProfile(@Body(new ValidationPipe()) body: Partial<CreateProfileDto>, @HttpUser() http_user: HttpUserPayload) {
     if (Object.keys(body).length === 0) {
       throw new HttpException({
         status: HttpStatus.BAD_REQUEST,
         error: 'Request cannot be empty',
       }, HttpStatus.BAD_REQUEST);
-    } else if (Object.keys(body).length === 1 && Object.keys(body)[0] === 'user_email') {
-      throw new HttpException({
-        status: HttpStatus.BAD_REQUEST,
-        error: 'You must provide profile data to edit',
-      }, HttpStatus.BAD_REQUEST);
     }
     try {
-      return await this.edit_profile_interactor.execute(EditProfileAdapter.new({ ...body }));
+      return await this.edit_profile_interactor.execute(EditProfileAdapter.new({ ...body, user_id: http_user.id }));
     } catch (e) {
       if (e instanceof ProfileNotFoundException) {
         throw new HttpException({

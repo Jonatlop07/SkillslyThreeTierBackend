@@ -19,11 +19,11 @@ export class EditProfileService implements EditProfileInteractor {
     if (Object.keys(input).length === 0) {
       throw new ProfileEditEmptyInputException();
     }
-    const oldProfile = await this.getProfileInteractor.execute({ user_email: input.user_email });
+    const oldProfile = await this.getProfileInteractor.execute({ user_id: input.user_id });
     const result = await this.gateway.partialUpdate(oldProfile, input);
     return Promise.resolve({
       resume: result.resume,
-      user_email: result.user_email,
+      user_id: result.user_id,
       interests: result.interests,
       activities: result.activities,
       talents: result.talents,

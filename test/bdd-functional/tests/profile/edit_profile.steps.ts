@@ -10,7 +10,7 @@ import { CreateProfileInteractor } from '@core/domain/profile/use-case/interacto
 import { EditProfileInteractor } from '@core/domain/profile/use-case/interactor/edit_profile.interactor';
 import {
   ProfileEditEmptyInputException,
-  ProfileException
+  ProfileException,
 } from '@core/domain/profile/use-case/exception/profile.exception';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
@@ -26,7 +26,7 @@ defineFeature(feature, (test) => {
   const user_mock6: CreateUserAccountInputModel = createUserMock('newuser_124@test.com');
   const user_mock7: CreateUserAccountInputModel = createUserMock('newuse_1234@test.com');
 
-  let user_email: string;
+  let user_id: string;
   let profile_new_content: Partial<ProfileDTO>;
   let output: CreateProfileOutputModel;
   let exception: ProfileException;
@@ -37,8 +37,8 @@ defineFeature(feature, (test) => {
 
   const createUserAccount = async (input: CreateUserAccountInputModel) => {
     try {
-      const { email } = await create_user_account_interactor.execute(input);
-      user_email = email;
+      const { id } = await create_user_account_interactor.execute(input);
+      user_id = id;
     } catch (e) {
       console.log(e);
     }
@@ -58,7 +58,7 @@ defineFeature(feature, (test) => {
         interests: profile_content_table[0]['interests'].split(','),
         talents: profile_content_table[0]['talents'].split(','),
         activities: profile_content_table[0]['activities'].split(','),
-        user_email,
+        user_id,
       });
     });
   };
@@ -72,7 +72,7 @@ defineFeature(feature, (test) => {
         }
       });
       if (Object.keys(profile_new_content).length !== 0) {
-        profile_new_content.user_email = user_email;
+        profile_new_content.user_id = user_id;
       }
     });
   };

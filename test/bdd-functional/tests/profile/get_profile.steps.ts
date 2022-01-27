@@ -17,7 +17,7 @@ defineFeature(feature, (test) => {
 
   const user_mock_2: CreateUserAccountInputModel = createUserMock('newuser_1234@test.com');
 
-  let user_email: string;
+  let user_id: string;
 
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_profile_interactor: CreateProfileInteractor;
@@ -28,8 +28,8 @@ defineFeature(feature, (test) => {
 
   const createUserAccount = async (input: CreateUserAccountInputModel) => {
     try {
-      const { email } = await create_user_account_interactor.execute(input);
-      user_email = email;
+      const { id } = await create_user_account_interactor.execute(input);
+      user_id = id;
     } catch (e) {
       console.log(e);
     }
@@ -49,7 +49,7 @@ defineFeature(feature, (test) => {
         interests: profile_content_table[0]['interests'].split(','),
         talents: profile_content_table[0]['talents'].split(','),
         activities: profile_content_table[0]['activities'].split(','),
-        user_email,
+        user_id
       });
     });
   };
@@ -58,7 +58,7 @@ defineFeature(feature, (test) => {
     when('user tries to get user profile', async () => {
       try {
         output = await get_profile_interactor.execute({
-          user_email,
+          user_id,
         });
       } catch (e) {
         exception = e;

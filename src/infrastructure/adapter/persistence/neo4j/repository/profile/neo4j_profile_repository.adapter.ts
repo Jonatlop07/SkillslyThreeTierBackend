@@ -13,7 +13,7 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     const user_key = 'user';
     const profile_key = 'profile';
     const create_profile_query = `
-      MATCH (${user_key}: User { email: $email })
+      MATCH (${user_key}: User { user_id: $user_id })
       CREATE (${profile_key}: Profile)
       SET ${profile_key} += $properties, ${profile_key}.profile_id = randomUUID()
       CREATE (${user_key})-[:${Relationships.USER_PROFILE_RELATIONSHIP}]->(${profile_key})
@@ -22,7 +22,7 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     const created_profile = await this.neo4j_service.write(
       create_profile_query,
       {
-        email: profile.user_email,
+        user_id: profile.user_id,
         properties: {
           resume: profile.resume,
           knowledge: profile.knowledge,
@@ -35,18 +35,19 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     return this.neo4j_service.getSingleResultProperties(created_profile, profile_key) as ProfileDTO;
   }
 
-  public async get(user_email: string): Promise<ProfileDTO> {
+  public async get(user_id: string): Promise<ProfileDTO> {
     const user_key = 'user';
     const profile_key = 'profile';
     const get_profile_query = ` 
-      MATCH (${user_key} { email : $email })--(${profile_key}: Profile)
+      MATCH (${user_key} :User { user_id : $user_id })--(${profile_key}: Profile)
       RETURN ${profile_key}
     `;
-    const get_profile_result = await this.neo4j_service.read(get_profile_query, { email: user_email });
+    const get_profile_result = await this.neo4j_service.read(get_profile_query, { user_id: user_id });
     return this.neo4j_service.getSingleResultProperties(get_profile_result, profile_key);
   }
 
   public async partialUpdate(old_profile: ProfileDTO, new_profile: Partial<ProfileDTO>): Promise<ProfileDTO> {
+    delete new_profile.user_id;
     const profile_key = 'profile';
     const edit_profile_data_query = `
       MATCH (${profile_key}: Profile { profile_id: $profile_id })

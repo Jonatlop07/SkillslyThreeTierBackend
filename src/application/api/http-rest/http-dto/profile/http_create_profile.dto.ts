@@ -7,5 +7,4 @@ export class CreateProfileDto {
   @IsArray() @ApiModelProperty() talents: Array<string>;
   @IsArray() @ApiModelProperty() activities: Array<string>;
   @IsArray() @ApiModelProperty() interests: Array<string>;
-  @IsString() @ApiModelProperty() user_email: string;
 }

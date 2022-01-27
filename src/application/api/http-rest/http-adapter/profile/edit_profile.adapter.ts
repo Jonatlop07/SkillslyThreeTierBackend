@@ -26,7 +26,7 @@ export class EditProfileAdapter implements Partial<CreateProfileInputModel> {
 
   @Expose()
   @IsString()
-  public user_email: string;
+  public user_id: string;
 
   public static new(payload: Partial<CreateProfileInputModel>): EditProfileAdapter {
     return plainToClass(EditProfileAdapter, payload);
