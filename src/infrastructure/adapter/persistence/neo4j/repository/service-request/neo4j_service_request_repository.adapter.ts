@@ -302,7 +302,7 @@ implements ServiceRequestRepository {
       MATCH (${this.user_key}:User)
       -[r:${Relationships.APPLICANT_SERVICE_REQUEST_EVALUATION_RELATIONSHIP}|${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP}|${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$request_id })
-      RETURN ${this.user_key}, ${this.service_request_key}.service_request_id as request, r
+      RETURN ${this.user_key}, ${this.service_request_key}.service_request_id as request, r.type as ${this.relationship}
     `;
     const result: QueryResult = await this.neo4j_service.read(
       get_service_request_evaluated_applicant_query,
@@ -314,7 +314,7 @@ implements ServiceRequestRepository {
       applicant_email: applicant.email,
       applicant_name: applicant.name,
       request_id: this.neo4j_service.getSingleResultProperty(result, 'request'), 
-      request_phase: this.neo4j_service.getSingleResultProperty(result,'r').type
+      request_phase: this.neo4j_service.getSingleResultProperty(result, this.relationship)
     };
   }
 
@@ -397,8 +397,14 @@ implements ServiceRequestRepository {
     };
   }
 
-  public async completeRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
+  public async completeRequest(params: UpdateRequestDTO,  requestedUpdateStatusIsCompletion: boolean): Promise<UpdateRequestDTO> {
     const { service_request_id, provider_id, requester_id } = params;
+    let phase: string; 
+    if (requestedUpdateStatusIsCompletion) {
+      phase= ServiceRequestPhase.Finished;
+    } else {
+      phase = ServiceRequestPhase.Canceled;
+    }
     const date = getCurrentDate();
     const complete_service_request_query = `
     MATCH (${this.user_key}:User { user_id:$provider_id })
@@ -419,7 +425,8 @@ implements ServiceRequestRepository {
       provider_id,
       service_request_id,
       requester_id,
-      date
+      date,
+      phase
     });
     const requester: UserDTO = this.neo4j_service.getSingleResultProperties(result, this.requester_key);
     return {
@@ -476,7 +483,10 @@ implements ServiceRequestRepository {
       OPTIONAL MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
         <-[:${Relationships.APPLICANT_SERVICE_REQUEST_RELATIONSHIP}]
         -(${this.users_key}: User)
-      RETURN ${this.service_request_key}, ${this.requester_key}, ${this.user_key}, ${this.users_key}
+      OPTIONAL MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
+        <-[r:${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP}|${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP}]
+        -(${this.user_key}:User)
+      RETURN ${this.service_request_key}, ${this.requester_key}, ${this.user_key}, ${this.users_key}, r.type as ${this.relationship}
     `;
     const result: QueryResult = await this.neo4j_service.read(
       find_service_request_query,
@@ -503,6 +513,10 @@ implements ServiceRequestRepository {
       applicants: this.neo4j_service.getMultipleResultByKey(
         result,
         this.users_key
+      ),
+      requested_status_update: this.neo4j_service.getSingleResultProperties(
+        result, 
+        this.relationship
       )
     };
   }

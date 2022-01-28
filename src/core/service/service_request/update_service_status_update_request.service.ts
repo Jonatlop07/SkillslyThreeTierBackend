@@ -18,13 +18,20 @@ export class UpdateServiceStatusUpdateRequestService implements UpdateServiceSta
   public async execute(input: UpdateServiceStatusUpdateRequestInputModel): Promise<UpdateServiceStatusUpdateRequestOutputModel> {
     const { provider_id, requester_id, service_request_id, update_service_status_update_request_action } = input;
     let updated_request: UpdateRequestDTO;
-    const existing_request = await this.gateway.existsRequest({ provider_id, service_request_id });
+    let requestedUpdateStatusIsCompletion: boolean; 
+    const existing_request = await this.gateway.findOne({ service_request_id, owner_id:requester_id });
     if (!existing_request){
       throw new NonExistentStatusUpdateRequestException();
+    } else {
+      if (existing_request.requested_status_update == 'REQUESTS_COMPLETION') {
+        requestedUpdateStatusIsCompletion = true; 
+      } else {
+        requestedUpdateStatusIsCompletion = false; 
+      }
     }
-    if (update_service_status_update_request_action === 'complete'){
-      updated_request = await this.gateway.completeRequest({ provider_id,  service_request_id, requester_id });
-    } else if (update_service_status_update_request_action === 'cancel'){
+    if (update_service_status_update_request_action == 'complete'){
+      updated_request = await this.gateway.completeRequest({ provider_id,  service_request_id, requester_id }, requestedUpdateStatusIsCompletion);
+    } else if (update_service_status_update_request_action == 'cancel'){
       updated_request = await this.gateway.cancelRequest({ provider_id, service_request_id, requester_id });
     }
     return {

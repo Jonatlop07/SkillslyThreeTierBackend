@@ -14,4 +14,5 @@ export interface ServiceRequestDTO {
   created_at?: string;
   updated_at?: string
   provider_requested_status_update?: boolean;
+  requested_status_update?: string;
 }
