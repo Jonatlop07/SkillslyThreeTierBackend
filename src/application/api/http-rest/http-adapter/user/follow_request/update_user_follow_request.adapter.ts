@@ -9,7 +9,7 @@ export class UpdateUserFollowRequestAdapter implements UpdateUserFollowRequestIn
 
   @Expose()
   @IsString()
-  public user_to_follow_id: string;
+  public user_that_requests_id: string;
 
   @Expose()
   @IsString()
