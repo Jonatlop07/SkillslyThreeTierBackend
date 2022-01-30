@@ -68,6 +68,7 @@ import { AddCustomerDetailsInteractor } from '@core/domain/user/use-case/interac
 import { ObtainSpecialRolesInteractor } from '@core/domain/user/use-case/interactor/obtain_special_roles.interactor';
 import { ObtainSpecialRolesDTO } from '@application/api/http-rest/http-dto/user/http_obtain_special_roles.dto';
 import { ObtainSpecialRolesAdapter } from '@application/api/http-rest/http-adapter/user/obtain_special_roles.adapter';
+import { FollowRequestRejectedEvent } from '@application/events/user/follow_request_rejected.event';
 
 @Controller('users')
 @ApiTags('user')
@@ -294,14 +295,14 @@ export class UserController {
   @ApiBearerAuth()
   public async updateUserFollowRequest(
   @HttpUser() http_user: HttpUserPayload,
-    @Param('user_to_follow_id') user_to_follow_id: string,
+    @Param('user_that_requests_id') user_that_requests_id: string,
     @Body('accept') accept: boolean
   ) {
     try {
       const result = await this.update_user_follow_request_interactor.execute(
         UpdateUserFollowRequestAdapter.new({
-          user_id: user_to_follow_id,
-          user_to_follow_id: http_user.id,
+          user_id: http_user.id,
+          user_that_requests_id,
           accept
         })
       );
@@ -309,17 +310,24 @@ export class UserController {
         this.event_emitter.emit(
           EventsNames.FOLLOW_REQUEST_ACCEPTED,
           new FollowRequestAcceptedEvent({
-            user_to_follow_id,
-            user_id: result.user_id,
+            user_that_requests_id,
+            user_that_accepts_id: result.user_id,
             user_name: result.name,
             user_email: result.email
           })
         );
         return await this.create_private_chat_conversation_interactor.execute({
           user_id: http_user.id,
-          partner_id: user_to_follow_id
+          partner_id: user_that_requests_id
         });
       }
+      this.event_emitter.emit(
+        EventsNames.FOLLOW_REQUEST_REJECTED,
+        new FollowRequestRejectedEvent({
+          user_to_notify_id: user_that_requests_id,
+          user_id: result.user_id
+        })
+      );
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
@@ -349,7 +357,7 @@ export class UserController {
       this.event_emitter.emit(
         EventsNames.FOLLOW_REQUEST_DELETED,
         new FollowRequestDeletedEvent({
-          user_to_follow_id,
+          user_to_notify_id: user_to_follow_id,
           user_id: result.user_id
         })
       );

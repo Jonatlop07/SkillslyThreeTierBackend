@@ -18,7 +18,7 @@ export class CreateProfileService implements CreateProfileInteractor {
 
   async execute(input: CreateProfileInputModel): Promise<CreateProfileOutputModel> {
     for (const key in input) {
-      if (key !== 'resume' && key !== 'user_email') {
+      if (key !== 'resume' && key !== 'user_id') {
         input[key].forEach((element) => {
           if (!isValidMember(element)) {
             throw new ProfileInvalidDataFormatException();
@@ -32,7 +32,7 @@ export class CreateProfileService implements CreateProfileInteractor {
       activities: input['activities'],
       interests: input['interests'],
       knowledge: input['knowledge'],
-      user_email: input['user_email'],
+      user_id: input['user_id'],
     });
 
     return Promise.resolve({
@@ -41,7 +41,7 @@ export class CreateProfileService implements CreateProfileInteractor {
       talents: createdProfile.talents,
       activities: createdProfile.activities,
       interests: createdProfile.interests,
-      user_email: createdProfile.user_email
+      user_id: createdProfile.user_id,
     });
   }
 }

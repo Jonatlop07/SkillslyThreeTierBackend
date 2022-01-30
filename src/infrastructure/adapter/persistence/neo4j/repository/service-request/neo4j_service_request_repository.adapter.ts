@@ -300,20 +300,24 @@ implements ServiceRequestRepository {
   async getEvaluationApplicant(request_id: string): Promise<ServiceRequestApplicationDTO> {
     const get_service_request_evaluated_applicant_query = `
       MATCH (${this.user_key}:User)
-      -[:${Relationships.APPLICANT_SERVICE_REQUEST_EVALUATION_RELATIONSHIP}]
+      -[r:${Relationships.APPLICANT_SERVICE_REQUEST_EVALUATION_RELATIONSHIP}|${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP}|${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP}]
       ->(${this.service_request_key}:ServiceRequest { service_request_id:$request_id })
-      RETURN ${this.user_key}, ${this.service_request_key}.service_request_id as request
+      RETURN ${this.user_key}, ${this.service_request_key}.service_request_id as request, r
     `;
     const result: QueryResult = await this.neo4j_service.read(
       get_service_request_evaluated_applicant_query,
       { request_id }
     );
     const applicant = this.neo4j_service.getSingleResultProperties(result, this.user_key);
+    if (!applicant){
+      return null;
+    }
     return {
       applicant_id: applicant.user_id,
       applicant_email: applicant.email,
       applicant_name: applicant.name,
-      request_id: this.neo4j_service.getSingleResultProperty(result, 'request')
+      request_id: this.neo4j_service.getSingleResultProperty(result, 'request'), 
+      request_phase: this.neo4j_service.getSingleResultProperty(result, 'r').type
     };
   }
 
@@ -345,7 +349,7 @@ implements ServiceRequestRepository {
       CREATE (${this.user_key})
       -[r:${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP} { request_date:$date }]
       ->(${this.service_request_key})
-      RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key},
+      RETURN ${this.user_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key},
        ${this.requester_key}, ${this.service_request_key}.title as ${this.service_request_title_key}
     `;
     const result = await this.neo4j_service.write(create_complete_service_request_query, {
@@ -353,14 +357,16 @@ implements ServiceRequestRepository {
       service_request_id,
       date
     });
+
+    const provider = this.neo4j_service.getSingleResultProperties(result, this.user_key);
     const requester: UserDTO = this.neo4j_service.getSingleResultProperties(result, this.requester_key);
     return {
       service_request_id: this.neo4j_service.getSingleResultProperty(result, this.service_request_key),
       service_request_title: this.neo4j_service.getSingleResultProperty(result, this.service_request_title_key),
-      provider_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
+      provider_id: provider.user_id,
       request_date: date,
       requester_id: requester.user_id,
-      requester_name: requester.name
+      provider_name: provider.name
     };
   }
 
@@ -397,26 +403,29 @@ implements ServiceRequestRepository {
   }
 
   public async completeRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
-    const { service_request_id, provider_id } = params;
+    const { service_request_id, provider_id, requester_id } = params;
     const date = getCurrentDate();
     const complete_service_request_query = `
     MATCH (${this.user_key}:User { user_id:$provider_id })
-    -[r:${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP}|${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP} { request_date:$date }]
+    -[r:${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP}|${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP}|${Relationships.SERVICE_PROVIDER_SERVICE_REQUEST_RELATIONSHIP}]
     ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id }), 
-    (${this.requester_key}: Requester)
+    (${this.requester_key}: Requester { user_id:$requester_id })
     -[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
     ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id })
+    SET ${this.service_request_key}.phase = $phase
     DELETE r
     CREATE (${this.user_key})
-    -[r:${Relationships.SERVICE_REQUEST_CLOSED_RELATIONSHIP} { request_date:$date }]
+    -[:${Relationships.SERVICE_REQUEST_CLOSED_RELATIONSHIP} { request_date:$date }]
     ->(${this.service_request_key})
     RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key}, 
-    ${this.service_request_key}.title as ${this.service_request_title_key}
+    ${this.service_request_key}.title as ${this.service_request_title_key}, ${this.requester_key}
     `;
     const result = await this.neo4j_service.write(complete_service_request_query, {
       provider_id,
       service_request_id,
-      date
+      requester_id,
+      date,
+      phase: ServiceRequestPhase.Finished
     });
     const requester: UserDTO = this.neo4j_service.getSingleResultProperties(result, this.requester_key);
     return {
@@ -425,27 +434,28 @@ implements ServiceRequestRepository {
       provider_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
       request_date: date,
       requester_id: requester.user_id,
-      requester_name: requester.name
+      requester_name: requester.name,
     };
   }
 
   public async cancelRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
-    const { service_request_id, provider_id } = params;
+    const { service_request_id, provider_id, requester_id } = params;
     const date = getCurrentDate();
     const cancel_service_request_query = `
     MATCH (${this.user_key}:User { user_id:$provider_id })
-    -[r:${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP}|${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP} { request_date:$date }]
+    -[r:${Relationships.SERVICE_REQUEST_CANCEL_REQUESTED_RELATIONSHIP}|${Relationships.SERVICE_REQUEST_COMPLETION_REQUESTED_RELATIONSHIP}]
     ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id }), 
-    (${this.requester_key}: Requester)
+    (${this.requester_key}: Requester { user_id:$requester_id })
     -[:${Relationships.REQUESTER_SERVICE_REQUEST_RELATIONSHIP}]
     ->(${this.service_request_key}:ServiceRequest { service_request_id:$service_request_id })
     DELETE r
     RETURN ${this.user_key}.user_id as ${this.provider_key}, ${this.service_request_key}.service_request_id as ${this.service_request_key},
-    ${this.service_request_key}.title as ${this.service_request_title_key}
+    ${this.service_request_key}.title as ${this.service_request_title_key}, ${this.requester_key}
     `;
     const result = await this.neo4j_service.write(cancel_service_request_query, {
       provider_id,
       service_request_id,
+      requester_id,
       date
     });
     const requester: UserDTO = this.neo4j_service.getSingleResultProperties(result, this.requester_key);

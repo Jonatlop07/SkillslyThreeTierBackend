@@ -51,6 +51,7 @@ implements PermanentPostRepository {
       create_post_statement,
       {
         user_id: post.user_id,
+        user_name: post.user_name,
         group_id: group_id,
         properties: {
           content: post_with_content_as_json.content,
@@ -69,6 +70,7 @@ implements PermanentPostRepository {
         return JSON.parse(content_element);
       }),
       user_id: post.user_id,
+      user_name: post.user_name,
       created_at: created_post.created_at,
       privacy: created_post.privacy,
     };
@@ -106,7 +108,7 @@ implements PermanentPostRepository {
     };
   }
 
-  public async share(post: PermanentPostQueryModel) {
+  public async share(post: PermanentPostQueryModel): Promise<void> {
     const share_permanent_post_query = `
       MATCH (${this.user_key}: User { user_id: $user_id })
       MATCH (${this.post_key}: PermanentPost { post_id: $post_id })
@@ -116,7 +118,6 @@ implements PermanentPostRepository {
       user_id: post.user_id,
       post_id: post.post_id,
     });
-    return {};
   }
 
   public async findOne(
@@ -124,11 +125,12 @@ implements PermanentPostRepository {
   ): Promise<PermanentPostDTO> {
     const { post_id } = params;
     const user_id_key = 'user_id';
+    const user_name_key = 'name';
     const find_post_query = `
       MATCH (${this.user_key}: User)
         -[:${Relationships.USER_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost { post_id: $post_id })
-      RETURN ${this.post_key}, ${this.user_key}.user_id AS ${user_id_key}
+      RETURN ${this.post_key}, ${this.user_key}.user_id AS ${user_id_key}, ${this.user_key}.name AS ${user_name_key}
     `;
     const result: QueryResult = await this.neo4j_service.read(find_post_query, {
       post_id,
@@ -137,11 +139,14 @@ implements PermanentPostRepository {
       result,
       this.post_key,
     );
+    if (!found_post)
+      return null;
     return {
       post_id: found_post.post_id,
       content: found_post.content.map((content_element) =>
         JSON.parse(content_element),
       ),
+      user_name: this.neo4j_service.getSingleResultProperty(result, user_name_key),
       user_id: this.neo4j_service.getSingleResultProperty(result, user_id_key),
       privacy: found_post.privacy,
     };
@@ -156,11 +161,11 @@ implements PermanentPostRepository {
         -[:${Relationships.USER_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost)
       WHERE NOT (${this.post_key})-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(:Group)
-      RETURN ${this.post_key}, ${this.user_key}.user_id
+      RETURN ${this.post_key}, ${this.user_key}.user_id, ${this.user_key}.name
     `;
     const result = await this.neo4j_service
       .read(find_post_collection_query, {
-        user_id,
+        user_id
       })
       .then((result: QueryResult) =>
         result.records.map((record: any) => {
@@ -169,6 +174,7 @@ implements PermanentPostRepository {
             created_at: record._fields[0].properties.created_at,
             post_id: record._fields[0].properties.post_id,
             user_id: record._fields[1],
+            user_name: record._fields[2],
             content: record._fields[0].properties.content,
           };
         }),
@@ -195,7 +201,7 @@ implements PermanentPostRepository {
         -[:${Relationships.USER_POST_RELATIONSHIP}]
         ->(${this.post_key}: PermanentPost { privacy: 'public'})
       WHERE NOT (${this.post_key})-[:${Relationships.GROUP_POST_RELATIONSHIP}]->(:Group)
-      RETURN ${this.post_key}, ${this.user_key}.user_id
+      RETURN ${this.post_key}, ${this.user_key}.user_id, ${this.user_key}.name
     `;
     const result = await this.neo4j_service
       .read(find_public_posts_collection_query, { user_id })
@@ -206,11 +212,12 @@ implements PermanentPostRepository {
             created_at: record._fields[0].properties.created_at,
             post_id: record._fields[0].properties.post_id,
             user_id: record._fields[1],
+            user_name: record._fields[2],
             content: record._fields[0].properties.content,
           };
         }),
       );
-
+    console.log(result);
     return result.map((post) => ({
       ...post,
       content: post.content.map((content_element) =>
@@ -227,6 +234,7 @@ implements PermanentPostRepository {
     const offset = pagination.offset || 0;
     const result_key = 'result';
     const friend_key = 'friend';
+    this.logger.log(id);
     const get_friends_collection_query = `
       MATCH (${this.user_key}: User { user_id: $id })
       -[:${Relationships.USER_FOLLOW_RELATIONSHIP}]
@@ -251,7 +259,8 @@ implements PermanentPostRepository {
         created_at: ${this.post_key}.created_at,
         post_id: ${this.post_key}.post_id,
         content: ${this.post_key}.content,
-        user_id: ${friend_key}.user_id
+        user_id: ${friend_key}.user_id,
+        user_name: ${friend_key}.name
       } AS ${result_key}
       RETURN DISTINCT ${result_key}
       ORDER BY ${result_key}.created_at DESC
@@ -262,7 +271,7 @@ implements PermanentPostRepository {
       .read(get_posts_of_friends_collection_query, { friends_ids })
       .then((result: QueryResult) =>
         result.records.map((record: any) => {
-          const { privacy, created_at, post_id, content, user_id } =
+          const { privacy, created_at, post_id, content, user_id, user_name } =
             record._fields[0];
           return {
             privacy,
@@ -270,6 +279,7 @@ implements PermanentPostRepository {
             post_id,
             content,
             user_id,
+            user_name,
           };
         }),
       );

@@ -19,6 +19,11 @@ export class CoreExceptionCodes {
   public static readonly NON_EXISTENT_POST = 201;
   public static readonly NON_EXISTENT_POST_OWNER = 202;
 
+  // Profile exception codes range from 300 to 399
+  public static readonly INVALID_FORMAT_PROFILE_DATA = 300;
+  public static readonly PROFILE_EMPTY_DETAILS = 301;
+  public static readonly NOT_FOUND_PROFILE = 302;
+
   // Chat exception codes range from 500 to 599
   public static readonly NON_EXISTENT_CONVERSATION_CHAT = 500;
   public static readonly NO_MEMBERS_IN_CONVERSATION_CHAT = 501;

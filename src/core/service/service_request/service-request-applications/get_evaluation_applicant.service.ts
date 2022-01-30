@@ -22,10 +22,14 @@ export class GetServiceRequestEvaluationApplicantService implements GetServiceRe
       throw new NonExistentServiceRequestException();
     }
     const applicant = await this.gateway.getEvaluationApplicant(request_id);
+    if (!applicant){
+      return null;
+    }
     return {
       applicant_email: applicant.applicant_email,
       applicant_name: applicant.applicant_name,
-      applicant_id: applicant.applicant_id
+      applicant_id: applicant.applicant_id, 
+      request_phase: applicant.request_phase 
     };
   }
 }

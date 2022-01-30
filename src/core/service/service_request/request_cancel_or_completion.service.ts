@@ -35,7 +35,7 @@ export class CreateServiceStatusUpdateRequestService implements CreateServiceSta
       request_date: created_request.request_date ? created_request.request_date : '',
       action: update_request_action,
       requester_id: created_request.requester_id ? created_request.requester_id : '',
-      requester_name: created_request.requester_name ? created_request.requester_name : ''
+      provider_name: created_request.provider_name ? created_request.provider_name : ''
     };
   }
 }

@@ -1,5 +1,8 @@
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import { NonExistentPermanentPostException, NonExistentUserException } from '@core/domain/post/use-case/exception/permanent_post.exception';
+import {
+  NonExistentPermanentPostException,
+  NonExistentUserException
+} from '@core/domain/post/use-case/exception/permanent_post.exception';
 import { SharePermanentPostGateway } from '@core/domain/post/use-case/gateway/share_permanent_post.gateway';
 import SharePermanentPostInputModel from '@core/domain/post/use-case/input-model/share_permanent_post.input_model';
 import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
@@ -8,7 +11,7 @@ import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import ExistsUsersGateway from '@core/domain/user/use-case/gateway/exists_user.gateway';
 import { Inject, Logger } from '@nestjs/common';
 
-export class SharePermanentPostService implements SharePermanentPostInteractor{
+export class SharePermanentPostService implements SharePermanentPostInteractor {
   private readonly logger: Logger = new Logger();
 
   constructor(
@@ -16,18 +19,22 @@ export class SharePermanentPostService implements SharePermanentPostInteractor{
     private readonly post_gateway: SharePermanentPostGateway,
     @Inject(UserDITokens.UserRepository)
     private readonly user_gateway: ExistsUsersGateway
-  ) {}
+  ) {
+  }
 
   async execute(input: SharePermanentPostInputModel): Promise<SharePermanentPostOutputModel> {
-    const existsUser = await this.user_gateway.existsById(input.user_id);
-    if (!existsUser){
+    const exists_user = await this.user_gateway.existsById(input.user_id);
+    if (!exists_user) {
       throw new NonExistentUserException();
     }
-    const existsPost = await this.post_gateway.existsById(input.post_id);
-    if (!existsPost){
-      throw new NonExistentPermanentPostException(); 
+    const post = await this.post_gateway.findOne({ post_id: input.post_id });
+    if (!post) {
+      throw new NonExistentPermanentPostException();
     }
-    const result = await this.post_gateway.share({user_id:input.user_id, post_id: input.post_id});
-    return result as SharePermanentPostOutputModel; 
+    await this.post_gateway.share({ user_id: input.user_id, post_id: input.post_id });
+    return {
+      post_id: post.post_id,
+      post_owner_id: post.user_id,
+    };
   }
 }

@@ -25,16 +25,16 @@ export class UpdateUserFollowRequestService implements UpdateUserFollowRequestIn
   }
 
   public async execute(input: UpdateUserFollowRequestInputModel): Promise<UpdateUserFollowRequestOutputModel> {
-    const { user_id, user_to_follow_id, accept } = input;
-    const requesting_user = await this.user_gateway.findOne({ user_id });
+    const { user_id, user_that_requests_id, accept } = input;
+    const requesting_user = await this.user_gateway.findOne({ user_id: user_that_requests_id });
     if (!requesting_user)
       throw new UserAccountNotFoundException();
-    const user_to_follow = await this.user_gateway.findOne({ user_id: user_to_follow_id });
+    const user_to_follow = await this.user_gateway.findOne({ user_id });
     if (!user_to_follow)
       throw new UserAccountNotFoundException();
     const follow_request: FollowRequestDTO = {
-      user_id,
-      user_to_follow_id
+      user_id: user_that_requests_id,
+      user_to_follow_id: user_id
     };
     const exists_user_follow_request = await this.user_gateway.existsUserFollowRequest(follow_request);
     if (!exists_user_follow_request)
@@ -47,6 +47,6 @@ export class UpdateUserFollowRequestService implements UpdateUserFollowRequestIn
     } else {
       await this.user_gateway.rejectUserFollowRequest(follow_request);
     }
-    return requesting_user as UserDetailsOutputModel;
+    return user_to_follow as UserDetailsOutputModel;
   }
 }

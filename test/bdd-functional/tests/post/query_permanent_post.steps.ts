@@ -362,6 +362,7 @@ defineFeature(feature, (test) => {
           content: created_post.content,
           user_id: created_post.user_id,
         };
+
         expect(output).toBeDefined();
         expect(output.content).toEqual(expected_output.content);
       });
