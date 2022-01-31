@@ -21,13 +21,18 @@ export class DeleteChatGroupConversationService implements DeleteChatGroupConver
   public async execute(input: DeleteChatGroupConversationInputModel)
     : Promise<DeleteChatGroupConversationOutputModel> {
     const { user_id, conversation_id } = input;
-    if (!await this.gateway.existsById(conversation_id))
+    const conversation_to_delete = await this.gateway.findOne( { conversation_id });
+    if (!conversation_to_delete)
       throw new NonExistentConversationChatException();
     if (!await this.gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();
     if (!await this.gateway.isAdministratorOfTheGroupConversation(user_id, conversation_id))
       throw new UserDoesNotHavePermissionsInConversationChatException();
     await this.gateway.deleteById(conversation_id);
-    return {};
+    return {
+      conversation_id: conversation_to_delete.conversation_id,
+      conversation_members: conversation_to_delete.conversation_members
+        .map((member) => member.member_id)
+    };
   }
 }

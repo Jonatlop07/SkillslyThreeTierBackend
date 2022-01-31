@@ -108,7 +108,7 @@ implements PermanentPostRepository {
     };
   }
 
-  public async share(post: PermanentPostQueryModel) {
+  public async share(post: PermanentPostQueryModel): Promise<void> {
     const share_permanent_post_query = `
       MATCH (${this.user_key}: User { user_id: $user_id })
       MATCH (${this.post_key}: PermanentPost { post_id: $post_id })
@@ -118,7 +118,6 @@ implements PermanentPostRepository {
       user_id: post.user_id,
       post_id: post.post_id,
     });
-    return {};
   }
 
   public async findOne(
@@ -140,12 +139,14 @@ implements PermanentPostRepository {
       result,
       this.post_key,
     );
+    if (!found_post)
+      return null;
     return {
       post_id: found_post.post_id,
       content: found_post.content.map((content_element) =>
         JSON.parse(content_element),
       ),
-      user_name: this.neo4j_service.getSingleResultProperty(result,user_name_key),
+      user_name: this.neo4j_service.getSingleResultProperty(result, user_name_key),
       user_id: this.neo4j_service.getSingleResultProperty(result, user_id_key),
       privacy: found_post.privacy,
     };
@@ -233,6 +234,7 @@ implements PermanentPostRepository {
     const offset = pagination.offset || 0;
     const result_key = 'result';
     const friend_key = 'friend';
+    this.logger.log(id);
     const get_friends_collection_query = `
       MATCH (${this.user_key}: User { user_id: $id })
       -[:${Relationships.USER_FOLLOW_RELATIONSHIP}]
