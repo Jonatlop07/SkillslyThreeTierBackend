@@ -26,6 +26,7 @@ export class CreateCommentInPermanentPostService implements CreateCommentInPerma
     });
 
     return Promise.resolve({
+      commentID: createdComment['comment_id'],
       comment: createdComment['comment'],
       timestamp: createdComment['timestamp'],
       postID: createdComment['postID'],

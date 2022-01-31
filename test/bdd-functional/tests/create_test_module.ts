@@ -97,6 +97,8 @@ import { CreateServiceStatusUpdateRequestService } from '@core/service/service_r
 import { QueryServiceRequestCollectionService } from '@core/service/service_request/query_service_request_collection.service';
 import { UpdateServiceStatusUpdateRequestService } from '@core/service/service_request/update_service_status_update_request.service';
 import { GetServiceRequestEvaluationApplicantService } from '@core/service/service_request/service-request-applications/get_evaluation_applicant.service';
+import { CreateCommentInCommentService } from '@core/service/comment/create_comment_in_comment.service';
+import { CommentInCommentInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/comment_in_comment.repository';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -234,6 +236,11 @@ export async function createTestModule() {
         provide: CommentDITokens.CreateCommentInPermanentPostInteractor,
         useFactory: (gateway) => new CreateCommentInPermanentPostService(gateway),
         inject: [CommentDITokens.CommentRepository],
+      },
+      {
+        provide: CommentDITokens.CreateCommentInCommentInteractor,
+        useFactory: (gateway) => new CreateCommentInCommentService(gateway),
+        inject: [CommentDITokens.CommentInCommentRepository],
       },
       {
         provide: CommentDITokens.GetCommentsInPermamentPostInteractor,
@@ -507,6 +514,10 @@ export async function createTestModule() {
       {
         provide: CommentDITokens.CommentRepository,
         useFactory: () => new CommentInMemoryRepository(new Map()),
+      },
+      {
+        provide: CommentDITokens.CommentInCommentRepository,
+        useFactory: () => new CommentInCommentInMemoryRepository(new Map()),
       },
       {
         provide: ChatDITokens.ChatConversationRepository,

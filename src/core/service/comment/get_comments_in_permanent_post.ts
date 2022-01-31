@@ -18,8 +18,8 @@ export class GetCommentsInPermanentPostService implements GetCommentsInPermanent
   constructor(@Inject(CommentDITokens.CommentRepository) private readonly gateway: GetCommentInPermanentPostGateway) {
   }
 
-  async execute(input: undefined | GetCommentsInPermanentPostInputModel): Promise<Array<CreateCommentInPermanentPostOutputModel> | Array<GetCommentsInPermanentPostOutputModel>> {
-    const comments = await this.gateway.get(input);
+  async execute(input: GetCommentsInPermanentPostInputModel): Promise<Array<CreateCommentInPermanentPostOutputModel> | Array<GetCommentsInPermanentPostOutputModel>> {
+    const comments = await this.gateway.findAll(input);
 
     if (comments.length == 0) {
       throw new ThereAreNoCommentsException();
@@ -31,6 +31,7 @@ export class GetCommentsInPermanentPostService implements GetCommentsInPermanent
       let result: CreateCommentInPermanentPostOutputModel | GetCommentsInPermanentPostOutputModel;
       if (isGetCommentsInPermanentPostOutputModel(comment)) {
         result = {
+          id: comment['id'],
           comment: comment['comment'],
           timestamp: comment['timestamp'],
           email: comment['email'],
@@ -38,6 +39,7 @@ export class GetCommentsInPermanentPostService implements GetCommentsInPermanent
         };
       } else {
         result = {
+          commentID: comment['id'],
           postID: comment['postID'],
           comment: comment['comment'],
           userID: comment['userID'],

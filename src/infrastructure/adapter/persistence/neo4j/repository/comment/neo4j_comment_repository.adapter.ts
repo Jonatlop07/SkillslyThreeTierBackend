@@ -38,7 +38,7 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
     return this.neo4j_service.getSingleResultProperties(created_comment, comment_key) as CommentDTO;
   }
 
-  public async get(input: GetCommentsInPermanentPostInputModel): Promise<Array<GetCommentsInPermanentPostOutputModel>> {
+  public async findAll(input: GetCommentsInPermanentPostInputModel): Promise<Array<GetCommentsInPermanentPostOutputModel>> {
     const post_key = 'post';
     const comment_key = 'comment';
     const user_key = 'user';
@@ -46,12 +46,20 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
       MATCH(${post_key}: PermanentPost { post_id: '${input.postID}' })--(${comment_key}: Comment)--(${user_key}: User)
       RETURN ${comment_key}, ${user_key}
       ORDER BY ${comment_key}.timestamp DESC
-      SKIP ${input.page * input.limit }
+      SKIP ${input.page * input.limit}
       LIMIT ${input.limit}
     `;
     const comments = await this.neo4j_service.read(get_all_comments_query, {});
     return this.extractResults(comments);
 
+  }
+
+  public findOne() {
+    return null;
+  }
+
+  public findAllWithRelation() {
+    return null;
   }
 
 
@@ -63,6 +71,7 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
         properties = Object.assign(properties, result.get(key).properties);
       }
       const comment: GetCommentsInPermanentPostOutputModel = {
+        id: properties['comment_id'],
         comment: properties['comment'],
         timestamp: properties['timestamp'],
         name: properties['name'],
