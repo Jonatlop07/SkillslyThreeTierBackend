@@ -19,7 +19,7 @@ import { QueryPermanentPostService } from '@core/service/post/query_permanent_po
 import { QueryPermanentPostCollectionService } from '@core/service/post/query_permanent_post_collection.service';
 import { UpdatePermanentPostService } from '@core/service/post/update_permanent_post.service';
 import { CreateCommentInPermanentPostService } from '@core/service/comment/create_comment_in_permanent_post.service';
-import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post';
+import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post.service';
 import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
 import { CreatePrivateChatConversationService } from '@core/service/chat/create_private_chat_conversation.service';
 import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
@@ -98,7 +98,8 @@ import { QueryServiceRequestCollectionService } from '@core/service/service_requ
 import { UpdateServiceStatusUpdateRequestService } from '@core/service/service_request/update_service_status_update_request.service';
 import { GetServiceRequestEvaluationApplicantService } from '@core/service/service_request/service-request-applications/get_evaluation_applicant.service';
 import { CreateCommentInCommentService } from '@core/service/comment/create_comment_in_comment.service';
-import { CommentInCommentInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/comment_in_comment.repository';
+import { CommentInCommentInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/comment_in_comment_in_memory.repository';
+import { GetCommentsInCommentService } from '@core/service/comment/get_comments_in_comment.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -246,6 +247,11 @@ export async function createTestModule() {
         provide: CommentDITokens.GetCommentsInPermamentPostInteractor,
         useFactory: (gateway) => new GetCommentsInPermanentPostService(gateway),
         inject: [CommentDITokens.CommentRepository],
+      },
+      {
+        provide: CommentDITokens.GetCommentsInCommentInteractor,
+        useFactory: (gateway) => new GetCommentsInCommentService(gateway),
+        inject: [CommentDITokens.CommentInCommentRepository],
       },
       {
         provide: ReactionDITokens.AddReactionInteractor,

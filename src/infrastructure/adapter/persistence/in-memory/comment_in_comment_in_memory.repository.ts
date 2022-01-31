@@ -1,5 +1,6 @@
 import CommentInCommentRepository from '@core/domain/comment/use-case/repository/comment_in_comment.repository';
 import { CommentOfCommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment_of_comment.dto';
+import { GetCommentsInCommentOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_comment.output_model';
 
 
 export class CommentInCommentInMemoryRepository implements CommentInCommentRepository {
@@ -22,28 +23,26 @@ export class CommentInCommentInMemoryRepository implements CommentInCommentRepos
     return Promise.resolve(new_comment);
   }
 
-  //
-  // async findAll(): Promise<Array<GetCommentsInPermanentPostOutputModel>> {
-  //   const comments: Array<GetCommentsInPermanentPostOutputModel> = [];
-  //   for (const comment of this.comments.values()) {
-  //     comments.push({
-  //       id: comment.comment_id,
-  //       comment: comment.comment,
-  //       timestamp: comment.timestamp,
-  //       email: comment.userID,
-  //       name: '',
-  //     });
-  //   }
-  //   return Promise.resolve(comments);
-  // }
-  //
-  // findOne() {
-  //   return null;
-  // }
-  //
-  // findAllWithRelation() {
-  //   return null;
-  // }
+
+  async findAll(): Promise<Array<GetCommentsInCommentOutputModel>> {
+    const comments: Array<GetCommentsInCommentOutputModel> = [];
+    for (const comment of this.comments.values()) {
+      comments.push({
+        id: comment.comment_id,
+        comment: comment.comment,
+        timestamp: comment.timestamp,
+      });
+    }
+    return Promise.resolve(comments);
+  }
+
+  findOne() {
+    return null;
+  }
+
+  findAllWithRelation() {
+    return null;
+  }
 
 
 }
