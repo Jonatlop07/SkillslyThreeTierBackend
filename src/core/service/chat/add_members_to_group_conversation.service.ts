@@ -30,8 +30,9 @@ export class AddMembersToGroupConversationService implements AddMembersToGroupCo
       throw new UserDoesNotBelongToConversationChatException();
     if (!await this.gateway.isAdministratorOfTheGroupConversation(user_id, conversation_id))
       throw new UserDoesNotHavePermissionsInConversationChatException();
+    const unique_members_to_add = Array.from(new Set(members_to_add));
     const members_not_in_conversation = await Promise.all(
-      members_to_add
+      unique_members_to_add
         .filter(
           async (member) =>
             !await this.gateway.belongsUserToConversation(member, conversation_id)

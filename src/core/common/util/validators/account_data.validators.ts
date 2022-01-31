@@ -14,7 +14,7 @@ function isValidName(name) {
 }
 
 function isValidDateOfBirth(date_of_birth) {
-  return /^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[012])[\/\-]\d{4}$/
+  return /^(0[1-9]|[12][0-9]|3[01])[\/](0[1-9]|1[012])[\/]\d{4}$/
     .test(date_of_birth);
 }
 

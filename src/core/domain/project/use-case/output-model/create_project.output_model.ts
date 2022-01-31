@@ -1,4 +1,4 @@
-export default interface CreatePermanentPostOutputModel {
+export default interface CreateProjectOutputModel {
   user_id: string;
   project_id: string;
   title: string;

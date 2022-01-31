@@ -191,6 +191,7 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
       result,
       this.conversation_key
     );
+    if (!conversation) return null;
     return {
       conversation_id: conversation.conversation_id,
       conversation_name: conversation.name,

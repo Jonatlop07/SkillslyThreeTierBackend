@@ -2,7 +2,6 @@ import { Optional } from '@core/common/type/common_types';
 import PermanentPostRepository from '@core/domain/post/use-case/repository/permanent_post.repository';
 import { PermanentPostDTO } from '@core/domain/post/use-case/persistence-dto/permanent_post.dto';
 import PermanentPostQueryModel from '@core/domain/post/use-case/query-model/permanent_post.query_model';
-import SharePermanentPostOutputModel from '@core/domain/post/use-case/output-model/share_permanent_post.output_model';
 import { PaginationDTO } from '@application/api/http-rest/http-dto/http_pagination.dto';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
@@ -23,7 +22,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     }
     return Promise.resolve(group_posts);
   }
-  
+
   delete(params: string): Promise<PermanentPostDTO> {
     params;
     throw new Error('Method not implemented.');
@@ -34,6 +33,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
       post_id: this.currently_available_post_id,
       content: post.content,
       user_id: post.user_id,
+      user_name: post.user_name,
       privacy: post.privacy,
       created_at: getCurrentDate(),
       group_id: post.group_id ? post.group_id : '0'
@@ -116,9 +116,9 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve(post_to_update);
   }
 
-  public share(post: PermanentPostQueryModel): Promise<SharePermanentPostOutputModel> {
+  public share(post: PermanentPostQueryModel): Promise<void> {
     post;
-    return Promise.resolve({});
+    return Promise.resolve();
   }
 
   public deleteById(post_id: string): Promise<PermanentPostDTO> {

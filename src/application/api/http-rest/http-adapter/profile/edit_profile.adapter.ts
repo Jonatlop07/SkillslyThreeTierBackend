@@ -1,9 +1,9 @@
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsArray, IsString } from 'class-validator';
-import CreateProfileInputModel from '@core/domain/profile/use-case/input-model/create_profile.input_model';
+import EditProfileInputModel from '@core/domain/profile/use-case/input-model/edit_profile.input_model';
 
 @Exclude()
-export class EditProfileAdapter implements Partial<CreateProfileInputModel> {
+export class EditProfileAdapter implements Partial<EditProfileInputModel> {
   @Expose()
   @IsString()
   public resume: string;
@@ -26,9 +26,9 @@ export class EditProfileAdapter implements Partial<CreateProfileInputModel> {
 
   @Expose()
   @IsString()
-  public user_email: string;
+  public user_id: string;
 
-  public static new(payload: Partial<CreateProfileInputModel>): EditProfileAdapter {
+  public static new(payload: Partial<EditProfileInputModel>): EditProfileAdapter {
     return plainToClass(EditProfileAdapter, payload);
   }
 }
