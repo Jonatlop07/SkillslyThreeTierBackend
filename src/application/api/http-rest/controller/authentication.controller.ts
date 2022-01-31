@@ -22,7 +22,8 @@ import { Public } from '@application/api/http-rest/authentication/decorator/publ
 export class AuthenticationController {
   private readonly logger: Logger = new Logger(AuthenticationController.name);
 
-  constructor(private readonly authentication_service: HttpAuthenticationService) {}
+  constructor(private readonly authentication_service: HttpAuthenticationService) {
+  }
 
   @Public()
   @Post('login')

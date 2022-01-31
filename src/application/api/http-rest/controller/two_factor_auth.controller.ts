@@ -14,7 +14,8 @@ import { HttpTwoFactorAuthService } from '@application/api/http-rest/authenticat
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { TwoFactorAuthenticationDTO } from '@application/api/http-rest/authentication/types/two_factor_authentication.dto';
-import { HttpAuth } from '@application/api/http-rest/authentication/decorator/http_auth';
+import { JwtAuth } from '@application/api/http-rest/authentication/decorator/jwt_auth';
+import { DeactivateTwoFactorAuth } from '@application/api/http-rest/authentication/decorator/deactivate_two_factor_auth';
 
 @Controller('2fa')
 @ApiTags('Two Factor Authentication')
@@ -28,7 +29,8 @@ export class TwoFactorAuthController {
 
   @Post('generate')
   @HttpCode(HttpStatus.CREATED)
-  @HttpAuth()
+  @DeactivateTwoFactorAuth()
+  @JwtAuth()
   @ApiBearerAuth()
   public async generateQRCode(
     @HttpUser() http_user: HttpUserPayload,
@@ -41,7 +43,8 @@ export class TwoFactorAuthController {
 
   @Post('turn-on')
   @HttpCode(HttpStatus.OK)
-  @HttpAuth()
+  @DeactivateTwoFactorAuth()
+  @JwtAuth()
   @ApiBearerAuth()
   public async activationOfTwoFactorAuth(
     @HttpUser() http_user: HttpUserPayload,
@@ -55,14 +58,14 @@ export class TwoFactorAuthController {
 
   @Post('authenticate')
   @HttpCode(HttpStatus.OK)
-  @HttpAuth()
+  @DeactivateTwoFactorAuth()
+  @JwtAuth()
   @ApiBearerAuth()
   public authenticate(
     @HttpUser() http_user: HttpUserPayload,
     @Body(ValidationPipe) two_factor_auth_dto: TwoFactorAuthenticationDTO
   ) {
     const is_valid_code = this.two_factor_auth_service.isValidTwoFactorAuthCode(http_user.id, two_factor_auth_dto.code);
-    console.log(is_valid_code);
     if (!is_valid_code)
       throw new UnauthorizedException('Invalid authentication code');
     return this.two_factor_auth_service.login(http_user, true);

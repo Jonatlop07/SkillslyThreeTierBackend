@@ -75,8 +75,16 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
   }
 
   public async findOne(params: ConversationQueryModel): Promise<Optional<ConversationDetailsDTO>> {
-    params;
-    return Promise.resolve(undefined);
+    const conversation: ConversationDTO = this.conversations.get(params.conversation_id);
+    if (!conversation) {
+      return Promise.resolve(null);
+    }
+    return Promise.resolve({
+      conversation_id: conversation.conversation_id,
+      is_private: conversation.is_private,
+      conversation_members: conversation.members.map((member_id) => ({ member_id, member_name: '' })),
+      conversation_name: ''
+    });
   }
 
   public findAllWithRelation() {

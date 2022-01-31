@@ -23,11 +23,6 @@ export class HttpTwoFactorAuthService {
 
   public async generateTwoFactorAuthSecret(user_id: string) {
     const user = await this.gateway.findOne({ user_id });
-    if (user && user.is_two_factor_auth_enabled) {
-      return {
-        msg: 'QR already generated'
-      };
-    }
     const secret = authenticator.generateSecret();
     const app_name = this.config_service.get('TWO_FACTOR_AUTHENTICATION_APP_NAME');
     const otp_auth_url = authenticator.keyuri(user.email, app_name, secret);
@@ -37,7 +32,6 @@ export class HttpTwoFactorAuthService {
       two_factor_auth_secret: secret
     });
     return {
-      secret,
       otp_auth_url
     };
   }
