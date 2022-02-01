@@ -175,7 +175,7 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
     });
   }
 
-  public async completeRequest(params: UpdateRequestDTO): Promise<UpdateRequestDTO> {
+  public async completeRequest(params: UpdateRequestDTO, requestedUpdateStatusIsCompletion: boolean): Promise<UpdateRequestDTO> {
     const {service_request_id, provider_id } = params;
     if (this.current_service_request_cancel_request) {
       this.current_service_request_closed = this.current_service_request_cancel_request;
