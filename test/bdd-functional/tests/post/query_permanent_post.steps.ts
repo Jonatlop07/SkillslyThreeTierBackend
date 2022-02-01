@@ -200,7 +200,7 @@ defineFeature(feature, (test) => {
           });
           await update_user_follow_request_interactor.execute({
             user_id: user_id,
-            user_to_follow_id: owner_id,
+              user_that_requests_id: owner_id,
             accept: true,
           });
         } catch (e) {
@@ -412,6 +412,7 @@ defineFeature(feature, (test) => {
 
 
       then('the collection of all posts is then returned', () => {
+        let user_name;
         const expected_output: QueryPermanentPostCollectionOutputModel = {
           posts: [
             {

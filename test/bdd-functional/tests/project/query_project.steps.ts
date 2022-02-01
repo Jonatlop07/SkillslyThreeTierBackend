@@ -71,17 +71,17 @@ defineFeature(feature, (test) => {
   function andProjectIdentifiedByIdExists(and) {
     and(
       /^there exists a project identified by "([^"]*)" and that belongs to user "([^"]*)", with content:$/,
-      async (project_id, project_owner_id, post_content_table) => {
+      async (project_id, project_owner_id, project_content_table) => {
         try {
           created_project = await createProject({
             user_id: project_owner_id,
             id: project_id,
-            title: post_content_table[0].title,
-            members: post_content_table[0].members,
-            description: post_content_table[0].description,
-            reference: post_content_table[0].reference,
-            reference_type: post_content_table[0].reference_type,
-            annexes: post_content_table[0].annexes,
+            title: project_content_table[0].title,
+            members: project_content_table[0].members,
+            description: project_content_table[0].description,
+            reference: project_content_table[0].reference,
+            reference_type: project_content_table[0].reference_type,
+            annexes: project_content_table[0].annexes,
           });
         } catch (e) {
           console.log(e);
