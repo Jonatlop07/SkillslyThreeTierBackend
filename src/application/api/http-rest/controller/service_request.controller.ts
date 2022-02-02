@@ -32,8 +32,8 @@ import { CreateServiceRequestAdapter } from '@application/api/http-rest/http-ada
 import { DeleteServiceRequestInteractor } from '@core/domain/service-request/use-case/interactor/delete_service_request.interactor';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventsNames } from '@application/events/event_names';
-import { ServiceRequestDeletedEvent } from '@application/events/service_request/service_request_deleted.event';
-import { ServiceRequestUpdatedEvent } from '@application/events/service_request/service_request_updated.event';
+import { ServiceRequestDeletedEvent } from '@application/events/service-request/service_request_deleted.event';
+import { ServiceRequestUpdatedEvent } from '@application/events/service-request/service_request_updated.event';
 import { UpdateServiceRequestDTO } from '@application/api/http-rest/http-dto/service-request/http_update_service_request.dto';
 import { UpdateServiceRequestAdapter } from '@application/api/http-rest/http-adapter/service-request/update_service_request.adapter';
 import { CreateServiceRequestApplicationInteractor } from '@core/domain/service-request/use-case/interactor/service-request-applications/create_application.interactor';
@@ -51,7 +51,7 @@ import { UpdateServiceStatusUpdateRequestInteractor } from '@core/domain/service
 import { UpdateServiceStatusUpdateRequestAdapter } from '../http-adapter/service-request/update_service_status_update_request.adapter';
 import CreateServiceStatusUpdateRequestOutputModel
   from '@core/domain/service-request/use-case/output-model/request_cancel_or_completion.output_model';
-import { ServiceRequestStatusUpdateRequestedEvent } from '@application/events/service_request/service_request_status_update.event';
+import { ServiceRequestStatusUpdateRequestedEvent } from '@application/events/service-request/service_request_status_update.event';
 import { GetServiceRequestEvaluationApplicantInteractor } from '@core/domain/service-request/use-case/interactor/service-request-applications/get_evaluation_applicant.interactor';
 
 

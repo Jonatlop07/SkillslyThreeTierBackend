@@ -49,6 +49,10 @@ import AddMembersToGroupConversationOutputModel
   from '@core/domain/chat/use-case/output-model/add_members_to_group_conversation.output_model';
 import { EventsNames } from '@application/events/event_names';
 import { AddedMembersToGroupConversationEvent } from '@application/events/chat/added_members_to_group_conversation.event';
+import { ChatConversationResponseDTO } from '@application/api/http-rest/http-dto/chat/http_chat_conversation_response.dto';
+import DeleteChatGroupConversationOutputModel
+  from '@core/domain/chat/use-case/output-model/delete_chat_group_conversation.output_model';
+import { GroupConversationDeletedEvent } from '@application/events/chat/group_conversation_deleted.event';
 
 
 @Controller('chat')
@@ -77,7 +81,8 @@ export class ChatController {
     private readonly delete_chat_group_conversation_interactor: DeleteChatGroupConversationInteractor,
     @Inject(ChatDITokens.ExitChatGroupConversationInteractor)
     private readonly exit_chat_group_conversation_interactor: DeleteChatGroupConversationInteractor
-  ) {}
+  ) {
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -91,7 +96,7 @@ export class ChatController {
       return CreatePrivateChatConversationAdapter.toResponseDTO(
         await this.create_private_chat_conversation_interactor.execute({
           user_id: http_user.id,
-          partner_id: body.partner_id,
+          partner_id: body.partner_id
         })
       );
     } catch (e) {
@@ -104,13 +109,27 @@ export class ChatController {
   @ApiCreatedResponse({ description: 'The group conversation was successfully created' })
   @ApiBadRequestResponse({ description: 'Cannot create a group conversation with no members' })
   public async createGroupConversation(
-  @HttpUser() http_user: HttpUserPayload, @Body(new ValidationPipe()) body: CreateGroupChatConversationDTO) {
+    @HttpUser() http_user: HttpUserPayload, @Body(new ValidationPipe()) body: CreateGroupChatConversationDTO) {
     try {
-      return CreateGroupChatConversationAdapter.toResponseDTO(
+      const response: ChatConversationResponseDTO = CreateGroupChatConversationAdapter.toResponseDTO(
         await this.create_group_chat_conversation_interactor.execute(
           CreateGroupChatConversationAdapter.toInputModel(body, http_user.id)
         )
       );
+      this.event_emitter.emit(
+        EventsNames.ADDED_MEMBERS_TO_GROUP_CONVERSATION,
+        new AddedMembersToGroupConversationEvent({
+          conversation: {
+            conversation_id: response.conversation_id,
+            conversation_name: response.conversation_name,
+            conversation_members: response.conversation_members
+              .filter((member) => member !== http_user.id)
+              .map((member_id: string) => ({ member_id, member_name: '' })),
+            is_private: false
+          }
+        })
+      );
+      return response;
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
@@ -157,7 +176,7 @@ export class ChatController {
   @Put('group/:conversation_id/add-members')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'The members were successfully added to the conversation' })
-  @ApiNotFoundResponse( { description: 'The conversation does not exists' })
+  @ApiNotFoundResponse({ description: 'The conversation does not exists' })
   @ApiUnauthorizedResponse({ description: 'The user does not have permissions to add members to the conversation' })
   public async addMembersToGroupConversation(
     @HttpUser() http_user: HttpUserPayload,
@@ -172,15 +191,16 @@ export class ChatController {
           members_to_add: body.members_to_add
         }
       );
-      result.added_members.forEach((added_member) => {
-        this.event_emitter.emit(
-          EventsNames.ADDED_MEMBERS_TO_GROUP_CONVERSATION,
-          new AddedMembersToGroupConversationEvent({
-            user_id: added_member.user_id,
-            conversation: result.conversation
-          })
-        );
-      });
+      this.event_emitter.emit(
+        EventsNames.ADDED_MEMBERS_TO_GROUP_CONVERSATION,
+        new AddedMembersToGroupConversationEvent({
+          conversation: {
+            ...result.conversation,
+            conversation_members: result.conversation.conversation_members
+              .filter((member) => member.member_id !== http_user.id)
+          }
+        })
+      );
       return AddMembersToGroupConversationAdapter.toResponseDTO(result);
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
@@ -190,7 +210,7 @@ export class ChatController {
   @Patch('group/:conversation_id')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'The details of the group conversation were successfully updated' })
-  @ApiNotFoundResponse( { description: 'The group conversation does not exist' })
+  @ApiNotFoundResponse({ description: 'The group conversation does not exist' })
   @ApiUnauthorizedResponse({ description: 'The user does not have permissions to update the details of the conversation' })
   @ApiBadRequestResponse({ description: 'The user provided the details of the group conversation in an invalid format' })
   public async updateGroupConversationDetails(
@@ -214,17 +234,29 @@ export class ChatController {
   @Delete('group/:conversation_id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: 'The group conversation was successfully deleted' })
-  @ApiNotFoundResponse( { description: 'The group conversation does not exist' })
+  @ApiNotFoundResponse({ description: 'The group conversation does not exist' })
   @ApiUnauthorizedResponse({ description: 'The user does not have permissions to delete the conversation' })
   public async deleteChatGroupConversation(
     @HttpUser() http_user: HttpUserPayload,
-    @Param('conversation_id') conversation_id: string,
+    @Param('conversation_id') conversation_id: string
   ) {
     try {
-      return await this.delete_chat_group_conversation_interactor.execute({
-        user_id: http_user.id,
-        conversation_id
-      });
+      const response: DeleteChatGroupConversationOutputModel = await this.delete_chat_group_conversation_interactor
+        .execute({
+          user_id: http_user.id,
+          conversation_id
+        });
+      this.event_emitter.emit(
+        EventsNames.GROUP_CONVERSATION_DELETED,
+        new GroupConversationDeletedEvent({
+          conversation_id: response.conversation_id,
+          conversation_members: response.conversation_members.filter((member) => member !== http_user.id),
+          user_who_deletes_id: http_user.id
+        })
+      );
+      return {
+        conversation_id: response.conversation_id
+      };
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
@@ -233,11 +265,11 @@ export class ChatController {
   @Post('group/:conversation_id/exit')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'The user could successfully exit the group conversation' })
-  @ApiNotFoundResponse( { description: 'The group conversation does not exist' })
+  @ApiNotFoundResponse({ description: 'The group conversation does not exist' })
   @ApiUnauthorizedResponse({ description: 'The user cannot exit a group conversation they does not belong to' })
   public async exitChatGroupConversation(
     @HttpUser() http_user: HttpUserPayload,
-    @Param('conversation_id') conversation_id: string,
+    @Param('conversation_id') conversation_id: string
   ) {
     try {
       return await this.exit_chat_group_conversation_interactor.execute({

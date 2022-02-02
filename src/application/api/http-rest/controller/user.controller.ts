@@ -67,7 +67,11 @@ import { AddCustomerDetailsInteractor } from '@core/domain/user/use-case/interac
 import { ObtainSpecialRolesInteractor } from '@core/domain/user/use-case/interactor/obtain_special_roles.interactor';
 import { ObtainSpecialRolesDTO } from '@application/api/http-rest/http-dto/user/http_obtain_special_roles.dto';
 import { ObtainSpecialRolesAdapter } from '@application/api/http-rest/http-adapter/user/obtain_special_roles.adapter';
+<<<<<<< HEAD
 import { QueryUserDataAdapter } from '../http-adapter/user/query_user_data.adapter';
+=======
+import { FollowRequestRejectedEvent } from '@application/events/user/follow_request_rejected.event';
+>>>>>>> 594befb5cc8f66678a4afb367bac3ff4be5a73aa
 
 @Controller('users')
 @ApiTags('user')
@@ -353,32 +357,55 @@ export class UserController {
   @ApiBearerAuth()
   public async updateUserFollowRequest(
   @HttpUser() http_user: HttpUserPayload,
+<<<<<<< HEAD
     @Param('user_to_follow_id') user_to_follow_id: string,
     @Body('accept') accept: boolean,
+=======
+    @Param('user_that_requests_id') user_that_requests_id: string,
+    @Body('accept') accept: boolean
+>>>>>>> 594befb5cc8f66678a4afb367bac3ff4be5a73aa
   ) {
     try {
       const result = await this.update_user_follow_request_interactor.execute(
         UpdateUserFollowRequestAdapter.new({
+<<<<<<< HEAD
           user_id: user_to_follow_id,
           user_to_follow_id: http_user.id,
           accept,
         }),
+=======
+          user_id: http_user.id,
+          user_that_requests_id,
+          accept
+        })
+>>>>>>> 594befb5cc8f66678a4afb367bac3ff4be5a73aa
       );
       if (accept) {
         this.event_emitter.emit(
           EventsNames.FOLLOW_REQUEST_ACCEPTED,
           new FollowRequestAcceptedEvent({
-            user_to_follow_id,
-            user_id: result.user_id,
+            user_that_requests_id,
+            user_that_accepts_id: result.user_id,
             user_name: result.name,
             user_email: result.email,
           }),
         );
         return await this.create_private_chat_conversation_interactor.execute({
           user_id: http_user.id,
+<<<<<<< HEAD
           partner_id: user_to_follow_id,
+=======
+          partner_id: user_that_requests_id
+>>>>>>> 594befb5cc8f66678a4afb367bac3ff4be5a73aa
         });
       }
+      this.event_emitter.emit(
+        EventsNames.FOLLOW_REQUEST_REJECTED,
+        new FollowRequestRejectedEvent({
+          user_to_notify_id: user_that_requests_id,
+          user_id: result.user_id
+        })
+      );
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
@@ -412,9 +439,15 @@ export class UserController {
       this.event_emitter.emit(
         EventsNames.FOLLOW_REQUEST_DELETED,
         new FollowRequestDeletedEvent({
+<<<<<<< HEAD
           user_to_follow_id,
           user_id: result.user_id,
         }),
+=======
+          user_to_notify_id: user_to_follow_id,
+          user_id: result.user_id
+        })
+>>>>>>> 594befb5cc8f66678a4afb367bac3ff4be5a73aa
       );
       return result;
     } catch (e) {

@@ -199,8 +199,8 @@ defineFeature(feature, (test) => {
             user_to_follow_id: owner_id,
           });
           await update_user_follow_request_interactor.execute({
-            user_id: user_id,
-            user_to_follow_id: owner_id,
+            user_id: owner_id,
+            user_that_requests_id: user_id,
             accept: true,
           });
         } catch (e) {
@@ -350,7 +350,7 @@ defineFeature(feature, (test) => {
     exception = undefined;
   });
 
-  test('A logged in user tries to query a specific permanent post', 
+  test('A logged in user tries to query a specific permanent post',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andPostIdentifiedByIdExists(and);
@@ -368,7 +368,7 @@ defineFeature(feature, (test) => {
       });
     });
 
-  test('A logged in user tries to query the collection of permanent posts that belong to himself', 
+  test('A logged in user tries to query the collection of permanent posts that belong to himself',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andPostCollectionFromUserIdentifiedByIdExists(and);
@@ -401,7 +401,7 @@ defineFeature(feature, (test) => {
       });
     });
 
-  test('A logged in user tries to query the collection of permanent posts that belong to another user who is friends with them', 
+  test('A logged in user tries to query the collection of permanent posts that belong to another user who is friends with them',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andUserIdentifiedByIdExists(and);
@@ -437,7 +437,7 @@ defineFeature(feature, (test) => {
       });
     });
 
-  test('A logged in user tries to query the collection of permanent posts that belong to another user who is not friends with them', 
+  test('A logged in user tries to query the collection of permanent posts that belong to another user who is not friends with them',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andUserIdentifiedByIdExists(and);
@@ -463,7 +463,7 @@ defineFeature(feature, (test) => {
       });
     });
 
-  test('A logged in user tries to query the collection of permanent posts that belong to another user that does not exist', 
+  test('A logged in user tries to query the collection of permanent posts that belong to another user that does not exist',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andUserProvidesIdOfTheOwner(and);
@@ -477,7 +477,7 @@ defineFeature(feature, (test) => {
       );
     });
 
-  test('A logged in user tries to query a permanent post that does not exist', 
+  test('A logged in user tries to query a permanent post that does not exist',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andUserIdentifiedByIdExists(and);
@@ -492,7 +492,7 @@ defineFeature(feature, (test) => {
       );
     });
 
-  test('A logged in user tries to query a permanent post from a user that does not exist', 
+  test('A logged in user tries to query a permanent post from a user that does not exist',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andUserProvidesIdOfThePostAndIdOfTheOwner(and);
@@ -506,7 +506,7 @@ defineFeature(feature, (test) => {
       );
     });
 
-  test('A logged in user tries to query the collection of permanent posts from a specific group', 
+  test('A logged in user tries to query the collection of permanent posts from a specific group',
     ({ given, and, when, then }) => {
       givenAUserExists(given);
       andAGroupIdentifiedByIdExists(and);

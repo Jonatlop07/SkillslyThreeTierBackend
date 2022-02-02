@@ -30,7 +30,8 @@ export class ValidateCredentialsService implements ValidateCredentialsInteractor
       id: resulting_user.user_id,
       customer_id: resulting_user.customer_id,
       email: resulting_user.email,
-      roles: resulting_user.roles
+      roles: resulting_user.roles,
+      is_two_factor_auth_enabled: resulting_user.is_two_factor_auth_enabled
     };
   }
 }
