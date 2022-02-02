@@ -6,7 +6,7 @@ import {
   HttpJwtPayload,
   HttpUserPayload,
 } from '@application/api/http-rest/authentication/types/http_authentication_types';
-import { HttpAuthenticationService } from '@application/api/http-rest/authentication/http_authentication.service';
+import { HttpAuthenticationService } from '@application/api/http-rest/authentication/service/http_authentication.service';
 
 @Injectable()
 export class HttpJwtStrategy extends PassportStrategy(Strategy) {
