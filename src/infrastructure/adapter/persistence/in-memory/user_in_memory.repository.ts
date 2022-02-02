@@ -8,6 +8,7 @@ import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import { AddCustomerDetailsDTO } from '@core/domain/user/use-case/persistence-dto/add_customer_details.dto';
 import { UpdateUserRolesDTO } from '@core/domain/user/use-case/persistence-dto/update_user_roles.dto';
 import { Role } from '@core/domain/user/entity/type/role.enum';
+import { PartialUserUpdateDTO } from '@core/domain/user/use-case/persistence-dto/partial_user_update.dto';
 
 export class UserInMemoryRepository implements UserRepository {
   private currently_available_user_id: string;
@@ -157,5 +158,16 @@ export class UserInMemoryRepository implements UserRepository {
     if (investor)
       roles.push(Role.Investor);
     return Promise.resolve(roles);
+  }
+
+  public async partialUpdate(params: UserQueryModel, updates: PartialUserUpdateDTO): Promise<UserDTO> {
+    const user_to_update: UserDTO = await this.findOne(params);
+    Object.keys(updates).forEach((key) => {
+      if (updates[key]) {
+        user_to_update[key] = updates[key];
+      }
+    });
+    this.users.set(user_to_update.user_id, user_to_update);
+    return Promise.resolve(user_to_update);
   }
 }

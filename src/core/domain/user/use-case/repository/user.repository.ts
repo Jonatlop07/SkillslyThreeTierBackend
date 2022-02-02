@@ -11,10 +11,12 @@ import GetUserFollowRequestCollectionGateway from '@core/domain/user/use-case/ga
 import { AddCustomerDetailsGateway } from '@core/domain/user/use-case/gateway/add_customer_details.gateway';
 import ObtainSpecialRolesPersistenceGateway
   from '@core/domain/user/use-case/gateway/obtain_special_roles_persistence.gateway';
+import TwoFactorAuthGateway from '@core/domain/user/use-case/gateway/two_factor_auth.gateway';
 
 export default interface UserRepository
   extends CreateUserAccountGateway, ValidateCredentialsGateway,
   UpdateUserAccountGateway, QueryUserAccountGateway, DeleteUserAccountGateway,
   SearchUsersGateway, CreateUserFollowRequestGateway, UpdateUserFollowRequestGateway,
   DeleteUserFollowRequestGateway, GetUserFollowRequestCollectionGateway,
-  AddCustomerDetailsGateway, ObtainSpecialRolesPersistenceGateway {}
+  AddCustomerDetailsGateway, ObtainSpecialRolesPersistenceGateway,
+  TwoFactorAuthGateway {}

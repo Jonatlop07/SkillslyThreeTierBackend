@@ -32,12 +32,17 @@ export class HttpAuthenticationService {
 
   public login(user: HttpUserPayload): HttpLoggedInUser {
     const payload: HttpJwtPayload = { id: user.id };
+    const access_token = this.jwt_service.sign(payload);
+    if (user.is_two_factor_auth_enabled)
+      return {
+        access_token
+      };
     return {
       id: user.id,
       customer_id: user.customer_id,
       email: user.email,
       roles: user.roles,
-      access_token: this.jwt_service.sign(payload),
+      access_token: access_token
     };
   }
 

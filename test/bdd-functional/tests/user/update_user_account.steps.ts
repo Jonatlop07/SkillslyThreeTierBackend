@@ -65,7 +65,8 @@ defineFeature(feature, (test) => {
           email,
           password,
           name,
-          date_of_birth
+          date_of_birth,
+          is_two_factor_auth_enabled: false
         });
       } catch (e) {
         exception = e;

@@ -1,4 +1,4 @@
-import { IsEmail, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsString } from 'class-validator';
 import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
 
 export class UpdateUserAccountDTO {
@@ -16,4 +16,8 @@ export class UpdateUserAccountDTO {
   @IsString()
   @ApiModelProperty()
   public date_of_birth: string;
+
+  @IsBoolean()
+  @ApiModelProperty()
+  public is_two_factor_auth_enabled: boolean;
 }
