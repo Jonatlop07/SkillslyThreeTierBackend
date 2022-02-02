@@ -30,6 +30,9 @@ export class QueryProjectService implements QueryProjectInteractor {
     projects = await this.gateway.findAll({
       user_id: input.user_id,
     });
+    if (!projects || projects.length < 1 ){
+      throw new NonExistentProjectException();
+    }
     return Promise.resolve({
       projects
     });
