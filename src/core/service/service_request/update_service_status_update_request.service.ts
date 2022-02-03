@@ -41,7 +41,8 @@ export class UpdateServiceStatusUpdateRequestService implements UpdateServiceSta
       request_date: updated_request.request_date ? updated_request.request_date : '',
       action: update_service_status_update_request_action,
       requester_id: updated_request.requester_id ? updated_request.requester_id : '',
-      requester_name: updated_request.requester_name ? updated_request.requester_name : ''
+      requester_name: updated_request.requester_name ? updated_request.requester_name : '',
+      phase: updated_request.phase ? updated_request.phase : ''
     };
   }
 }

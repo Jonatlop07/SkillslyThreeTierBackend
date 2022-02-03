@@ -6,4 +6,5 @@ export interface UpdateRequestDTO {
   requester_id?: string;
   provider_name?: string;
   requester_name?: string;
+  phase?: string; 
 }
