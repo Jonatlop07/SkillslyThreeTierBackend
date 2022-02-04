@@ -6,6 +6,9 @@ import { CreateProjectService } from '@core/service/project/create_project.servi
 import { ProjectDITokens } from '@core/domain/project/di/project_di_tokens';
 import {UserDITokens} from "@core/domain/user/di/user_di_tokens";
 import {QueryProjectService} from "@core/service/project/query_project.service";
+import {DeleteProjectService} from "@core/service/project/delete_project.service";
+import {UpdateProjectService} from "@core/service/project/update_project.service";
+
 
 const persistence_providers: Array<Provider> = [
   {
@@ -24,6 +27,16 @@ const use_case_providers: Array<Provider> = [
     provide: ProjectDITokens.QueryProjectInteractor,
     useFactory: (project_gateway, user_gateway) => new QueryProjectService(project_gateway, user_gateway),
     inject: [ProjectDITokens.ProjectRepository, UserDITokens.UserRepository],
+  },
+  {
+    provide: ProjectDITokens.DeleteProjectInteractor,
+    useFactory: (project_gateway) => new DeleteProjectService(project_gateway),
+    inject: [ProjectDITokens.ProjectRepository]
+  },
+  {
+    provide: ProjectDITokens.UpdateProjectInteractor,
+    useFactory: (gateway) => new UpdateProjectService(gateway),
+    inject: [ProjectDITokens.ProjectRepository]
   },
 ];
 

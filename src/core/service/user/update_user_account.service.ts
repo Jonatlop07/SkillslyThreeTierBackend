@@ -27,7 +27,7 @@ export class UpdateUserAccountService implements UpdateUserAccountInteractor {
   }
 
   public async execute(input: UpdateUserAccountInputModel): Promise<UpdateUserAccountOutputModel> {
-    const { id, email, password, name, date_of_birth } = input;
+    const { id, email, password, name, date_of_birth, is_two_factor_auth_enabled } = input;
     const password_does_not_change = !password ;
     const is_a_valid_update = email && name && date_of_birth
       && (password_does_not_change || password && isValidPassword(password))
@@ -43,12 +43,14 @@ export class UpdateUserAccountService implements UpdateUserAccountInteractor {
       email,
       password: await this.getPasswordToUpdate(password, id),
       name,
-      date_of_birth
+      date_of_birth,
+      is_two_factor_auth_enabled
     });
     return {
       email: updated_user.email,
       name: updated_user.name,
-      date_of_birth: updated_user.date_of_birth
+      date_of_birth: updated_user.date_of_birth,
+      is_two_factor_auth_enabled: updated_user.is_two_factor_auth_enabled
     };
   }
 

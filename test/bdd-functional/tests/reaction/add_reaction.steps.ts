@@ -75,6 +75,7 @@ defineFeature(feature, (test) => {
             reactor_id: reactor_id,
             reaction_type: provided_reaction_type
           });
+          existing_reaction;
         } catch (e){
           console.log(e);
         }
@@ -116,7 +117,9 @@ defineFeature(feature, (test) => {
           const expected_output: AddReactionOutputModel = {
             post_id: post_to_react_to,
             reactor_id: reactor_id,
-            reaction_type: reaction_type
+            reaction_type: reaction_type,
+            post_owner_id: '',
+            added: true
           };
           expect(added_or_removed_reaction).toBeDefined();
           expect(added_or_removed_reaction.post_id).toEqual(expected_output.post_id);
@@ -153,7 +156,9 @@ defineFeature(feature, (test) => {
           const expected_output: AddReactionOutputModel = {
             post_id: post_to_react_to,
             reactor_id: reactor_id,
-            reaction_type: reaction_type
+            reaction_type: reaction_type,
+            post_owner_id: '',
+            added: false
           };
           expect(added_or_removed_reaction).toBeDefined();
           expect(added_or_removed_reaction.post_id).toEqual(expected_output.post_id);

@@ -99,6 +99,8 @@ import { UpdateServiceStatusUpdateRequestService } from '@core/service/service_r
 import { GetServiceRequestEvaluationApplicantService } from '@core/service/service_request/service-request-applications/get_evaluation_applicant.service';
 import { CreateCommentInCommentService } from '@core/service/comment/create_comment_in_comment.service';
 import { CommentInCommentInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/comment_in_comment.repository';
+import {DeleteProjectService} from '@core/service/project/delete_project.service';
+import {UpdateProjectService} from '@core/service/project/update_project.service';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -320,6 +322,16 @@ export async function createTestModule() {
         provide: ProjectDITokens.QueryProjectInteractor,
         useFactory: (gateway, user_gateway) => new QueryProjectService(gateway, user_gateway),
         inject: [ProjectDITokens.ProjectRepository, UserDITokens.UserRepository],
+      },
+      {
+        provide: ProjectDITokens.DeleteProjectInteractor,
+        useFactory: (post_gateway) => new DeleteProjectService(post_gateway),
+        inject: [ProjectDITokens.ProjectRepository],
+      },
+      {
+        provide: ProjectDITokens.UpdateProjectInteractor,
+        useFactory: (gateway) => new UpdateProjectService(gateway),
+        inject: [ProjectDITokens.ProjectRepository],
       },
       {
         provide: GroupDITokens.CreateGroupInteractor,
