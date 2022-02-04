@@ -2,13 +2,9 @@ import { defineFeature, loadFeature } from 'jest-cucumber';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
 import { CreateCommentInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_permanent_post.interactor';
-import { CreateCommentInCommentInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_comment.iteractor';
+import { CreateCommentInCommentInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_comment.interactor';
 import { GetCommentsInCommentInteractor } from '@core/domain/comment/use-case/interactor/get_comments_in_comment.interactor';
 import { GetCommentsInCommentOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_comment.output_model';
-import {
-  CommentException,
-  ThereAreNoCommentsException,
-} from '@core/domain/comment/use-case/exception/comment.exception';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import CreatePermanentPostInputModel from '@core/domain/post/use-case/input-model/create_permanent_post.input_model';
@@ -34,7 +30,6 @@ defineFeature(feature, (test) => {
   let getCommentsInCommentInteractor: GetCommentsInCommentInteractor;
 
   let output: Array<GetCommentsInCommentOutputModel>;
-  let exception: CommentException;
 
   const user_1 = createUserMock();
   const post_1 = {
@@ -115,7 +110,7 @@ defineFeature(feature, (test) => {
       try {
         output = await getCommentsInCommentInteractor.execute(undefined);
       } catch (e) {
-        exception = e;
+        console.log(e);
       }
     });
   };
@@ -137,7 +132,6 @@ defineFeature(feature, (test) => {
     getCommentsInCommentInteractor = module.get<GetCommentsInCommentInteractor>(
       CommentDITokens.GetCommentsInCommentInteractor,
     );
-    exception = undefined;
     output = [];
   });
 

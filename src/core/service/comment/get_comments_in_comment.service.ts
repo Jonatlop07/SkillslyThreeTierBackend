@@ -5,18 +5,19 @@ import GetCommentsInCommentGateway from '@core/domain/comment/use-case/gateway/g
 import GetCommentsInCommentInputModel
   from '@core/domain/comment/use-case/input-model/get_comments_in_comment.input_model';
 import { GetCommentsInCommentOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_comment.output_model';
-import { ThereAreNoCommentsException } from '@core/domain/comment/use-case/exception/comment.exception';
 
 export class GetCommentsInCommentService implements GetCommentsInCommentInteractor {
-  constructor(@Inject(CommentDITokens.CommentInCommentRepository) private readonly gateway: GetCommentsInCommentGateway) {
+  constructor(
+    @Inject(CommentDITokens.CommentInCommentRepository)
+    private readonly gateway: GetCommentsInCommentGateway
+  ) {
   }
 
-  async execute(input: GetCommentsInCommentInputModel): Promise<Array<GetCommentsInCommentOutputModel>> {
+  public async execute(input: GetCommentsInCommentInputModel): Promise<Array<GetCommentsInCommentOutputModel>> {
     const comments = await this.gateway.findAll(input);
     if (comments.length == 0) {
       return [];
     }
-    return Promise.resolve(comments);
+    return comments;
   }
-
 }

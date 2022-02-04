@@ -11,26 +11,28 @@ import { isValidTimestamp } from '@core/common/util/validators/comment.validator
 import { CommentInvalidDataFormatException } from '@core/domain/comment/use-case/exception/comment.exception';
 
 export class CreateCommentInPermanentPostService implements CreateCommentInPermanentPostInteractor {
-  constructor(@Inject(CommentDITokens.CommentRepository) private readonly gateway: CreateCommentInPermanentPostGateway) {
+  constructor(
+    @Inject(CommentDITokens.CommentRepository)
+    private readonly gateway: CreateCommentInPermanentPostGateway
+  ) {
   }
 
-  async execute(input: CreateCommentInPermanentPostInputModel): Promise<CreateCommentInPermanentPostOutputModel> {
-    if (input['comment'].length === 0 || !isValidTimestamp(input['timestamp'])) {
+  public async execute(input: CreateCommentInPermanentPostInputModel): Promise<CreateCommentInPermanentPostOutputModel> {
+    if (input.comment.length === 0 || !isValidTimestamp(input.timestamp)) {
       throw new CommentInvalidDataFormatException();
     }
     const createdComment = await this.gateway.create({
-      comment: input['comment'],
-      timestamp: input['timestamp'],
-      postID: input['postID'],
-      userID: input['userID'],
+      comment: input.comment,
+      timestamp: input.timestamp,
+      postID: input.postID,
+      userID: input.userID,
     });
-
-    return Promise.resolve({
-      commentID: createdComment['comment_id'],
-      comment: createdComment['comment'],
-      timestamp: createdComment['timestamp'],
-      postID: createdComment['postID'],
-      userID: createdComment['userID'],
-    });
+    return {
+      commentID: createdComment.comment_id,
+      comment: createdComment.comment,
+      timestamp: createdComment.timestamp,
+      postID: createdComment.postID,
+      userID: createdComment.userID,
+    };
   }
 }

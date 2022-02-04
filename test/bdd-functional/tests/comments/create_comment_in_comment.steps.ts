@@ -9,7 +9,7 @@ import CreateCommentInPermanentPostInputModel
   from '@core/domain/comment/use-case/input-model/create_comment_in_permanent_post.input_model';
 import CreateCommentInCommentInputModel
   from '@core/domain/comment/use-case/input-model/create_comment_in_comment.input_model';
-import { CreateCommentInCommentInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_comment.iteractor';
+import { CreateCommentInCommentInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_comment.interactor';
 import CreateCommentInCommentOutputModel
   from '@core/domain/comment/use-case/output_model/create_comment_in_comment.output_model';
 import { CommentException } from '@core/domain/comment/use-case/exception/comment.exception';

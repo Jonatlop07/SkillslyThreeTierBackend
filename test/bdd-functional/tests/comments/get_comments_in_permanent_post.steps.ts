@@ -11,10 +11,6 @@ import { createTestModule } from '@test/bdd-functional/tests/create_test_module'
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
-import {
-  CommentException,
-  ThereAreNoCommentsException,
-} from '@core/domain/comment/use-case/exception/comment.exception';
 import { GetCommentsInPermanentPostOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_permanent_post.output_model';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
@@ -32,7 +28,6 @@ defineFeature(feature, (test) => {
   let getCommentsInPermanentPostInteractor: GetCommentsInPermanentPostInteractor;
 
   let output: Array<CreateCommentInPermanentPostInputModel> | Array<GetCommentsInPermanentPostOutputModel>;
-  let exception: CommentException;
 
   const user_1 = createUserMock();
 
@@ -100,7 +95,7 @@ defineFeature(feature, (test) => {
       try {
         output = await getCommentsInPermanentPostInteractor.execute(undefined);
       } catch (e) {
-        exception = e;
+        console.log(e);
       }
     });
   };
@@ -119,7 +114,6 @@ defineFeature(feature, (test) => {
     getCommentsInPermanentPostInteractor = module.get<GetCommentsInPermanentPostInteractor>(
       CommentDITokens.GetCommentsInPermamentPostInteractor,
     );
-    exception = undefined;
     output = [];
   });
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Param, Post, Query } from '@nestjs/common';
 import {
   ApiBadGatewayResponse,
   ApiBadRequestResponse,
@@ -17,13 +17,9 @@ import { HttpUserPayload } from '@application/api/http-rest/authentication/types
 import { CreateCommentInPermanentPostAdapter } from '@application/api/http-rest/http-adapter/comment/create_comment_in_permanent_post.adapter';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { CreateCommentInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_permanent_post.interactor';
-import {
-  CommentInvalidDataFormatException,
-  ThereAreNoCommentsException,
-} from '@core/domain/comment/use-case/exception/comment.exception';
 import { GetCommentsInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/get_comments_in_permanent_post.interactor';
 import { Role } from '@core/domain/user/entity/type/role.enum';
-import { CreateCommentInCommentInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_comment.iteractor';
+import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
 
 @Controller('permanent-posts')
 @Roles(Role.User)
@@ -57,16 +53,7 @@ export class CommentController {
         timestamp: body['timestamp'],
       }));
     } catch (e) {
-      if (e instanceof CommentInvalidDataFormatException) {
-        throw new HttpException({
-          status: HttpStatus.BAD_REQUEST,
-        }, HttpStatus.BAD_REQUEST);
-      } else {
-        throw new HttpException({
-          status: HttpStatus.BAD_GATEWAY,
-          error: 'Internal error',
-        }, HttpStatus.BAD_GATEWAY);
-      }
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
@@ -92,17 +79,7 @@ export class CommentController {
         postID: permanentPostID,
       });
     } catch (e) {
-      if (e instanceof ThereAreNoCommentsException) {
-        throw new HttpException({
-          status: HttpStatus.NOT_FOUND,
-          error: 'There are no comments in this post',
-        }, HttpStatus.NOT_FOUND);
-      } else {
-        throw new HttpException({
-          status: HttpStatus.BAD_GATEWAY,
-          error: 'Internal error',
-        }, HttpStatus.BAD_GATEWAY);
-      }
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 

@@ -1,24 +1,22 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Param, Post, Query } from '@nestjs/common';
 import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
 import { Role } from '@core/domain/user/entity/type/role.enum';
 import {
   ApiBadGatewayResponse,
-  ApiBadRequestResponse, ApiBearerAuth,
+  ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
-import { CreateCommentInCommentInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_comment.iteractor';
+import { CreateCommentInCommentInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_comment.interactor';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
 import { CreateCommentDto } from '@application/api/http-rest/http-dto/comment/http_create_comment.dto';
-import {
-  CommentInvalidDataFormatException,
-  ThereAreNoCommentsException,
-} from '@core/domain/comment/use-case/exception/comment.exception';
 import { GetCommentsInCommentInteractor } from '@core/domain/comment/use-case/interactor/get_comments_in_comment.interactor';
+import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
 
 @Controller('comments')
 @Roles(Role.User)
@@ -35,7 +33,7 @@ export class CommentsInCommentController {
   }
 
   @Post('/:commentID/comment')
-  @ApiCreatedResponse({ description: 'Comment has been sucessfully created' })
+  @ApiCreatedResponse({ description: 'Comment has been successfully created' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while creating comment' })
   @ApiBearerAuth()
@@ -48,20 +46,11 @@ export class CommentsInCommentController {
       return await this.createCommentInCommentInteractor.execute({
         userID: http_user.id,
         ancestorCommentID: commentID,
-        comment: body['comment'],
-        timestamp: body['timestamp'],
+        comment: body.comment,
+        timestamp: body.timestamp,
       });
     } catch (e) {
-      if (e instanceof CommentInvalidDataFormatException) {
-        throw new HttpException({
-          status: HttpStatus.BAD_REQUEST,
-        }, HttpStatus.BAD_REQUEST);
-      } else {
-        throw new HttpException({
-          status: HttpStatus.BAD_GATEWAY,
-          error: 'Internal error',
-        }, HttpStatus.BAD_GATEWAY);
-      }
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
@@ -87,17 +76,7 @@ export class CommentsInCommentController {
         ancestorCommentID: commentID,
       });
     } catch (e) {
-      if (e instanceof ThereAreNoCommentsException) {
-        throw new HttpException({
-          status: HttpStatus.NOT_FOUND,
-          error: 'There are no comments in this post',
-        }, HttpStatus.NOT_FOUND);
-      } else {
-        throw new HttpException({
-          status: HttpStatus.BAD_GATEWAY,
-          error: 'Internal error',
-        }, HttpStatus.BAD_GATEWAY);
-      }
+      throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
