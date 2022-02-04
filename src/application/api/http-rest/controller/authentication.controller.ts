@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
@@ -15,6 +16,7 @@ import {
   HttpRequestWithUser
 } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
+import { Observable } from 'rxjs';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -31,5 +33,12 @@ export class AuthenticationController {
   @UseGuards(HttpLocalAuthenticationGuard)
   public login(@Req() request: HttpRequestWithUser): HttpLoggedInUser {
     return this.authentication_service.login(request.user);
+  }
+
+  @Public()
+  @Post('val-captcha')
+  @HttpCode(HttpStatus.OK)
+  public validateCaptcha(@Body() details): Observable<any> {
+    return this.authentication_service.validateCaptcha(details.response);
   }
 }

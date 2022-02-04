@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { HttpModule } from '@nestjs/axios';
 import { APP_GUARD } from '@nestjs/core';
 import { HttpAuthenticationService } from '@application/api/http-rest/authentication/service/http_authentication.service';
 import { HttpLocalStrategy } from '@application/api/http-rest/authentication/passport/http_local.strategy';
@@ -32,6 +33,7 @@ import { HttpTwoFactorAuthService } from '@application/api/http-rest/authenticat
         }
       })
     }),
+    HttpModule,
     UserModule
   ],
   providers: [
