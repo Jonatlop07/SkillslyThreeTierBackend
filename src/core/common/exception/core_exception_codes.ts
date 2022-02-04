@@ -24,6 +24,8 @@ export class CoreExceptionCodes {
   public static readonly PROFILE_EMPTY_DETAILS = 301;
   public static readonly NOT_FOUND_PROFILE = 302;
 
+  public static readonly INVALID_FORMAT_COMMENT_DATA = 401;
+
   // Chat exception codes range from 500 to 599
   public static readonly NON_EXISTENT_CONVERSATION_CHAT = 500;
   public static readonly NO_MEMBERS_IN_CONVERSATION_CHAT = 501;
@@ -72,5 +74,4 @@ export class CoreExceptionCodes {
   public static readonly UNAUTHORIZED_SERVICE_REQUEST_APPLICATION_ACTION = 1204;
   public static readonly SERVICE_REQUEST_STATUS_UPDATE_REQUEST_ALREADY_EXISTS = 1205;
   public static readonly NON_EXISTENT_SERVICE_REQUEST_STATUS_UPDATE_REQUEST = 1206;
-
 }

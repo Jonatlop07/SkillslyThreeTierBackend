@@ -19,7 +19,7 @@ import { QueryPermanentPostService } from '@core/service/post/query_permanent_po
 import { QueryPermanentPostCollectionService } from '@core/service/post/query_permanent_post_collection.service';
 import { UpdatePermanentPostService } from '@core/service/post/update_permanent_post.service';
 import { CreateCommentInPermanentPostService } from '@core/service/comment/create_comment_in_permanent_post.service';
-import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post';
+import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post.service';
 import { SharePermanentPostService } from '@core/service/post/share_permanent_post.service';
 import { CreatePrivateChatConversationService } from '@core/service/chat/create_private_chat_conversation.service';
 import { CreateGroupChatConversationService } from '@core/service/chat/create_group_chat_conversation.service';
@@ -97,8 +97,11 @@ import { CreateServiceStatusUpdateRequestService } from '@core/service/service_r
 import { QueryServiceRequestCollectionService } from '@core/service/service_request/query_service_request_collection.service';
 import { UpdateServiceStatusUpdateRequestService } from '@core/service/service_request/update_service_status_update_request.service';
 import { GetServiceRequestEvaluationApplicantService } from '@core/service/service_request/service-request-applications/get_evaluation_applicant.service';
-import {DeleteProjectService} from "@core/service/project/delete_project.service";
-import {UpdateProjectService} from "@core/service/project/update_project.service";
+import { CreateCommentInCommentService } from '@core/service/comment/create_comment_in_comment.service';
+import { GetCommentsInCommentService } from '@core/service/comment/get_comments_in_comment.service';
+import {DeleteProjectService} from '@core/service/project/delete_project.service';
+import {UpdateProjectService} from '@core/service/project/update_project.service';
+import { CommentInCommentInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/comment_in_comment_in_memory.repository';
 
 export async function createTestModule() {
   return await Test.createTestingModule({
@@ -238,9 +241,19 @@ export async function createTestModule() {
         inject: [CommentDITokens.CommentRepository],
       },
       {
+        provide: CommentDITokens.CreateCommentInCommentInteractor,
+        useFactory: (gateway) => new CreateCommentInCommentService(gateway),
+        inject: [CommentDITokens.CommentInCommentRepository],
+      },
+      {
         provide: CommentDITokens.GetCommentsInPermamentPostInteractor,
         useFactory: (gateway) => new GetCommentsInPermanentPostService(gateway),
         inject: [CommentDITokens.CommentRepository],
+      },
+      {
+        provide: CommentDITokens.GetCommentsInCommentInteractor,
+        useFactory: (gateway) => new GetCommentsInCommentService(gateway),
+        inject: [CommentDITokens.CommentInCommentRepository],
       },
       {
         provide: ReactionDITokens.AddReactionInteractor,
@@ -519,6 +532,10 @@ export async function createTestModule() {
       {
         provide: CommentDITokens.CommentRepository,
         useFactory: () => new CommentInMemoryRepository(new Map()),
+      },
+      {
+        provide: CommentDITokens.CommentInCommentRepository,
+        useFactory: () => new CommentInCommentInMemoryRepository(new Map()),
       },
       {
         provide: ChatDITokens.ChatConversationRepository,

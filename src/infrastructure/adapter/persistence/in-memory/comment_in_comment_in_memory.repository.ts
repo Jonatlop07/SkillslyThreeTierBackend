@@ -1,20 +1,21 @@
-import CommentRepository from '@core/domain/comment/use-case/repository/comment.repository';
-import { CommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment.dto';
-import { GetCommentsInPermanentPostOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_permanent_post.output_model';
+import CommentInCommentRepository from '@core/domain/comment/use-case/repository/comment_in_comment.repository';
+import { CommentOfCommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment_of_comment.dto';
+import { GetCommentsInCommentOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_comment.output_model';
 
-export class CommentInMemoryRepository implements CommentRepository {
+
+export class CommentInCommentInMemoryRepository implements CommentInCommentRepository {
   private currently_available_comment_id: string;
 
-  constructor(private readonly comments: Map<string, CommentDTO>) {
+  constructor(private readonly comments: Map<string, CommentOfCommentDTO>) {
     this.currently_available_comment_id = '1';
   }
 
-  async create(comment: CommentDTO): Promise<CommentDTO> {
-    const new_comment: CommentDTO = {
+  async create(comment: CommentOfCommentDTO): Promise<CommentOfCommentDTO> {
+    const new_comment: CommentOfCommentDTO = {
       comment_id: this.currently_available_comment_id,
       comment: comment['comment'],
       timestamp: comment['timestamp'],
-      postID: comment['postID'],
+      ancestorCommentID: comment['ancestorCommentID'],
       userID: comment['userID'],
     };
     this.comments.set(this.currently_available_comment_id, new_comment);
@@ -22,15 +23,14 @@ export class CommentInMemoryRepository implements CommentRepository {
     return Promise.resolve(new_comment);
   }
 
-  async findAll(): Promise<Array<GetCommentsInPermanentPostOutputModel>> {
-    const comments: Array<GetCommentsInPermanentPostOutputModel> = [];
+
+  async findAll(): Promise<Array<GetCommentsInCommentOutputModel>> {
+    const comments: Array<GetCommentsInCommentOutputModel> = [];
     for (const comment of this.comments.values()) {
       comments.push({
         id: comment.comment_id,
         comment: comment.comment,
         timestamp: comment.timestamp,
-        email: comment.userID,
-        name: '',
       });
     }
     return Promise.resolve(comments);

@@ -1,30 +1,30 @@
 import { Injectable } from '@nestjs/common';
+import CommentInCommentRepository from '@core/domain/comment/use-case/repository/comment_in_comment.repository';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
-import CommentRepository from '@core/domain/comment/use-case/repository/comment.repository';
-import { CommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment.dto';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
-import GetCommentsInPermanentPostInputModel
-  from '@core/domain/comment/use-case/input-model/get_comments_in_permanent_post.input_model';
 import { GetCommentsInPermanentPostOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_permanent_post.output_model';
 import { QueryResult } from 'neo4j-driver';
-
+import { CommentOfCommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment_of_comment.dto';
+import GetCommentsInCommentInputModel
+  from '@core/domain/comment/use-case/input-model/get_comments_in_comment.input_model';
+import { GetCommentsInCommentOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_comment.output_model';
 
 @Injectable()
-export class CommentNeo4jRepositoryAdapter implements CommentRepository {
+export class CommentsInCommentNeo4jRepositoryAdapter implements CommentInCommentRepository {
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(comment: CommentDTO): Promise<CommentDTO> {
-    const post_key = 'post';
+  public async create(comment: CommentOfCommentDTO): Promise<CommentOfCommentDTO> {
+    const ancestor_comment_key = 'ancestor_comment';
     const comment_key = 'comment';
     const user_key = 'user';
     const create_comment_query = `
       MATCH 
-        (${post_key}: PermanentPost { post_id: '${comment['postID']}' }),
+        (${ancestor_comment_key}: Comment { comment_id: '${comment['ancestorCommentID']}' }),
         (${user_key}: User { user_id: '${comment['userID']}' })
       CREATE (${comment_key}: Comment)
       SET ${comment_key} += $properties, ${comment_key}.comment_id = randomUUID()
-      CREATE (${post_key})-[:${Relationships.POST_COMMENT_RELATIONSHIP}]->(${comment_key})
+      CREATE (${comment_key})-[:${Relationships.COMMENT_COMMENT_RELATIONSHIP}]->(${ancestor_comment_key})
       CREATE (${comment_key})-[:${Relationships.COMMENT_USER_RELATIONSHIP}]->(${user_key})
       RETURN ${comment_key}
     `;
@@ -35,19 +35,19 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
       },
     });
 
-    return this.neo4j_service.getSingleResultProperties(created_comment, comment_key) as CommentDTO;
+    return this.neo4j_service.getSingleResultProperties(created_comment, comment_key) as CommentOfCommentDTO;
   }
 
-  public async findAll(input: GetCommentsInPermanentPostInputModel): Promise<Array<GetCommentsInPermanentPostOutputModel>> {
-    const post_key = 'post';
+  public async findAll(input: GetCommentsInCommentInputModel): Promise<Array<GetCommentsInCommentOutputModel>> {
+    const ancestor_comment_key = 'ancestor_comment_key';
     const comment_key = 'comment';
     const user_key = 'user';
     const get_all_comments_query = `
-      MATCH(${post_key}: PermanentPost { post_id: '${input.postID}' })--(${comment_key}: Comment)--(${user_key}: User)
+      MATCH(${ancestor_comment_key}: Comment { comment_id: '${input['ancestorCommentID']}' })--(${comment_key}: Comment)--(${user_key}: User)
       RETURN ${comment_key}, ${user_key}
       ORDER BY ${comment_key}.timestamp DESC
-      SKIP ${input.page * input.limit}
-      LIMIT ${input.limit}
+      SKIP ${input['page'] * input['limit']}
+      LIMIT ${input['limit']}
     `;
     const comments = await this.neo4j_service.read(get_all_comments_query, {});
     return this.extractResults(comments);
@@ -81,5 +81,6 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
     }
     return commentData;
   }
+
 
 }

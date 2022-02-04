@@ -4,7 +4,7 @@ import { GroupDTO } from '../persistence-dto/group.dto';
 export class GroupMapper {
   public static toGroupDTO(group: Group): GroupDTO {
     return {
-      id: group.id,
+      // id: group.id,
       name: group.name,
       description: group.description,
       category: group.category,

@@ -5,7 +5,7 @@ import { CommentNeo4jRepositoryAdapter } from '@infrastructure/adapter/persisten
 
 import { CreateCommentInPermanentPostService } from '@core/service/comment/create_comment_in_permanent_post.service';
 import { CommentController } from '@application/api/http-rest/controller/comment.controller';
-import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post';
+import { GetCommentsInPermanentPostService } from '@core/service/comment/get_comments_in_permanent_post.service';
 
 const persistence_providers: Array<Provider> = [
   {
