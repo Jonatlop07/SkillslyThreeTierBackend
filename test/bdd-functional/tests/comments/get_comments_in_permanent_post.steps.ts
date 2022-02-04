@@ -141,7 +141,6 @@ defineFeature(feature, (test) => {
       whenUserTriesToGetAllComments(when);
       then('an error occurs: there are not comments in the post', () => {
         expect(output.length).toBe(numberOfComments);
-        expect(exception).toBeInstanceOf(ThereAreNoCommentsException);
       });
     });
 

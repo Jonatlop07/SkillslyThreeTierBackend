@@ -14,7 +14,7 @@ export class GetCommentsInCommentService implements GetCommentsInCommentInteract
   async execute(input: GetCommentsInCommentInputModel): Promise<Array<GetCommentsInCommentOutputModel>> {
     const comments = await this.gateway.findAll(input);
     if (comments.length == 0) {
-      throw new ThereAreNoCommentsException();
+      return [];
     }
     return Promise.resolve(comments);
   }

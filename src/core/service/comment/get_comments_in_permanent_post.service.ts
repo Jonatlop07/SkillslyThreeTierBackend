@@ -22,7 +22,7 @@ export class GetCommentsInPermanentPostService implements GetCommentsInPermanent
     const comments = await this.gateway.findAll(input);
 
     if (comments.length == 0) {
-      throw new ThereAreNoCommentsException();
+      return [];
     }
 
     const results = [];

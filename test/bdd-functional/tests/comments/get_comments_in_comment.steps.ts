@@ -159,7 +159,6 @@ defineFeature(feature, (test) => {
     then('an error occurs: there are not comments in the comment', () => {
       expect(output.length).toBe(0);
       expect(numberOfComments).toBe(0);
-      expect(exception).toBeInstanceOf(ThereAreNoCommentsException);
     });
   });
 
