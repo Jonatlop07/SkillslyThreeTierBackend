@@ -1,0 +1,4 @@
+{
+  "appService.defaultWebAppToDeploy": "/subscriptions/68ea7ebb-edf0-4e2e-aaff-1d989f11b78e/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/skillsly-backend",
+  "appService.deploySubpath": "."
+}

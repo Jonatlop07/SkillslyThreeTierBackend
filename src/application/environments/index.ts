@@ -5,7 +5,7 @@ export function setEnvironment() {
     case 'test':
       return ['test.app.env', 'local.app.env'];
     case 'production':
-      return ['prod.app.env', 'local.app.env'];
+      return ['prod.app.env'];
     default:
       return 'local.app.env';
   }
