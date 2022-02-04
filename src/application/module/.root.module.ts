@@ -17,6 +17,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ServiceOfferModule } from '@application/module/service_offer.module';
 import { APP_GUARD } from '@nestjs/core';
 import { ServiceRequestModule } from '@application/module/service_request.module';
+import { CommentsInCommentModule } from '@application/module/comments_in_comment.module';
 
 
 const event_emitter_configuration = {
@@ -57,6 +58,7 @@ const event_emitter_configuration = {
     AuthenticationModule,
     ProfileModule,
     CommentModule,
+    CommentsInCommentModule,
     ChatModule,
     EventModule,
     GroupModule,

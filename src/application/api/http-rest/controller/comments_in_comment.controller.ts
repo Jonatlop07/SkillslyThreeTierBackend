@@ -1,61 +1,56 @@
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Inject, Param, Post, Query } from '@nestjs/common';
+import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
+import { Role } from '@core/domain/user/entity/type/role.enum';
 import {
   ApiBadGatewayResponse,
-  ApiBadRequestResponse,
-  ApiBearerAuth,
+  ApiBadRequestResponse, ApiBearerAuth,
   ApiCreatedResponse,
-  ApiInternalServerErrorResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
+  ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
-import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
-import { CreateCommentDto } from '@application/api/http-rest/http-dto/comment/http_create_comment.dto';
+import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
+import { CreateCommentInCommentInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_comment.iteractor';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
-import { CreateCommentInPermanentPostAdapter } from '@application/api/http-rest/http-adapter/comment/create_comment_in_permanent_post.adapter';
-import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
-import { CreateCommentInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_permanent_post.interactor';
+import { ValidationPipe } from '@application/api/http-rest/common/pipes/validation.pipe';
+import { CreateCommentDto } from '@application/api/http-rest/http-dto/comment/http_create_comment.dto';
 import {
   CommentInvalidDataFormatException,
   ThereAreNoCommentsException,
 } from '@core/domain/comment/use-case/exception/comment.exception';
-import { GetCommentsInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/get_comments_in_permanent_post.interactor';
-import { Role } from '@core/domain/user/entity/type/role.enum';
-import { CreateCommentInCommentInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_comment.iteractor';
+import { GetCommentsInCommentInteractor } from '@core/domain/comment/use-case/interactor/get_comments_in_comment.interactor';
 
-@Controller('permanent-posts')
+@Controller('comments')
 @Roles(Role.User)
-@ApiTags('comments in a permanent post')
+@ApiTags('Comments in another comment')
 @ApiInternalServerErrorResponse({ description: 'An internal server error occurred' })
-export class CommentController {
 
+export class CommentsInCommentController {
   constructor(
-    @Inject(CommentDITokens.CreateCommentInPermanentPostInteractor)
-    private readonly createCommentInPermanentPostInteractor: CreateCommentInPermanentPostInteractor,
-    @Inject(CommentDITokens.GetCommentsInPermamentPostInteractor)
-    private readonly getCommentsInPermanentPostInteractor: GetCommentsInPermanentPostInteractor,
+    @Inject(CommentDITokens.CreateCommentInCommentInteractor)
+    private readonly createCommentInCommentInteractor: CreateCommentInCommentInteractor,
+    @Inject(CommentDITokens.GetCommentsInCommentInteractor)
+    private readonly getCommentsInCommentInteractor: GetCommentsInCommentInteractor,
   ) {
   }
 
-  @Post('/:permanentPostID/comment')
+  @Post('/:commentID/comment')
   @ApiCreatedResponse({ description: 'Comment has been sucessfully created' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while creating comment' })
   @ApiBearerAuth()
-  async createCommentInPermanentPost(
-    @Param('permanentPostID') permanentPostID: string,
+  async createCommentInComment(
+    @Param('commentID') commentID: string,
     @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateCommentDto,
   ) {
     try {
-      return await this.createCommentInPermanentPostInteractor.execute(CreateCommentInPermanentPostAdapter.new({
+      return await this.createCommentInCommentInteractor.execute({
         userID: http_user.id,
-        postID: permanentPostID,
+        ancestorCommentID: commentID,
         comment: body['comment'],
         timestamp: body['timestamp'],
-      }));
+      });
     } catch (e) {
       if (e instanceof CommentInvalidDataFormatException) {
         throw new HttpException({
@@ -70,7 +65,7 @@ export class CommentController {
     }
   }
 
-  @Get('/:permanentPostID/comments')
+  @Get('/:commentID/comments')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     description: 'Comments has been successfully obtained',
@@ -82,14 +77,14 @@ export class CommentController {
     description: 'Error while obtaining comments',
   })
   @ApiBearerAuth()
-  async getAllCommentsInPermanentPost(@Query() queryParams, @Param('permanentPostID') permanentPostID: string) {
+  async getAllCommentsInPermanentPost(@Query() queryParams, @Param('commentID') commentID: string) {
     const page = queryParams['page'] ? queryParams['page'] : 0;
     const limit = queryParams['limit'] ? queryParams['limit'] : 2;
     try {
-      return await this.getCommentsInPermanentPostInteractor.execute({
+      return await this.getCommentsInCommentInteractor.execute({
         page: page,
         limit: limit,
-        postID: permanentPostID,
+        ancestorCommentID: commentID,
       });
     } catch (e) {
       if (e instanceof ThereAreNoCommentsException) {
@@ -105,5 +100,6 @@ export class CommentController {
       }
     }
   }
+
 
 }
