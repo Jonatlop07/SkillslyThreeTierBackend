@@ -6,4 +6,5 @@ export default interface UpdateServiceStatusUpdateRequestOutputModel {
   requester_name: string;
   request_date?: string;
   action: string;
+  phase?: string; 
 }

@@ -21,7 +21,8 @@ export class QueryUserAccountService implements QueryUserAccountInteractor {
     return {
       email: user.email,
       name: user.name,
-      date_of_birth: user.date_of_birth
+      date_of_birth: user.date_of_birth,
+      is_two_factor_auth_enabled: user.is_two_factor_auth_enabled
     };
   }
 }

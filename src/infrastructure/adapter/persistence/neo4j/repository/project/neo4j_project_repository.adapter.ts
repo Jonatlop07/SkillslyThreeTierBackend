@@ -94,22 +94,24 @@ export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
   }
 
   public async findOne(params: ProjectQueryModel): Promise<ProjectDTO> {
-    const { user_id } = params;
+    const { project_id } = params;
     const user_id_key = 'user_id';
     const user_name_key = 'name';
     const find_project_query = `
-      MATCH (${this.user_key}: User { user_id: $user_id })
+      MATCH (${this.user_key}: User)
         -[:${Relationships.USER_PROJECT_RELATIONSHIP}]
-        ->(${this.project_key}: Project)
+        ->(${this.project_key}: Project { project_id: $project_id })
       RETURN ${this.project_key}, ${this.user_key}.user_id AS ${user_id_key}, ${this.user_key}.name AS ${user_name_key}
     `;
     const result: QueryResult = await this.neo4j_service.read(find_project_query, {
-      user_id,
+      project_id,
     });
     const found_project = this.neo4j_service.getSingleResultProperties(
         result,
         this.project_key,
     );
+    if (!found_project)
+      return null;
     return {
       user_id: this.neo4j_service.getSingleResultProperty(result, user_id_key),
       project_id: found_project.project_id,
@@ -121,6 +123,59 @@ export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
       reference: found_project.reference,
       reference_type: found_project.reference_type,
       annexes: found_project.annexes,
+    };
+  }
+
+  delete(params: string): Promise<ProjectDTO> {
+    params;
+    throw new Error('Method not implemented.');
+  }
+
+  public async deleteById(id: string): Promise<ProjectDTO> {
+    const project_key = 'project';
+    const user_key = 'user';
+    const delete_project_statement = `
+      MATCH (${project_key}: Project { project_id: $id })
+        <-[:${Relationships.USER_PROJECT_RELATIONSHIP}]
+        -(${user_key}: User)
+      DETACH DELETE ${project_key}
+      RETURN ${project_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.write(
+        delete_project_statement,
+        { id },
+    );
+    return this.neo4j_service.getSingleResultProperties(result, project_key);
+  }
+
+  public async update(project: ProjectDTO): Promise<ProjectDTO> {
+    const update_project_query = `
+      MATCH (${this.project_key}: Project { project_id: $project_id })
+      SET ${this.project_key} += $properties
+      RETURN ${this.project_key}
+    `;
+    const result = await this.neo4j_service.write(update_project_query, {
+      project_id: project.project_id,
+      properties: {
+        ...project,
+        updated_at: moment().local().format('YYYY-MM-DD HH:mm:ss'),
+      },
+    });
+    const updated_project = this.neo4j_service.getSingleResultProperties(
+        result,
+        'project',
+    );
+    return {
+      project_id: updated_project.project_id,
+      title: updated_project.title,
+      members: updated_project.members,
+      description: updated_project.description,
+      reference: updated_project.reference,
+      reference_type: updated_project.reference_type,
+      annexes: updated_project.annexes,
+      created_at: updated_project.created_at,
+      updated_at: updated_project.updated_at,
+      user_id: project.user_id,
     };
   }
 }

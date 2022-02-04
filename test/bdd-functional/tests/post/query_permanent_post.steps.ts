@@ -199,8 +199,8 @@ defineFeature(feature, (test) => {
             user_to_follow_id: owner_id,
           });
           await update_user_follow_request_interactor.execute({
-            user_id: user_id,
-            user_to_follow_id: owner_id,
+            user_id: owner_id,
+            user_that_requests_id: user_id,
             accept: true,
           });
         } catch (e) {
@@ -300,17 +300,20 @@ defineFeature(feature, (test) => {
   }
 
   function whenUserTriesToQueryACollectionOfGroupPosts(when) {
-    when('the user tries to query a collection of posts that belong to the group', async () => {
-      try {
-        output_collection =
-          await query_permanent_post_collection_interactor.execute({
-            user_id: user_id,
-            group_id: group_id
-          });
-      } catch (e) {
-        exception = e;
-      }
-    });
+    when(
+      'the user tries to query a collection of posts that belong to the group',
+      async () => {
+        try {
+          output_collection =
+            await query_permanent_post_collection_interactor.execute({
+              user_id: user_id,
+              group_id: group_id,
+            });
+        } catch (e) {
+          exception = e;
+        }
+      },
+    );
   }
 
   beforeEach(async () => {
@@ -350,173 +353,205 @@ defineFeature(feature, (test) => {
     exception = undefined;
   });
 
-  test('A logged in user tries to query a specific permanent post', 
-    ({ given, and, when, then }) => {
-      givenAUserExists(given);
-      andPostIdentifiedByIdExists(and);
-      andUserProvidesIdOfThePostAndIdOfTheOwner(and);
-      whenUserTriesQueryAPost(when);
-      then('the post is then returned', () => {
-        const expected_output: QueryPermanentPostOutputModel = {
-          post_id: created_post.post_id,
-          content: created_post.content,
-          user_id: created_post.user_id,
-        };
+  test('A logged in user tries to query a specific permanent post', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenAUserExists(given);
+    andPostIdentifiedByIdExists(and);
+    andUserProvidesIdOfThePostAndIdOfTheOwner(and);
+    whenUserTriesQueryAPost(when);
+    then('the post is then returned', () => {
+      const expected_output: QueryPermanentPostOutputModel = {
+        post_id: created_post.post_id,
+        content: created_post.content,
+        user_id: created_post.user_id,
+      };
 
-        expect(output).toBeDefined();
-        expect(output.content).toEqual(expected_output.content);
-      });
+      expect(output).toBeDefined();
+      expect(output.content).toEqual(expected_output.content);
     });
+  });
 
-  test('A logged in user tries to query the collection of permanent posts that belong to himself', 
-    ({ given, and, when, then }) => {
-      givenAUserExists(given);
-      andPostCollectionFromUserIdentifiedByIdExists(and);
-      andUserProvidesIdOfTheOwner(and);
-      whenUserTriesToQueryACollectionOfPosts(when);
+  test('A logged in user tries to query the collection of permanent posts that belong to himself', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenAUserExists(given);
+    andPostCollectionFromUserIdentifiedByIdExists(and);
+    andUserProvidesIdOfTheOwner(and);
+    whenUserTriesToQueryACollectionOfPosts(when);
 
-      then('the collection of posts is then returned', () => {
-        const expected_output: QueryPermanentPostCollectionOutputModel = {
-          posts: [
-            {
-              post_id: '1',
-              group_id: '0',
-              content: post1_content,
-              user_id: owner_id,
-              privacy: 'public',
-              created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
-            },
-            {
-              post_id: '2',
-              group_id: '0',
-              content: post2_content,
-              user_id: owner_id,
-              privacy: 'private',
-              created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
-            },
-          ],
-        };
-        expect(output_collection).toBeDefined();
-        expect(output_collection.posts).toEqual(expected_output.posts);
-      });
+    then('the collection of posts is then returned', () => {
+      const expected_output: QueryPermanentPostCollectionOutputModel = {
+        posts: [
+          {
+            post_id: '1',
+            group_id: '0',
+            content: post1_content,
+            user_id: owner_id,
+            privacy: 'public',
+            created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
+          },
+          {
+            post_id: '2',
+            group_id: '0',
+            content: post2_content,
+            user_id: owner_id,
+            privacy: 'private',
+            created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
+          },
+        ],
+      };
+      expect(output_collection).toBeDefined();
+      expect(output_collection.posts).toEqual(expected_output.posts);
     });
+  });
 
-  test('A logged in user tries to query the collection of permanent posts that belong to another user who is friends with them', 
-    ({ given, and, when, then }) => {
-      givenAUserExists(given);
-      andUserIdentifiedByIdExists(and);
-      andPostCollectionFromUserIdentifiedByIdExists(and);
-      andFollowingRelationshipExists(and);
-      andUserProvidesIdOfTheOwner(and);
-      whenUserTriesToQueryACollectionOfPosts(when);
+  test('A logged in user tries to query the collection of permanent posts that belong to another user who is friends with them', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenAUserExists(given);
+    andUserIdentifiedByIdExists(and);
+    andPostCollectionFromUserIdentifiedByIdExists(and);
+    andFollowingRelationshipExists(and);
+    andUserProvidesIdOfTheOwner(and);
+    whenUserTriesToQueryACollectionOfPosts(when);
 
-
-      then('the collection of all posts is then returned', () => {
-        const expected_output: QueryPermanentPostCollectionOutputModel = {
-          posts: [
-            {
-              post_id: '1',
-              group_id: '0',
-              content: post1_content,
-              user_id: owner_id,
-              privacy: 'public',
-              created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
-            },
-            {
-              post_id: '2',
-              group_id: '0',
-              content: post2_content,
-              user_id: owner_id,
-              privacy: 'private',
-              created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
-            },
-          ],
-        };
-        expect(output_collection).toBeDefined();
-        expect(output_collection.posts).toEqual(expected_output.posts);
-      });
+    then('the collection of all posts is then returned', () => {
+      let user_name;
+      const expected_output: QueryPermanentPostCollectionOutputModel = {
+        posts: [
+          {
+            post_id: '1',
+            group_id: '0',
+            content: post1_content,
+            user_id: owner_id,
+            privacy: 'public',
+            created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
+          },
+          {
+            post_id: '2',
+            group_id: '0',
+            content: post2_content,
+            user_id: owner_id,
+            privacy: 'private',
+            created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
+          },
+        ],
+      };
+      expect(output_collection).toBeDefined();
+      expect(output_collection.posts).toEqual(expected_output.posts);
     });
+  });
 
-  test('A logged in user tries to query the collection of permanent posts that belong to another user who is not friends with them', 
-    ({ given, and, when, then }) => {
-      givenAUserExists(given);
-      andUserIdentifiedByIdExists(and);
-      andPostCollectionFromUserIdentifiedByIdExists(and);
-      andUserProvidesIdOfTheOwner(and);
-      whenUserTriesToQueryACollectionOfPosts(when);
+  test('A logged in user tries to query the collection of permanent posts that belong to another user who is not friends with them', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenAUserExists(given);
+    andUserIdentifiedByIdExists(and);
+    andPostCollectionFromUserIdentifiedByIdExists(and);
+    andUserProvidesIdOfTheOwner(and);
+    whenUserTriesToQueryACollectionOfPosts(when);
 
-      then('the collection of posts that are public is returned', () => {
-        const expected_output: QueryPermanentPostCollectionOutputModel = {
-          posts: [
-            {
-              post_id: '1',
-              group_id: '0',
-              content: post1_content,
-              user_id: owner_id,
-              privacy: 'public',
-              created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
-            },
-          ],
-        };
-        expect(output_collection).toBeDefined();
-        expect(output_collection.posts).toEqual(expected_output.posts);
-      });
+    then('the collection of posts that are public is returned', () => {
+      const expected_output: QueryPermanentPostCollectionOutputModel = {
+        posts: [
+          {
+            post_id: '1',
+            group_id: '0',
+            content: post1_content,
+            user_id: owner_id,
+            privacy: 'public',
+            created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
+          },
+        ],
+      };
+      expect(output_collection).toBeDefined();
+      expect(output_collection.posts).toEqual(expected_output.posts);
     });
+  });
 
-  test('A logged in user tries to query the collection of permanent posts that belong to another user that does not exist', 
-    ({ given, and, when, then }) => {
-      givenAUserExists(given);
-      andUserProvidesIdOfTheOwner(and);
-      whenUserTriesToQueryACollectionOfPosts(when);
+  test('A logged in user tries to query the collection of permanent posts that belong to another user that does not exist', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenAUserExists(given);
+    andUserProvidesIdOfTheOwner(and);
+    whenUserTriesToQueryACollectionOfPosts(when);
 
-      then(
-        'an error occurs: the user with the provided id does not exist',
-        () => {
-          expect(exception).toBeInstanceOf(NonExistentUserException);
-        },
-      );
+    then(
+      'an error occurs: the user with the provided id does not exist',
+      () => {
+        expect(exception).toBeInstanceOf(NonExistentUserException);
+      },
+    );
+  });
+
+  test('A logged in user tries to query a permanent post that does not exist', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenAUserExists(given);
+    andUserIdentifiedByIdExists(and);
+    andUserProvidesIdOfThePostAndIdOfTheOwner(and);
+    whenUserTriesQueryAPost(when);
+
+    then(
+      'an error occurs: the post with the provided id does not exist',
+      () => {
+        expect(exception).toBeInstanceOf(NonExistentPermanentPostException);
+      },
+    );
+  });
+
+  test('A logged in user tries to query a permanent post from a user that does not exist', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenAUserExists(given);
+    andUserProvidesIdOfThePostAndIdOfTheOwner(and);
+    whenUserTriesQueryAPost(when);
+
+    then(
+      'an error occurs: the user with the provided id does not exist',
+      () => {
+        expect(exception).toBeInstanceOf(NonExistentUserException);
+      },
+    );
+  });
+
+  test('A logged in user tries to query the collection of permanent posts from a specific group', ({
+    given,
+    and,
+    when,
+    then,
+  }) => {
+    givenAUserExists(given);
+    andAGroupIdentifiedByIdExists(and);
+    andPostCollectionFromGroupIdentifiedByIdExists(and);
+    andUserIsPartOfGroup(and);
+    andAGroupIdIsProvided(and);
+    whenUserTriesToQueryACollectionOfGroupPosts(when);
+
+    then('the collection of posts is then returned', () => {
+      expect(output_collection).toBeDefined();
     });
-
-  test('A logged in user tries to query a permanent post that does not exist', 
-    ({ given, and, when, then }) => {
-      givenAUserExists(given);
-      andUserIdentifiedByIdExists(and);
-      andUserProvidesIdOfThePostAndIdOfTheOwner(and);
-      whenUserTriesQueryAPost(when);
-
-      then(
-        'an error occurs: the post with the provided id does not exist',
-        () => {
-          expect(exception).toBeInstanceOf(NonExistentPermanentPostException);
-        },
-      );
-    });
-
-  test('A logged in user tries to query a permanent post from a user that does not exist', 
-    ({ given, and, when, then }) => {
-      givenAUserExists(given);
-      andUserProvidesIdOfThePostAndIdOfTheOwner(and);
-      whenUserTriesQueryAPost(when);
-
-      then(
-        'an error occurs: the user with the provided id does not exist',
-        () => {
-          expect(exception).toBeInstanceOf(NonExistentUserException);
-        },
-      );
-    });
-
-  test('A logged in user tries to query the collection of permanent posts from a specific group', 
-    ({ given, and, when, then }) => {
-      givenAUserExists(given);
-      andAGroupIdentifiedByIdExists(and);
-      andPostCollectionFromGroupIdentifiedByIdExists(and);
-      andUserIsPartOfGroup(and);
-      andAGroupIdIsProvided(and);
-      whenUserTriesToQueryACollectionOfGroupPosts(when);
-
-      then('the collection of posts is then returned', () => {
-        expect(output_collection).toBeDefined();
-      });
-    });
+  });
 });

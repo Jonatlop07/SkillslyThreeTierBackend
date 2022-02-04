@@ -81,8 +81,8 @@ defineFeature( feature, (test) => {
       async (acceptString: string) => {
         const accept = acceptString === 'true';
         await updateUserFollowRequest({
-          user_id,
-          user_to_follow_id,
+          user_id: user_to_follow_id,
+          user_that_requests_id: user_id,
           accept
         });
       });

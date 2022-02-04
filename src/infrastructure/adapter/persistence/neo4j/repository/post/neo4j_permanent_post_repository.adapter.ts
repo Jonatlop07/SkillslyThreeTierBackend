@@ -217,7 +217,6 @@ implements PermanentPostRepository {
           };
         }),
       );
-    console.log(result);
     return result.map((post) => ({
       ...post,
       content: post.content.map((content_element) =>
