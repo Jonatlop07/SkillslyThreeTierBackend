@@ -12,6 +12,8 @@ import { AddCustomerDetailsGateway } from '@core/domain/user/use-case/gateway/ad
 import ObtainSpecialRolesPersistenceGateway
   from '@core/domain/user/use-case/gateway/obtain_special_roles_persistence.gateway';
 import TwoFactorAuthGateway from '@core/domain/user/use-case/gateway/two_factor_auth.gateway';
+import RequestResetPassword from "@core/domain/user/use-case/gateway/request_reset_passwrod.gateway";
+import ResetPassword from "@core/domain/user/use-case/gateway/reset_password.gateway";
 
 export default interface UserRepository
   extends CreateUserAccountGateway, ValidateCredentialsGateway,
@@ -19,4 +21,4 @@ export default interface UserRepository
   SearchUsersGateway, CreateUserFollowRequestGateway, UpdateUserFollowRequestGateway,
   DeleteUserFollowRequestGateway, GetUserFollowRequestCollectionGateway,
   AddCustomerDetailsGateway, ObtainSpecialRolesPersistenceGateway,
-  TwoFactorAuthGateway {}
+  TwoFactorAuthGateway, RequestResetPassword , ResetPassword {}
