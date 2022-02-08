@@ -6,6 +6,6 @@ import GetCommentsInPermanentPostInputModel
 import { GetCommentsInPermanentPostOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_permanent_post.output_model';
 
 export interface GetCommentsInPermanentPostInteractor extends
-  Interactor <undefined | GetCommentsInPermanentPostInputModel,
+  Interactor <GetCommentsInPermanentPostInputModel,
   Array<CreateCommentInPermanentPostInputModel> | Array<GetCommentsInPermanentPostOutputModel>> {
 }

@@ -42,7 +42,8 @@ export class HttpExceptionMapper {
         CoreExceptionCodes.INVALID_SERVICE_OFFER_DETAILS_FORMAT,
         CoreExceptionCodes.NO_SPECIAL_ROLE_TO_OBTAIN,
         CoreExceptionCodes.INVALID_FORMAT_PROFILE_DATA,
-        CoreExceptionCodes.PROFILE_EMPTY_DETAILS
+        CoreExceptionCodes.PROFILE_EMPTY_DETAILS,
+        CoreExceptionCodes.INVALID_FORMAT_COMMENT_DATA
       ]),
       status_code: HttpStatus.BAD_REQUEST,
     },

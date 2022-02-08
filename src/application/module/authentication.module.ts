@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { HttpModule } from '@nestjs/axios';
 import { APP_GUARD } from '@nestjs/core';
 import { HttpAuthenticationService } from '@application/api/http-rest/authentication/service/http_authentication.service';
 import { HttpLocalStrategy } from '@application/api/http-rest/authentication/passport/http_local.strategy';
@@ -13,15 +14,11 @@ import { HttpJwtTwoFactorAuthStrategy } from '@application/api/http-rest/authent
 import { HttpJwtTwoFactorAuthGuard } from '@application/api/http-rest/authentication/guard/http_jwt_two_factor_auth.guard';
 import { TwoFactorAuthController } from '@application/api/http-rest/controller/two_factor_auth.controller';
 import { HttpTwoFactorAuthService } from '@application/api/http-rest/authentication/service/http_two_factor_auth.service';
-import {HttpResetPasswordService} from "@application/api/http-rest/authentication/service/http_reset_password.service";
-import {MAILER_OPTIONS, MailerModule, MailerService} from "@nestjs-modules/mailer";
-import {HandlebarsAdapter} from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
+import { HttpResetPasswordService } from '@application/api/http-rest/authentication/service/http_reset_password.service';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
-  controllers: [
-    AuthenticationController,
-    TwoFactorAuthController
-  ],
+  controllers: [AuthenticationController, TwoFactorAuthController],
   imports: [
     ConfigModule,
     PassportModule,
@@ -31,9 +28,9 @@ import {HandlebarsAdapter} from "@nestjs-modules/mailer/dist/adapters/handlebars
       useFactory: (config_service: ConfigService) => ({
         secret: config_service.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: `${config_service.get<string>('JWT_EXPIRATION_TIME')}m`
-        }
-      })
+          expiresIn: `${config_service.get<string>('JWT_EXPIRATION_TIME')}m`,
+        },
+      }),
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -46,7 +43,7 @@ import {HandlebarsAdapter} from "@nestjs-modules/mailer/dist/adapters/handlebars
           secure: config_service.get<boolean>('MAILER_SECURE'),
           secureConnection: false,
           tls: {
-            ciphers:'SSLv3'
+            ciphers: 'SSLv3',
           },
           auth: {
             user: config_service.get<boolean>('USER_MAILER'),
@@ -57,10 +54,12 @@ import {HandlebarsAdapter} from "@nestjs-modules/mailer/dist/adapters/handlebars
           from: '"No Reply" <no-reply@localhost>',
         },
         preview: true,
-      })
+      }),
     }),
     UserModule,
-    MailerModule
+    MailerModule,
+    HttpModule,
+    UserModule,
   ],
   providers: [
     HttpAuthenticationService,
@@ -75,11 +74,9 @@ import {HandlebarsAdapter} from "@nestjs-modules/mailer/dist/adapters/handlebars
     },
     {
       provide: APP_GUARD,
-      useClass: RolesGuard
-    }
+      useClass: RolesGuard,
+    },
   ],
-  exports: [
-    HttpAuthenticationService
-  ]
+  exports: [HttpAuthenticationService],
 })
 export class AuthenticationModule {}
