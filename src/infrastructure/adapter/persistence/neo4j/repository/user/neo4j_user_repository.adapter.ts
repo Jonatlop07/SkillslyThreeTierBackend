@@ -286,7 +286,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       DETACH DELETE ${this.user_key}
       WITH ${this.user_key}
       OPTIONAL MATCH (${this.user_key})
-        -[${user_conversation_relationship}:${Relationships.USER_CONVERSATION_RELATIONSHIP}
+        -[${user_conversation_relationship}:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
         ->(${conversation_key}: Conversation)
       DELETE ${user_conversation_relationship}
       RETURN ${this.user_key}
