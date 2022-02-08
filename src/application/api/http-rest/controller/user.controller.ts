@@ -338,7 +338,7 @@ export class UserController {
     }
   }
 
-  @Put('follow/:user_to_follow_id')
+  @Put('follow/:user_that_requests_id')
   @Roles(Role.User)
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({
