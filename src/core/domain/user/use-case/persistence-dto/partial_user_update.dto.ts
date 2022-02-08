@@ -7,4 +7,5 @@ export interface PartialUserUpdateDTO {
   updated_at?: string;
   is_two_factor_auth_enabled?: boolean;
   two_factor_auth_secret?: string;
+  reset_password_token?: string;
 }
