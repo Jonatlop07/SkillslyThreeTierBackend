@@ -49,7 +49,7 @@ export class HttpResetPasswordService {
       },
     );
     try {
-      const result = await this.mailerService.sendMail({
+      await this.mailerService.sendMail({
         to: email,
         from: 'skillsly_team@skillsly.com',
         subject: 'Request Reset Password Skillsly',
@@ -57,12 +57,11 @@ export class HttpResetPasswordService {
 
         html:
           '<b> Porfavor ingrese al siguiente enlace para recuperar su contraseña:</b>' +
-          `<a href="${token}" target="_blank"> Recuperador de contraseñas Skillsly.com</a>`,
+          `<a href="${process.env.ORIGIN}/reset-password/${token}" target="_blank"> Recuperador de contraseñas Skillsly</a>`,
       });
     } catch (e) {
       console.log(e)
     }
-
   }
 
   public async resetPassword(

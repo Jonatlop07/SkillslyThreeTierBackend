@@ -63,6 +63,7 @@ export class AuthenticationController {
     return this.reset_password_service.resetPassword(resetPasswordDTO);
   }
 
+  @Public()
   @Post('val-captcha')
   @HttpCode(HttpStatus.OK)
   public validateCaptcha(@Body() details): Observable<any> {
