@@ -21,6 +21,7 @@ import { RequestResetPasswordDTO } from '@application/api/http-rest/authenticati
 import { ResetPasswordDTO } from '@application/api/http-rest/authentication/types/reset_password.dto';
 import { HttpResetPasswordService } from '@application/api/http-rest/authentication/service/http_reset_password.service';
 import { Observable } from 'rxjs';
+import {ValidationPipe} from "@application/api/http-rest/common/pipes/validation.pipe";
 
 @Controller('auth')
 @ApiTags('auth')
@@ -59,12 +60,12 @@ export class AuthenticationController {
   @HttpCode(HttpStatus.OK)
   public resetPassword(
       @Param('token') token: string,
-      @Body() password: string,
+      @Body() body,
   ): Promise<void> {
     let resetPassword: ResetPasswordDTO = {
       reset_password_token: token,
-      password: password,
-    }
+      password: body.password,
+    };
     return this.reset_password_service.resetPassword(resetPassword);
   }
 
