@@ -1,8 +1,9 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
-  Logger,
+  Logger, Patch,
   Post,
   Req,
   UseGuards
@@ -15,6 +16,9 @@ import {
   HttpRequestWithUser
 } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
+import {RequestResetPasswordDTO} from "@application/api/http-rest/authentication/types/request_reset_password.dto";
+import {ResetPasswordDTO} from "@application/api/http-rest/authentication/types/reset_password.dto";
+import {HttpResetPasswordService} from "@application/api/http-rest/authentication/service/http_reset_password.service";
 
 @Controller('auth')
 @ApiTags('auth')
@@ -22,7 +26,7 @@ import { Public } from '@application/api/http-rest/authentication/decorator/publ
 export class AuthenticationController {
   private readonly logger: Logger = new Logger(AuthenticationController.name);
 
-  constructor(private readonly authentication_service: HttpAuthenticationService) {
+  constructor(private readonly authentication_service: HttpAuthenticationService,private readonly reset_password_service: HttpResetPasswordService) {
   }
 
   @Public()
@@ -31,5 +35,19 @@ export class AuthenticationController {
   @UseGuards(HttpLocalAuthenticationGuard)
   public login(@Req() request: HttpRequestWithUser): HttpLoggedInUser {
     return this.authentication_service.login(request.user);
+  }
+
+  @Public()
+  @Patch('/request-reset-password')
+  @HttpCode(HttpStatus.OK)
+  public requestResetPassword(@Body() requestResetPasswordDTO: RequestResetPasswordDTO): Promise<void> {
+    return this.reset_password_service.requestResetPassword(requestResetPasswordDTO);
+  }
+
+  @Public()
+  @Patch('/reset-password')
+  @HttpCode(HttpStatus.OK)
+  public resetPassword(@Body() resetPasswordDTO: ResetPasswordDTO ): Promise<void> {
+    return this.reset_password_service.resetPassword(resetPasswordDTO);
   }
 }

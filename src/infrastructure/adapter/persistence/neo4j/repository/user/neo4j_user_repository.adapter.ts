@@ -12,6 +12,7 @@ import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import { AddCustomerDetailsDTO } from '@core/domain/user/use-case/persistence-dto/add_customer_details.dto';
 import { UpdateUserRolesDTO } from '@core/domain/user/use-case/persistence-dto/update_user_roles.dto';
 import { PartialUserUpdateDTO } from '@core/domain/user/use-case/persistence-dto/partial_user_update.dto';
+import {RequestResetPasswordDTO} from "@application/api/http-rest/authentication/types/request_reset_password.dto";
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -125,6 +126,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
           name: user.name,
           date_of_birth: user.date_of_birth,
           is_two_factor_auth_enabled: false,
+          reset_password_token: null,
           created_at: getCurrentDate()
         }
       });
@@ -444,5 +446,6 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     );
     return this.neo4j_service.getSingleResultProperties(result, this.user_key) as UserDTO;
   }
+
 }
 
