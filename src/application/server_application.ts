@@ -41,7 +41,7 @@ export class ServerApplication {
 
       this.buildAPIDocumentation(app);
 
-      await app.listen(this.port, this.host);
+      await app.listen(process.env.PORT || this.port, process.env.HOST || this.host);
 
       Logger.log(
         `Environment: ${chalk
