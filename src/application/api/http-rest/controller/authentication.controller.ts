@@ -3,7 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Logger,
+  Logger, Param,
   Patch,
   Post,
   Req,
@@ -55,12 +55,17 @@ export class AuthenticationController {
   }
 
   @Public()
-  @Patch('/reset-password')
+  @Patch('/reset-password/:token')
   @HttpCode(HttpStatus.OK)
   public resetPassword(
-    @Body() resetPasswordDTO: ResetPasswordDTO,
+      @Param('token') token: string,
+      @Body() password: string,
   ): Promise<void> {
-    return this.reset_password_service.resetPassword(resetPasswordDTO);
+    let resetPassword: ResetPasswordDTO = {
+      reset_password_token: token,
+      password: password,
+    }
+    return this.reset_password_service.resetPassword(resetPassword);
   }
 
   @Public()
