@@ -22,6 +22,7 @@ import { ResetPasswordDTO } from '@application/api/http-rest/authentication/type
 import { HttpResetPasswordService } from '@application/api/http-rest/authentication/service/http_reset_password.service';
 import { Observable } from 'rxjs';
 import {ValidationPipe} from "@application/api/http-rest/common/pipes/validation.pipe";
+import { HttpExceptionMapper } from '../exception/http_exception.mapper';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -47,18 +48,22 @@ export class AuthenticationController {
   @Public()
   @Patch('/request-reset-password')
   @HttpCode(HttpStatus.OK)
-  public requestResetPassword(
+  public async requestResetPassword(
     @Body() requestResetPasswordDTO: RequestResetPasswordDTO,
   ): Promise<void> {
-    return this.reset_password_service.requestResetPassword(
-      requestResetPasswordDTO,
-    );
+    try {
+      return await this.reset_password_service.requestResetPassword(
+        requestResetPasswordDTO,
+      );
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
   }
 
   @Public()
   @Patch('/reset-password/:token')
   @HttpCode(HttpStatus.OK)
-  public resetPassword(
+  public async resetPassword(
       @Param('token') token: string,
       @Body() body,
   ): Promise<void> {
@@ -66,7 +71,12 @@ export class AuthenticationController {
       reset_password_token: token,
       password: body.password,
     };
-    return this.reset_password_service.resetPassword(resetPassword);
+    try {
+      return await this.reset_password_service.resetPassword(resetPassword);
+    } catch (e) {
+      throw HttpExceptionMapper.toHttpException(e);
+    }
+    
   }
 
   @Public()
