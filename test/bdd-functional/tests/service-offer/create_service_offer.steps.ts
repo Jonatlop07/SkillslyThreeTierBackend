@@ -21,7 +21,7 @@ defineFeature(feature, (test) => {
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_service_offer_interactor: CreateServiceOfferInteractor;
   let input: CreateServiceOfferInputModel = {
-    user_id: '',
+    owner_id: '',
     title: '',
     service_brief: '',
     contact_information: '',
@@ -49,9 +49,9 @@ defineFeature(feature, (test) => {
   function andUserProvidesDetailsOfTheService(given) {
     given(/the user provides the details of the service being:/,
       (service_details) => {
-        const { user_id, title, service_brief, contact_information, category } = service_details[0];
+        const { owner_id, title, service_brief, contact_information, category } = service_details[0];
         input = {
-          user_id,
+          owner_id,
           title,
           service_brief,
           contact_information,

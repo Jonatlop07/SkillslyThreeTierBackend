@@ -7,6 +7,7 @@ import GetCommentsInPermanentPostInputModel
   from '@core/domain/comment/use-case/input-model/get_comments_in_permanent_post.input_model';
 import { GetCommentsInPermanentPostOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_permanent_post.output_model';
 import { QueryResult } from 'neo4j-driver';
+import CreateCommentPersistenceDTO from '@core/domain/comment/use-case/persistence-dto/create_comment.persistence_dto';
 
 
 @Injectable()
@@ -14,14 +15,14 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(comment: CommentDTO): Promise<CommentDTO> {
+  public async create(comment: CreateCommentPersistenceDTO): Promise<CommentDTO> {
     const post_key = 'post';
     const comment_key = 'comment';
     const user_key = 'user';
     const create_comment_query = `
       MATCH 
-        (${post_key}: PermanentPost { post_id: '${comment['postID']}' }),
-        (${user_key}: User { user_id: '${comment['userID']}' })
+        (${post_key}: PermanentPost { post_id: $post_id }),
+        (${user_key}: User { user_id: $owner_id })
       CREATE (${comment_key}: Comment)
       SET ${comment_key} += $properties, ${comment_key}.comment_id = randomUUID()
       CREATE (${post_key})-[:${Relationships.POST_COMMENT_RELATIONSHIP}]->(${comment_key})
@@ -30,11 +31,12 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
     `;
     const created_comment = await this.neo4j_service.write(create_comment_query, {
       properties: {
-        comment: comment['comment'],
-        timestamp: comment['timestamp'],
+        post_id: comment.postID,
+        owner_id: comment.ownerID,
+        comment: comment.comment,
+        timestamp: comment.timestamp
       },
     });
-
     return this.neo4j_service.getSingleResultProperties(created_comment, comment_key) as CommentDTO;
   }
 
@@ -43,13 +45,15 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
     const comment_key = 'comment';
     const user_key = 'user';
     const get_all_comments_query = `
-      MATCH(${post_key}: PermanentPost { post_id: '${input.postID}' })--(${comment_key}: Comment)--(${user_key}: User)
+      MATCH(${post_key}: PermanentPost { post_id: $post_id })--(${comment_key}: Comment)--(${user_key}: User)
       RETURN ${comment_key}, ${user_key}
       ORDER BY ${comment_key}.timestamp DESC
       SKIP ${input.page * input.limit}
       LIMIT ${input.limit}
     `;
-    const comments = await this.neo4j_service.read(get_all_comments_query, {});
+    const comments = await this.neo4j_service.read(get_all_comments_query, {
+      post_id: input.postID
+    });
     return this.extractResults(comments);
 
   }

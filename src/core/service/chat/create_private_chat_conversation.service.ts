@@ -8,6 +8,7 @@ import CreatePrivateChatConversationOutputModel
 import CreatePrivateChatConversationGateway
   from '@core/domain/chat/use-case/gateway/create_private_chat_conversation.gateway';
 import { PrivateConversationAlreadyExistsChatException } from '@core/domain/chat/use-case/exception/chat.exception';
+import { ConversationDTO } from '@core/domain/chat/use-case/persistence-dto/conversation.dto';
 
 export class CreatePrivateChatConversationService implements CreatePrivateChatConversationInteractor {
   private readonly logger: Logger = new Logger(CreatePrivateChatConversationService.name);
@@ -22,13 +23,17 @@ export class CreatePrivateChatConversationService implements CreatePrivateChatCo
     const { user_id, partner_id } = input;
     if (await this.gateway.existsPrivateConversationWithUser(user_id, partner_id))
       throw new PrivateConversationAlreadyExistsChatException();
+    const created_private_chat_conversation: ConversationDTO = await this.gateway.create({
+      members: [user_id, partner_id],
+      creator_id: user_id,
+      name: undefined,
+      is_private: true
+    });
     return {
-      ...await this.gateway.create({
-        members: [user_id, partner_id],
-        messages: [],
-        is_private: true
-      }),
-      members: [user_id, partner_id]
+      created_private_chat_conversation: {
+        ...created_private_chat_conversation,
+        members: [user_id, partner_id]
+      }
     };
   }
 }

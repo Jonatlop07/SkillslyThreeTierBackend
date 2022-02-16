@@ -1,5 +1,7 @@
+import { Id } from '@core/common/type/common_types';
+
 export default interface CreateTemporalPostOutputModel {
-  temporal_post_id: string;
-  user_id: string;
+  temporal_post_id: Id;
+  owner_id: Id;
   description: string;
 }

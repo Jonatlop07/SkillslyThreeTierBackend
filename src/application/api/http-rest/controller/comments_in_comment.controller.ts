@@ -67,8 +67,8 @@ export class CommentsInCommentController {
   })
   @ApiBearerAuth()
   async getAllCommentsInPermanentPost(@Query() queryParams, @Param('commentID') commentID: string) {
-    const page = queryParams['page'] ? queryParams['page'] : 0;
-    const limit = queryParams['limit'] ? queryParams['limit'] : 2;
+    const page = queryParams.page ? queryParams.page : 0;
+    const limit = queryParams.limit ? queryParams.limit : 2;
     try {
       return await this.getCommentsInCommentInteractor.execute({
         page: page,

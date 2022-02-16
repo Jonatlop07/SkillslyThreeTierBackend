@@ -13,7 +13,6 @@ import SocketMessageDTO from '@application/socket-gateway/dtos/socket_message.dt
 import { SocketUserDTO } from '@application/socket-gateway/dtos/socket_user.dto';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
 import { CreateChatMessageInteractor } from '@core/domain/chat/use-case/interactor/create_chat_message.interactor';
-import CreateChatMessageOutputModel from '@core/domain/chat/use-case/output-model/create_chat_message.output_model';
 
 @WebSocketGateway({
   cors: {
@@ -30,7 +29,7 @@ export class ChatSocketGateway implements OnGatewayInit, OnGatewayConnection, On
   constructor(
     private config_service: ConfigService,
     @Inject(ChatDITokens.CreateChatMessageInteractor)
-    private readonly create_chat_message_interactor: CreateChatMessageInteractor
+    private readonly create_chat_message: CreateChatMessageInteractor
   ) {
   }
 
@@ -52,8 +51,8 @@ export class ChatSocketGateway implements OnGatewayInit, OnGatewayConnection, On
   @SubscribeMessage('send_message_to_conversation')
   public async handleSendMessageToConversation(client: Socket, payload: SocketMessageDTO) {
     try {
-      const created_message: CreateChatMessageOutputModel = await this.create_chat_message_interactor.execute({
-        user_id: payload.user_id,
+      const { created_message } = await this.create_chat_message.execute({
+        owner_id: payload.user_id,
         conversation_id: payload.conversation_id,
         content: payload.message
       });

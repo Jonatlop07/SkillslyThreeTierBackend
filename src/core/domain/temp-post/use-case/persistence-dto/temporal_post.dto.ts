@@ -1,9 +1,11 @@
+import { Id } from '@core/common/type/common_types';
+
 export interface TemporalPostDTO {
-  temporal_post_id?: string;
+  temporal_post_id?: Id;
   description?: string;
   reference: string;
   referenceType: string;
-  user_id: string;
+  owner_id: Id;
   created_at?: string;
   expires_at?: string;
 }

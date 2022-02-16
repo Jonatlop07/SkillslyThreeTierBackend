@@ -1,7 +1,7 @@
+import { Id } from '@core/common/type/common_types';
 
 export default interface CreateGroupInputModel {
-  id?: string;
-  owner_id: string;
+  owner_id: Id;
   name: string;
   description: string;
   category: string;

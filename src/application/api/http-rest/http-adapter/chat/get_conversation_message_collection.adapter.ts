@@ -7,7 +7,7 @@ import { MessageDTO } from '@core/domain/chat/use-case/persistence-dto/message.d
 export class GetConversationMessageCollectionAdapter {
   private static toMessageResponseDTO(message: MessageDTO): ChatMessageResponseDTO {
     return {
-      user_id: message.user_id,
+      owner_id: message.owner_id,
       content: message.content,
       created_at: message.created_at,
       message_id: message.message_id

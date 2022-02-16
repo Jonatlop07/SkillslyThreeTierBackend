@@ -8,6 +8,8 @@ import { QueryResult } from 'neo4j-driver-core';
 import ServiceOfferQueryModel from '@core/domain/service-offer/use-case/query-model/service_offer.query_model';
 import { Optional } from '@core/common/type/common_types';
 import { PaginationDTO } from '@core/common/persistence/pagination.dto';
+import CreateServiceOfferPersistenceDTO
+  from '@core/domain/service-offer/use-case/persistence-dto/create_service_offer.persistence_dto';
 
 @Injectable()
 export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepository {
@@ -19,7 +21,7 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(service_offer: ServiceOfferDTO): Promise<ServiceOfferDTO> {
+  public async create(service_offer: CreateServiceOfferPersistenceDTO): Promise<ServiceOfferDTO> {
     const { owner_id, title, service_brief, contact_information, category } = service_offer;
     const create_service_offer_statement = `
       MATCH (${this.user_key}: User { user_id: $user_id })

@@ -10,6 +10,8 @@ import { Optional } from '@core/common/type/common_types';
 import { AddMembersToGroupConversationDTO } from '@core/domain/chat/use-case/persistence-dto/add_members_to_group_conversation.dto';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import CreateConversationPersistenceDTO
+  from '@core/domain/chat/use-case/persistence-dto/create_conversation.persistence_dto';
 
 @Injectable()
 export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationRepository {
@@ -23,7 +25,7 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(conversation: ConversationDTO): Promise<ConversationDTO> {
+  public async create(conversation: CreateConversationPersistenceDTO): Promise<ConversationDTO> {
     const create_conversation_statement = `
       CREATE (${this.conversation_key}: Conversation : ${conversation.is_private ? 'PrivateConversation' : 'GroupConversation'})
       SET ${this.conversation_key} += $properties, ${this.conversation_key}.conversation_id = randomUUID()

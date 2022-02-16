@@ -1,7 +1,7 @@
 export default interface CreateCommentInPermanentPostOutputModel {
   commentID: string;
   postID: string;
-  userID: string;
+  ownerID: string;
   comment: string;
   timestamp: string;
 }

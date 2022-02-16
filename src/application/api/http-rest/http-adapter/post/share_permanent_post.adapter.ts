@@ -1,4 +1,4 @@
-import SharePermanentPostInputModel from '@core/domain/post/use-case/input-model/share_permanent_post.input_model';
+import SharePermanentPostInputModel from '@core/domain/permanent-post/use-case/input-model/share_permanent_post.input_model';
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsString } from 'class-validator';
 

@@ -12,7 +12,8 @@ import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import { AddCustomerDetailsDTO } from '@core/domain/user/use-case/persistence-dto/add_customer_details.dto';
 import { UpdateUserRolesDTO } from '@core/domain/user/use-case/persistence-dto/update_user_roles.dto';
 import { PartialUserUpdateDTO } from '@core/domain/user/use-case/persistence-dto/partial_user_update.dto';
-import {RequestResetPasswordDTO} from "@application/api/http-rest/authentication/types/request_reset_password.dto";
+import CreateUserAccountPersistenceDTO
+  from '@core/domain/user/use-case/persistence-dto/create_user_account.persistence_dto';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -109,9 +110,9 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     return null;
   }
 
-  public async create(user: UserDTO): Promise<UserDTO> {
-    const investor_label = user.roles.includes(Role.Investor) ? ': Investor' : '';
-    const requester_label = user.roles.includes(Role.Requester) ? ': Requester' : '';
+  public async create(user_to_create: CreateUserAccountPersistenceDTO): Promise<UserDTO> {
+    const investor_label = user_to_create.roles.includes(Role.Investor) ? ': Investor' : '';
+    const requester_label = user_to_create.roles.includes(Role.Requester) ? ': Requester' : '';
     const create_user_statement = `
       CREATE (${this.user_key}: User ${investor_label} ${requester_label})
       SET ${this.user_key} += $properties, ${this.user_key}.user_id = randomUUID()
@@ -121,10 +122,10 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       create_user_statement,
       {
         properties: {
-          email: user.email,
-          password: user.password,
-          name: user.name,
-          date_of_birth: user.date_of_birth,
+          email: user_to_create.email,
+          password: user_to_create.password,
+          name: user_to_create.name,
+          date_of_birth: user_to_create.date_of_birth,
           is_two_factor_auth_enabled: false,
           reset_password_token: null,
           created_at: getCurrentDate()

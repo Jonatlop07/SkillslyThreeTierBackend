@@ -10,6 +10,7 @@ import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import { AssistanceDTO } from '@core/domain/event/use-case/persistence-dto/assistance.dto';
 import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
 import eventQuery_model from '@core/domain/event/use-case/query-model/event.query_model';
+import CreateEventPersistenceDTO from '@core/domain/event/use-case/persistence-dto/create_event.persistence_dto';
 
 @Injectable()
 export class EventNeo4jRepositoryAdapter implements EventRepository {
@@ -21,7 +22,7 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(event: EventDTO): Promise<EventDTO> {
+  public async create(event: CreateEventPersistenceDTO): Promise<EventDTO> {
     const user_key = 'user';
     const create_event_query = `
       MATCH 

@@ -7,7 +7,7 @@ import QueryTemporalPostCollectionInputModel
 export class QueryTemporalPostCollectionAdapter {
   @Expose()
   @IsString()
-  public user_id: string;
+  public owner_id: string;
 
   public static new(payload: QueryTemporalPostCollectionInputModel): QueryTemporalPostCollectionAdapter {
     return plainToClass(QueryTemporalPostCollectionAdapter, payload);

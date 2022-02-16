@@ -18,8 +18,7 @@ export class CreateTemporalPostAdapter {
 
   @Expose()
   @IsString()
-  public user_id: string;
-
+  public owner_id: string;
 
   public static new(payload: CreateTemporalPostInputModel): CreateTemporalPostAdapter {
     return plainToClass(CreateTemporalPostAdapter, payload);

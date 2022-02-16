@@ -41,7 +41,7 @@ export class GetCommentsInPermanentPostService implements GetCommentsInPermanent
           commentID: comment['id'],
           postID: comment['postID'],
           comment: comment['comment'],
-          userID: comment['userID'],
+          ownerID: comment['ownerID'],
           timestamp: comment['timestamp'],
         };
       }

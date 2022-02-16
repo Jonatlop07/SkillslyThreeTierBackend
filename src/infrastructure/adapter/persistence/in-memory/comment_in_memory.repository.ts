@@ -15,7 +15,7 @@ export class CommentInMemoryRepository implements CommentRepository {
       comment: comment['comment'],
       timestamp: comment['timestamp'],
       postID: comment['postID'],
-      userID: comment['userID'],
+      ownerID: comment['ownerID'],
     };
     this.comments.set(this.currently_available_comment_id, new_comment);
     this.currently_available_comment_id = String(Number(this.currently_available_comment_id) + 1);
@@ -29,7 +29,7 @@ export class CommentInMemoryRepository implements CommentRepository {
         id: comment.comment_id,
         comment: comment.comment,
         timestamp: comment.timestamp,
-        email: comment.userID,
+        email: comment.ownerID,
         name: '',
       });
     }

@@ -1,5 +1,8 @@
 import { Interactor } from '@core/common/use-case/interactor';
-import QueryTemporalPostCollectionInputModel
-  from '@core/domain/temp-post/use-case/input-model/query_temporal_post_collection.input_model';
-export interface QueryTemporalPostFriendsCollectionInteractor extends Interactor<QueryTemporalPostCollectionInputModel, any> {
+import QueryTemporalPostFriendsCollectionInputModel
+  from '@core/domain/temp-post/use-case/input-model/query_temporal_post_friends_collection.input_model';
+import QueryTemporalPostFriendsCollectionOutputModel
+  from '@core/domain/temp-post/use-case/output-model/query_temporal_post_friends_collection.output_model';
+export interface QueryTemporalPostFriendsCollectionInteractor
+  extends Interactor<QueryTemporalPostFriendsCollectionInputModel, QueryTemporalPostFriendsCollectionOutputModel> {
 }

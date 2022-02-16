@@ -7,6 +7,8 @@ import { QueryResult } from 'neo4j-driver-core';
 import { Relationships } from '../../constants/relationships';
 import { Neo4jService } from '../../service/neo4j.service';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import CreateReactionPersistenceDTO
+  from '@core/domain/reaction/use_case/persistence-dto/create_reaction.persistence_dto';
 
 @Injectable()
 export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
@@ -33,7 +35,7 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
     };
   }
 
-  async create(reaction: ReactionDTO): Promise<ReactionDTO> {
+  async create(reaction: CreateReactionPersistenceDTO): Promise<ReactionDTO> {
     const reaction_type = reaction.reaction_type.toUpperCase();
     const {reactor_id, post_id} = reaction;
     const add_reaction_statement = `
@@ -91,7 +93,7 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
     for (const reaction of query_reactions_result){
       const result: QueryReactionElement = {
         reaction_type: reaction[0],
-        reaction_count: reaction[1]['low'],
+        reaction_count: reaction[1].low,
         reactors: reaction[2]
       };
       reactions.push(result);

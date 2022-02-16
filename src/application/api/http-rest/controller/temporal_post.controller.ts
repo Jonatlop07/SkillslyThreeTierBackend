@@ -64,7 +64,7 @@ export class TemporalPostController {
     try {
       return await this.createTempPostInteractor.execute(CreateTemporalPostAdapter.new({
         description: body.description,
-        user_id: httpUser.id,
+        owner_id: httpUser.id,
         referenceType: body.referenceType,
         reference: body.reference,
       }));
@@ -86,7 +86,7 @@ export class TemporalPostController {
   public async getUserTemporalPosts(@HttpUser() httpUser: HttpUserPayload) {
     try {
       return await this.queryTemporalPostCollectionInteractor.execute(QueryTemporalPostCollectionAdapter.new({
-        user_id: httpUser.id,
+        owner_id: httpUser.id,
       }));
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
@@ -105,7 +105,7 @@ export class TemporalPostController {
   public async getUserFriendsTemporalPosts(@HttpUser() httpUser: HttpUserPayload) {
     try {
       return await this.queryTemporalPostFriendsCollectionInteractor.execute(QueryTemporalPostCollectionAdapter.new({
-        user_id: httpUser.id,
+        owner_id: httpUser.id,
       }));
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
@@ -120,7 +120,7 @@ export class TemporalPostController {
   })
   @ApiUnauthorizedResponse({ description: 'User not authorized for this operation' })
   public async deleteTemporalPost(@HttpUser() httpUser: HttpUserPayload, @Body(new ValidationPipe()) body: DeleteTemporalPostDTO) {
-    if (httpUser.id !== body.user_id) {
+    if (httpUser.id !== body.owner_id) {
       throw new HttpException({
         status: HttpStatus.UNAUTHORIZED,
         error: 'You cannot delete a temporal post of another user',
@@ -129,11 +129,10 @@ export class TemporalPostController {
     try {
       return await this.deleteTemporalPostInteractor.execute(DeleteTemporalPostAdapter.new({
         temporal_post_id: body.temporal_post_id,
-        user_id: body.user_id,
+        owner_id: body.owner_id,
       }));
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
-
 }

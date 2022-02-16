@@ -1,11 +1,11 @@
 import { Entity } from '@core/common/entity/entity';
 import { CreateProjectEntityPayload } from '@core/domain/project/entity/type/create_project_entity_payload';
+import { Id } from '@core/common/type/common_types';
 
-export class Project extends Entity<string> {
-  private readonly _user_id: string;
-  private readonly _user_name: string;
+export class Project extends Entity<Id> {
+  private readonly _owner_id: Id;
   private readonly _title: string;
-  private readonly _members: string[];
+  private readonly _members: Array<Id>;
   private readonly _description: string;
   private readonly _reference: string;
   private readonly _reference_type: string;
@@ -15,7 +15,7 @@ export class Project extends Entity<string> {
     super();
     const {
       id,
-      user_id,
+      owner_id,
       title,
       members,
       description,
@@ -24,7 +24,7 @@ export class Project extends Entity<string> {
       annexes,
     } = payload;
     this._id = id;
-    this._user_id = user_id;
+    this._owner_id = owner_id;
     this._title = title;
     this._members = members;
     this._description = description;
@@ -37,8 +37,8 @@ export class Project extends Entity<string> {
     return this.description && this.description.length > 0;
   }
 
-  get user_id() {
-    return this._user_id;
+  get owner_id() {
+    return this._owner_id;
   }
 
   get title() {

@@ -1,4 +1,6 @@
+import { Id } from '@core/common/type/common_types';
+
 export default interface ProjectQueryModel {
-  user_id?: string;
-  project_id?: string;
+  owner_id?: Id;
+  project_id?: Id;
 }

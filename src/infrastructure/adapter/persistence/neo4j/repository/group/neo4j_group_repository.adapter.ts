@@ -9,6 +9,7 @@ import { JoinRequestDTO } from '@core/domain/group/use-case/persistence-dto/join
 import { BasicGroupDTO } from '@core/domain/group/use-case/persistence-dto/basic_group_data.dto';
 import { PaginationDTO } from '@core/common/persistence/pagination.dto';
 import { GroupUserDTO } from '@core/domain/group/use-case/persistence-dto/group_users.dto';
+import CreateGroupPersistenceDTO from '@core/domain/group/use-case/persistence-dto/create_group.persistence_dto';
 
 @Injectable()
 export class GroupNeo4jRepositoryAdapter implements GroupRepository {
@@ -369,7 +370,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     return result.records.length > 0;
   }
 
-  public async create(group: GroupDTO): Promise<GroupDTO> {
+  public async create(group: CreateGroupPersistenceDTO): Promise<GroupDTO> {
     const { owner_id, name, description, category } = group;
     const picture = group.picture ? group.picture : '';
     const create_group_statement = `

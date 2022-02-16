@@ -4,15 +4,15 @@ import {
   PermanentPostException,
   EmptyPermanentPostContentException,
   NonExistentPermanentPostException
-} from '@core/domain/post/use-case/exception/permanent_post.exception';
+} from '@core/domain/permanent-post/use-case/exception/permanent_post.exception';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
-import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/update_permanent_post.interactor';
-import { UpdatePermanentPostOutputModel } from '@core/domain/post/use-case/output-model/update_permanent_post.output_model';
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
-import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_content_post_element';
+import { UpdatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/update_permanent_post.interactor';
+import { UpdatePermanentPostOutputModel } from '@core/domain/permanent-post/use-case/output-model/update_permanent_post.output_model';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
+import { CreatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/create_permanent_post.interactor';
+import { PermanentPostContentElement } from '@core/domain/permanent-post/entity/type/permanent_content_post_element';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/post/update_permanent_post.feature');
@@ -20,7 +20,6 @@ const feature = loadFeature('test/bdd-functional/features/post/update_permanent_
 defineFeature(feature, (test) => {
   const user_1_mock: CreateUserAccountInputModel = createUserMock();
 
-  let user_id: string;
   let owner_id: string;
   let post_to_update_id: string;
   let post_new_content: Array<PermanentPostContentElement>;
@@ -36,7 +35,7 @@ defineFeature(feature, (test) => {
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
       const { id } = await create_user_account_interactor.execute(input);
-      user_id = owner_id = id;
+      owner_id = id;
     } catch (e) {
       console.log(e);
     }
@@ -53,9 +52,8 @@ defineFeature(feature, (test) => {
       async (post_id, post_privacy, post_owner_id, post_content_table) => {
         try {
           await create_permanent_post_interactor.execute({
-            id: post_id,
             content: post_content_table,
-            user_id: owner_id,
+            owner_id,
             privacy: post_privacy
           });
         } catch (e) {
@@ -96,7 +94,7 @@ defineFeature(feature, (test) => {
           id: post_to_update_id,
           content: post_new_content,
           privacy: post_new_privacy,
-          user_id,
+          owner_id,
         });
       } catch (e) {
         exception = e;

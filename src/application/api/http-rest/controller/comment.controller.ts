@@ -47,10 +47,10 @@ export class CommentController {
   ) {
     try {
       return await this.createCommentInPermanentPostInteractor.execute(CreateCommentInPermanentPostAdapter.new({
-        userID: http_user.id,
+        ownerID: http_user.id,
         postID: permanentPostID,
-        comment: body['comment'],
-        timestamp: body['timestamp'],
+        comment: body.comment,
+        timestamp: body.timestamp
       }));
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
@@ -70,8 +70,8 @@ export class CommentController {
   })
   @ApiBearerAuth()
   async getAllCommentsInPermanentPost(@Query() queryParams, @Param('permanentPostID') permanentPostID: string) {
-    const page = queryParams['page'] ? queryParams['page'] : 0;
-    const limit = queryParams['limit'] ? queryParams['limit'] : 2;
+    const page = queryParams.page ? queryParams.page : 0;
+    const limit = queryParams.limit ? queryParams.limit : 2;
     try {
       return await this.getCommentsInPermanentPostInteractor.execute({
         page: page,

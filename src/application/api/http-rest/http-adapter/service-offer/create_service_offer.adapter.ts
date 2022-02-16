@@ -6,9 +6,9 @@ import CreateServiceOfferInputModel
 import { CreateServiceOfferDTO } from '@application/api/http-rest/http-dto/service-offer/http_create_service_offer.dto';
 
 export class CreateServiceOfferAdapter {
-  public static toInputModel(user_id: string, payload: CreateServiceOfferDTO): CreateServiceOfferInputModel {
+  public static toInputModel(owner_id: string, payload: CreateServiceOfferDTO): CreateServiceOfferInputModel {
     return {
-      user_id,
+      owner_id,
       ...payload
     };
   }

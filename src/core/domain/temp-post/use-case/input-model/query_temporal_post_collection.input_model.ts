@@ -1,3 +1,5 @@
+import { Id } from '@core/common/type/common_types';
+
 export default interface QueryTemporalPostCollectionInputModel {
-  user_id: string;
+  owner_id: Id;
 }

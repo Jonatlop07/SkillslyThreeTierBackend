@@ -1,7 +1,7 @@
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsArray, IsString } from 'class-validator';
-import CreatePermanentPostInputModel from '@core/domain/post/use-case/input-model/create_permanent_post.input_model';
-import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_post_content_element';
+import CreatePermanentPostInputModel from '@core/domain/permanent-post/use-case/input-model/create_permanent_post.input_model';
+import { PermanentPostContentElement } from '@core/domain/permanent-post/entity/type/permanent_post_content_element';
 
 @Exclude()
 export class CreatePermanentPostAdapter implements CreatePermanentPostInputModel{
@@ -11,7 +11,7 @@ export class CreatePermanentPostAdapter implements CreatePermanentPostInputModel
 
   @Expose()
   @IsString()
-  public user_id: string;
+  public owner_id: string;
 
   @Expose()
   @IsString()

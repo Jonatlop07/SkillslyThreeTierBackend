@@ -14,7 +14,7 @@ export class ChatMessageInMemoryRepository implements ChatMessageRepository {
     const new_message: MessageDTO = {
       message_id: this.currently_available_message_id,
       conversation_id: message.conversation_id,
-      user_id: message.user_id,
+      owner_id: message.owner_id,
       content: message.content,
       created_at: getCurrentDate()
     };

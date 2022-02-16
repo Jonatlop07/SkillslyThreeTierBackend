@@ -25,14 +25,14 @@ export class CreateCommentInPermanentPostService implements CreateCommentInPerma
       comment: input.comment,
       timestamp: input.timestamp,
       postID: input.postID,
-      userID: input.userID,
+      ownerID: input.ownerID,
     });
     return {
       commentID: createdComment.comment_id,
       comment: createdComment.comment,
       timestamp: createdComment.timestamp,
       postID: createdComment.postID,
-      userID: createdComment.userID,
+      ownerID: createdComment.ownerID,
     };
   }
 }

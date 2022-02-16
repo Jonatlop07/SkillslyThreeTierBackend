@@ -13,7 +13,7 @@ export class CreateCommentInPermanentPostAdapter implements CreateCommentInPerma
   public timestamp: string;
   @Expose()
   @IsString()
-  public userID: string;
+  public ownerID: string;
   @Expose()
   @IsString()
   public postID: string;

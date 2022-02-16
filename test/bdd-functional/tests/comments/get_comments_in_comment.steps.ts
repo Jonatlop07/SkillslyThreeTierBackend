@@ -1,20 +1,20 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
+import { CreatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/create_permanent_post.interactor';
 import { CreateCommentInPermanentPostInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_permanent_post.interactor';
 import { CreateCommentInCommentInteractor } from '@core/domain/comment/use-case/interactor/create_comment_in_comment.interactor';
 import { GetCommentsInCommentInteractor } from '@core/domain/comment/use-case/interactor/get_comments_in_comment.interactor';
 import { GetCommentsInCommentOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_comment.output_model';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
-import CreatePermanentPostInputModel from '@core/domain/post/use-case/input-model/create_permanent_post.input_model';
+import CreatePermanentPostInputModel from '@core/domain/permanent-post/use-case/input-model/create_permanent_post.input_model';
 import CreateCommentInPermanentPostInputModel
   from '@core/domain/comment/use-case/input-model/create_comment_in_permanent_post.input_model';
 import CreateCommentInCommentInputModel
   from '@core/domain/comment/use-case/input-model/create_comment_in_comment.input_model';
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 
 const feature = loadFeature('test/bdd-functional/features/comment/get_comments_in_comment.feature');
@@ -41,10 +41,11 @@ defineFeature(feature, (test) => {
         reference_type: 'jpg',
       },
     ],
-    user_id: '1',
+    owner_id: '1',
+    privacy: 'public'
   };
   const comment_1 = {
-    userID: '1',
+    ownerID: '1',
     postID: '1',
     comment: 'A comment in a permanent post test',
     timestamp: '2020-01-01T00:00:00',
@@ -91,8 +92,8 @@ defineFeature(feature, (test) => {
         const input = {
           userID: userID,
           ancestorCommentID: ancestorCommentID,
-          comment: comment['comment'],
-          timestamp: comment['timestamp'],
+          comment: comment.comment,
+          timestamp: comment.timestamp,
         };
         await createCommentInCommentInteractor.execute(input);
       }

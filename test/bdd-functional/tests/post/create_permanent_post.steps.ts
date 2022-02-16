@@ -3,21 +3,21 @@ import { createTestModule } from '@test/bdd-functional/tests/create_test_module'
 import {
   EmptyPermanentPostContentException,
   PermanentPostException
-} from '@core/domain/post/use-case/exception/permanent_post.exception';
-import CreatePermanentPostInputModel from '@core/domain/post/use-case/input-model/create_permanent_post.input_model';
-import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-model/create_permanent_post.output_model';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
+} from '@core/domain/permanent-post/use-case/exception/permanent_post.exception';
+import CreatePermanentPostInputModel from '@core/domain/permanent-post/use-case/input-model/create_permanent_post.input_model';
+import CreatePermanentPostOutputModel from '@core/domain/permanent-post/use-case/output-model/create_permanent_post.output_model';
+import { CreatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/create_permanent_post.interactor';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_post_content_element';
+import { PermanentPostContentElement } from '@core/domain/permanent-post/entity/type/permanent_post_content_element';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 
 const feature = loadFeature('test/bdd-functional/features/post/create_permanent_post.feature');
 
 defineFeature(feature, (test) => {
-  let user_id: string;
+  let owner_id: string;
   let post_content: Array<PermanentPostContentElement>;
   let post_privacy = 'public';
   let group_id: string;
@@ -33,7 +33,7 @@ defineFeature(feature, (test) => {
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
       const { id } = await create_user_account_interactor.execute(input);
-      user_id = id;
+      owner_id = id;
     } catch (e) {
       console.log(e);
     }
@@ -74,9 +74,8 @@ defineFeature(feature, (test) => {
     when('the user tries to create a new post',
       async () => {
         output = await createPost({
-          id: '1',
           content: post_content,
-          user_id,
+          owner_id,
           privacy: post_privacy,
           group_id: group_id
         });
@@ -112,12 +111,14 @@ defineFeature(feature, (test) => {
         'a post is then created with the content text and references provided',
         () => {
           const expected_output: CreatePermanentPostOutputModel = {
-            post_id: '1',
-            user_id: user_id,
-            content: post_content
+            created_permanent_post: {
+              post_id: '1',
+              owner_id: owner_id,
+              content: post_content
+            }
           };
           expect(output).toBeDefined();
-          expect(output.content).toEqual(expected_output.content);
+          expect(output.created_permanent_post.content).toEqual(expected_output.created_permanent_post.content);
         }
       );
     }
@@ -146,13 +147,15 @@ defineFeature(feature, (test) => {
 
       then('a post is then created with the text provided', () => {
         const expected_output: CreatePermanentPostOutputModel = {
-          post_id: '1',
-          user_id: user_id,
-          content: post_content
+          created_permanent_post: {
+            post_id: '1',
+            owner_id: owner_id,
+            content: post_content
+          }
         };
         expect(output).toBeDefined();
-        expect(output.user_id).toEqual(expected_output.user_id);
-        expect(output.content).toEqual(expected_output.content);
+        expect(output.created_permanent_post.owner_id).toEqual(expected_output.created_permanent_post.owner_id);
+        expect(output.created_permanent_post.content).toEqual(expected_output.created_permanent_post.content);
       });
     }
   );
@@ -164,13 +167,15 @@ defineFeature(feature, (test) => {
       whenUserTriesToCreateNewPost(when);
       then('a post is then created with the images provided', () => {
         const expected_output: CreatePermanentPostOutputModel = {
-          post_id: '1',
-          user_id: user_id,
-          content: post_content
+          created_permanent_post: {
+            post_id: '1',
+            owner_id: owner_id,
+            content: post_content
+          }
         };
         expect(output).toBeDefined();
-        expect(output.user_id).toEqual(expected_output.user_id);
-        expect(output.content).toEqual(expected_output.content);
+        expect(output.created_permanent_post.owner_id).toEqual(expected_output.created_permanent_post.owner_id);
+        expect(output.created_permanent_post.content).toEqual(expected_output.created_permanent_post.content);
       });
     }
   );
@@ -184,13 +189,15 @@ defineFeature(feature, (test) => {
       whenUserTriesToCreateNewPost(when);
       then('a post is then created with the content provided and will be available for friends only', () => {
         const expected_output: CreatePermanentPostOutputModel = {
-          post_id: '1',
-          user_id: user_id,
-          content: post_content
+          created_permanent_post: {
+            post_id: '1',
+            owner_id: owner_id,
+            content: post_content
+          }
         };
         expect(output).toBeDefined();
-        expect(output.user_id).toEqual(expected_output.user_id);
-        expect(output.content).toEqual(expected_output.content);
+        expect(output.created_permanent_post.owner_id).toEqual(expected_output.created_permanent_post.owner_id);
+        expect(output.created_permanent_post.content).toEqual(expected_output.created_permanent_post.content);
       });
     }
   );

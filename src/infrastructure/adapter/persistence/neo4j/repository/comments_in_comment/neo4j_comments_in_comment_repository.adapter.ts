@@ -8,20 +8,22 @@ import { CommentOfCommentDTO } from '@core/domain/comment/use-case/persistence-d
 import GetCommentsInCommentInputModel
   from '@core/domain/comment/use-case/input-model/get_comments_in_comment.input_model';
 import { GetCommentsInCommentOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_comment.output_model';
+import CreateCommentInCommentPersistenceDTO
+  from '@core/domain/comment/use-case/persistence-dto/create_comment_in_comment.persistence_dto';
 
 @Injectable()
 export class CommentsInCommentNeo4jRepositoryAdapter implements CommentInCommentRepository {
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(comment: CommentOfCommentDTO): Promise<CommentOfCommentDTO> {
+  public async create(comment: CreateCommentInCommentPersistenceDTO): Promise<CommentOfCommentDTO> {
     const ancestor_comment_key = 'ancestor_comment';
     const comment_key = 'comment';
     const user_key = 'user';
     const create_comment_query = `
       MATCH 
-        (${ancestor_comment_key}: Comment { comment_id: '${comment['ancestorCommentID']}' }),
-        (${user_key}: User { user_id: '${comment['userID']}' })
+        (${ancestor_comment_key}: Comment { comment_id: '${comment.ancestorCommentID}' }),
+        (${user_key}: User { user_id: '${comment.userID}' })
       CREATE (${comment_key}: Comment)
       SET ${comment_key} += $properties, ${comment_key}.comment_id = randomUUID()
       CREATE (${comment_key})-[:${Relationships.COMMENT_COMMENT_RELATIONSHIP}]->(${ancestor_comment_key})
@@ -30,8 +32,8 @@ export class CommentsInCommentNeo4jRepositoryAdapter implements CommentInComment
     `;
     const created_comment = await this.neo4j_service.write(create_comment_query, {
       properties: {
-        comment: comment['comment'],
-        timestamp: comment['timestamp'],
+        comment: comment.comment,
+        timestamp: comment.timestamp,
       },
     });
 

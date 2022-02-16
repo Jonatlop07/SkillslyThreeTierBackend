@@ -1,5 +1,5 @@
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import QueryPermanentPostGateway from '@core/domain/post/use-case/gateway/query_permanent_post.gateway';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
+import QueryPermanentPostGateway from '@core/domain/permanent-post/use-case/gateway/query_permanent_post.gateway';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { QueryReactionsUnexistingPostException } from '@core/domain/reaction/use_case/exception/reaction.exception';
 import QueryReactionsGateway from '@core/domain/reaction/use_case/gateway/query_reactions.gateway';
@@ -22,7 +22,7 @@ export class QueryReactionsService implements QueryReactionsInteractor {
     const existing_post = await this.post_gateway.findOne({
       post_id: input.post_id,
     });
-    if (existing_post === undefined) {
+    if (!existing_post) {
       throw new QueryReactionsUnexistingPostException();
     }
     return { reactions: await this.gateway.queryById(input.post_id) };

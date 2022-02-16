@@ -1,6 +1,7 @@
 import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
 import ProfileRepository from '@core/domain/profile/use-case/repository/profile.repository';
 import { ProfileQueryModel } from '@core/domain/profile/use-case/query-model/profile.query_model';
+import CreateProfilePersistenceDTO from '@core/domain/profile/use-case/persistence-dto/create_profile.persistence_dto';
 
 export class ProfileInMemoryRepository implements ProfileRepository {
   private currently_available_profile_id: string;
@@ -9,7 +10,7 @@ export class ProfileInMemoryRepository implements ProfileRepository {
     this.currently_available_profile_id = '1';
   }
 
-  async create(profile: ProfileDTO): Promise<ProfileDTO> {
+  async create(profile: CreateProfilePersistenceDTO): Promise<ProfileDTO> {
     const new_profile: ProfileDTO = {
       profile_id: this.currently_available_profile_id,
       interests: profile.interests,

@@ -1,7 +1,8 @@
+import { Id } from '@core/common/type/common_types';
+
 export default interface CreateTemporalPostInputModel {
-  id?: string;
   description?: string;
   reference: string;
   referenceType: string;
-  user_id: string;
+  owner_id: Id;
 }

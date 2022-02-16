@@ -38,8 +38,6 @@ export class CreateServiceRequestService implements CreateServiceRequestInteract
       service_brief,
       contact_information,
       category,
-      service_provider: null,
-      applicants: [],
       phase: ServiceRequestPhase.Open
     });
   }

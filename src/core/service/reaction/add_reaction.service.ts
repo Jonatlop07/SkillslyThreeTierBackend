@@ -1,6 +1,6 @@
 import { isValidType } from '@core/common/util/validators/reaction_data.validators';
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import QueryPermanentPostGateway from '@core/domain/post/use-case/gateway/query_permanent_post.gateway';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
+import QueryPermanentPostGateway from '@core/domain/permanent-post/use-case/gateway/query_permanent_post.gateway';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import {
   AddReactionInvalidTypeException,
@@ -40,7 +40,7 @@ export class AddReactionService implements AddReactionInteractor {
       });
       return {
         post_id: deleted_reaction.post_id,
-        post_owner_id: existing_post.user_id,
+        post_owner_id: existing_post.owner_id,
         reactor_id: deleted_reaction.reactor_id,
         reaction_type: deleted_reaction.reaction_type,
         added: false
@@ -53,7 +53,7 @@ export class AddReactionService implements AddReactionInteractor {
     });
     return {
       post_id: created_reaction.post_id,
-      post_owner_id: existing_post.user_id,
+      post_owner_id: existing_post.owner_id,
       reactor_id: created_reaction.reactor_id,
       reaction_type: created_reaction.reaction_type,
       added: true

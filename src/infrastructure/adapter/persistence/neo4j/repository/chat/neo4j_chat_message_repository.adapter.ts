@@ -7,6 +7,7 @@ import ChatMessageRepository from '@core/domain/chat/use-case/repository/chat_me
 import { MessageDTO } from '@core/domain/chat/use-case/persistence-dto/message.dto';
 import { Optional } from '@core/common/type/common_types';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import CreateMessagePersistenceDTO from '@core/domain/chat/use-case/persistence-dto/create_message.persistence_dto';
 
 @Injectable()
 export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository {
@@ -19,9 +20,9 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(message: MessageDTO): Promise<MessageDTO> {
+  public async create(create_message_dto: CreateMessagePersistenceDTO): Promise<MessageDTO> {
     const create_message_statement = `
-      MATCH (${this.user_key}: User { user_id: $user_id }),
+      MATCH (${this.user_key}: User { user_id: $owner_id }),
       (${this.conversation_key}: Conversation { conversation_id: $conversation_id })
       CREATE (${this.message_key}: Message),
       (${this.user_key})-[:${Relationships.USER_MESSAGE_RELATIONSHIP}]->(${this.message_key}),
@@ -33,10 +34,10 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
       await this.neo4j_service.write(
         create_message_statement,
         {
-          user_id: message.user_id,
-          conversation_id: message.conversation_id,
+          owner_id: create_message_dto.owner_id,
+          conversation_id: create_message_dto.conversation_id,
           properties: {
-            content: message.content,
+            content: create_message_dto.content,
             created_at: getCurrentDate(),
           },
         },
@@ -47,8 +48,8 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
       message_id,
       content,
       created_at,
-      conversation_id: message.conversation_id,
-      user_id: message.user_id,
+      conversation_id: create_message_dto.conversation_id,
+      owner_id: create_message_dto.owner_id,
     };
   }
 
@@ -65,7 +66,7 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
         message_id: ${this.message_key}.message_id,
         content: ${this.message_key}.content,
         created_at: ${this.message_key}.created_at,
-        user_id: ${this.user_key}.user_id
+        owner_id: ${this.user_key}.user_id
       } AS ${result_key}
       RETURN ${result_key}
     `;
@@ -77,12 +78,12 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
     ).then(
       (result: QueryResult) =>
         result.records.map((record: any): MessageDTO => {
-          const { content, message_id, created_at, user_id } = record._fields[0];
+          const { content, message_id, created_at, owner_id } = record._fields[0];
           return {
             message_id,
             content,
             created_at,
-            user_id,
+            owner_id,
             conversation_id: params.conversation_id,
           };
         }),

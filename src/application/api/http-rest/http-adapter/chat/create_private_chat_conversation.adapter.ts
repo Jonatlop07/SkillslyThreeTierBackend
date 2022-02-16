@@ -5,7 +5,7 @@ import { ChatMessageResponseDTO } from '@application/api/http-rest/http-dto/chat
 
 export class CreatePrivateChatConversationAdapter {
   public static toResponseDTO(payload: CreatePrivateChatConversationOutputModel): ChatConversationResponseDTO {
-    const { conversation_id, name, members, messages, created_at } = payload;
+    const { conversation_id, name, members, messages, created_at } = payload.created_private_chat_conversation;
     return {
       conversation_id,
       conversation_name: name,

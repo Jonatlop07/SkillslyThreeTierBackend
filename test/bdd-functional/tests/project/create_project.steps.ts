@@ -55,7 +55,7 @@ defineFeature(feature, (test) => {
       /^the user identified by "(.*)", provides the content of the proyect being:$/,
       (owner_user_id, project_content_table) => {
         input = {
-          user_id: owner_user_id,
+          owner_id: owner_user_id,
           title: project_content_table[0].title,
           members: project_content_table[0].members,
           description: project_content_table[0].description,

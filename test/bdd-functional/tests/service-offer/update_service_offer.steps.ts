@@ -46,10 +46,10 @@ defineFeature(feature, (test) => {
   function andAServiceOfferExists(given) {
     given(/there exists a service offer with the details being:/,
       async (service_details) => {
-        const { user_id, title, service_brief, contact_information, category } = service_details[0];
+        const { owner_id, title, service_brief, contact_information, category } = service_details[0];
         try {
           await create_service_offer_interactor.execute({
-            user_id,
+            owner_id,
             title,
             service_brief,
             contact_information,

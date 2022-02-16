@@ -1,5 +1,5 @@
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
+import { CreatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/create_permanent_post.interactor';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionInvalidTypeException, AddReactionUnexistingPostException, ReactionException } from '@core/domain/reaction/use_case/exception/reaction.exception';
 import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
@@ -46,9 +46,9 @@ defineFeature(feature, (test) => {
       async (post_id, post_owner_id, post_content_table) => {
         try {
           await create_permanent_post_interactor.execute({
-            id: post_id,
             content: post_content_table,
-            user_id: post_owner_id
+            owner_id: post_owner_id,
+            privacy: 'public'
           });
         } catch (e) {
           console.log(e);

@@ -1,7 +1,8 @@
 import { Entity } from '@core/common/entity/entity';
 import { CreateUserEntityPayload } from '@core/domain/user/entity/type/create_user_entity_payload';
+import { Id } from '@core/common/type/common_types';
 
-export class User extends Entity<string> {
+export class User extends Entity<Id> {
   private readonly _email: string;
   private readonly _password: string;
   private readonly _name: string;

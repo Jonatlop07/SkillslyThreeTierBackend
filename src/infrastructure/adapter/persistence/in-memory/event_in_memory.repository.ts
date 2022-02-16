@@ -56,7 +56,7 @@ export class EventInMemoryRepository implements EventRepository {
     pagination;
     const user_events: EventDTO[] = [];
     for (const event of this.events.values()) {
-      if (id === event['user_id']) {
+      if (id === event.user_id) {
         user_events.push(event);
       }
     }
@@ -67,7 +67,7 @@ export class EventInMemoryRepository implements EventRepository {
     pagination;
     const user_events: EventDTO[] = [];
     for (const event of this.events.values()) {
-      if (id === event['user_id']) {
+      if (id === event.user_id) {
         user_events.push(event);
       }
     }

@@ -23,7 +23,7 @@ export class CreateServiceOfferService implements CreateServiceOfferInteractor {
   ) {}
 
   public async execute(input: CreateServiceOfferInputModel): Promise<CreateServiceOfferOutputModel> {
-    const { user_id, title, service_brief, contact_information, category } = input;
+    const { owner_id, title, service_brief, contact_information, category } = input;
     if (
       !isValidServiceOfferTitle(title)
       || !isValidServiceOfferServiceBrief(service_brief)
@@ -32,7 +32,7 @@ export class CreateServiceOfferService implements CreateServiceOfferInteractor {
     )
       throw new InvalidServiceOfferDetailsFormatException();
     return await this.gateway.create({
-      owner_id: user_id,
+      owner_id,
       title,
       service_brief,
       contact_information,

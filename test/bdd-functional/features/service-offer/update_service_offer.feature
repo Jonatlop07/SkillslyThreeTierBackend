@@ -5,8 +5,8 @@ Feature: Update of a service offer
       | email                | password  | name | date_of_birth |
       | newuser_123@test.com | Abc123_tr | Juan | 01/01/2000    |
     And there exists a service offer with the details being:
-      | user_id | title       | service_brief                        | contact_information | category             |
-      | 1       | New service | This is a new service i have created | Cellphone 334234    | Software Development |
+      | owner_id | title       | service_brief                        | contact_information | category             |
+      | 1        | New service | This is a new service i have created | Cellphone 334234    | Software Development |
     And the user identified by "<UserId>" provides the details of the offer to be updated:
       | service_offer_id | title           | service_brief                  | contact_information | category             |
       | 1                | Service updated | This the service brief updated | Cellphone 334234    | Software Development |
@@ -21,8 +21,8 @@ Feature: Update of a service offer
       | email                | password  | name | date_of_birth |
       | newuser_123@test.com | Abc123_tr | Juan | 01/01/2000    |
     And there exists a service offer with the details being:
-      | user_id | title       | service_brief                        | contact_information | category             |
-      | 1       | New service | This is a new service i have created | Cellphone 334234    | Software Development |
+      | owner_id | title       | service_brief                        | contact_information | category             |
+      | 1        | New service | This is a new service i have created | Cellphone 334234    | Software Development |
     And the user identified by "<UserId>" provides the details of the offer to be updated:
       | service_offer_id | title | service_brief                  | contact_information | category             |
       | 1                |       | This the service brief updated | Cellphone 334234    | Software Development |
@@ -51,8 +51,8 @@ Feature: Update of a service offer
       | newuser_123@test.com  | Abc123_tr | Juan | 01/01/2000    |
       | newuser_1234@test.com | Abc123_tr | John | 01/01/2000    |
     And there exists a service offer with the details being:
-      | user_id | title       | service_brief                        | contact_information | category             |
-      | 1       | New service | This is a new service i have created | Cellphone 334234    | Software Development |
+      | owner_id | title       | service_brief                        | contact_information | category             |
+      | 1        | New service | This is a new service i have created | Cellphone 334234    | Software Development |
     And the user identified by "<UserId>" provides the details of the offer to be updated:
       | service_offer_id | title | service_brief                  | contact_information | category             |
       | 1                |       | This the service brief updated | Cellphone 334234    | Software Development |

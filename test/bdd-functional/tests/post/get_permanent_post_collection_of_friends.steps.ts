@@ -1,7 +1,7 @@
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import GetPermanentPostCollectionOfFriendsInputModel from '@core/domain/post/use-case/input-model/get_permanent_post_collection_of_friends.steps';
-import { GetPermanentPostCollectionOfFriendsInteractor } from '@core/domain/post/use-case/interactor/get_permanent_post_collection_of_friends.interactor';
-import GetPermanentPostCollectionOfFriendsOutputModel from '@core/domain/post/use-case/output-model/get_permanent_post_collection_of_friends.steps';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
+import GetPermanentPostCollectionOfFriendsInputModel from '@core/domain/permanent-post/use-case/input-model/get_permanent_post_collection_of_friends.steps';
+import { GetPermanentPostCollectionOfFriendsInteractor } from '@core/domain/permanent-post/use-case/interactor/get_permanent_post_collection_of_friends.interactor';
+import GetPermanentPostCollectionOfFriendsOutputModel from '@core/domain/permanent-post/use-case/output-model/get_permanent_post_collection_of_friends.steps';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';

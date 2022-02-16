@@ -62,9 +62,12 @@ export class ProfileController {
   @ApiNotFoundResponse({ description: 'The user does not have a profile' })
   public async getProfile(@HttpUser() http_user: HttpUserPayload): Promise<ProfileDTO> {
     try {
-      return await this.get_profile_interactor.execute(GetProfileAdapter.new({
-        user_id: http_user.id,
-      }));
+      const { profile } = await this.get_profile_interactor.execute(
+        GetProfileAdapter.new({
+          user_id: http_user.id,
+        })
+      );
+      return profile;
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }

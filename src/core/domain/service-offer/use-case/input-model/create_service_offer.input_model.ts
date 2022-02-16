@@ -1,5 +1,7 @@
+import { Id } from '@core/common/type/common_types';
+
 export default interface CreateServiceOfferInputModel {
-  user_id: string;
+  owner_id: Id;
   title: string;
   service_brief: string;
   contact_information: string;

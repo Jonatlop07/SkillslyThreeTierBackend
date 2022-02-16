@@ -3,12 +3,12 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { setEnvironment } from '@application/environments';
 import { UserModule } from './user.module';
-import { PostModule } from './post.module';
+import { PostModule } from './permanent_post.module';
 import { InfrastructureModule } from './infrastructure.module';
 import { AuthenticationModule } from './authentication.module';
 import { ProfileModule } from './profile.module';
 import { CommentModule } from '@application/module/comment.module';
-import { TempPostModule } from '@application/module/temp-post.module';
+import { TempPostModule } from '@application/module/temporal_post.module';
 import { ChatModule } from './chat.module'
 import { EventModule } from './event.module';
 import { GroupModule } from './group.module';
