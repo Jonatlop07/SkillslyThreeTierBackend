@@ -39,9 +39,4 @@ export class ChatMessageInMemoryRepository implements ChatMessageRepository {
         response_messages.push(_message);
     return Promise.resolve(response_messages);
   }
-
-  public findAllWithRelation() {
-    return null;
-  }
-
 }

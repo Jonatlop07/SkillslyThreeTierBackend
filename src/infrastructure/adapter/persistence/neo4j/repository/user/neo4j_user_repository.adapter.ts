@@ -14,6 +14,7 @@ import { UpdateUserRolesDTO } from '@core/domain/user/use-case/persistence-dto/u
 import { PartialUserUpdateDTO } from '@core/domain/user/use-case/persistence-dto/partial_user_update.dto';
 import CreateUserAccountPersistenceDTO
   from '@core/domain/user/use-case/persistence-dto/create_user_account.persistence_dto';
+import { Optional } from '@core/common/type/common_types';
 
 @Injectable()
 export class UserNeo4jRepositoryAdapter implements UserRepository {
@@ -22,12 +23,31 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
   private readonly user_key = 'user';
   private readonly user_to_follow_key = 'user_to_follow';
 
-  constructor(private readonly neo4j_service: Neo4jService) {
-  }
+  constructor(private readonly neo4j_service: Neo4jService) {}
 
-  delete(params: string): Promise<UserDTO> {
-    params;
-    throw new Error('Method not implemented.');
+  public async delete(params: UserQueryModel): Promise<UserDTO> {
+    const post_key = 'post';
+    const profile_key = 'profile';
+    const user_conversation_relationship = 'belongs_to_c';
+    const conversation_key = 'conversation';
+    const delete_user_statement = `
+      MATCH (${this.user_key}: User { user_id: $user_id })
+      WITH ${this.user_key}
+      OPTIONAL MATCH (${this.user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
+      DETACH DELETE ${post_key}
+      WITH ${this.user_key}
+      OPTIONAL MATCH (${this.user_key})-[:${Relationships.USER_PROFILE_RELATIONSHIP}]->(${profile_key}: Profile)
+      DETACH DELETE ${profile_key}
+      DETACH DELETE ${this.user_key}
+      WITH ${this.user_key}
+      OPTIONAL MATCH (${this.user_key})
+        -[${user_conversation_relationship}:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
+        ->(${conversation_key}: Conversation)
+      DELETE ${user_conversation_relationship}
+      RETURN ${this.user_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.write(delete_user_statement, { user_id: params.user_id });
+    return this.neo4j_service.getSingleResultProperties(result, this.user_key);
   }
 
   public async findAll(params: UserQueryModel): Promise<Array<UserDTO>> {
@@ -49,7 +69,7 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     );
   }
 
-  public async findOne(params: UserQueryModel): Promise<UserDTO> {
+  public async findOne(params: UserQueryModel): Promise<Optional<UserDTO>> {
     const find_user_query = `
       MATCH (${this.user_key}: User)
       WHERE ALL(k in keys($properties) WHERE $properties[k] = ${this.user_key}[k])
@@ -64,9 +84,8 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       ),
       this.user_key
     );
-    if (!found_user) {
-      return null;
-    }
+    if (!found_user)
+      return undefined;
     return {
       ...found_user,
       roles: await this.getRoles(found_user.user_id)
@@ -104,10 +123,6 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
       { user_id }
     );
     return has_requester_query_result.records.length > 0;
-  }
-
-  public findAllWithRelation() {
-    return null;
   }
 
   public async create(user_to_create: CreateUserAccountPersistenceDTO): Promise<UserDTO> {
@@ -150,22 +165,9 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     );
   }
 
-  public async exists(user: UserDTO): Promise<boolean> {
-    const exists_user_query = `MATCH (${this.user_key}: User { email: $email }) RETURN ${this.user_key}`;
-    const result: QueryResult = await this.neo4j_service.read(
-      exists_user_query,
-      { email: user.email }
-    );
-    return result.records.length > 0;
-  }
-
-  public async existsById(id: string): Promise<boolean> {
-    const exists_user_query = `MATCH (${this.user_key}: User { user_id: $id }) RETURN ${this.user_key}`;
-    const result: QueryResult = await this.neo4j_service.read(
-      exists_user_query,
-      { id }
-    );
-    return result.records.length > 0;
+  public async exists(params: UserQueryModel): Promise<boolean> {
+    const user = await this.findOne(params);
+    return !!user;
   }
 
   public async existsUserFollowRequest(params: FollowRequestDTO): Promise<boolean> {
@@ -256,44 +258,6 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
         user_to_follow_id: params.user_to_follow_id
       }
     );
-  }
-
-  public async queryById(id: string): Promise<UserDTO> {
-    const user_key = 'user';
-    const user_query = `
-      MATCH (${user_key}: User { user_id: $user_id })
-      RETURN ${user_key}
-    `;
-    const result: QueryResult = await this.neo4j_service.read(user_query, { user_id: id });
-    return {
-      ...this.neo4j_service.getSingleResultProperties(result, user_key),
-      roles: [Role.User]
-    };
-  }
-
-  public async deleteById(id: string): Promise<UserDTO> {
-    const post_key = 'post';
-    const profile_key = 'profile';
-    const user_conversation_relationship = 'belongs_to_c';
-    const conversation_key = 'conversation';
-    const delete_user_statement = `
-      MATCH (${this.user_key}: User { user_id: $user_id })
-      WITH ${this.user_key}
-      OPTIONAL MATCH (${this.user_key})-[:${Relationships.USER_POST_RELATIONSHIP}]->(${post_key}: PermanentPost)
-      DETACH DELETE ${post_key}
-      WITH ${this.user_key}
-      OPTIONAL MATCH (${this.user_key})-[:${Relationships.USER_PROFILE_RELATIONSHIP}]->(${profile_key}: Profile)
-      DETACH DELETE ${profile_key}
-      DETACH DELETE ${this.user_key}
-      WITH ${this.user_key}
-      OPTIONAL MATCH (${this.user_key})
-        -[${user_conversation_relationship}:${Relationships.USER_CONVERSATION_RELATIONSHIP}]
-        ->(${conversation_key}: Conversation)
-      DELETE ${user_conversation_relationship}
-      RETURN ${this.user_key}
-    `;
-    const result: QueryResult = await this.neo4j_service.write(delete_user_statement, { user_id: id });
-    return this.neo4j_service.getSingleResultProperties(result, this.user_key);
   }
 
   public async deleteUserFollowRequest(params: FollowRequestDTO): Promise<void> {
@@ -447,6 +411,5 @@ export class UserNeo4jRepositoryAdapter implements UserRepository {
     );
     return this.neo4j_service.getSingleResultProperties(result, this.user_key) as UserDTO;
   }
-
 }
 

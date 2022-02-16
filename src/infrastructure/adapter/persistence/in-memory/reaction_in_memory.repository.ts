@@ -3,6 +3,7 @@ import { ReactionDTO } from '@core/domain/reaction/use_case/persistence-dto/reac
 import ReactionQueryModel from '@core/domain/reaction/use_case/query-model/reaction.query_model';
 import { ReactionRepository } from '@core/domain/reaction/use_case/repository/reaction.repository';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import { ReactionCollectionResult } from '@core/domain/reaction/use_case/persistence-dto/reaction_collection_result';
 
 export class ReactionInMemoryRepository implements ReactionRepository {
 
@@ -18,25 +19,14 @@ export class ReactionInMemoryRepository implements ReactionRepository {
       post_id: reaction.post_id,
       reactor_id: reaction.reactor_id,
       reaction_type: reaction.reaction_type,
-      created_at: getCurrentDate(),
+      created_at: getCurrentDate()
     };
     this.reactions.set(this.last_added_reaction_id, added_reaction);
     this.last_added_reaction_id = `${Number(this.last_added_reaction_id) + 1}`;
     return Promise.resolve(added_reaction);
   }
 
-  findAll(params: ReactionQueryModel): Promise<ReactionDTO[]> {
-    params;
-    throw new Error('Method not implemented.');
-  }
-
-  deleteById(id: string): Promise<ReactionDTO> {
-    const deleted_reaction = this.reactions.get(id);
-    this.reactions.delete(id);
-    return Promise.resolve(deleted_reaction);
-  }
-
-  delete(params: ReactionQueryModel): Promise<ReactionDTO> {
+  public delete(params: ReactionQueryModel): Promise<ReactionDTO> {
     for (const reaction of this.reactions.values()) {
       if (Object.keys(params).every((key: string) => params[key] === reaction[key])) {
         const deleted_reaction = this.reactions.get(reaction.reaction_id);
@@ -47,7 +37,7 @@ export class ReactionInMemoryRepository implements ReactionRepository {
     return Promise.resolve(undefined);
   }
 
-  findOne(params: ReactionQueryModel): Promise<Optional<ReactionDTO>> {
+  public findOne(params: ReactionQueryModel): Promise<Optional<ReactionDTO>> {
     for (const reaction of this.reactions.values()) {
       if (Object.keys(params).every((key: string) => params[key] === reaction[key])) {
         return Promise.resolve(reaction);
@@ -56,24 +46,17 @@ export class ReactionInMemoryRepository implements ReactionRepository {
     return Promise.resolve(undefined);
   }
 
-  public findAllWithRelation() {
-    return null;
-  }
-
-  queryById(id: string): Promise<ReactionDTO[]> {
+  public findAll(params: ReactionQueryModel): Promise<ReactionCollectionResult[]> {
     const existing_reactions: ReactionDTO[] = [];
-
     for (const reaction of this.reactions.keys()) {
-      if (this.reactions.get(reaction).post_id === id) {
+      if (this.reactions.get(reaction).post_id === params.post_id) {
         existing_reactions.push({
-            post_id: this.reactions.get(reaction).post_id,
-            reaction_type: this.reactions.get(reaction).reaction_type,
-            reactor_id: this.reactions.get(reaction).reactor_id,
-          },
-        );
+          post_id: this.reactions.get(reaction).post_id,
+          reaction_type: this.reactions.get(reaction).reaction_type,
+          reactor_id: this.reactions.get(reaction).reactor_id
+        });
       }
     }
     return Promise.resolve(existing_reactions);
   }
-
 }

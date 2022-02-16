@@ -1,7 +1,6 @@
 import { Inject, Logger } from '@nestjs/common';
 import { ProjectDITokens } from '@core/domain/project/di/project_di_tokens';
 import { ProjectDTO } from '@core/domain/project/use-case/persistence-dto/project.dto';
-import QueryProjectGateway from '@core/domain/project/use-case/gateway/query_project.gateway';
 import QueryProjectInputModel from '@core/domain/project/use-case/input-model/query_project_collection.input_model';
 import QueryProjectOutputModel from '@core/domain/project/use-case/output-model/query_project_collection.output_model';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
@@ -10,13 +9,14 @@ import { NonExistentUserException } from '@core/domain/project/use-case/exceptio
 import {
   QueryProjectCollectionInteractor
 } from '@core/domain/project/use-case/interactor/query_project_collection.interactor';
+import QueryProjectCollectionGateway from '@core/domain/project/use-case/gateway/query_project_collection.gateway';
 
 export class QueryProjectCollectionService implements QueryProjectCollectionInteractor {
   private readonly logger: Logger = new Logger(QueryProjectCollectionService.name);
 
   constructor(
     @Inject(ProjectDITokens.ProjectRepository)
-    private readonly gateway: QueryProjectGateway,
+    private readonly gateway: QueryProjectCollectionGateway,
     @Inject(UserDITokens.UserRepository)
     private readonly user_gateway: SearchUsersGateway
   ) {

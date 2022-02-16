@@ -32,7 +32,7 @@ export class DeletePermanentPostService implements DeletePermanentPostInteractor
       await this.gateway.deleteGroupPost(input.post_id, input.group_id);
       return {};
     }
-    await this.gateway.deleteById(input.post_id);
+    await this.gateway.delete({ post_id: input.post_id });
     return {};
   }
 }

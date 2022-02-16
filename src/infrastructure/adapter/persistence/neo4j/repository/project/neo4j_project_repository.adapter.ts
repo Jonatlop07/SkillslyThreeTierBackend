@@ -91,10 +91,6 @@ export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
     }));
   }
 
-  findAllWithRelation(params: ProjectQueryModel): Promise<any> {
-    return Promise.resolve(undefined);
-  }
-
   public async findOne(params: ProjectQueryModel): Promise<ProjectDTO> {
     const { project_id } = params;
     const user_id_key = 'user_id';
@@ -128,26 +124,19 @@ export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
     };
   }
 
-  delete(params: string): Promise<ProjectDTO> {
-    params;
-    throw new Error('Method not implemented.');
-  }
-
-  public async deleteById(id: string): Promise<ProjectDTO> {
-    const project_key = 'project';
-    const user_key = 'user';
+  public async delete(params: ProjectQueryModel): Promise<ProjectDTO> {
     const delete_project_statement = `
-      MATCH (${project_key}: Project { project_id: $id })
+      MATCH (${this.project_key}: Project { project_id: $project_id })
         <-[:${Relationships.USER_PROJECT_RELATIONSHIP}]
-        -(${user_key}: User)
-      DETACH DELETE ${project_key}
-      RETURN ${project_key}
+        -(${this.user_key}: User)
+      DETACH DELETE ${this.project_key}
+      RETURN ${this.project_key}
     `;
     const result: QueryResult = await this.neo4j_service.write(
       delete_project_statement,
-      { id }
+      { project_id: params.project_id }
     );
-    return this.neo4j_service.getSingleResultProperties(result, project_key);
+    return this.neo4j_service.getSingleResultProperties(result, this.project_key);
   }
 
   public async update(project: ProjectDTO): Promise<ProjectDTO> {
@@ -165,7 +154,7 @@ export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
     });
     const updated_project = this.neo4j_service.getSingleResultProperties(
       result,
-      'project'
+      this.project_key
     );
     return {
       project_id: updated_project.project_id,

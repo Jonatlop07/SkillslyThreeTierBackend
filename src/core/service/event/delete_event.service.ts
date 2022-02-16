@@ -20,7 +20,9 @@ export class DeleteEventService implements DeleteEventInteractor {
   ) {}
 
   async execute(input: DeleteEventInputModel): Promise<DeleteEventOutputModel> {
-    const exists_user = this.user_gateway.existsById(input.user_id);
+    const exists_user = this.user_gateway.exists({
+      user_id: input.user_id
+    });
     if (!exists_user) {
       throw new UserAccountNotFoundException;
     }
@@ -28,7 +30,9 @@ export class DeleteEventService implements DeleteEventInteractor {
     if (!matching_event) {
       throw new EventNotFoundException();
     }
-    await this.gateway.deleteById(input.event_id);
+    await this.gateway.delete({
+      event_id: input.event_id
+    });
     return {};
   }
 }

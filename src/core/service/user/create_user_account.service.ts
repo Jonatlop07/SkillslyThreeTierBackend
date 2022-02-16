@@ -48,7 +48,7 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
       is_investor,
       is_requester
     };
-    if (await this.gateway.exists(user_to_create))
+    if (await this.gateway.exists({ email: user_to_create.email }))
       throw new UserAccountAlreadyExistsException();
     const created_user: UserDTO = await this.gateway.create(user_to_create);
     return { id: created_user.user_id, email: created_user.email };

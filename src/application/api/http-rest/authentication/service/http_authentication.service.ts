@@ -13,8 +13,6 @@ import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import { map, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
 
 @Injectable()
 export class HttpAuthenticationService {

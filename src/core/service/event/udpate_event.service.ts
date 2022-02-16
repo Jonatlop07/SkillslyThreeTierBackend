@@ -21,7 +21,9 @@ export class UpdateEventService implements UpdateEventInteractor {
   ) {}
 
   async execute(input: UpdateEventInputModel): Promise<UpdateEventOutputModel> {
-    const exists_user = this.user_gateway.existsById(input.user_id);
+    const exists_user = this.user_gateway.exists({
+      user_id: input.user_id
+    });
     if (!exists_user) {
       throw new UserAccountNotFoundException;
     }

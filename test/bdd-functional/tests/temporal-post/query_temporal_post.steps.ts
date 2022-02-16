@@ -1,24 +1,24 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
-import { CreateTemporalPostInteractor } from '@core/domain/temp-post/use-case/interactor/create_temporal_post.interactor';
-import CreateTemporalPostInputModel from '@core/domain/temp-post/use-case/input-model/create_temporal_post.input_model';
+import { CreateTemporalPostInteractor } from '@core/domain/temporal-post/use-case/interactor/create_temporal_post.interactor';
+import CreateTemporalPostInputModel from '@core/domain/temporal-post/use-case/input-model/create_temporal_post.input_model';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import CreateTemporalPostOutputModel
-  from '@core/domain/temp-post/use-case/output-model/create_temporal_post.output_model';
-import { QueryTemporalPostInteractor } from '@core/domain/temp-post/use-case/interactor/query_temporal_post.interactor';
+  from '@core/domain/temporal-post/use-case/output-model/create_temporal_post.output_model';
+import { QueryTemporalPostInteractor } from '@core/domain/temporal-post/use-case/interactor/query_temporal_post.interactor';
 import QueryTemporalPostOutputModel
-  from '@core/domain/temp-post/use-case/output-model/query_temporal_post.output_model';
+  from '@core/domain/temporal-post/use-case/output-model/query_temporal_post.output_model';
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
-import { QueryTemporalPostCollectionInteractor } from '@core/domain/temp-post/use-case/interactor/query_temporal_post_collection.interactor';
+import { TempPostDITokens } from '@core/domain/temporal-post/di/temp-post_di_tokens';
+import { QueryTemporalPostCollectionInteractor } from '@core/domain/temporal-post/use-case/interactor/query_temporal_post_collection.interactor';
 import {
   NotFoundTemporalPostException,
   TempPostException,
-} from '@core/domain/temp-post/use-case/exception/temporal_post.exception';
+} from '@core/domain/temporal-post/use-case/exception/temporal_post.exception';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 import QueryTemporalPostCollectionOutputModel
-  from '@core/domain/temp-post/use-case/output-model/query_temporal_post_collection.output_model';
+  from '@core/domain/temporal-post/use-case/output-model/query_temporal_post_collection.output_model';
 
 
 const feature = loadFeature('./test/bdd-functional/features/temporal-post/query_temporal_post.feature');

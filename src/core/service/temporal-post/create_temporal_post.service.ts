@@ -1,16 +1,16 @@
-import { CreateTemporalPostInteractor } from '@core/domain/temp-post/use-case/interactor/create_temporal_post.interactor';
+import { CreateTemporalPostInteractor } from '@core/domain/temporal-post/use-case/interactor/create_temporal_post.interactor';
 import { Inject } from '@nestjs/common';
-import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
-import CreateTemporalPostGateway from '@core/domain/temp-post/use-case/gateway/create_temporal_post.gateway';
-import CreateTemporalPostInputModel from '@core/domain/temp-post/use-case/input-model/create_temporal_post.input_model';
+import { TempPostDITokens } from '@core/domain/temporal-post/di/temp-post_di_tokens';
+import CreateTemporalPostGateway from '@core/domain/temporal-post/use-case/gateway/create_temporal_post.gateway';
+import CreateTemporalPostInputModel from '@core/domain/temporal-post/use-case/input-model/create_temporal_post.input_model';
 import CreateTemporalPostOutputModel
-  from '@core/domain/temp-post/use-case/output-model/create_temporal_post.output_model';
-import { TemporalPostDTO } from '@core/domain/temp-post/use-case/persistence-dto/temporal_post.dto';
+  from '@core/domain/temporal-post/use-case/output-model/create_temporal_post.output_model';
+import { TemporalPostDTO } from '@core/domain/temporal-post/use-case/persistence-dto/temporal_post.dto';
 import { isValidURL } from '@core/common/util/validators/permanent_post.validators';
 import {
   InvalidInputException,
   InvalidReferenceException, InvalidReferenceTypeException,
-} from '@core/domain/temp-post/use-case/exception/temporal_post.exception';
+} from '@core/domain/temporal-post/use-case/exception/temporal_post.exception';
 
 export class CreateTemporalPostService implements CreateTemporalPostInteractor {
   constructor(@Inject(TempPostDITokens.TempPostRepository) private readonly gateway: CreateTemporalPostGateway) {

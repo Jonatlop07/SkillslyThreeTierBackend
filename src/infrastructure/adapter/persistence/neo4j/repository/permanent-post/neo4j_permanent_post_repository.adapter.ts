@@ -183,13 +183,7 @@ implements PermanentPostRepository {
     }));
   }
 
-  public findAllWithRelation() {
-    return null;
-  }
-
-  async getPublicPosts(
-    params: PermanentPostQueryModel,
-  ): Promise<PermanentPostDTO[]> {
+  public async getPublicPosts(params: PermanentPostQueryModel,): Promise<PermanentPostDTO[]> {
     const { owner_id } = params;
     const find_public_posts_collection_query = `
       MATCH (${this.user_key}: User { user_id: $owner_id })
@@ -312,37 +306,16 @@ implements PermanentPostRepository {
     }));
   }
 
-  public async exists(post: PermanentPostDTO): Promise<boolean> {
-    return await this.existsById(post.post_id);
-  }
-
-  public async existsById(id: string): Promise<boolean> {
+  public async exists(params: PermanentPostQueryModel): Promise<boolean> {
     const exists_post_query = `
       MATCH (${this.post_key}: PermanentPost { post_id: $id })
       RETURN ${this.post_key}
     `;
     const result: QueryResult = await this.neo4j_service.read(
       exists_post_query,
-      { id },
+      { id: params.post_id },
     );
     return result.records.length > 0;
-  }
-
-  public async deleteById(id: string): Promise<PermanentPostDTO> {
-    const post_key = 'post';
-    const user_key = 'user';
-    const delete_permanent_post_statement = `
-      MATCH (${post_key}: PermanentPost { post_id: $id })
-        <-[:${Relationships.USER_POST_RELATIONSHIP}]
-        -(${user_key}: User)
-      DETACH DELETE ${post_key}
-      RETURN ${post_key}
-    `;
-    const result: QueryResult = await this.neo4j_service.write(
-      delete_permanent_post_statement,
-      { id },
-    );
-    return this.neo4j_service.getSingleResultProperties(result, post_key);
   }
 
   async deleteGroupPost(post_id: string, group_id: string): Promise<void> {
@@ -355,8 +328,20 @@ implements PermanentPostRepository {
     await this.neo4j_service.write(delete_group_post_query, { group_id, post_id });
   }
 
-  delete(params: string): Promise<PermanentPostDTO> {
-    params;
-    throw new Error('Method not implemented.');
+  public async delete(params: PermanentPostQueryModel): Promise<PermanentPostDTO> {
+    const post_key = 'post';
+    const user_key = 'user';
+    const delete_permanent_post_statement = `
+      MATCH (${post_key}: PermanentPost { post_id: $id })
+        <-[:${Relationships.USER_POST_RELATIONSHIP}]
+        -(${user_key}: User)
+      DETACH DELETE ${post_key}
+      RETURN ${post_key}
+    `;
+    const result: QueryResult = await this.neo4j_service.write(
+      delete_permanent_post_statement,
+      { id: params.post_id },
+    );
+    return this.neo4j_service.getSingleResultProperties(result, post_key);
   }
 }

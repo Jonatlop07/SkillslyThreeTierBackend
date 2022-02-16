@@ -23,11 +23,15 @@ export class CreateEventAssistantService implements CreateEventAssistantInteract
   public async execute(
     input: CreateEventAssistantInputModel,
   ): Promise<CreateEventAssistantOutputModel> {
-    const exists_user = this.exists_user_gateway.existsById(input.user_id);
+    const exists_user = this.exists_user_gateway.exists({
+      user_id: input.user_id
+    });
     if (!exists_user) {
       throw new UserAccountNotFoundException;
     }
-    const exists_event = this.exists_event_gateway.existsById(input.event_id);
+    const exists_event = this.exists_event_gateway.exists({
+      event_id: input.event_id
+    });
     if (!exists_event) {
       throw new EventNotFoundException();
     }

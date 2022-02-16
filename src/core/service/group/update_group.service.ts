@@ -13,9 +13,7 @@ export class UpdateGroupService implements UpdateGroupInteractor{
     private readonly gateway: UpdateGroupGateway
   ){}
 
-  async execute(
-    input: UpdateGroupInputModel,
-  ): Promise<UpdateGroupOutputModel> {
+  async execute(input: UpdateGroupInputModel): Promise<UpdateGroupOutputModel> {
     const group_to_update: GroupDTO = {
       id: input.id,
       owner_id: input.user_id,
@@ -31,7 +29,7 @@ export class UpdateGroupService implements UpdateGroupInteractor{
     if (!input.name || !input.description || !input.category){
       throw new InvalidGroupInfoException();
     }
-    const updated_group = await this.gateway.update(group_to_update);    
+    const updated_group = await this.gateway.update(group_to_update);
     return updated_group as UpdateGroupOutputModel;
   }
 }

@@ -35,14 +35,6 @@ export class ProfileInMemoryRepository implements ProfileRepository {
     return Promise.resolve(query);
   }
 
-  findAll() {
-    return null;
-  }
-
-  findAllWithRelation() {
-    return null;
-  }
-
   async partialUpdate(old_profile: ProfileDTO, new_profile: Partial<ProfileDTO>): Promise<ProfileDTO> {
     return Promise.resolve(Object.assign(old_profile, new_profile));
   }

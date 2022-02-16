@@ -1,5 +1,5 @@
-import Query from '@core/common/persistence/query';
-import { QueryReactionElement } from '../../entity/type/queried_reactions_element';
-import { ReactionDTO } from '../persistence-dto/reaction.dto';
+import FindAll from '@core/common/persistence/find/find_all';
+import ReactionQueryModel from '@core/domain/reaction/use_case/query-model/reaction.query_model';
+import { ReactionCollectionResult } from '@core/domain/reaction/use_case/persistence-dto/reaction_collection_result';
 
-export default interface QueryReactionsGateway extends Query<QueryReactionElement[] | ReactionDTO[]>{}
+export default interface QueryReactionsGateway extends FindAll<ReactionQueryModel, ReactionCollectionResult>{}

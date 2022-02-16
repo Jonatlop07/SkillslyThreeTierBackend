@@ -29,7 +29,7 @@ export class ProjectInMemoryRepository implements ProjectRepository {
     return Promise.resolve(new_project);
   }
 
-  findAll(params: ProjectQueryModel): Promise<ProjectDTO[]> {
+  public findAll(params: ProjectQueryModel): Promise<ProjectDTO[]> {
     const user_projects: ProjectDTO[] = [];
     for (const project of this.project.values()) {
       if (Object.keys(params).every((key: string) => {
@@ -41,11 +41,7 @@ export class ProjectInMemoryRepository implements ProjectRepository {
     return Promise.resolve(user_projects);
   }
 
-  findAllWithRelation(params: ProjectQueryModel): Promise<any> {
-    return Promise.resolve(undefined);
-  }
-
-  findOne(params: ProjectQueryModel): Promise<Optional<ProjectDTO>> {
+  public findOne(params: ProjectQueryModel): Promise<Optional<ProjectDTO>> {
     for (const project of this.project.values()) {
       if (Object.keys(params).every((key: string) => params[key] === project[key])) {
         return Promise.resolve(project);
@@ -54,15 +50,10 @@ export class ProjectInMemoryRepository implements ProjectRepository {
     return Promise.resolve(undefined);
   }
 
-  delete(params: string): Promise<ProjectDTO> {
-    params;
-    throw new Error('Method not implemented.');
-  }
-
-  public deleteById(project_id: string): Promise<ProjectDTO> {
+  public delete(params: ProjectQueryModel): Promise<ProjectDTO> {
     for (const _project of this.project.values()) {
-      if (_project.project_id === project_id) {
-        this.project.delete(project_id);
+      if (_project.project_id === params.project_id) {
+        this.project.delete(params.project_id);
         return Promise.resolve(_project);
       }
     }

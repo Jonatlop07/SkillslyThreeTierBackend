@@ -1,7 +1,7 @@
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsString } from 'class-validator';
 import QueryTemporalPostCollectionInputModel
-  from '@core/domain/temp-post/use-case/input-model/query_temporal_post_collection.input_model';
+  from '@core/domain/temporal-post/use-case/input-model/query_temporal_post_collection.input_model';
 
 @Exclude()
 export class QueryTemporalPostCollectionAdapter {

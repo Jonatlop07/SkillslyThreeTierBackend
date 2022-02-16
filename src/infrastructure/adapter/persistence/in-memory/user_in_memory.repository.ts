@@ -1,4 +1,3 @@
-import { Optional } from '@core/common/type/common_types';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import UserQueryModel from '@core/domain/user/use-case/query-model/user.query_model';
@@ -19,9 +18,10 @@ export class UserInMemoryRepository implements UserRepository {
     this.currently_available_user_id = '1';
   }
 
-  delete(params: string): Promise<UserDTO> {
-    params;
-    throw new Error('Method not implemented.');
+  public delete(params: UserQueryModel): Promise<UserDTO> {
+    const user_to_delete = this.users.get(params.user_id);
+    this.users.delete(params.user_id);
+    return Promise.resolve(user_to_delete);
   }
 
   public create(user: UserDTO): Promise<UserDTO> {
@@ -50,18 +50,8 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve();
   }
 
-  public exists(user: UserDTO): Promise<boolean> {
-    for (const _user of this.users.values())
-      if (_user.email === user.email)
-        return Promise.resolve(true);
-    return Promise.resolve(false);
-  }
-
-  public existsById(id: string): Promise<boolean> {
-    for (const _user of this.users.values())
-      if (_user.user_id === id)
-        return Promise.resolve(true);
-    return Promise.resolve(false);
+  public exists(params: UserQueryModel): Promise<boolean> {
+    return Promise.resolve(!!this.findOne(params));
   }
 
   public existsUserFollowRelationship(params: FollowRequestDTO): Promise<boolean> {
@@ -114,19 +104,6 @@ export class UserInMemoryRepository implements UserRepository {
     params;
     this.currently_available_user_follow_request = '';
     return Promise.resolve();
-  }
-
-  public queryById(id: string): Promise<Optional<UserDTO>> {
-    for (const _user of this.users.values())
-      if (_user.user_id === id)
-        return Promise.resolve(_user);
-    return Promise.resolve(undefined);
-  }
-
-  public deleteById(id: string): Promise<UserDTO> {
-    const user_to_delete = this.users.get(id);
-    this.users.delete(id);
-    return Promise.resolve(user_to_delete);
   }
 
   public deleteUserFollowRequest(params: FollowRequestDTO): Promise<void> {

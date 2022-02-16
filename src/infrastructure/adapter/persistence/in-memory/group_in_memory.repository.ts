@@ -120,16 +120,6 @@ export class GroupInMemoryRepository implements GroupRepository {
     return Promise.resolve(new_group);
   }
 
-  public deleteById(group_id: string): Promise<GroupDTO> {
-    for (const group of this.groups.values()) {
-      if (group.id === group_id) {
-        this.groups.delete(group_id);
-        return Promise.resolve(group);
-      }
-    }
-    return Promise.resolve(undefined);
-  }
-
   public leaveGroup(param: GroupQueryModel): Promise<BasicGroupDTO> {
     this.current_group_user_relationship = '';
     return Promise.resolve({
@@ -185,18 +175,14 @@ export class GroupInMemoryRepository implements GroupRepository {
     return Promise.resolve(groups_by_category);
   }
 
-  public findAll(params: GroupQueryModel): Promise<GroupDTO[]> {
-    params;
-    throw new Error('Method not implemented.');
-  }
-
   public delete(params: GroupQueryModel): Promise<GroupDTO> {
-    params;
-    throw new Error('Method not implemented.');
+    for (const group of this.groups.values()) {
+      if (group.id === params.group_id) {
+        this.groups.delete(params.group_id);
+        return Promise.resolve(group);
+      }
+    }
+    return Promise.resolve(undefined);
   }
 
-  findAllWithRelation(params: GroupQueryModel): Promise<any> {
-    params;
-    throw new Error('Method not implemented.');
-  }
 }

@@ -24,7 +24,7 @@ export class UpdateGroupConversationDetailsService implements UpdateGroupConvers
   public async execute(input: UpdateGroupConversationDetailsInputModel)
     : Promise<UpdateGroupConversationDetailsOutputModel> {
     const { user_id, conversation_id, conversation_name } = input;
-    if (!await this.gateway.existsById(conversation_id))
+    if (!await this.gateway.exists({ conversation_id }))
       throw new NonExistentConversationChatException();
     if (!await this.gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();

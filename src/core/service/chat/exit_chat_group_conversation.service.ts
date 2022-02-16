@@ -21,7 +21,7 @@ export class ExitChatGroupConversationService implements ExitChatGroupConversati
   public async execute(input: ExitChatGroupConversationInputModel)
     : Promise<ExitChatGroupConversationOutputModel> {
     const { user_id, conversation_id } = input;
-    if (!await this.gateway.existsById(conversation_id))
+    if (!await this.gateway.exists({ conversation_id }))
       throw new NonExistentConversationChatException();
     if (!await this.gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();

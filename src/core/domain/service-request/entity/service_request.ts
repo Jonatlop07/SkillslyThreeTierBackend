@@ -1,16 +1,16 @@
 import { Entity } from '@core/common/entity/entity';
 import { CreateServiceRequestEntityPayload } from '@core/domain/service-request/entity/type/create_service_request_entity_payload';
 import { ServiceRequestPhase } from '@core/domain/service-request/entity/type/service_request_phase.enum';
-import { Nullable } from '@core/common/type/common_types';
+import { Id, Nullable } from '@core/common/type/common_types';
 
-export class ServiceRequest extends Entity<string> {
-  private readonly _owner_id: string;
+export class ServiceRequest extends Entity<Id> {
+  private readonly _owner_id: Id;
   private readonly _title: string;
   private readonly _service_brief: string;
   private readonly _contact_information: string;
   private readonly _category: string;
-  private readonly _service_provider: Nullable<string>;
-  private readonly _applicants: Array<string>;
+  private readonly _service_provider: Nullable<Id>;
+  private readonly _applicants: Array<Id>;
   private readonly _phase: ServiceRequestPhase;
 
   constructor(payload: CreateServiceRequestEntityPayload) {

@@ -38,7 +38,7 @@ import { QueryReactionsService } from '@core/service/reaction/query_reactions.se
 import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 import { CreateUserFollowRequestService } from '@core/service/user/follow_request/create_user_follow_request.service';
 import { ChatDITokens } from '@core/domain/chat/di/chat_di_tokens';
-import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
+import { TempPostDITokens } from '@core/domain/temporal-post/di/temp-post_di_tokens';
 import { TemporalPostInMemoryRepository } from '@infrastructure/adapter/persistence/in-memory/temporal_post_in_memory.repository';
 import { CreateTemporalPostService } from '@core/service/temporal-post/create_temporal_post.service';
 import { QueryTemporalPostService } from '@core/service/temporal-post/query_temporal_post.service';

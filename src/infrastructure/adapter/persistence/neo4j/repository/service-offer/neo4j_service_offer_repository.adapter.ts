@@ -6,7 +6,6 @@ import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import { Injectable, Logger } from '@nestjs/common';
 import { QueryResult } from 'neo4j-driver-core';
 import ServiceOfferQueryModel from '@core/domain/service-offer/use-case/query-model/service_offer.query_model';
-import { Optional } from '@core/common/type/common_types';
 import { PaginationDTO } from '@core/common/persistence/pagination.dto';
 import CreateServiceOfferPersistenceDTO
   from '@core/domain/service-offer/use-case/persistence-dto/create_service_offer.persistence_dto';
@@ -52,12 +51,7 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
     };
   }
 
-  public async exists(t: ServiceOfferDTO): Promise<boolean> {
-    t;
-    return Promise.resolve(false);
-  }
-
-  public async existsById(id: string): Promise<boolean> {
+  public async exists(params: ServiceOfferQueryModel): Promise<boolean> {
     const exists_service_offer_query = `
       MATCH (${this.service_offer_key}: ServiceOffer { service_offer_id: $service_offer_id })
       RETURN ${this.service_offer_key}
@@ -65,7 +59,7 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
     const result: QueryResult = await this.neo4j_service.read(
       exists_service_offer_query,
       {
-        service_offer_id: id
+        service_offer_id: params.service_offer_id
       }
     );
     return result.records.length > 0;
@@ -109,19 +103,6 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
       {
         service_offer_id,
         owner_id
-      }
-    );
-  }
-
-  public async deleteById(id: string): Promise<void> {
-    const delete_service_offer_statement = `
-      MATCH (${this.service_offer_key}: ServiceOffer { service_offer_id: $service_offer_id })
-      DETACH DELETE ${this.service_offer_key}
-    `;
-    await this.neo4j_service.write(
-      delete_service_offer_statement,
-      {
-        service_offer_id: id
       }
     );
   }
@@ -244,15 +225,5 @@ export class ServiceOfferNeo4jRepositoryAdapter implements ServiceOfferRepositor
       }
     );
     return result.records.length > 0;
-  }
-
-  findAllWithRelation(params: ServiceOfferQueryModel): Promise<any> {
-    params;
-    return Promise.resolve(undefined);
-  }
-
-  findOne(params: ServiceOfferQueryModel): Promise<Optional<ServiceOfferDTO>> {
-    params;
-    return Promise.resolve(undefined);
   }
 }

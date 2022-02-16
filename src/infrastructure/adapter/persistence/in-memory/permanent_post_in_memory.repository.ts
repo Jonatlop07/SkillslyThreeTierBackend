@@ -25,9 +25,14 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve(group_posts);
   }
 
-  delete(params: string): Promise<PermanentPostDTO> {
-    params;
-    throw new Error('Method not implemented.');
+  public delete(params: PermanentPostQueryModel): Promise<PermanentPostDTO> {
+    for (const _post of this.posts.values()) {
+      if (_post.post_id === params.post_id) {
+        this.posts.delete(params.post_id);
+        return Promise.resolve(_post);
+      }
+    }
+    return Promise.resolve(undefined);
   }
 
   public create(post: CreatePermanentPostPersistenceDTO): Promise<PermanentPostDTO> {
@@ -47,13 +52,6 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
   public exists(post: PermanentPostDTO): Promise<boolean> {
     for (const _post of this.posts.values())
       if (_post.post_id === post.post_id)
-        return Promise.resolve(true);
-    return Promise.resolve(false);
-  }
-
-  public existsById(id: string): Promise<boolean> {
-    for (const _post of this.posts.values())
-      if (_post.post_id === id)
         return Promise.resolve(true);
     return Promise.resolve(false);
   }
@@ -100,11 +98,6 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve(undefined);
   }
 
-  public findAllWithRelation() {
-    return null;
-  }
-
-
   public update(post: PermanentPostDTO): Promise<PermanentPostDTO> {
     const post_to_update: PermanentPostDTO = {
       post_id: post.post_id,
@@ -122,17 +115,7 @@ export class PermanentPostInMemoryRepository implements PermanentPostRepository 
     return Promise.resolve();
   }
 
-  public deleteById(post_id: string): Promise<PermanentPostDTO> {
-    for (const _post of this.posts.values()) {
-      if (_post.post_id === post_id) {
-        this.posts.delete(post_id);
-        return Promise.resolve(_post);
-      }
-    }
-    return Promise.resolve(undefined);
-  }
-
-  deleteGroupPost(post_id: string, group_id: string): Promise<void> {
+  public deleteGroupPost(post_id: string, group_id: string): Promise<void> {
     group_id;
     for (const post of this.posts.values()){
       if (post.post_id === post_id){

@@ -17,7 +17,9 @@ export class DeleteProjectService implements DeleteProjectInteractor {
   async execute(
     input: DeleteProjectInputModel,
   ): Promise<DeleteProjectOutputModel> {
-    await this.gateway.deleteById(input.project_id);
+    await this.gateway.delete({
+      project_id: input.project_id
+    });
     return {};
   }
 }

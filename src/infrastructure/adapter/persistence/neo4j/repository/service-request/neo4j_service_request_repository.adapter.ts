@@ -72,12 +72,7 @@ implements ServiceRequestRepository {
     };
   }
 
-  public async exists(t: ServiceRequestDTO): Promise<boolean> {
-    t;
-    return Promise.resolve(false);
-  }
-
-  public async existsById(id: string): Promise<boolean> {
+  public async exists(params: ServiceRequestQueryModel): Promise<boolean> {
     const exists_service_request_query = `
       MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
       RETURN ${this.service_request_key}
@@ -85,7 +80,7 @@ implements ServiceRequestRepository {
     const result: QueryResult = await this.neo4j_service.read(
       exists_service_request_query,
       {
-        service_request_id: id
+        service_request_id: params.service_request_id
       }
     );
     return result.records.length > 0;
@@ -131,11 +126,6 @@ implements ServiceRequestRepository {
       service_request_id,
       owner_id
     });
-  }
-
-  deleteById(id: string): Promise<void> {
-    id;
-    throw new Error('Not implemented');
   }
 
   async createApplication(
@@ -727,10 +717,5 @@ implements ServiceRequestRepository {
             })
         )
     );
-  }
-
-  findAllWithRelation(params: ServiceRequestQueryModel): Promise<any> {
-    params;
-    return Promise.resolve(undefined);
   }
 }

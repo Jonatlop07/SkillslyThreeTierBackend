@@ -1,5 +1,5 @@
 import { Module, Provider } from '@nestjs/common';
-import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
+import { TempPostDITokens } from '@core/domain/temporal-post/di/temp-post_di_tokens';
 import { TemporalPostNeo4jRepositoryAdapter } from '@infrastructure/adapter/persistence/neo4j/repository/temporal-post/neo4j_temporal_post_repository.adapter';
 import { CreateTemporalPostService } from '@core/service/temporal-post/create_temporal_post.service';
 import { TemporalPostController } from '@application/api/http-rest/controller/temporal_post.controller';

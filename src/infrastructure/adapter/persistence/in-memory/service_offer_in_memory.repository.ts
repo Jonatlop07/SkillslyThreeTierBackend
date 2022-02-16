@@ -2,7 +2,6 @@ import ServiceOfferRepository from '@core/domain/service-offer/use-case/reposito
 import { ServiceOfferDTO } from '@core/domain/service-offer/use-case/persistence-dto/service_offer.dto';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import ServiceOfferQueryModel from '@core/domain/service-offer/use-case/query-model/service_offer.query_model';
-import { Optional } from '@core/common/type/common_types';
 
 export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
   private current_available_service_offer_id: string;
@@ -11,7 +10,7 @@ export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
     this.current_available_service_offer_id = '1';
   }
 
-  public async create(service_offer: ServiceOfferDTO): Promise<ServiceOfferDTO> {
+  public create(service_offer: ServiceOfferDTO): Promise<ServiceOfferDTO> {
     const new_service_offer: ServiceOfferDTO = {
       service_offer_id: this.current_available_service_offer_id,
       owner_id: service_offer.owner_id,
@@ -26,19 +25,14 @@ export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
     return Promise.resolve(new_service_offer);
   }
 
-  exists(t: ServiceOfferDTO): Promise<boolean> {
-    t;
-    return Promise.resolve(false);
-  }
-
-  public async existsById(id: string): Promise<boolean> {
+  public exists(params: ServiceOfferQueryModel): Promise<boolean> {
     for (const _service_offer of this.service_offers.values())
-      if (_service_offer.service_offer_id === id)
+      if (_service_offer.service_offer_id === params.service_offer_id)
         return Promise.resolve(true);
     return Promise.resolve(false);
   }
 
-  public async update(service_offer: ServiceOfferDTO): Promise<ServiceOfferDTO> {
+  public update(service_offer: ServiceOfferDTO): Promise<ServiceOfferDTO> {
     const service_offer_to_update: ServiceOfferDTO = {
       service_offer_id: service_offer.service_offer_id,
       title: service_offer.title,
@@ -55,11 +49,6 @@ export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
   public async delete(params: ServiceOfferQueryModel): Promise<void> {
     this.service_offers.delete(params.service_offer_id);
     return Promise.resolve();
-  }
-
-  deleteById(id: string): Promise<void> {
-    id;
-    throw new Error('Method not implemented');
   }
 
   public async findAllByCategories(categories: Array<string>): Promise<Array<ServiceOfferDTO>> {
@@ -93,16 +82,6 @@ export class ServiceOfferInMemoryRepository implements ServiceOfferRepository {
         || _service_offer.owner_id === params.owner_id)
         service_offers.push(_service_offer);
     return Promise.resolve(service_offers);
-  }
-
-  findAllWithRelation(params: ServiceOfferQueryModel): Promise<any> {
-    params;
-    return Promise.resolve(undefined);
-  }
-
-  findOne(params: ServiceOfferQueryModel): Promise<Optional<ServiceOfferDTO>> {
-    params;
-    return Promise.resolve(undefined);
   }
 
   belongsServiceOfferToUser(service_offer_id: string, user_id: string): Promise<boolean> {

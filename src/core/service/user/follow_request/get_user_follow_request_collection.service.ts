@@ -15,10 +15,10 @@ export class GetUserFollowRequestCollectionService implements GetUserFollowReque
     private user_gateway: GetUserFollowRequestCollectionGateway,
   ) { }
 
-  async execute(
-    input: GetUserFollowRequestCollectionInputModel,
-  ): Promise<GetUserFollowRequestCollectionOutputModel> {
-    const existsUser = await this.user_gateway.existsById(input.user_id);
+  public async execute(input: GetUserFollowRequestCollectionInputModel): Promise<GetUserFollowRequestCollectionOutputModel> {
+    const existsUser = await this.user_gateway.exists({
+      user_id: input.user_id
+    });
     if (!existsUser) {
       throw new UserAccountNotFoundException();
     }

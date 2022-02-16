@@ -12,9 +12,7 @@ implements QueryGroupCollectionInteractor {
     private readonly gateway: QueryGroupCollectionGateway,
   ) {}
 
-  async execute(
-    input: QueryGroupCollectionInputModel,
-  ): Promise<QueryGroupCollectionOutputModel> {
+  public async execute(input: QueryGroupCollectionInputModel,): Promise<QueryGroupCollectionOutputModel> {
     const { user_id, name, category, limit, offset } = input;
     if (name) {
       return { groups: await this.gateway.findWithName(name, {limit, offset}) };

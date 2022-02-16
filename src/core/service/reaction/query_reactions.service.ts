@@ -13,18 +13,21 @@ export class QueryReactionsService implements QueryReactionsInteractor {
     @Inject(ReactionDITokens.ReactionRepository)
     private readonly gateway: QueryReactionsGateway,
     @Inject(PostDITokens.PermanentPostRepository)
-    private readonly post_gateway: QueryPermanentPostGateway,
-  ) {}
+    private readonly post_gateway: QueryPermanentPostGateway
+  ) {
+  }
 
-  async execute(
-    input: QueryReactionsInputModel,
-  ): Promise<QueryReactionsOutputModel> {
+  public async execute(input: QueryReactionsInputModel): Promise<QueryReactionsOutputModel> {
     const existing_post = await this.post_gateway.findOne({
-      post_id: input.post_id,
+      post_id: input.post_id
     });
     if (!existing_post) {
       throw new QueryReactionsUnexistingPostException();
     }
-    return { reactions: await this.gateway.queryById(input.post_id) };
+    return {
+      reactions: await this.gateway.findAll({
+        post_id: input.post_id
+      })
+    };
   }
 }

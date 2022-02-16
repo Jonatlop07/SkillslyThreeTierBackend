@@ -296,24 +296,6 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     };
   }
 
-  async deleteById(id: string): Promise<GroupDTO> {
-    const delete_group_query = `
-      MATCH (${this.group_key}:Group {group_id:$id})
-      WITH ${this.group_key}, properties(${this.group_key}) as props
-      DETACH DELETE ${this.group_key}
-      RETURN props
-    `;
-    const result = await this.neo4j_service.write(delete_group_query, { id });
-    const deleted_group = this.neo4j_service.getSingleResultProperty(result, 'props');
-    return {
-      id: deleted_group.group_id,
-      name: deleted_group.name,
-      description: deleted_group.description,
-      category: deleted_group.category,
-      picture: deleted_group.picture,
-    };
-  }
-
   public async update(group: GroupDTO): Promise<GroupDTO> {
     const { id, name, description, category, picture } = group;
     const update_group_query = `
@@ -406,18 +388,21 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     };
   }
 
-  delete(params: GroupQueryModel): Promise<GroupDTO> {
-    params;
-    throw new Error('Method not implemented.');
-  }
-
-  findAll(params: GroupQueryModel): Promise<GroupDTO[]> {
-    params;
-    throw new Error('Method not implemented.');
-  }
-
-  findAllWithRelation(params: GroupQueryModel): Promise<any> {
-    params;
-    throw new Error('Method not implemented.');
+  public async delete(params: GroupQueryModel): Promise<GroupDTO> {
+    const delete_group_query = `
+      MATCH (${this.group_key}:Group {group_id:$id})
+      WITH ${this.group_key}, properties(${this.group_key}) as props
+      DETACH DELETE ${this.group_key}
+      RETURN props
+    `;
+    const result = await this.neo4j_service.write(delete_group_query, { id: params.group_id });
+    const deleted_group = this.neo4j_service.getSingleResultProperty(result, 'props');
+    return {
+      id: deleted_group.group_id,
+      name: deleted_group.name,
+      description: deleted_group.description,
+      category: deleted_group.category,
+      picture: deleted_group.picture,
+    };
   }
 }

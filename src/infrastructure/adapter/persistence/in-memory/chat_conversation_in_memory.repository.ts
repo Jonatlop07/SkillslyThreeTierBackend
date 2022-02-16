@@ -48,12 +48,8 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
   }
 
   public exists(conversation: ConversationDTO): Promise<boolean> {
-    return this.existsById(conversation.conversation_id);
-  }
-
-  public existsById(id: string): Promise<boolean> {
     for (const _conversation of this.conversations.values())
-      if (_conversation.conversation_id === id)
+      if (_conversation.conversation_id === conversation.conversation_id)
         return Promise.resolve(true);
     return Promise.resolve(false);
   }
@@ -89,10 +85,6 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
     });
   }
 
-  public findAllWithRelation() {
-    return null;
-  }
-
   public async addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>> {
     const conversation: ConversationDTO = this.conversations.get(dto.conversation_id);
     const members_to_add: Array<string> = dto.members_to_add.filter(member => !conversation.members.includes(member));
@@ -115,12 +107,7 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
   }
 
   public async delete(params: ConversationQueryModel): Promise<ConversationDTO> {
-    params;
-    return Promise.resolve(undefined);
-  }
-
-  public async deleteById(id: string): Promise<ConversationDTO> {
-    this.conversations.delete(id);
+    this.conversations.delete(params.conversation_id);
     return Promise.resolve(null);
   }
 

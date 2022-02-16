@@ -23,7 +23,9 @@ export class CreateChatMessageService implements CreateChatMessageInteractor {
     const { owner_id, conversation_id, content } = input;
     if (content.length === 0)
       throw new EmptyMessageChatException();
-    if (!await this.conversation_gateway.existsById(conversation_id))
+    if (!await this.conversation_gateway.exists({
+      conversation_id
+    }))
       throw new NonExistentConversationChatException();
     if (!await this.conversation_gateway.belongsUserToConversation(owner_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();

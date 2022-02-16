@@ -1,7 +1,7 @@
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsString } from 'class-validator';
 
-import QueryTemporalPostInputModel from '@core/domain/temp-post/use-case/input-model/query_temporal_post.input_model';
+import QueryTemporalPostInputModel from '@core/domain/temporal-post/use-case/input-model/query_temporal_post.input_model';
 
 @Exclude()
 export class DeleteTemporalPostAdapter {

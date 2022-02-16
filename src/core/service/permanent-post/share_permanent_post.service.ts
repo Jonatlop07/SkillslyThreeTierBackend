@@ -23,7 +23,7 @@ export class SharePermanentPostService implements SharePermanentPostInteractor {
   }
 
   async execute(input: SharePermanentPostInputModel): Promise<SharePermanentPostOutputModel> {
-    const exists_user = await this.user_gateway.existsById(input.user_id);
+    const exists_user = await this.user_gateway.exists({ user_id: input.user_id });
     if (!exists_user) {
       throw new NonExistentUserException();
     }

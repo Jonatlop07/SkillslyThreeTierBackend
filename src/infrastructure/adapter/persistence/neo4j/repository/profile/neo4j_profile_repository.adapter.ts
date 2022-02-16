@@ -48,14 +48,6 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     return this.neo4j_service.getSingleResultProperties(get_profile_result, profile_key);
   }
 
-  public findAll() {
-    return null;
-  }
-
-  public findAllWithRelation() {
-    return null;
-  }
-
   public async partialUpdate(old_profile: ProfileDTO, new_profile: Partial<ProfileDTO>): Promise<ProfileDTO> {
     delete new_profile.user_id;
     const profile_key = 'profile';

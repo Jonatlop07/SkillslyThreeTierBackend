@@ -18,19 +18,19 @@ import {
   Post,
   ValidationPipe,
 } from '@nestjs/common';
-import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
-import { CreateTemporalPostInteractor } from '@core/domain/temp-post/use-case/interactor/create_temporal_post.interactor';
+import { TempPostDITokens } from '@core/domain/temporal-post/di/temp-post_di_tokens';
+import { CreateTemporalPostInteractor } from '@core/domain/temporal-post/use-case/interactor/create_temporal_post.interactor';
 import { HttpUser } from '@application/api/http-rest/authentication/decorator/http_user';
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { CreateTemporalPostDTO } from '@application/api/http-rest/http-dto/temp-post/http_create_temporal_post.dto';
 import { CreateTemporalPostAdapter } from '@application/api/http-rest/http-adapter/temp-post/create_temporal_post.adapter';
-import { QueryTemporalPostCollectionInteractor } from '@core/domain/temp-post/use-case/interactor/query_temporal_post_collection.interactor';
+import { QueryTemporalPostCollectionInteractor } from '@core/domain/temporal-post/use-case/interactor/query_temporal_post_collection.interactor';
 import { QueryTemporalPostCollectionAdapter } from '@application/api/http-rest/http-adapter/temp-post/query_temporal_post_collection.adapter';
 import { DeleteTemporalPostDTO } from '@application/api/http-rest/http-dto/temp-post/http_delete_temporal_post.dto';
-import { DeleteTemporalPostInteractor } from '@core/domain/temp-post/use-case/interactor/delete_temporal_post.interactor';
+import { DeleteTemporalPostInteractor } from '@core/domain/temporal-post/use-case/interactor/delete_temporal_post.interactor';
 import { DeleteTemporalPostAdapter } from '@application/api/http-rest/http-adapter/temp-post/delete_temporal_post.adapter';
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
-import { QueryTemporalPostFriendsCollectionInteractor } from '@core/domain/temp-post/use-case/interactor/query_temporal_post_friends_collection.interactor';
+import { QueryTemporalPostFriendsCollectionInteractor } from '@core/domain/temporal-post/use-case/interactor/query_temporal_post_friends_collection.interactor';
 
 
 @Controller('temporal-posts')

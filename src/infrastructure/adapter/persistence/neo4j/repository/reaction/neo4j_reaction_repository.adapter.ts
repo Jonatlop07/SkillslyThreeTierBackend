@@ -9,16 +9,15 @@ import { Neo4jService } from '../../service/neo4j.service';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import CreateReactionPersistenceDTO
   from '@core/domain/reaction/use_case/persistence-dto/create_reaction.persistence_dto';
+import { ReactionCollectionResult } from '@core/domain/reaction/use_case/persistence-dto/reaction_collection_result';
 
 @Injectable()
-export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
-
-  reaction_key = 'reaction';
-  post_key = 'post';
-  constructor(private neo4jService: Neo4jService){}
+export class ReactionNeo4jRepositoryAdapter implements ReactionRepository {
+  constructor(private neo4jService: Neo4jService) {
+  }
 
   async delete(params: ReactionQueryModel): Promise<ReactionDTO> {
-    const {reactor_id, post_id} = params;
+    const { reactor_id, post_id } = params;
     const remove_reaction_statement = `
       MATCH (u: User { user_id: $reactor_id})-[r:${Relationships.REACTION_TYPES_RELATIONSHIP}]->(p: PermanentPost{post_id: $post_id}) 
       DELETE r
@@ -31,13 +30,13 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
     return {
       post_id: this.neo4jService.getSingleResultProperty(remove_result, 'post_id'),
       reactor_id: this.neo4jService.getSingleResultProperty(remove_result, 'reactor_id'),
-      reaction_type: this.neo4jService.getSingleResultProperty(remove_result, 'reaction_type'),
+      reaction_type: this.neo4jService.getSingleResultProperty(remove_result, 'reaction_type')
     };
   }
 
   async create(reaction: CreateReactionPersistenceDTO): Promise<ReactionDTO> {
     const reaction_type = reaction.reaction_type.toUpperCase();
-    const {reactor_id, post_id} = reaction;
+    const { reactor_id, post_id } = reaction;
     const add_reaction_statement = `
       MATCH (u: User),(p: PermanentPost) 
       WHERE u.user_id = $reactor_id AND p.post_id = $post_id
@@ -58,7 +57,7 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
   }
 
   async findOne(params: ReactionQueryModel): Promise<ReactionDTO> {
-    const {post_id, reactor_id} = params;
+    const { post_id, reactor_id } = params;
     const exists_reaction_statement = `
       MATCH (u: User { user_id:$reactor_id})-[r:${Relationships.REACTION_TYPES_RELATIONSHIP}]->(p: PermanentPost{post_id:$post_id}) 
       RETURN u.user_id AS reactor_id, p.post_id AS post_id, TYPE(r) AS reaction_type
@@ -73,24 +72,20 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
       reaction_type: this.neo4jService.getSingleResultProperty(reaction_result, 'reaction_type')
     };
   }
-  public findAllWithRelation() {
-    return null;
-  }
 
-
-  async queryById(id: string): Promise<QueryReactionElement[]> {
+  public async findAll(params: ReactionQueryModel): Promise<Array<ReactionCollectionResult>> {
     const query_reactions_statement = `
-      MATCH (u:User)-[r:${Relationships.REACTION_TYPES_RELATIONSHIP}]->(p:PermanentPost {post_id:$id}) 
+      MATCH (u:User)-[r:${Relationships.REACTION_TYPES_RELATIONSHIP}]->(p:PermanentPost { post_id: $post_id }) 
       RETURN type(r) as reaction_type, count(*) as reaction_count, collect({name:u.name, email:u.email}) as reactors
     `;
     const query_reactions_result = await this.neo4jService.read(query_reactions_statement, {
-      id
+      post_id: params.post_id
     }).then(
-      (result: QueryResult) => result.records.map((record:any) =>
+      (result: QueryResult) => result.records.map((record: any) =>
         record._fields
       ));
     const reactions = [];
-    for (const reaction of query_reactions_result){
+    for (const reaction of query_reactions_result) {
       const result: QueryReactionElement = {
         reaction_type: reaction[0],
         reaction_count: reaction[1].low,
@@ -99,15 +94,5 @@ export class ReactionNeo4jRepositoryAdapter implements ReactionRepository{
       reactions.push(result);
     }
     return reactions as QueryReactionElement[];
-  }
-
-  deleteById(id: string): Promise<ReactionDTO> {
-    id;
-    throw new Error('Method not implemented.');
-  }
-
-  findAll(params: ReactionQueryModel): Promise<ReactionDTO[]> {
-    params;
-    throw new Error('Method not implemented.');
   }
 }

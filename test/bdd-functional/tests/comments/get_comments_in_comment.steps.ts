@@ -29,7 +29,7 @@ defineFeature(feature, (test) => {
   let createCommentInCommentInteractor: CreateCommentInCommentInteractor;
   let getCommentsInCommentInteractor: GetCommentsInCommentInteractor;
 
-  let output: Array<GetCommentsInCommentOutputModel>;
+  let output: GetCommentsInCommentOutputModel;
 
   const user_1 = createUserMock();
   const post_1 = {
@@ -133,7 +133,7 @@ defineFeature(feature, (test) => {
     getCommentsInCommentInteractor = module.get<GetCommentsInCommentInteractor>(
       CommentDITokens.GetCommentsInCommentInteractor,
     );
-    output = [];
+    output = undefined;
   });
 
 
@@ -143,7 +143,7 @@ defineFeature(feature, (test) => {
     whenTheUserGetsCommentsInComment(when);
     then('the user should get all the comments of the comment', () => {
       expect(output).toBeDefined();
-      expect(output.length).toBe(numberOfComments);
+      expect(output.comments.length).toBe(numberOfComments);
     });
   });
 
@@ -152,7 +152,7 @@ defineFeature(feature, (test) => {
     andThereAreNoCommentsInTheComment(and);
     whenTheUserGetsCommentsInComment(when);
     then('an error occurs: there are not comments in the comment', () => {
-      expect(output.length).toBe(0);
+      expect(output.comments.length).toBe(0);
       expect(numberOfComments).toBe(0);
     });
   });

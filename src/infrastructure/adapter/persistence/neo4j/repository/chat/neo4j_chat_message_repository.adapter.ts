@@ -5,7 +5,6 @@ import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/
 import MessageQueryModel from '@core/domain/chat/use-case/query-model/message.query_model';
 import ChatMessageRepository from '@core/domain/chat/use-case/repository/chat_message.repository';
 import { MessageDTO } from '@core/domain/chat/use-case/persistence-dto/message.dto';
-import { Optional } from '@core/common/type/common_types';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import CreateMessagePersistenceDTO from '@core/domain/chat/use-case/persistence-dto/create_message.persistence_dto';
 
@@ -89,14 +88,4 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
         }),
     );
   }
-
-  public async findOne(params: MessageQueryModel): Promise<Optional<MessageDTO>> {
-    params;
-    return Promise.resolve(undefined);
-  }
-
-  public findAllWithRelation() {
-    return null;
-  }
-
 }

@@ -27,7 +27,7 @@ defineFeature(feature, (test) => {
   let createCommentInPermanentPostInteractor: CreateCommentInPermanentPostInteractor;
   let getCommentsInPermanentPostInteractor: GetCommentsInPermanentPostInteractor;
 
-  let output: Array<CreateCommentInPermanentPostInputModel> | Array<GetCommentsInPermanentPostOutputModel>;
+  let output: GetCommentsInPermanentPostOutputModel;
 
   const user_1 = createUserMock();
 
@@ -115,7 +115,7 @@ defineFeature(feature, (test) => {
     getCommentsInPermanentPostInteractor = module.get<GetCommentsInPermanentPostInteractor>(
       CommentDITokens.GetCommentsInPermamentPostInteractor,
     );
-    output = [];
+    output = undefined;
   });
 
 
@@ -125,7 +125,7 @@ defineFeature(feature, (test) => {
     whenUserTriesToGetAllComments(when);
     then('the user should get all the comments in the post', () => {
       expect(output).toBeDefined();
-      expect(output.length).toBe(numberOfComments);
+      expect(output.comments.length).toBe(numberOfComments);
     });
   });
 
@@ -135,7 +135,7 @@ defineFeature(feature, (test) => {
       andThereAreNoCommentsInThePost(and);
       whenUserTriesToGetAllComments(when);
       then('an error occurs: there are not comments in the post', () => {
-        expect(output.length).toBe(numberOfComments);
+        expect(output.comments.length).toBe(numberOfComments);
       });
     });
 

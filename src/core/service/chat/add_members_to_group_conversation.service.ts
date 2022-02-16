@@ -24,7 +24,9 @@ export class AddMembersToGroupConversationService implements AddMembersToGroupCo
   public async execute(input: AddMembersToGroupConversationInputModel)
     : Promise<AddMembersToGroupConversationOutputModel> {
     const { user_id, conversation_id, members_to_add } = input;
-    if (!await this.gateway.existsById(conversation_id))
+    if (!await this.gateway.exists({
+      conversation_id
+    }))
       throw new NonExistentConversationChatException();
     if (!await this.gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();

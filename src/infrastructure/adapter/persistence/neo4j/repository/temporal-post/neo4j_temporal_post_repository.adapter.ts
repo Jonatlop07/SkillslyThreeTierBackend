@@ -1,25 +1,24 @@
-import TemporalPostRepository from '@core/domain/temp-post/use-case/repository/temporal_post.repository';
+import TemporalPostRepository from '@core/domain/temporal-post/use-case/repository/temporal_post.repository';
 import { Injectable } from '@nestjs/common';
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
-import { TemporalPostDTO } from '@core/domain/temp-post/use-case/persistence-dto/temporal_post.dto';
+import { TemporalPostDTO } from '@core/domain/temporal-post/use-case/persistence-dto/temporal_post.dto';
 import { QueryResult } from 'neo4j-driver';
-import QueryTemporalPostInputModel from '@core/domain/temp-post/use-case/input-model/query_temporal_post.input_model';
 import CreateTemporalPostPersistenceDTO
-  from '@core/domain/temp-post/use-case/persistence-dto/create_temporal_post.persistence_dto';
+  from '@core/domain/temporal-post/use-case/persistence-dto/create_temporal_post.persistence_dto';
 import {
   getCurrentDate,
-  getCurrentDateWithExpiration,
+  getCurrentDateWithExpiration
 } from '@core/common/util/date/moment_utils';
-import TemporalPostQueryModel from '@core/domain/temp-post/use-case/query_model/temporal_post.query_model';
+import TemporalPostQueryModel from '@core/domain/temporal-post/use-case/query_model/temporal_post.query_model';
+import { Optional } from '@core/common/type/common_types';
 
 @Injectable()
 export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepository {
 
-  constructor(private readonly neo4j_service: Neo4jService) {
-  }
+  constructor(private readonly neo4j_service: Neo4jService) {}
 
-  public async create(temp_post:CreateTemporalPostPersistenceDTO): Promise<TemporalPostDTO> {
+  public async create(temp_post: CreateTemporalPostPersistenceDTO): Promise<TemporalPostDTO> {
     const temp_post_key = 'tempPost';
     const user_key = 'user';
     const create_temp_post_query = `
@@ -39,7 +38,7 @@ export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepositor
           referenceType: temp_post.referenceType,
           created_at: getCurrentDate(),
           expires_at: getCurrentDateWithExpiration(24, 'hours')
-        },
+        }
       });
     const created_temp_post = this.neo4j_service.getSingleResultProperties(result, temp_post_key);
     return {
@@ -49,15 +48,12 @@ export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepositor
       referenceType: created_temp_post.referenceType,
       owner_id: temp_post.owner_id,
       created_at: created_temp_post.created_at,
-      expires_at: created_temp_post.expires_at,
+      expires_at: created_temp_post.expires_at
     };
   }
 
-  public delete() {
-    return null;
-  }
-
-  public async deleteById(temporal_post_id: string): Promise<TemporalPostDTO> {
+  public async delete(params: TemporalPostQueryModel): Promise<Optional<TemporalPostDTO> | void> {
+    const { temporal_post_id } = params;
     const temp_post_key = 'tempPost';
     const deleted_post_key = 'deletedPost';
     const delete_post_query = `
@@ -65,30 +61,45 @@ export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepositor
       WITH ${temp_post_key}, properties(${temp_post_key}) as ${deleted_post_key}
       DETACH DELETE ${temp_post_key}
       RETURN ${deleted_post_key}`;
-    return this.neo4j_service.getSingleResultProperties(
-      await this.neo4j_service.write(
-        delete_post_query,
-        {
-          temporal_post_id
-        }),
-      deleted_post_key
-    ) as TemporalPostDTO;
+    await this.neo4j_service.write(
+      delete_post_query,
+      {
+        temporal_post_id
+      });
   }
 
-  public async findOne(input: QueryTemporalPostInputModel): Promise<TemporalPostDTO> {
+  public async findOne(input: TemporalPostQueryModel): Promise<TemporalPostDTO> {
     const temp_post_key = 'tempPost';
     const get_temp_post_query = `
       MATCH (${temp_post_key}: TemporalPost {temporal_post_id: $temporal_post_id})
       RETURN ${temp_post_key}`;
     return this.neo4j_service.getSingleResultProperties(
       await this.neo4j_service.read(get_temp_post_query, {
-        temporal_post_id: input.temporal_post_id,
+        temporal_post_id: input.temporal_post_id
       }),
       temp_post_key
     ) as TemporalPostDTO;
   }
 
-  public async findAllWithRelation(input: TemporalPostQueryModel): Promise<any> {
+  public async findAll(input: TemporalPostQueryModel): Promise<TemporalPostDTO[]> {
+    const user_request_key = 'userReq';
+    const temp_posts_key = 'tempPost';
+    const get_my_temporal_posts = `
+      MATCH (${user_request_key} :User {user_id: $owner_id})
+      -[:${Relationships.USER_TEMP_POST_RELATIONSHIP}]
+      ->(${temp_posts_key}: TemporalPost)
+      RETURN ${temp_posts_key}`;
+    return this.neo4j_service.getMultipleResultByKey(
+      await this.neo4j_service.read(
+        get_my_temporal_posts,
+        {
+          owner_id: input.owner_id
+        }),
+      temp_posts_key
+    ) as TemporalPostDTO[];
+  }
+
+  public async findAllWithRelationship(params: TemporalPostQueryModel): Promise<any> {
     const user_request_key = 'userReq';
     const user_followed_key = 'userFollowed';
     const temp_posts_key = 'tempPost';
@@ -100,7 +111,7 @@ export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepositor
     const result: QueryResult = await this.neo4j_service.read(
       get_friends_temp_posts_query,
       {
-        user_id: input.owner_id,
+        user_id: params.owner_id
       });
     const groupByUser = (temp_posts: QueryResult) => {
       const temporal_posts_by_user = {};
@@ -116,23 +127,5 @@ export class TemporalPostNeo4jRepositoryAdapter implements TemporalPostRepositor
       return temporal_posts_by_user;
     };
     return groupByUser(result);
-  }
-
-  public async findAll(input: TemporalPostQueryModel): Promise<TemporalPostDTO[]> {
-    const user_request_key = 'userReq';
-    const temp_posts_key = 'tempPost';
-    const get_my_temporal_posts = `
-      MATCH (${user_request_key} :User {user_id: $owner_id})
-      -[:${Relationships.USER_TEMP_POST_RELATIONSHIP}]
-      ->(${temp_posts_key}: TemporalPost)
-      RETURN ${temp_posts_key}`;
-    return this.neo4j_service.getMultipleResultByKey(
-      await this.neo4j_service.read(
-        get_my_temporal_posts,
-        {
-          owner_id: input.owner_id,
-        }),
-      temp_posts_key
-    ) as TemporalPostDTO[];
   }
 }

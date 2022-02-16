@@ -11,7 +11,6 @@ import AddReactionInputModel from '@core/domain/reaction/use_case/input-model/ad
 import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
 import AddReactionOutputModel from '@core/domain/reaction/use_case/output-model/add_reaction.output_model';
 import { Inject } from '@nestjs/common';
-import { ReactionDTO } from '@core/domain/reaction/use_case/persistence-dto/reaction.dto';
 
 export class AddReactionService implements AddReactionInteractor {
 
@@ -34,15 +33,15 @@ export class AddReactionService implements AddReactionInteractor {
     }
     const existing_reaction = await this.reaction_gateway.findOne({ post_id, reactor_id });
     if (existing_reaction && existing_reaction.post_id) {
-      const deleted_reaction: ReactionDTO = await this.reaction_gateway.delete({
+      await this.reaction_gateway.delete({
         post_id: existing_reaction.post_id,
         reactor_id: existing_reaction.reactor_id
       });
       return {
-        post_id: deleted_reaction.post_id,
+        post_id: existing_reaction.post_id,
         post_owner_id: existing_post.owner_id,
-        reactor_id: deleted_reaction.reactor_id,
-        reaction_type: deleted_reaction.reaction_type,
+        reactor_id: existing_reaction.reactor_id,
+        reaction_type: existing_reaction.reaction_type,
         added: false
       };
     }

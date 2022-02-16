@@ -1,21 +1,21 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
-import { CreateTemporalPostInteractor } from '@core/domain/temp-post/use-case/interactor/create_temporal_post.interactor';
+import { CreateTemporalPostInteractor } from '@core/domain/temporal-post/use-case/interactor/create_temporal_post.interactor';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
-import CreateTemporalPostInputModel from '@core/domain/temp-post/use-case/input-model/create_temporal_post.input_model';
+import CreateTemporalPostInputModel from '@core/domain/temporal-post/use-case/input-model/create_temporal_post.input_model';
 import CreateTemporalPostOutputModel
-  from '@core/domain/temp-post/use-case/output-model/create_temporal_post.output_model';
-import { DeleteTemporalPostInteractor } from '@core/domain/temp-post/use-case/interactor/delete_temporal_post.interactor';
+  from '@core/domain/temporal-post/use-case/output-model/create_temporal_post.output_model';
+import { DeleteTemporalPostInteractor } from '@core/domain/temporal-post/use-case/interactor/delete_temporal_post.interactor';
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { TempPostDITokens } from '@core/domain/temp-post/di/temp-post_di_tokens';
+import { TempPostDITokens } from '@core/domain/temporal-post/di/temp-post_di_tokens';
 import {
   NotFoundTemporalPostException,
   TempPostException
-} from '@core/domain/temp-post/use-case/exception/temporal_post.exception';
+} from '@core/domain/temporal-post/use-case/exception/temporal_post.exception';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 import DeleteTemporalPostOutputModel
-  from '@core/domain/temp-post/use-case/output-model/delete_temporal_post.output_model';
+  from '@core/domain/temporal-post/use-case/output-model/delete_temporal_post.output_model';
 
 const feature = loadFeature('./test/bdd-functional/features/temporal-post/delete_temporal_post.feature');
 
