@@ -1,5 +1,6 @@
 import CommentRepository from '@core/domain/comment/use-case/repository/comment.repository';
 import { CommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment.dto';
+import CommentQueryModel from '@core/domain/comment/use-case/query-model/comment.query_model';
 
 export class CommentInMemoryRepository implements CommentRepository {
   private currently_available_comment_id: string;
@@ -21,16 +22,17 @@ export class CommentInMemoryRepository implements CommentRepository {
     return Promise.resolve(new_comment);
   }
 
-  async findAll(): Promise<Array<CommentDTO>> {
+  async findAll(param: CommentQueryModel): Promise<Array<CommentDTO>> {
     const comments: Array<CommentDTO> = [];
     for (const comment of this.comments.values()) {
-      comments.push({
-        comment_id: comment.comment_id,
-        comment: comment.comment,
-        timestamp: comment.timestamp,
-        ownerID: comment.ownerID,
-        postID: comment.postID
-      });
+      if (comment.postID === param.postID)
+        comments.push({
+          comment_id: comment.comment_id,
+          comment: comment.comment,
+          timestamp: comment.timestamp,
+          ownerID: comment.ownerID,
+          postID: comment.postID
+        });
     }
     return Promise.resolve(comments);
   }

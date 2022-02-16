@@ -13,10 +13,3 @@ Feature: Get comments of a comment in permanent post
     When the user tries to get all comments of the comment
     Then the user should get all the comments of the comment
 
-
-  Scenario: A logged user tries to get all comments of a comment, but the comment has no comments
-    Given an existing user, a permanent post and a comment in that post
-    And there are no comments in the comment
-    When the user tries to get all comments of the comment
-    Then an error occurs: there are not comments in the comment
-

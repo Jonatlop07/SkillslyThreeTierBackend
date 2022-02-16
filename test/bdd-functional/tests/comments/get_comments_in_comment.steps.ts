@@ -33,7 +33,6 @@ defineFeature(feature, (test) => {
 
   const user_1 = createUserMock();
   const post_1 = {
-    id: '1',
     content: [
       {
         description: 'This is a description',
@@ -90,8 +89,8 @@ defineFeature(feature, (test) => {
       numberOfComments = comments_table.length;
       for (const comment of comments_table) {
         const input = {
-          userID: userID,
-          ancestorCommentID: ancestorCommentID,
+          userID,
+          ancestorCommentID,
           comment: comment.comment,
           timestamp: comment.timestamp,
         };
@@ -100,16 +99,12 @@ defineFeature(feature, (test) => {
     });
   };
 
-  const andThereAreNoCommentsInTheComment = (and) => {
-    and('there are no comments in the comment', () => {
-      numberOfComments = 0;
-    });
-  };
-
   const whenTheUserGetsCommentsInComment = (when) => {
     when('the user tries to get all comments of the comment', async () => {
       try {
-        output = await getCommentsInCommentInteractor.execute(undefined);
+        output = await getCommentsInCommentInteractor.execute({
+          ancestorCommentID
+        });
       } catch (e) {
         console.log(e);
       }
@@ -143,19 +138,8 @@ defineFeature(feature, (test) => {
     whenTheUserGetsCommentsInComment(when);
     then('the user should get all the comments of the comment', () => {
       expect(output).toBeDefined();
+      console.log(output.comments);
       expect(output.comments.length).toBe(numberOfComments);
     });
   });
-
-  test('A logged user tries to get all comments of a comment, but the comment has no comments', ({ given, and, when, then }) => {
-    givenAnUserAPermanentPostAndAComment(given);
-    andThereAreNoCommentsInTheComment(and);
-    whenTheUserGetsCommentsInComment(when);
-    then('an error occurs: there are not comments in the comment', () => {
-      expect(output.comments.length).toBe(0);
-      expect(numberOfComments).toBe(0);
-    });
-  });
-
-})
-;
+});

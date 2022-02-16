@@ -50,8 +50,9 @@ export class UserInMemoryRepository implements UserRepository {
     return Promise.resolve();
   }
 
-  public exists(params: UserQueryModel): Promise<boolean> {
-    return Promise.resolve(!!this.findOne(params));
+  public async exists(params: UserQueryModel): Promise<boolean> {
+    const user = await this.findOne(params);
+    return Promise.resolve(!!user);
   }
 
   public existsUserFollowRelationship(params: FollowRequestDTO): Promise<boolean> {

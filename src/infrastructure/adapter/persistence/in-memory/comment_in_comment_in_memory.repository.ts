@@ -25,14 +25,15 @@ export class CommentInCommentInMemoryRepository implements CommentInCommentRepos
 
 
   public findAll(params: CommentOfCommentQueryModel): Promise<Array<CommentOfCommentDTO>> {
-    params;
     const comments: Array<CommentOfCommentDTO> = [];
     for (const comment of this.comments.values()) {
-      comments.push({
-        comment_id: comment.comment_id,
-        comment: comment.comment,
-        timestamp: comment.timestamp,
-      });
+      if (comment.ancestorCommentID === params.ancestorCommentID)
+        comments.push({
+          comment_id: comment.comment_id,
+          comment: comment.comment,
+          timestamp: comment.timestamp,
+          ancestorCommentID: comment.ancestorCommentID
+        });
     }
     return Promise.resolve(comments);
   }

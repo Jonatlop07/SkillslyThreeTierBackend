@@ -24,16 +24,8 @@ export class GetCommentsInPermanentPostService implements GetCommentsInPermanent
       offset: input.page,
       limit: input.limit
     });
-    const results = [];
-    for (const comment of comments) {
-      results.push({
-        comment_id: comment.comment_id,
-        comment: comment.comment,
-        timestamp: comment.timestamp
-      });
-    }
     return {
-      comments: results
+      comments
     };
   }
 }

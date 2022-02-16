@@ -84,17 +84,14 @@ defineFeature(feature, (test) => {
     });
   };
 
-  const andThereAreNoCommentsInThePost = (and) => {
-    and('there are no comments in the post', () => {
-      numberOfComments = 0;
-    });
-  };
-
-
   const whenUserTriesToGetAllComments = (when) => {
     when('the user tries to get all comments of the post', async () => {
       try {
-        output = await getCommentsInPermanentPostInteractor.execute(undefined);
+        output = await getCommentsInPermanentPostInteractor.execute({
+          postID,
+          page: 0,
+          limit: 100
+        });
       } catch (e) {
         console.log(e);
       }
@@ -128,15 +125,4 @@ defineFeature(feature, (test) => {
       expect(output.comments.length).toBe(numberOfComments);
     });
   });
-
-  test('A logged user tries to get all comments of a permanent post, but the post has no comments',
-    ({ given, and, when, then }) => {
-      givenAnExistingUserAndAPost(given);
-      andThereAreNoCommentsInThePost(and);
-      whenUserTriesToGetAllComments(when);
-      then('an error occurs: there are not comments in the post', () => {
-        expect(output.comments.length).toBe(numberOfComments);
-      });
-    });
-
 });
