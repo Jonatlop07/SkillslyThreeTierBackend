@@ -28,9 +28,9 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
       RETURN ${comment_key}
     `;
     const created_comment = await this.neo4j_service.write(create_comment_query, {
+      post_id: comment.post_id,
+      owner_id: comment.owner_id,
       properties: {
-        post_id: comment.postID,
-        owner_id: comment.ownerID,
         comment: comment.comment,
         timestamp: comment.timestamp
       },
@@ -53,8 +53,8 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
         comment_id: ${comment_key}.comment_id,
         comment: ${comment_key}.comment,
         timestamp: ${comment_key}.timestamp,
-        ownerID: ${user_key}.user_id,
-        postID: ${post_key}.post_id
+        owner_id: ${user_key}.user_id,
+        post_id: ${post_key}.post_id
       } as ${result_key}
       RETURN ${result_key}
       ORDER BY ${result_key}.timestamp DESC
@@ -62,7 +62,7 @@ export class CommentNeo4jRepositoryAdapter implements CommentRepository {
       LIMIT ${pagination.limit}
     `;
     const comments = await this.neo4j_service.read(get_all_comments_query, {
-      post_id: params.postID
+      post_id: params.post_id
     });
     return this.neo4j_service.getMultipleResultByKey(comments, result_key);
   }

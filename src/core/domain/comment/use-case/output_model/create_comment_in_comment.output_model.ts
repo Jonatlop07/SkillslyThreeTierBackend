@@ -1,7 +1,5 @@
+import { CommentOfCommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment_of_comment.dto';
+
 export default interface CreateCommentInCommentOutputModel {
-  commentID: string;
-  ancestorCommentID: string;
-  userID: string;
-  comment: string;
-  timestamp: string;
+  created_comment: CommentOfCommentDTO;
 }

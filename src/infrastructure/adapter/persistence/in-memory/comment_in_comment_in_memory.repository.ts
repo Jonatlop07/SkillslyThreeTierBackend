@@ -13,10 +13,10 @@ export class CommentInCommentInMemoryRepository implements CommentInCommentRepos
   async create(comment: CommentOfCommentDTO): Promise<CommentOfCommentDTO> {
     const new_comment: CommentOfCommentDTO = {
       comment_id: this.currently_available_comment_id,
-      comment: comment['comment'],
-      timestamp: comment['timestamp'],
-      ancestorCommentID: comment['ancestorCommentID'],
-      userID: comment['userID'],
+      comment: comment.comment,
+      timestamp: comment.timestamp,
+      ancestor_comment_id: comment.ancestor_comment_id,
+      owner_id: comment.owner_id
     };
     this.comments.set(this.currently_available_comment_id, new_comment);
     this.currently_available_comment_id = String(Number(this.currently_available_comment_id) + 1);
@@ -27,12 +27,13 @@ export class CommentInCommentInMemoryRepository implements CommentInCommentRepos
   public findAll(params: CommentOfCommentQueryModel): Promise<Array<CommentOfCommentDTO>> {
     const comments: Array<CommentOfCommentDTO> = [];
     for (const comment of this.comments.values()) {
-      if (comment.ancestorCommentID === params.ancestorCommentID)
+      if (comment.ancestor_comment_id === params.ancestor_comment_id)
         comments.push({
           comment_id: comment.comment_id,
           comment: comment.comment,
           timestamp: comment.timestamp,
-          ancestorCommentID: comment.ancestorCommentID
+          ancestor_comment_id: comment.ancestor_comment_id,
+          owner_id: comment.owner_id
         });
     }
     return Promise.resolve(comments);

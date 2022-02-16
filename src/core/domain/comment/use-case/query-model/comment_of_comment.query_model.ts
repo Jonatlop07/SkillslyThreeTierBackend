@@ -1,5 +1,5 @@
 import { Id } from '@core/common/type/common_types';
 
 export default interface CommentOfCommentQueryModel {
-  ancestorCommentID: Id;
+  ancestor_comment_id: Id;
 }

@@ -1,5 +1,5 @@
 export default interface GetCommentsInCommentInputModel {
   page?: number,
   limit?: number,
-  ancestorCommentID?: string,
+  ancestor_comment_id: string,
 }

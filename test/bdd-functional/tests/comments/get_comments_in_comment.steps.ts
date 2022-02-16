@@ -20,7 +20,7 @@ import { CommentDITokens } from '@core/domain/comment/di/commen_di_tokens';
 const feature = loadFeature('test/bdd-functional/features/comment/get_comments_in_comment.feature');
 defineFeature(feature, (test) => {
   let userID: string;
-  let ancestorCommentID: string;
+  let ancestor_comment_id: string;
   let numberOfComments: number;
 
   let createUserAccountInteractor: CreateUserAccountInteractor;
@@ -44,8 +44,8 @@ defineFeature(feature, (test) => {
     privacy: 'public'
   };
   const comment_1 = {
-    ownerID: '1',
-    postID: '1',
+    owner_id: '1',
+    post_id: '1',
     comment: 'A comment in a permanent post test',
     timestamp: '2020-01-01T00:00:00',
   };
@@ -69,8 +69,8 @@ defineFeature(feature, (test) => {
 
   async function createCommentInPost(input: CreateCommentInPermanentPostInputModel) {
     try {
-      const { commentID } = await createCommentInPermanentPostInteractor.execute(input);
-      ancestorCommentID = commentID;
+      const { created_comment } = await createCommentInPermanentPostInteractor.execute(input);
+      ancestor_comment_id = created_comment.comment_id;
     } catch (e) {
       console.log(e);
     }
@@ -89,8 +89,8 @@ defineFeature(feature, (test) => {
       numberOfComments = comments_table.length;
       for (const comment of comments_table) {
         const input = {
-          userID,
-          ancestorCommentID,
+          owner_id: userID,
+          ancestor_comment_id,
           comment: comment.comment,
           timestamp: comment.timestamp,
         };
@@ -103,7 +103,7 @@ defineFeature(feature, (test) => {
     when('the user tries to get all comments of the comment', async () => {
       try {
         output = await getCommentsInCommentInteractor.execute({
-          ancestorCommentID
+          ancestor_comment_id
         });
       } catch (e) {
         console.log(e);

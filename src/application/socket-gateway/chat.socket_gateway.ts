@@ -52,7 +52,7 @@ export class ChatSocketGateway implements OnGatewayInit, OnGatewayConnection, On
   public async handleSendMessageToConversation(client: Socket, payload: SocketMessageDTO) {
     try {
       const { created_message } = await this.create_chat_message.execute({
-        owner_id: payload.user_id,
+        owner_id: payload.owner_id,
         conversation_id: payload.conversation_id,
         content: payload.message
       });

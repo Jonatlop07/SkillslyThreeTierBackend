@@ -15,7 +15,7 @@ export class GetCommentsInCommentService implements GetCommentsInCommentInteract
 
   public async execute(input: GetCommentsInCommentInputModel): Promise<GetCommentsInCommentOutputModel> {
     const comments = await this.gateway.findAll({
-      ancestorCommentID: input.ancestorCommentID
+      ancestor_comment_id: input.ancestor_comment_id
     },
     {
       offset: input.page,

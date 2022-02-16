@@ -19,7 +19,7 @@ export class GetCommentsInPermanentPostService implements GetCommentsInPermanent
   public async execute(input: GetCommentsInPermanentPostInputModel)
     : Promise<GetCommentsInPermanentPostOutputModel> {
     const comments = await this.gateway.findAll({
-      postID: input.postID
+      post_id: input.post_id
     }, {
       offset: input.page,
       limit: input.limit

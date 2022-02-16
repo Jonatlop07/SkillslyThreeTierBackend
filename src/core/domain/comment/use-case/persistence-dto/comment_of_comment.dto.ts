@@ -4,6 +4,6 @@ export interface CommentOfCommentDTO{
   comment_id?: Id;
   comment: string;
   timestamp: string;
-  userID?: Id;
-  ancestorCommentID?: string;
+  owner_id: Id;
+  ancestor_comment_id: Id;
 }

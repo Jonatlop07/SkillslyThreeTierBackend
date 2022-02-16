@@ -19,8 +19,8 @@ export class CommentsInCommentNeo4jRepositoryAdapter implements CommentInComment
     const user_key = 'user';
     const create_comment_query = `
       MATCH 
-        (${ancestor_comment_key}: Comment { comment_id: '${comment.ancestorCommentID}' }),
-        (${user_key}: User { user_id: '${comment.userID}' })
+        (${ancestor_comment_key}: Comment { comment_id: $ancestor_comment_id }),
+        (${user_key}: User { user_id: $owner_id })
       CREATE (${comment_key}: Comment)
       SET ${comment_key} += $properties, ${comment_key}.comment_id = randomUUID()
       CREATE (${comment_key})-[:${Relationships.COMMENT_COMMENT_RELATIONSHIP}]->(${ancestor_comment_key})
@@ -28,12 +28,13 @@ export class CommentsInCommentNeo4jRepositoryAdapter implements CommentInComment
       RETURN ${comment_key}
     `;
     const created_comment = await this.neo4j_service.write(create_comment_query, {
+      ancestor_comment_id: comment.ancestor_comment_id,
+      owner_id: comment.owner_id,
       properties: {
         comment: comment.comment,
         timestamp: comment.timestamp,
       },
     });
-
     return this.neo4j_service.getSingleResultProperties(created_comment, comment_key) as CommentOfCommentDTO;
   }
 
@@ -51,8 +52,8 @@ export class CommentsInCommentNeo4jRepositoryAdapter implements CommentInComment
         comment_id: ${comment_key}.comment_id,
         comment: ${comment_key}.comment,
         timestamp: ${comment_key}.timestamp,
-        userID: ${user_key}.user_id,
-        ancestorCommentID: ${ancestor_comment_key}.comment_id
+        owner_id: ${user_key}.user_id,
+        ancestor_comment_id: ${ancestor_comment_key}.comment_id
       } as ${result_key}
       RETURN ${result_key}
       ORDER BY ${result_key}.timestamp DESC
@@ -60,7 +61,7 @@ export class CommentsInCommentNeo4jRepositoryAdapter implements CommentInComment
       LIMIT ${pagination.limit}
     `;
     const comments = await this.neo4j_service.read(get_all_comments_query, {
-      comment_id: params.ancestorCommentID
+      comment_id: params.ancestor_comment_id
     });
     return this.neo4j_service.getMultipleResultByKey(comments, result_key);
   }

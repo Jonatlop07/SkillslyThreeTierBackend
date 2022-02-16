@@ -24,7 +24,7 @@ defineFeature(feature, (test) => {
   let comment: string;
   let timestamp: string;
   let userID: string;
-  let ancestorCommentID: string;
+  let ancestor_comment_id: string;
 
   let createUserAccountInteractor: CreateUserAccountInteractor;
   let createPermanentPostInteractor: CreatePermanentPostInteractor;
@@ -48,8 +48,8 @@ defineFeature(feature, (test) => {
     privacy: 'public'
   };
   const comment_1 = {
-    ownerID: '1',
-    postID: '1',
+    owner_id: '1',
+    post_id: '1',
     comment: 'Test of my comment in post 1',
     timestamp: '2020-01-01T00:00:00',
   };
@@ -73,9 +73,9 @@ defineFeature(feature, (test) => {
 
   async function createComment(input: CreateCommentInPermanentPostInputModel) {
     try {
-      const { commentID } = await createCommentInPermanentPostInteractor.execute(input);
+      const { created_comment } = await createCommentInPermanentPostInteractor.execute(input);
       // console.log(await createCommentInPermanentPostInteractor.execute(input));
-      ancestorCommentID = commentID;
+      ancestor_comment_id = created_comment.comment_id;
     } catch (e) {
       exception = e;
     }
@@ -107,8 +107,8 @@ defineFeature(feature, (test) => {
   const whenUserAddsComment = (when) => {
     when('user tries to add a comment to the post comment', async () => {
       const input = {
-        userID: userID,
-        ancestorCommentID: ancestorCommentID,
+        owner_id: userID,
+        ancestor_comment_id: ancestor_comment_id,
         comment: comment,
         timestamp: timestamp,
       };

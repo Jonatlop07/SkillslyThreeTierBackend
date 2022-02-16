@@ -24,7 +24,7 @@ defineFeature(feature, (test) => {
   let comment: string;
   let timestamp: string;
   let userID: string;
-  let postID: string;
+  let post_id: string;
 
   let createUserAccountInteractor: CreateUserAccountInteractor;
   let createPermanentPostInteractor: CreatePermanentPostInteractor;
@@ -60,7 +60,7 @@ defineFeature(feature, (test) => {
   async function createPost(input: CreatePermanentPostInputModel) {
     try {
       const { created_permanent_post } = await createPermanentPostInteractor.execute(input);
-      postID = created_permanent_post.post_id;
+      post_id = created_permanent_post.post_id;
     } catch (e) {
       console.log(e);
     }
@@ -92,9 +92,9 @@ defineFeature(feature, (test) => {
   const whenUserTriesAddAComment = (when) => {
     when('user tries to add a comment to the post', async () => {
       const input = {
-        ownerID: userID,
-        postID: postID,
-        comment: comment,
+        owner_id: userID,
+        post_id,
+        comment,
         timestamp: timestamp,
       };
       await createComment(input);

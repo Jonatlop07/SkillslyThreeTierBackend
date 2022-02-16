@@ -13,10 +13,10 @@ export class CreateCommentInPermanentPostAdapter implements CreateCommentInPerma
   public timestamp: string;
   @Expose()
   @IsString()
-  public ownerID: string;
+  public owner_id: string;
   @Expose()
   @IsString()
-  public postID: string;
+  public post_id: string;
 
   public static new(payload: CreateCommentInPermanentPostInputModel): CreateCommentInPermanentPostAdapter {
     return plainToClass(CreateCommentInPermanentPostAdapter, payload);

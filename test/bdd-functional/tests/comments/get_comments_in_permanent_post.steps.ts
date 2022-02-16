@@ -18,8 +18,8 @@ const feature = loadFeature('test/bdd-functional/features/comment/get_comments_i
 
 defineFeature(feature, (test) => {
 
-  let ownerID: string;
-  let postID: string;
+  let owner_id: string;
+  let post_id: string;
   let numberOfComments: number;
 
   let createUserAccountInteractor: CreateUserAccountInteractor;
@@ -47,7 +47,7 @@ defineFeature(feature, (test) => {
   async function createUserAccount(input: CreateUserAccountInputModel) {
     try {
       const { id } = await createUserAccountInteractor.execute(input);
-      ownerID = id;
+      owner_id = id;
     } catch (e) {
       console.log(e);
     }
@@ -56,7 +56,7 @@ defineFeature(feature, (test) => {
   async function createPost(input: CreatePermanentPostInputModel) {
     try {
       const { created_permanent_post } = await createPermanentPostInteractor.execute(input);
-      postID = created_permanent_post.post_id;
+      post_id = created_permanent_post.post_id;
     } catch (e) {
       console.log(e);
     }
@@ -74,8 +74,8 @@ defineFeature(feature, (test) => {
       numberOfComments = comments_table.length;
       for (const comment of comments_table) {
         const input = {
-          ownerID,
-          postID: postID,
+          owner_id,
+          post_id,
           comment: comment.comment,
           timestamp: comment.timestamp
         };
@@ -88,7 +88,7 @@ defineFeature(feature, (test) => {
     when('the user tries to get all comments of the post', async () => {
       try {
         output = await getCommentsInPermanentPostInteractor.execute({
-          postID,
+          post_id,
           page: 0,
           limit: 100
         });

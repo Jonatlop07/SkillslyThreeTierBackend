@@ -1,7 +1,9 @@
+import { Id } from '@core/common/type/common_types';
+
 export interface CommentDTO {
-  comment_id?: string;
+  comment_id?: Id;
   comment: string;
   timestamp: string;
-  ownerID?: string;
-  postID?: string;
+  owner_id: Id;
+  post_id: Id;
 }

@@ -153,7 +153,7 @@ export class PermanentPostController {
       return await this.query_permanent_post_collection_interactor.execute(
         await QueryPermanentPostCollectionAdapter.new({
           user_id: http_user.id,
-          owner_id: body.user_id,
+          owner_id: body.owner_id,
           group_id: body.group_id,
           limit: body.limit,
           offset: body.offset
@@ -173,7 +173,7 @@ export class PermanentPostController {
     try {
       return await this.query_permanent_post_interactor.execute(
         await QueryPermanentPostAdapter.new({
-          owner_id: queryParams.user_id,
+          owner_id: queryParams.owner_id,
           id: post_id
         })
       );

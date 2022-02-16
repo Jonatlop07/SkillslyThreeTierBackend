@@ -32,29 +32,30 @@ export class CommentsInCommentController {
   ) {
   }
 
-  @Post('/:commentID/comment')
+  @Post('/:comment-id/comment')
   @ApiCreatedResponse({ description: 'Comment has been successfully created' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while creating comment' })
   @ApiBearerAuth()
   async createCommentInComment(
-    @Param('commentID') commentID: string,
+    @Param('comment-id') comment_id: string,
     @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateCommentDto,
   ) {
     try {
-      return await this.createCommentInCommentInteractor.execute({
-        userID: http_user.id,
-        ancestorCommentID: commentID,
+      const { created_comment } = await this.createCommentInCommentInteractor.execute({
+        owner_id: http_user.id,
+        ancestor_comment_id: comment_id,
         comment: body.comment,
         timestamp: body.timestamp,
       });
+      return created_comment;
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
-  @Get('/:commentID/comments')
+  @Get('/:comment-id/comments')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     description: 'Comments has been successfully obtained',
@@ -66,19 +67,17 @@ export class CommentsInCommentController {
     description: 'Error while obtaining comments',
   })
   @ApiBearerAuth()
-  async getAllCommentsInPermanentPost(@Query() queryParams, @Param('commentID') commentID: string) {
+  async getAllCommentsInPermanentPost(@Query() queryParams, @Param('comment-id') comment_id: string) {
     const page = queryParams.page ? queryParams.page : 0;
     const limit = queryParams.limit ? queryParams.limit : 2;
     try {
       return await this.getCommentsInCommentInteractor.execute({
-        page: page,
-        limit: limit,
-        ancestorCommentID: commentID,
+        page,
+        limit,
+        ancestor_comment_id: comment_id,
       });
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
-
-
 }
