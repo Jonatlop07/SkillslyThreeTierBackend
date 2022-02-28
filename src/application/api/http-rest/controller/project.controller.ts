@@ -110,7 +110,7 @@ export class ProjectController {
     @Param('project_id') project_id: string,
     @Body() body
   ) {
-    if (body.user_id !== http_user.id)
+    if (body.owner_id !== http_user.id)
       throw new HttpException(
         {
           status: HttpStatus.UNAUTHORIZED,
@@ -146,7 +146,7 @@ export class ProjectController {
   ) {
     try {
       return await this.delete_project_interactor.execute({
-        project_id: project_id,
+        project_id,
         owner_id: http_user.id
       });
     } catch (e) {
