@@ -18,13 +18,26 @@ export class CreateGroupService implements CreateGroupInteractor{
   async execute(
     input: CreateGroupInputModel,
   ): Promise<CreateGroupOutputModel> {
+    const {
+      owner_id,
+      name,
+      description,
+      category,
+      picture,
+    } = input;
     const group: Group = GroupMapper.toGroup(
       input as GroupDTO
     );
     if (group.hasEmptyInfo()){
       throw new InvalidGroupInfoException();
     }
-    const created_group: GroupDTO = await this.gateway.create(input as GroupDTO);
+    const created_group: GroupDTO = await this.gateway.create({
+      owner_id,
+      name,
+      description,
+      category,
+      picture,
+    });
     return created_group as CreateGroupOutputModel;
   }
 }

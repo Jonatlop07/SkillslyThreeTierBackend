@@ -1,8 +1,8 @@
-import TemporalPostRepository from '@core/domain/temp-post/use-case/repository/temporal_post.repository';
-import { TemporalPostDTO } from '@core/domain/temp-post/use-case/persistence-dto/temporal_post.dto';
-import * as moment from 'moment';
-import TemporalPostQueryModel from '@core/domain/temp-post/use-case/query_model/temporal_post.query_model';
+import TemporalPostRepository from '@core/domain/temporal-post/use-case/repository/temporal_post.repository';
+import { TemporalPostDTO } from '@core/domain/temporal-post/use-case/persistence-dto/temporal_post.dto';
+import TemporalPostQueryModel from '@core/domain/temporal-post/use-case/query_model/temporal_post.query_model';
 import { Optional } from '@core/common/type/common_types';
+import { getCurrentDate, getCurrentDateWithExpiration } from '@core/common/util/date/moment_utils';
 
 export class TemporalPostInMemoryRepository implements TemporalPostRepository {
   private current_available_post_id: string;
@@ -14,12 +14,12 @@ export class TemporalPostInMemoryRepository implements TemporalPostRepository {
   public create(post: TemporalPostDTO): Promise<TemporalPostDTO> {
     const newTempPost: TemporalPostDTO = {
       temporal_post_id: this.current_available_post_id,
-      created_at: moment().format('YYYY-MM-DDTHH:mm:ss'),
-      expires_at: moment().add(24, 'hours').format('YYYY-MM-DDTHH:mm:ss'),
+      created_at: getCurrentDate(),
+      expires_at: getCurrentDateWithExpiration(24, 'hours'),
       description: post.description,
       reference: post.reference,
       referenceType: post.referenceType,
-      user_id: post.user_id,
+      owner_id: post.owner_id,
     };
     this.temporalPosts.set(this.current_available_post_id, newTempPost);
     this.current_available_post_id = String(Number(this.current_available_post_id) + 1);
@@ -44,18 +44,14 @@ export class TemporalPostInMemoryRepository implements TemporalPostRepository {
     return Promise.resolve(temporalPosts);
   }
 
-  public findAllWithRelation() {
-    return null;
+  public findAllWithRelationship(params: TemporalPostQueryModel): Promise<any> {
+    params;
+    return Promise.resolve(undefined);
   }
 
-
-  public deleteById(id: string): Promise<TemporalPostDTO> {
-    const temporalPost: TemporalPostDTO = this.temporalPosts.get(id);
-    this.temporalPosts.delete(id);
+  public delete(params: TemporalPostQueryModel): Promise<Optional<TemporalPostDTO> | void> {
+    const temporalPost: TemporalPostDTO = this.temporalPosts.get(params.temporal_post_id);
+    this.temporalPosts.delete(params.temporal_post_id);
     return Promise.resolve(temporalPost);
-  }
-
-  public delete(): Promise<TemporalPostDTO> {
-    return null;
   }
 }

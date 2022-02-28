@@ -15,7 +15,9 @@ export class DeleteUserAccountService implements DeleteUserAccountInteractor {
   }
 
   public async execute({ id }: DeleteUserAccountInputModel): Promise<DeleteUserAccountOutputModel> {
-    await this.gateway.deleteById(id);
+    await this.gateway.delete({
+      user_id: id
+    });
     return {};
   }
 }

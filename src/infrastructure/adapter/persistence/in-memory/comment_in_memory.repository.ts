@@ -1,6 +1,6 @@
 import CommentRepository from '@core/domain/comment/use-case/repository/comment.repository';
 import { CommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment.dto';
-import { GetCommentsInPermanentPostOutputModel } from '@core/domain/comment/use-case/output_model/get_comments_in_permanent_post.output_model';
+import CommentQueryModel from '@core/domain/comment/use-case/query-model/comment.query_model';
 
 export class CommentInMemoryRepository implements CommentRepository {
   private currently_available_comment_id: string;
@@ -12,37 +12,28 @@ export class CommentInMemoryRepository implements CommentRepository {
   async create(comment: CommentDTO): Promise<CommentDTO> {
     const new_comment: CommentDTO = {
       comment_id: this.currently_available_comment_id,
-      comment: comment['comment'],
-      timestamp: comment['timestamp'],
-      postID: comment['postID'],
-      userID: comment['userID'],
+      comment: comment.comment,
+      timestamp: comment.timestamp,
+      post_id: comment.post_id,
+      owner_id: comment.owner_id,
     };
     this.comments.set(this.currently_available_comment_id, new_comment);
     this.currently_available_comment_id = String(Number(this.currently_available_comment_id) + 1);
     return Promise.resolve(new_comment);
   }
 
-  async findAll(): Promise<Array<GetCommentsInPermanentPostOutputModel>> {
-    const comments: Array<GetCommentsInPermanentPostOutputModel> = [];
+  async findAll(param: CommentQueryModel): Promise<Array<CommentDTO>> {
+    const comments: Array<CommentDTO> = [];
     for (const comment of this.comments.values()) {
-      comments.push({
-        id: comment.comment_id,
-        comment: comment.comment,
-        timestamp: comment.timestamp,
-        email: comment.userID,
-        name: '',
-      });
+      if (comment.post_id === param.post_id)
+        comments.push({
+          comment_id: comment.comment_id,
+          comment: comment.comment,
+          timestamp: comment.timestamp,
+          owner_id: comment.owner_id,
+          post_id: comment.post_id
+        });
     }
     return Promise.resolve(comments);
   }
-
-  findOne() {
-    return null;
-  }
-
-  findAllWithRelation() {
-    return null;
-  }
-
-
 }

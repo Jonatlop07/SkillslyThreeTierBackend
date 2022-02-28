@@ -35,29 +35,31 @@ export class CommentController {
   ) {
   }
 
-  @Post('/:permanentPostID/comment')
-  @ApiCreatedResponse({ description: 'Comment has been sucessfully created' })
+  @Post('/:permanent-post-id/comment')
+  @ApiCreatedResponse({ description: 'Comment has been successfully created' })
   @ApiBadRequestResponse({ description: 'Invalid data format' })
   @ApiBadGatewayResponse({ description: 'Error while creating comment' })
   @ApiBearerAuth()
   async createCommentInPermanentPost(
-    @Param('permanentPostID') permanentPostID: string,
+    @Param('permanent-post-id') permanent_post_id: string,
     @HttpUser() http_user: HttpUserPayload,
     @Body(new ValidationPipe()) body: CreateCommentDto,
   ) {
     try {
-      return await this.createCommentInPermanentPostInteractor.execute(CreateCommentInPermanentPostAdapter.new({
-        userID: http_user.id,
-        postID: permanentPostID,
-        comment: body['comment'],
-        timestamp: body['timestamp'],
-      }));
+      const { created_comment } = await this.createCommentInPermanentPostInteractor
+        .execute(CreateCommentInPermanentPostAdapter.new({
+          owner_id: http_user.id,
+          post_id: permanent_post_id,
+          comment: body.comment,
+          timestamp: body.timestamp
+        }));
+      return created_comment;
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
 
-  @Get('/:permanentPostID/comments')
+  @Get('/:permanent-post-id/comments')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     description: 'Comments has been successfully obtained',
@@ -69,18 +71,18 @@ export class CommentController {
     description: 'Error while obtaining comments',
   })
   @ApiBearerAuth()
-  async getAllCommentsInPermanentPost(@Query() queryParams, @Param('permanentPostID') permanentPostID: string) {
-    const page = queryParams['page'] ? queryParams['page'] : 0;
-    const limit = queryParams['limit'] ? queryParams['limit'] : 2;
+  async getAllCommentsInPermanentPost(@Query() queryParams, @Param('permanent-post-id') permanent_post_id: string) {
+    const page = queryParams.page ? queryParams.page : 0;
+    const limit = queryParams.limit ? queryParams.limit : 2;
     try {
-      return await this.getCommentsInPermanentPostInteractor.execute({
+      const { comments } = await this.getCommentsInPermanentPostInteractor.execute({
         page: page,
         limit: limit,
-        postID: permanentPostID,
+        post_id: permanent_post_id,
       });
+      return comments;
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
-
 }

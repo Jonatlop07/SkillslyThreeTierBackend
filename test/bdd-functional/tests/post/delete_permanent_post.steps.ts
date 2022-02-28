@@ -1,6 +1,6 @@
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
-import { DeletePermanentPostInteractor } from '@core/domain/post/use-case/interactor/delete_permanent_post.interactor';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
+import { CreatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/create_permanent_post.interactor';
+import { DeletePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/delete_permanent_post.interactor';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
@@ -9,14 +9,14 @@ import { createTestModule } from '../create_test_module';
 import {
   PermanentPostException,
   NonExistentPermanentPostException
-} from '@core/domain/post/use-case/exception/permanent_post.exception';
-import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
+} from '@core/domain/permanent-post/use-case/exception/permanent_post.exception';
+import { QueryPermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/query_permanent_post.interactor';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
 import { CreateGroupInteractor } from '@core/domain/group/use-case/interactor/create_group.interactor';
 import { GroupDITokens } from '@core/domain/group/di/group_di_tokens';
-import CreatePermanentPostInputModel from '@core/domain/post/use-case/input-model/create_permanent_post.input_model';
+import CreatePermanentPostInputModel from '@core/domain/permanent-post/use-case/input-model/create_permanent_post.input_model';
 import { GroupException, UnauthorizedGroupEditorException } from '@core/domain/group/use-case/exception/group.exception';
-import DeletePermanentPostOutputModel from '@core/domain/post/use-case/output-model/delete_permanent_post.output_model';
+import DeletePermanentPostOutputModel from '@core/domain/permanent-post/use-case/output-model/delete_permanent_post.output_model';
 
 const feature = loadFeature('test/bdd-functional/features/post/delete_permanent_post.feature');
 
@@ -64,9 +64,9 @@ defineFeature(feature, (test) => {
       async (post_id, post_owner_id, post_content_table) => {
         try {
           await create_permanent_post_interactor.execute({
-            id: post_id,
             content: post_content_table,
-            user_id: post_owner_id
+            owner_id: post_owner_id,
+            privacy: 'public'
           });
         } catch (e) {
           console.log(e);
@@ -81,8 +81,9 @@ defineFeature(feature, (test) => {
         try {
           await createPost({
             content: post_content_table,
-            user_id: post_owner_id,
-            group_id: post_group_id
+            owner_id: post_owner_id,
+            group_id: post_group_id,
+            privacy: 'public'
           });
         } catch (e) {
           console.log(e);
@@ -109,7 +110,7 @@ defineFeature(feature, (test) => {
       },
     );
   }
-  
+
   function andAPostIdIsProvided(and) {
     and(/^the user provides the post identified by "(.*)"$/,
       (provided_post_id) => {
@@ -157,7 +158,7 @@ defineFeature(feature, (test) => {
       try {
         await query_permanent_post_interactor.execute({
           id: post_id,
-          user_id
+          owner_id: user_id
         });
       } catch (e) {
         exception = e;

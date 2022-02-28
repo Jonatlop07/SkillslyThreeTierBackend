@@ -12,11 +12,3 @@ Feature: Get comments of a permanent post
       | this is the sixth comment  | 2020-01-01T00:00:05 |
     When the user tries to get all comments of the post
     Then the user should get all the comments in the post
-
-
-  Scenario: A logged user tries to get all comments of a permanent post, but the post has no comments
-    Given an existing user and a permanent post
-    And there are no comments in the post
-    When the user tries to get all comments of the post
-    Then an error occurs: there are not comments in the post
-

@@ -20,7 +20,9 @@ export class GetEventCollectionOfFriendsService implements GetEventCollectionOfF
 
   async execute(input: GetEventCollectionOfFriendsInputModel): Promise<GetEventCollectionOfFriendsOutputModel> {
     const {user_id, limit, offset} = input;
-    const existsUser = await this.exists_user_gateway.existsById(user_id);
+    const existsUser = await this.exists_user_gateway.exists({
+      user_id
+    });
     if (!existsUser) {
       throw new UserAccountNotFoundException();
     }

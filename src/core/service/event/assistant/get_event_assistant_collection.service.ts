@@ -18,7 +18,9 @@ export class GetEventAssistantCollectionService implements GetEventAssistantColl
   public async execute(
     input: GetEventAssistantCollectionInputModel,
   ): Promise<GetEventAssistantCollectionOutputModel> {
-    const exists_event = this.exists_event_gateway.existsById(input.event_id);
+    const exists_event = this.exists_event_gateway.exists({
+      event_id: input.event_id
+    });
     if (!exists_event) {
       throw new EventNotFoundException();
     }

@@ -26,8 +26,8 @@ const use_case_providers: Array<Provider> = [
   },
   {
     provide: ProfileDITokens.EditProfileInteractor,
-    useFactory: (gateway, get_profile_interactor) => new EditProfileService(gateway, get_profile_interactor),
-    inject: [ProfileDITokens.ProfileRepository, ProfileDITokens.GetProfileInteractor],
+    useFactory: (gateway) => new EditProfileService(gateway),
+    inject: [ProfileDITokens.ProfileRepository],
   },
 ];
 

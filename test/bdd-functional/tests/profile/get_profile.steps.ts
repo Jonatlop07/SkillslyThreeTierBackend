@@ -44,11 +44,11 @@ defineFeature(feature, (test) => {
   const andThereExistsAProfileBelongsToUser = (and) => {
     and('there exists a profile belongs to that user, with content:', async (profile_content_table) => {
       await create_profile_interactor.execute({
-        resume: profile_content_table[0]['resume'],
-        knowledge: profile_content_table[0]['knowledge'].split(','),
-        interests: profile_content_table[0]['interests'].split(','),
-        talents: profile_content_table[0]['talents'].split(','),
-        activities: profile_content_table[0]['activities'].split(','),
+        resume: profile_content_table[0].resume,
+        knowledge: profile_content_table[0].knowledge.split(','),
+        interests: profile_content_table[0].interests.split(','),
+        talents: profile_content_table[0].talents.split(','),
+        activities: profile_content_table[0].activities.split(','),
         user_id
       });
     });

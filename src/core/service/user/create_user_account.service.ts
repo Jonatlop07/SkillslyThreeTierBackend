@@ -17,6 +17,8 @@ import {
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import generateHashedPassword from '@core/common/util/validators/generate_hash_password';
 import { Role } from '@core/domain/user/entity/type/role.enum';
+import CreateUserAccountPersistenceDTO
+  from '@core/domain/user/use-case/persistence-dto/create_user_account.persistence_dto';
 
 export class CreateUserAccountService implements CreateUserAccountInteractor {
   private readonly logger: Logger = new Logger(CreateUserAccountService.name);
@@ -37,14 +39,16 @@ export class CreateUserAccountService implements CreateUserAccountInteractor {
     const roles = [];
     if (is_investor) roles.push(Role.Investor);
     if (is_requester) roles.push(Role.Requester);
-    const user_to_create: UserDTO = {
+    const user_to_create: CreateUserAccountPersistenceDTO = {
       email,
       password: generateHashedPassword(password),
       name,
       date_of_birth,
-      roles
+      roles,
+      is_investor,
+      is_requester
     };
-    if (await this.gateway.exists(user_to_create))
+    if (await this.gateway.exists({ email: user_to_create.email }))
       throw new UserAccountAlreadyExistsException();
     const created_user: UserDTO = await this.gateway.create(user_to_create);
     return { id: created_user.user_id, email: created_user.email };

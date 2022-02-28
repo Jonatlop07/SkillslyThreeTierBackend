@@ -24,12 +24,7 @@ export class GetProfileService implements GetProfileInteractor {
       throw new ProfileNotFoundException();
     }
     return {
-      resume: profile.resume,
-      knowledge: profile.knowledge,
-      talents: profile.talents,
-      activities: profile.activities,
-      interests: profile.interests,
-      profile_id: profile.profile_id,
+      profile
     };
   }
 }

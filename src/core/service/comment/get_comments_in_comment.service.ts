@@ -13,11 +13,16 @@ export class GetCommentsInCommentService implements GetCommentsInCommentInteract
   ) {
   }
 
-  public async execute(input: GetCommentsInCommentInputModel): Promise<Array<GetCommentsInCommentOutputModel>> {
-    const comments = await this.gateway.findAll(input);
-    if (comments.length == 0) {
-      return [];
-    }
-    return comments;
+  public async execute(input: GetCommentsInCommentInputModel): Promise<GetCommentsInCommentOutputModel> {
+    const comments = await this.gateway.findAll({
+      ancestor_comment_id: input.ancestor_comment_id
+    },
+    {
+      offset: input.page,
+      limit: input.limit
+    });
+    return {
+      comments
+    };
   }
 }

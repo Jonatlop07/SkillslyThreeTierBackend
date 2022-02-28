@@ -10,6 +10,8 @@ import { Optional } from '@core/common/type/common_types';
 import { AddMembersToGroupConversationDTO } from '@core/domain/chat/use-case/persistence-dto/add_members_to_group_conversation.dto';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import CreateConversationPersistenceDTO
+  from '@core/domain/chat/use-case/persistence-dto/create_conversation.persistence_dto';
 
 @Injectable()
 export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationRepository {
@@ -23,7 +25,7 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(conversation: ConversationDTO): Promise<ConversationDTO> {
+  public async create(conversation: CreateConversationPersistenceDTO): Promise<ConversationDTO> {
     const create_conversation_statement = `
       CREATE (${this.conversation_key}: Conversation : ${conversation.is_private ? 'PrivateConversation' : 'GroupConversation'})
       SET ${this.conversation_key} += $properties, ${this.conversation_key}.conversation_id = randomUUID()
@@ -101,11 +103,7 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
     return result.records.length > 0;
   }
 
-  public async exists(conversation: ConversationDTO): Promise<boolean> {
-    return await this.existsById(conversation.conversation_id);
-  }
-
-  public async existsById(id: string): Promise<boolean> {
+  public async exists(params: ConversationQueryModel): Promise<boolean> {
     const exists_conversation_by_id_query = `
       MATCH (${this.conversation_key}: Conversation { conversation_id: $conversation_id })
       RETURN ${this.conversation_key}
@@ -113,7 +111,7 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
     const result: QueryResult = await this.neo4j_service.read(
       exists_conversation_by_id_query,
       {
-        conversation_id: id
+        conversation_id: params.conversation_id
       }
     );
     return result.records.length > 0;
@@ -200,11 +198,6 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
     };
   }
 
-  public findAllWithRelation() {
-    return null;
-  }
-
-
   public async addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>> {
     const add_members_to_group_conversation_statement = `
       MATCH (${this.conversation_key}: GroupConversation { conversation_id: $conversation_id })
@@ -245,12 +238,7 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
     );
   }
 
-  public async delete(params: ConversationQueryModel): Promise<ConversationDTO> {
-    params;
-    return Promise.resolve(undefined);
-  }
-
-  public async deleteById(conversation_id: string): Promise<ConversationDTO> {
+  public async delete(params: ConversationQueryModel): Promise<void> {
     const delete_group_conversation_statement = `
       MATCH (${this.conversation_key}: GroupConversation { conversation_id: $conversation_id })
       WITH ${this.conversation_key}
@@ -261,8 +249,7 @@ export class ChatConversationNeo4jRepositoryAdapter implements ChatConversationR
       DETACH DELETE ${this.message_key}
       DETACH DELETE ${this.conversation_key}
     `;
-    await this.neo4j_service.write(delete_group_conversation_statement, { conversation_id });
-    return null;
+    await this.neo4j_service.write(delete_group_conversation_statement, { conversation_id: params.conversation_id });
   }
 
   public async exit(user_id: string, conversation_id: string): Promise<void> {

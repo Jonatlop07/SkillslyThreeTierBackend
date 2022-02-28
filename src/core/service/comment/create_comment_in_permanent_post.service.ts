@@ -21,18 +21,14 @@ export class CreateCommentInPermanentPostService implements CreateCommentInPerma
     if (input.comment.length === 0 || !isValidTimestamp(input.timestamp)) {
       throw new CommentInvalidDataFormatException();
     }
-    const createdComment = await this.gateway.create({
+    const created_comment = await this.gateway.create({
       comment: input.comment,
       timestamp: input.timestamp,
-      postID: input.postID,
-      userID: input.userID,
+      post_id: input.post_id,
+      owner_id: input.owner_id,
     });
     return {
-      commentID: createdComment.comment_id,
-      comment: createdComment.comment,
-      timestamp: createdComment.timestamp,
-      postID: createdComment.postID,
-      userID: createdComment.userID,
+      created_comment: created_comment
     };
   }
 }

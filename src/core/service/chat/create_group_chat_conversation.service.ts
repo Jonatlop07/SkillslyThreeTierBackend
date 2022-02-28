@@ -16,7 +16,7 @@ export class CreateGroupChatConversationService implements CreateGroupChatConver
   ) {}
 
   private readonly throwIfNotEnoughConversationMembers = (conversation_members: Array<string>) => {
-    if (conversation_members.length == 0) {
+    if (conversation_members.length === 0) {
       throw new NoMembersInConversationChatException();
     }
   };
@@ -25,12 +25,13 @@ export class CreateGroupChatConversationService implements CreateGroupChatConver
     const { creator_id, conversation_name, conversation_members } = input;
     this.throwIfNotEnoughConversationMembers(conversation_members);
     const unique_conversation_members = Array.from(new Set(conversation_members));
-    return await this.gateway.create({
-      creator_id,
-      name: conversation_name,
-      members: unique_conversation_members,
-      messages: [],
-      is_private: false
-    });
+    return {
+      created_group_chat_conversation: await this.gateway.create({
+        creator_id,
+        name: conversation_name,
+        members: unique_conversation_members,
+        is_private: false
+      })
+    };
   }
 }

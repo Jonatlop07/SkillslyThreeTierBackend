@@ -66,9 +66,9 @@ export class ChatController {
   constructor(
     private readonly event_emitter: EventEmitter2,
     @Inject(ChatDITokens.CreatePrivateChatConversationInteractor)
-    private readonly create_private_chat_conversation_interactor: CreatePrivateChatConversationInteractor,
+    private readonly create_private_chat_conversation: CreatePrivateChatConversationInteractor,
     @Inject(ChatDITokens.CreateGroupChatConversationInteractor)
-    private readonly create_group_chat_conversation_interactor: CreateGroupChatConversationInteractor,
+    private readonly create_group_chat_conversation: CreateGroupChatConversationInteractor,
     @Inject(ChatDITokens.GetChatConversationCollectionInteractor)
     private readonly get_chat_conversation_collection_interactor: GetChatConversationCollectionInteractor,
     @Inject(ChatDITokens.GetChatMessageCollectionInteractor)
@@ -94,7 +94,7 @@ export class ChatController {
   ) {
     try {
       return CreatePrivateChatConversationAdapter.toResponseDTO(
-        await this.create_private_chat_conversation_interactor.execute({
+        await this.create_private_chat_conversation.execute({
           user_id: http_user.id,
           partner_id: body.partner_id
         })
@@ -112,7 +112,7 @@ export class ChatController {
     @HttpUser() http_user: HttpUserPayload, @Body(new ValidationPipe()) body: CreateGroupChatConversationDTO) {
     try {
       const response: ChatConversationResponseDTO = CreateGroupChatConversationAdapter.toResponseDTO(
-        await this.create_group_chat_conversation_interactor.execute(
+        await this.create_group_chat_conversation.execute(
           CreateGroupChatConversationAdapter.toInputModel(body, http_user.id)
         )
       );

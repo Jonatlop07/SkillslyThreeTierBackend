@@ -9,6 +9,7 @@ import { JoinRequestDTO } from '@core/domain/group/use-case/persistence-dto/join
 import { BasicGroupDTO } from '@core/domain/group/use-case/persistence-dto/basic_group_data.dto';
 import { PaginationDTO } from '@core/common/persistence/pagination.dto';
 import { GroupUserDTO } from '@core/domain/group/use-case/persistence-dto/group_users.dto';
+import CreateGroupPersistenceDTO from '@core/domain/group/use-case/persistence-dto/create_group.persistence_dto';
 
 @Injectable()
 export class GroupNeo4jRepositoryAdapter implements GroupRepository {
@@ -295,24 +296,6 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     };
   }
 
-  async deleteById(id: string): Promise<GroupDTO> {
-    const delete_group_query = `
-      MATCH (${this.group_key}:Group {group_id:$id})
-      WITH ${this.group_key}, properties(${this.group_key}) as props
-      DETACH DELETE ${this.group_key}
-      RETURN props
-    `;
-    const result = await this.neo4j_service.write(delete_group_query, { id });
-    const deleted_group = this.neo4j_service.getSingleResultProperty(result, 'props');
-    return {
-      id: deleted_group.group_id,
-      name: deleted_group.name,
-      description: deleted_group.description,
-      category: deleted_group.category,
-      picture: deleted_group.picture,
-    };
-  }
-
   public async update(group: GroupDTO): Promise<GroupDTO> {
     const { id, name, description, category, picture } = group;
     const update_group_query = `
@@ -369,7 +352,7 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     return result.records.length > 0;
   }
 
-  public async create(group: GroupDTO): Promise<GroupDTO> {
+  public async create(group: CreateGroupPersistenceDTO): Promise<GroupDTO> {
     const { owner_id, name, description, category } = group;
     const picture = group.picture ? group.picture : '';
     const create_group_statement = `
@@ -405,18 +388,21 @@ export class GroupNeo4jRepositoryAdapter implements GroupRepository {
     };
   }
 
-  delete(params: GroupQueryModel): Promise<GroupDTO> {
-    params;
-    throw new Error('Method not implemented.');
-  }
-
-  findAll(params: GroupQueryModel): Promise<GroupDTO[]> {
-    params;
-    throw new Error('Method not implemented.');
-  }
-
-  findAllWithRelation(params: GroupQueryModel): Promise<any> {
-    params;
-    throw new Error('Method not implemented.');
+  public async delete(params: GroupQueryModel): Promise<GroupDTO> {
+    const delete_group_query = `
+      MATCH (${this.group_key}:Group {group_id:$id})
+      WITH ${this.group_key}, properties(${this.group_key}) as props
+      DETACH DELETE ${this.group_key}
+      RETURN props
+    `;
+    const result = await this.neo4j_service.write(delete_group_query, { id: params.group_id });
+    const deleted_group = this.neo4j_service.getSingleResultProperty(result, 'props');
+    return {
+      id: deleted_group.group_id,
+      name: deleted_group.name,
+      description: deleted_group.description,
+      category: deleted_group.category,
+      picture: deleted_group.picture,
+    };
   }
 }

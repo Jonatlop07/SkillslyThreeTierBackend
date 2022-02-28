@@ -13,8 +13,6 @@ import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import UserRepository from '@core/domain/user/use-case/repository/user.repository';
 import { map, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
 
 @Injectable()
 export class HttpAuthenticationService {
@@ -27,9 +25,7 @@ export class HttpAuthenticationService {
     @Inject(UserDITokens.UserRepository)
     private readonly user_repository: UserRepository,
     private readonly config_service: ConfigService,
-    private readonly http_service: HttpService,
-    // @Inject(REQUEST)
-    // private readonly request: Request
+    private readonly http_service: HttpService
   ) { }
 
   public async validateUser(username: string, password: string): Promise<Nullable<HttpUserPayload>> {
@@ -61,14 +57,11 @@ export class HttpAuthenticationService {
 
   public validateCaptcha(response: string): Observable<any> {
     const secretKey = this.config_service.get('CAPTCHA_SITE_KEY');
-    // const remoteAddress = this.request.socket.remoteAddress;
     const url =
       'https://www.google.com/recaptcha/api/siteverify?secret=' +
       secretKey +
       '&response=' +
       response;
-      // '&remoteip=' +
-      // remoteAddress;
     return this.http_service
       .post(url)
       .pipe(

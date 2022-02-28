@@ -19,7 +19,9 @@ export class GetMyEventAssistantCollectionService implements GetMyEventAssistant
   public async execute(
     input: GetMyEventAssistantCollectionInputModel,
   ): Promise<GetMyEventAssistantCollectionOutputModel> {
-    const exists_user = this.exists_user_gateway.existsById(input.user_id);
+    const exists_user = this.exists_user_gateway.exists({
+      user_id: input.user_id
+    });
     if (!exists_user) {
       throw new UserAccountNotFoundException();
     }

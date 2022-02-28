@@ -30,7 +30,7 @@ export class CreateProjectAdapter implements CreateProjectInputModel {
 
   @Expose()
   @IsString()
-  public user_id: string;
+  public owner_id: string;
 
   public static new(payload: CreateProjectInputModel): CreateProjectAdapter {
     return plainToClass(CreateProjectAdapter, payload);

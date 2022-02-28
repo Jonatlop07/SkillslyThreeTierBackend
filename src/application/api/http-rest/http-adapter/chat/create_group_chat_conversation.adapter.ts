@@ -8,7 +8,7 @@ import { ChatMessageResponseDTO } from '@application/api/http-rest/http-dto/chat
 
 export class CreateGroupChatConversationAdapter {
   public static toResponseDTO(payload: CreateGroupChatConversationOutputModel): ChatConversationResponseDTO {
-    const { conversation_id, name, members, messages, created_at } = payload;
+    const { conversation_id, name, members, messages, created_at } = payload.created_group_chat_conversation;
     return {
       conversation_id,
       conversation_name: name,

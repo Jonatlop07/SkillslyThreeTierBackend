@@ -60,7 +60,7 @@ export class HttpResetPasswordService {
           `<a href="${process.env.ORIGIN}/reset-password/${token}" target="_blank"> Recuperador de contraseñas Skillsly</a>`,
       });
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
 

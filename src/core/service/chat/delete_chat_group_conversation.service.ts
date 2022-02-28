@@ -28,7 +28,7 @@ export class DeleteChatGroupConversationService implements DeleteChatGroupConver
       throw new UserDoesNotBelongToConversationChatException();
     if (!await this.gateway.isAdministratorOfTheGroupConversation(user_id, conversation_id))
       throw new UserDoesNotHavePermissionsInConversationChatException();
-    await this.gateway.deleteById(conversation_id);
+    await this.gateway.delete({ conversation_id });
     return {
       conversation_id: conversation_to_delete.conversation_id,
       conversation_members: conversation_to_delete.conversation_members

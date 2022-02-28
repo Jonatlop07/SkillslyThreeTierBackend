@@ -5,5 +5,5 @@ export interface ProfileDTO {
   activities: Array<string>;
   interests: Array<string>;
   user_id?: string;
-  profile_id?: string;
+  profile_id: string;
 }
