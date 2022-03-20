@@ -82,5 +82,4 @@ export class CommentController {
       throw HttpExceptionMapper.toHttpException(e);
     }
   }
-
 }
