@@ -3,7 +3,7 @@ import ServiceRequestQueryModel from '@core/domain/service-request/use-case/quer
 import CreateServiceRequestApplication from '../../persistence/service-request-applications/create_application';
 import UpdateServiceRequestApplicationGateway from './update_application.gateway';
 import ExistsApplicationOrRequests from '../../persistence/service-request-applications/exists_application_or_requests';
-import FindOne from '@core/common/persistence/find/find_one';
+import FindOne from '@core/common/persistence/find_one';
 
 export default interface CreateServiceRequestApplicationGateway
   extends FindOne<ServiceRequestQueryModel, ServiceRequestDTO>,

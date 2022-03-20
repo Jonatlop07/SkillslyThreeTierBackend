@@ -1,4 +1,4 @@
-import Create from '@core/common/persistence/create/create';
+import Create from '@core/common/persistence/create';
 import { EventDTO } from '../persistence-dto/event.dto';
 import CreateEventPersistenceDTO from '@core/domain/event/use-case/persistence-dto/create_event.persistence_dto';
 

@@ -1,7 +1,6 @@
-import { PaginationDTO } from '@core/common/persistence/pagination.dto';
+import IncludesPagination from '@core/common/use-case/includes_pagination';
 
-export default interface GetChatMessageCollectionInputModel {
+export default interface GetChatMessageCollectionInputModel extends IncludesPagination {
   user_id: string;
   conversation_id: string;
-  pagination: PaginationDTO;
 }

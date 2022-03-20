@@ -1,4 +1,4 @@
 import EventQueryModel from '@core/domain/event/use-case/query-model/event.query_model';
-import Exists from '@core/common/persistence/exists/exists';
+import Exists from '@core/common/persistence/exists';
 
 export default interface ExistsEventGateway extends Exists<EventQueryModel> {}

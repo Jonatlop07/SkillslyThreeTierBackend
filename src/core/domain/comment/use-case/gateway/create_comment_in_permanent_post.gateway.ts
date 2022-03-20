@@ -1,4 +1,4 @@
-import Create from '@core/common/persistence/create/create';
+import Create from '@core/common/persistence/create';
 import { CommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment.dto';
 import CreateCommentPersistenceDTO from '@core/domain/comment/use-case/persistence-dto/create_comment.persistence_dto';
 
