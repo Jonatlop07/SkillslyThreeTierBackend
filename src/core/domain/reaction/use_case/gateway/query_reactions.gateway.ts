@@ -1,4 +1,4 @@
-import FindAll from '@core/common/persistence/find/find_all';
+import FindAll from '@core/common/persistence/find_all';
 import ReactionQueryModel from '@core/domain/reaction/use_case/query-model/reaction.query_model';
 import { ReactionCollectionResult } from '@core/domain/reaction/use_case/persistence-dto/reaction_collection_result';
 

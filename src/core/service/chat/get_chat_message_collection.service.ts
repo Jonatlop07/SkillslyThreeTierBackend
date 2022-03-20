@@ -23,12 +23,12 @@ export class GetChatMessageCollectionService implements GetChatMessageCollection
   ) {}
 
   public async execute(input: GetChatMessageCollectionInputModel): Promise<GetChatMessageCollectionOutputModel> {
-    const { user_id, conversation_id } = input;
+    const { user_id, conversation_id, pagination } = input;
     if (!await this.conversation_gateway.exists({ conversation_id }))
       throw new NonExistentConversationChatException();
     if (!await this.conversation_gateway.belongsUserToConversation(user_id, conversation_id))
       throw new UserDoesNotBelongToConversationChatException();
-    const messages: Array<MessageDTO> = await this.gateway.findAll({ conversation_id });
+    const messages: Array<MessageDTO> = await this.gateway.findAll({ conversation_id }, pagination);
     return {
       messages
     };

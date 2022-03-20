@@ -7,6 +7,7 @@ import ChatMessageRepository from '@core/domain/chat/use-case/repository/chat_me
 import { MessageDTO } from '@core/domain/chat/use-case/persistence-dto/message.dto';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import CreateMessagePersistenceDTO from '@core/domain/chat/use-case/persistence-dto/create_message.persistence_dto';
+import { PaginationDTO } from '@core/common/persistence/pagination.dto';
 
 @Injectable()
 export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository {
@@ -52,15 +53,18 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
     };
   }
 
-  public async findAll(params: MessageQueryModel): Promise<MessageDTO[]> {
+  public async findAll(params: MessageQueryModel, pagination: PaginationDTO): Promise<MessageDTO[]> {
     const result_key = 'result';
-    const find_last_20_messages = `
+    const find_messages = `
       MATCH (${this.user_key}: User)
         -[:${Relationships.USER_MESSAGE_RELATIONSHIP}]
         ->(${this.message_key}: Message)
         -[:${Relationships.MESSAGE_CONVERSATION_RELATIONSHIP}]
         ->(${this.conversation_key}: Conversation { conversation_id: $conversation_id })
-      WITH ${this.user_key}, ${this.message_key} ORDER BY ${this.message_key}.created_at LIMIT 20
+      WITH ${this.user_key}, ${this.message_key}
+      ORDER BY ${this.message_key}.created_at
+      SKIP ${pagination.offset}
+      LIMIT ${pagination.limit}
       WITH {
         message_id: ${this.message_key}.message_id,
         content: ${this.message_key}.content,
@@ -70,7 +74,7 @@ export class ChatMessageNeo4jRepositoryAdapter implements ChatMessageRepository 
       RETURN ${result_key}
     `;
     return await this.neo4j_service.read(
-      find_last_20_messages,
+      find_messages,
       {
         conversation_id: params.conversation_id,
       },

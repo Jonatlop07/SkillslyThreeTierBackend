@@ -8,7 +8,7 @@ import {
   Logger,
   Param,
   Patch,
-  Post, Put,
+  Post, Put, Query,
   ValidationPipe
 } from '@nestjs/common';
 import {
@@ -53,6 +53,7 @@ import { ChatConversationResponseDTO } from '@application/api/http-rest/http-dto
 import DeleteChatGroupConversationOutputModel
   from '@core/domain/chat/use-case/output-model/delete_chat_group_conversation.output_model';
 import { GroupConversationDeletedEvent } from '@application/events/chat/group_conversation_deleted.event';
+import { PaginationDTO } from '@application/api/http-rest/http-dto/http_pagination.dto';
 
 
 @Controller('chat')
@@ -159,14 +160,18 @@ export class ChatController {
   )
   public async getConversationMessageCollection(
     @HttpUser() http_user: HttpUserPayload,
-    @Param('conversation_id') conversation_id: string
+    @Param('conversation_id') conversation_id: string,
+    @Query() paginationParams: PaginationDTO
   ) {
     try {
       return GetConversationMessageCollectionAdapter.toResponseDTO(
-        await this.get_chat_message_collection_interactor.execute({
-          user_id: http_user.id,
-          conversation_id
-        })
+        await this.get_chat_message_collection_interactor.execute(
+          GetConversationMessageCollectionAdapter.toInputModel(
+            http_user.id,
+            conversation_id,
+            paginationParams
+          )
+        )
       );
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
