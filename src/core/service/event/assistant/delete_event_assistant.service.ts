@@ -20,11 +20,15 @@ export class DeleteEventAssistantService implements DeleteEventAssistantInteract
   public async execute(
     input: DeleteEventAssistantInputModel,
   ): Promise<DeleteEventAssistantOutputModel> {
-    const exists_user = this.exists_user_gateway.existsById(input.user_id);
+    const exists_user = this.exists_user_gateway.exists({
+      user_id: input.user_id
+    });
     if (!exists_user) {
       throw new UserAccountNotFoundException;
     }
-    const exists_event = this.gateway.existsById(input.event_id);
+    const exists_event = this.gateway.exists({
+      event_id: input.event_id
+    });
     if (!exists_event) {
       throw new EventNotFoundException();
     }

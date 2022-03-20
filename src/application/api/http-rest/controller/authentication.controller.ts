@@ -7,35 +7,35 @@ import {
   Patch,
   Post,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
 import { HttpAuthenticationService } from '@application/api/http-rest/authentication/service/http_authentication.service';
 import { HttpLocalAuthenticationGuard } from '@application/api/http-rest/authentication/guard/http_local_authentication.guard';
 import {
   HttpLoggedInUser,
-  HttpRequestWithUser,
+  HttpRequestWithUser
 } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { Public } from '@application/api/http-rest/authentication/decorator/public';
 import { RequestResetPasswordDTO } from '@application/api/http-rest/authentication/types/request_reset_password.dto';
 import { ResetPasswordDTO } from '@application/api/http-rest/authentication/types/reset_password.dto';
 import { HttpResetPasswordService } from '@application/api/http-rest/authentication/service/http_reset_password.service';
 import { Observable } from 'rxjs';
-import {ValidationPipe} from "@application/api/http-rest/common/pipes/validation.pipe";
 import { HttpExceptionMapper } from '../exception/http_exception.mapper';
 
 @Controller('auth')
 @ApiTags('auth')
 @ApiInternalServerErrorResponse({
-  description: 'An internal server error occurred',
+  description: 'An internal server error occurred'
 })
 export class AuthenticationController {
   private readonly logger: Logger = new Logger(AuthenticationController.name);
 
   constructor(
     private readonly authentication_service: HttpAuthenticationService,
-    private readonly reset_password_service: HttpResetPasswordService,
-  ) {}
+    private readonly reset_password_service: HttpResetPasswordService
+  ) {
+  }
 
   @Public()
   @Post('login')
@@ -49,11 +49,11 @@ export class AuthenticationController {
   @Patch('/request-reset-password')
   @HttpCode(HttpStatus.OK)
   public async requestResetPassword(
-    @Body() requestResetPasswordDTO: RequestResetPasswordDTO,
+    @Body() requestResetPasswordDTO: RequestResetPasswordDTO
   ): Promise<void> {
     try {
       return await this.reset_password_service.requestResetPassword(
-        requestResetPasswordDTO,
+        requestResetPasswordDTO
       );
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
@@ -64,19 +64,19 @@ export class AuthenticationController {
   @Patch('/reset-password/:token')
   @HttpCode(HttpStatus.OK)
   public async resetPassword(
-      @Param('token') token: string,
-      @Body() body,
+    @Param('token') token: string,
+    @Body() body
   ): Promise<void> {
-    let resetPassword: ResetPasswordDTO = {
+    const resetPassword: ResetPasswordDTO = {
       reset_password_token: token,
-      password: body.password,
+      password: body.password
     };
     try {
       return await this.reset_password_service.resetPassword(resetPassword);
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
-    
+
   }
 
   @Public()

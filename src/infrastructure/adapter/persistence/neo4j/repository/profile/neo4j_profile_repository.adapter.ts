@@ -4,13 +4,14 @@ import ProfileRepository from '@core/domain/profile/use-case/repository/profile.
 import { ProfileDTO } from '@core/domain/profile/use-case/persistence-dto/profile.dto';
 import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constants/relationships';
 import { ProfileQueryModel } from '@core/domain/profile/use-case/query-model/profile.query_model';
+import CreateProfilePersistenceDTO from '@core/domain/profile/use-case/persistence-dto/create_profile.persistence_dto';
 
 @Injectable()
 export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(profile: ProfileDTO): Promise<ProfileDTO> {
+  public async create(profile: CreateProfilePersistenceDTO): Promise<ProfileDTO> {
     const user_key = 'user';
     const profile_key = 'profile';
     const create_profile_query = `
@@ -45,14 +46,6 @@ export class ProfileNeo4jRepositoryAdapter implements ProfileRepository {
     `;
     const get_profile_result = await this.neo4j_service.read(get_profile_query, { user_id: input.user_id });
     return this.neo4j_service.getSingleResultProperties(get_profile_result, profile_key);
-  }
-
-  public findAll() {
-    return null;
-  }
-
-  public findAllWithRelation() {
-    return null;
   }
 
   public async partialUpdate(old_profile: ProfileDTO, new_profile: Partial<ProfileDTO>): Promise<ProfileDTO> {

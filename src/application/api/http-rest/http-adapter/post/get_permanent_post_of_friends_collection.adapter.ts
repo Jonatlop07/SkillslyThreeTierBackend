@@ -1,4 +1,4 @@
-import GetPermanentPostCollectionOfFriendsInputModel from '@core/domain/post/use-case/input-model/get_permanent_post_collection_of_friends.steps';
+import GetPermanentPostCollectionOfFriendsInputModel from '@core/domain/permanent-post/use-case/input-model/get_permanent_post_collection_of_friends.steps';
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 

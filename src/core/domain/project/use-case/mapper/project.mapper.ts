@@ -6,7 +6,7 @@ export class ProjectMapper {
   public static toProjectDTO(project: Project): ProjectDTO {
     return {
       project_id: project.id,
-      user_id: project.user_id,
+      owner_id: project.owner_id,
       title: project.title,
       members: project.members,
       description: project.description,
@@ -19,7 +19,7 @@ export class ProjectMapper {
   public static toProject(projectDTO: ProjectDTO): Project {
     return new Project({
       id: projectDTO.project_id,
-      user_id: projectDTO.user_id,
+      owner_id: projectDTO.owner_id,
       title: projectDTO.title,
       members: projectDTO.members,
       description: projectDTO.description,
@@ -31,7 +31,7 @@ export class ProjectMapper {
 
   public static toProjectFromInput(input: CreateProjectInputModel): Project {
     return new Project({
-      user_id: input.user_id,
+      owner_id: input.owner_id,
       title: input.title,
       members: input.members,
       description: input.description,

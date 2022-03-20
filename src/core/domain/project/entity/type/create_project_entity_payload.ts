@@ -1,8 +1,10 @@
+import { Id } from '@core/common/type/common_types';
+
 export type CreateProjectEntityPayload = {
-  user_id: string;
-  id?: string;
+  owner_id: Id;
+  id?: Id;
   title: string;
-  members: Array<string>;
+  members: Array<Id>;
   description: string;
   reference: string;
   reference_type: string;

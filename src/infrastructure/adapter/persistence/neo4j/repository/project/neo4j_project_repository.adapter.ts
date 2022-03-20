@@ -4,21 +4,23 @@ import { Relationships } from '@infrastructure/adapter/persistence/neo4j/constan
 import { Neo4jService } from '@infrastructure/adapter/persistence/neo4j/service/neo4j.service';
 import ProjectRepository from '@core/domain/project/use-case/repository/project.repository';
 import { ProjectDTO } from '@core/domain/project/use-case/persistence-dto/project.dto';
-import * as moment from 'moment';
-import ProjectQueryModel from "@core/domain/project/use-case/query-model/project.query_model";
+import ProjectQueryModel from '@core/domain/project/use-case/query-model/project.query_model';
+import CreateProjectPersistenceDTO from '@core/domain/project/use-case/persistence-dto/create_project.persistence_dto';
+import { getCurrentDate } from '@core/common/util/date/moment_utils';
 
 @Injectable()
 export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
   private readonly logger: Logger = new Logger(
-    ProjectNeo4jRepositoryAdapter.name,
+    ProjectNeo4jRepositoryAdapter.name
   );
 
-  constructor(private readonly neo4j_service: Neo4jService) {}
+  constructor(private readonly neo4j_service: Neo4jService) {
+  }
 
   private readonly project_key = 'project';
   private readonly user_key = 'user';
 
-  public async create(project: ProjectDTO): Promise<ProjectDTO> {
+  public async create(project: CreateProjectPersistenceDTO): Promise<ProjectDTO> {
     const create_project_statement = `
       MATCH (${this.user_key}: User { user_id: $user_id })
       CREATE (${this.project_key}: Project)
@@ -29,16 +31,16 @@ export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
     const result: QueryResult = await this.neo4j_service.write(
       create_project_statement,
       {
-        user_id: project.user_id,
+        owner_id: project.owner_id,
         properties: {
           ...project,
-          created_at: moment().local().format('YYYY-MM-DD HH:mm:ss'),
-        },
-      },
+          created_at: getCurrentDate()
+        }
+      }
     );
     const created_project = this.neo4j_service.getSingleResultProperties(
       result,
-      this.project_key,
+      this.project_key
     );
     return {
       project_id: created_project.project_id,
@@ -48,49 +50,45 @@ export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
       reference: created_project.reference,
       reference_type: created_project.reference_type,
       annexes: created_project.annexes,
-      user_id: project.user_id,
-      created_at: created_project.created_at,
+      owner_id: project.owner_id,
+      created_at: created_project.created_at
     };
   }
 
   public async findAll(params: ProjectQueryModel): Promise<ProjectDTO[]> {
-    const { user_id } = params;
+    const { owner_id } = params;
     const user_id_key = 'user_id';
     const user_name_key = 'name';
     const find_projects_collection_query = `
-      MATCH (${this.user_key}: User { user_id: $user_id })
+      MATCH (${this.user_key}: User { user_id: $owner_id })
         -[:${Relationships.USER_PROJECT_RELATIONSHIP}]
         ->(${this.project_key}: Project)
       RETURN ${this.project_key}, ${this.user_key}.user_id AS ${user_id_key}, ${this.user_key}.name AS ${user_name_key}
     `;
     const result = await this.neo4j_service
-        .read(find_projects_collection_query, {
-          user_id
+      .read(find_projects_collection_query, {
+        owner_id
+      })
+      .then((result: QueryResult) =>
+        result.records.map((record: any) => {
+          return {
+            user_id: this.neo4j_service.getSingleResultProperty(result, user_id_key),
+            project_id: record._fields[0].properties.project_id,
+            created_at: record._fields[0].properties.created_at,
+            user_name: this.neo4j_service.getSingleResultProperty(result, user_name_key),
+            title: record._fields[0].properties.title,
+            members: record._fields[0].properties.members,
+            description: record._fields[0].properties.description,
+            reference: record._fields[0].properties.reference,
+            reference_type: record._fields[0].properties.reference_type,
+            annexes: record._fields[0].properties.annexes
+          };
         })
-        .then((result: QueryResult) =>
-            result.records.map((record: any) => {
-              return {
-                user_id: this.neo4j_service.getSingleResultProperty(result, user_id_key),
-                project_id: record._fields[0].properties.project_id,
-                created_at: record._fields[0].properties.created_at,
-                user_name: this.neo4j_service.getSingleResultProperty(result,user_name_key),
-                title: record._fields[0].properties.title,
-                members: record._fields[0].properties.members,
-                description: record._fields[0].properties.description,
-                reference: record._fields[0].properties.reference,
-                reference_type: record._fields[0].properties.reference_type,
-                annexes: record._fields[0].properties.annexes,
-              };
-            }),
-        );
+      );
 
     return result.map((project) => ({
-      ...project,
+      ...project
     }));
-  }
-
-  findAllWithRelation(params: ProjectQueryModel): Promise<any> {
-    return Promise.resolve(undefined);
   }
 
   public async findOne(params: ProjectQueryModel): Promise<ProjectDTO> {
@@ -104,48 +102,41 @@ export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
       RETURN ${this.project_key}, ${this.user_key}.user_id AS ${user_id_key}, ${this.user_key}.name AS ${user_name_key}
     `;
     const result: QueryResult = await this.neo4j_service.read(find_project_query, {
-      project_id,
+      project_id
     });
     const found_project = this.neo4j_service.getSingleResultProperties(
-        result,
-        this.project_key,
+      result,
+      this.project_key
     );
     if (!found_project)
       return null;
     return {
-      user_id: this.neo4j_service.getSingleResultProperty(result, user_id_key),
+      owner_id: this.neo4j_service.getSingleResultProperty(result, user_id_key),
       project_id: found_project.project_id,
       created_at: found_project.created_at,
-      user_name: this.neo4j_service.getSingleResultProperty(result,user_name_key),
+      user_name: this.neo4j_service.getSingleResultProperty(result, user_name_key),
       title: found_project.title,
       members: found_project.members,
       description: found_project.description,
       reference: found_project.reference,
       reference_type: found_project.reference_type,
-      annexes: found_project.annexes,
+      annexes: found_project.annexes
     };
   }
 
-  delete(params: string): Promise<ProjectDTO> {
-    params;
-    throw new Error('Method not implemented.');
-  }
-
-  public async deleteById(id: string): Promise<ProjectDTO> {
-    const project_key = 'project';
-    const user_key = 'user';
+  public async delete(params: ProjectQueryModel): Promise<ProjectDTO> {
     const delete_project_statement = `
-      MATCH (${project_key}: Project { project_id: $id })
+      MATCH (${this.project_key}: Project { project_id: $project_id })
         <-[:${Relationships.USER_PROJECT_RELATIONSHIP}]
-        -(${user_key}: User)
-      DETACH DELETE ${project_key}
-      RETURN ${project_key}
+        -(${this.user_key}: User)
+      DETACH DELETE ${this.project_key}
+      RETURN ${this.project_key}
     `;
     const result: QueryResult = await this.neo4j_service.write(
-        delete_project_statement,
-        { id },
+      delete_project_statement,
+      { project_id: params.project_id }
     );
-    return this.neo4j_service.getSingleResultProperties(result, project_key);
+    return this.neo4j_service.getSingleResultProperties(result, this.project_key);
   }
 
   public async update(project: ProjectDTO): Promise<ProjectDTO> {
@@ -158,12 +149,12 @@ export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
       project_id: project.project_id,
       properties: {
         ...project,
-        updated_at: moment().local().format('YYYY-MM-DD HH:mm:ss'),
-      },
+        updated_at: getCurrentDate()
+      }
     });
     const updated_project = this.neo4j_service.getSingleResultProperties(
-        result,
-        'project',
+      result,
+      this.project_key
     );
     return {
       project_id: updated_project.project_id,
@@ -175,7 +166,7 @@ export class ProjectNeo4jRepositoryAdapter implements ProjectRepository {
       annexes: updated_project.annexes,
       created_at: updated_project.created_at,
       updated_at: updated_project.updated_at,
-      user_id: project.user_id,
+      owner_id: project.owner_id
     };
   }
 }

@@ -37,14 +37,9 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
     return Promise.resolve(new_service_request);
   }
 
-  exists(t: ServiceRequestDTO): Promise<boolean> {
-    t;
-    return Promise.resolve(false);
-  }
-
-  public async existsById(id: string): Promise<boolean> {
+  public exists(params: ServiceRequestQueryModel): Promise<boolean> {
     for (const _service_request of this.service_requests.values())
-      if (_service_request.service_request_id === id)
+      if (_service_request.service_request_id === params.service_request_id)
         return Promise.resolve(true);
     return Promise.resolve(false);
   }
@@ -199,16 +194,6 @@ export class ServiceRequestInMemoryRepository implements ServiceRequestRepositor
       service_request_id,
       provider_id
     });
-  }
-
-  deleteById(id: string): Promise<void> {
-    id;
-    throw new Error('Method not implemented');
-  }
-
-  findAllWithRelation(params: ServiceRequestQueryModel): Promise<any> {
-    params;
-    return Promise.resolve(undefined);
   }
 
   public async findAllByCategories(categories: Array<string>): Promise<Array<ServiceRequestDTO>> {

@@ -6,6 +6,8 @@ import { Optional } from '@core/common/type/common_types';
 import { AddMembersToGroupConversationDTO } from '@core/domain/chat/use-case/persistence-dto/add_members_to_group_conversation.dto';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import CreateConversationPersistenceDTO
+  from '@core/domain/chat/use-case/persistence-dto/create_conversation.persistence_dto';
 
 export class ChatConversationInMemoryRepository implements ChatConversationRepository {
   private currently_available_conversation_id: string;
@@ -14,13 +16,13 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
     this.currently_available_conversation_id = '1';
   }
 
-  public create(conversation: ConversationDTO): Promise<ConversationDTO> {
+  public create(conversation: CreateConversationPersistenceDTO): Promise<ConversationDTO> {
     const new_conversation: ConversationDTO = {
       creator_id: conversation.creator_id,
       conversation_id: this.currently_available_conversation_id,
       name: conversation.name,
       members: conversation.members,
-      messages: conversation.messages,
+      messages: [],
       created_at: getCurrentDate(),
     };
     this.conversations.set(this.currently_available_conversation_id, new_conversation);
@@ -46,12 +48,8 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
   }
 
   public exists(conversation: ConversationDTO): Promise<boolean> {
-    return this.existsById(conversation.conversation_id);
-  }
-
-  public existsById(id: string): Promise<boolean> {
     for (const _conversation of this.conversations.values())
-      if (_conversation.conversation_id === id)
+      if (_conversation.conversation_id === conversation.conversation_id)
         return Promise.resolve(true);
     return Promise.resolve(false);
   }
@@ -87,10 +85,6 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
     });
   }
 
-  public findAllWithRelation() {
-    return null;
-  }
-
   public async addMembersToGroupConversation(dto: AddMembersToGroupConversationDTO): Promise<Array<UserDTO>> {
     const conversation: ConversationDTO = this.conversations.get(dto.conversation_id);
     const members_to_add: Array<string> = dto.members_to_add.filter(member => !conversation.members.includes(member));
@@ -113,12 +107,7 @@ export class ChatConversationInMemoryRepository implements ChatConversationRepos
   }
 
   public async delete(params: ConversationQueryModel): Promise<ConversationDTO> {
-    params;
-    return Promise.resolve(undefined);
-  }
-
-  public async deleteById(id: string): Promise<ConversationDTO> {
-    this.conversations.delete(id);
+    this.conversations.delete(params.conversation_id);
     return Promise.resolve(null);
   }
 

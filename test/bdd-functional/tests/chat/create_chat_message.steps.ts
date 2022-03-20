@@ -16,7 +16,7 @@ import { CreateGroupChatConversationInteractor } from '@core/domain/chat/use-cas
 const feature = loadFeature('test/bdd-functional/features/chat/create_chat_message.feature');
 
 defineFeature(feature, (test) => {
-  let user_id: string;
+  let owner_id: string;
   let message: string;
   let conversation_id: string;
   let conversation_members: Array<string> = [];
@@ -66,8 +66,8 @@ defineFeature(feature, (test) => {
 
   function andMessageContentWithConversationIdIsProvided(and) {
     and(/^the user identified by "([^"]*)" provides the message "([^"]*)" to be attached to the conversation identified by "([^"]*)"$/,
-      (_user_id: string, message_content: string, provided_conversation_id: string) => {
-        user_id = _user_id;
+      (user_id: string, message_content: string, provided_conversation_id: string) => {
+        owner_id = user_id;
         message = message_content;
         conversation_id = provided_conversation_id;
       }
@@ -78,7 +78,7 @@ defineFeature(feature, (test) => {
     when('the user tries to create the message', async () => {
       try {
         output = await create_chat_message_interactor.execute({
-          user_id,
+          owner_id,
           content: message,
           conversation_id
         });

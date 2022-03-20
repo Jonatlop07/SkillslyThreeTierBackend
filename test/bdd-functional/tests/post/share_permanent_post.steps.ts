@@ -1,7 +1,7 @@
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
-import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
-import SharePermanentPostOutputModel from '@core/domain/post/use-case/output-model/share_permanent_post.output_model';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
+import { CreatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/create_permanent_post.interactor';
+import { SharePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/share_permanent_post.interactor';
+import SharePermanentPostOutputModel from '@core/domain/permanent-post/use-case/output-model/share_permanent_post.output_model';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
@@ -44,9 +44,9 @@ defineFeature(feature, (test) => {
       async (post_id, post_owner_id, post_content_table) => {
         try {
           await create_permanent_post_interactor.execute({
-            id: post_id,
             content: post_content_table,
-            user_id: post_owner_id
+            owner_id: post_owner_id,
+            privacy: 'public'
           });
         } catch (e) {
           console.log(e);

@@ -1,6 +1,6 @@
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsString } from 'class-validator';
-import DeletePermanentPostInputModel from '@core/domain/post/use-case/input-model/delete_permanent_post.input_model';
+import DeletePermanentPostInputModel from '@core/domain/permanent-post/use-case/input-model/delete_permanent_post.input_model';
 
 
 @Exclude()

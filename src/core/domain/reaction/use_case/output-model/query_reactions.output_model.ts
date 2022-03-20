@@ -1,6 +1,5 @@
-import { QueryReactionElement } from '../../entity/type/queried_reactions_element';
-import { ReactionDTO } from '../persistence-dto/reaction.dto';
+import { ReactionCollectionResult } from '@core/domain/reaction/use_case/persistence-dto/reaction_collection_result';
 
 export interface QueryReactionsOutputModel{
-  reactions?: QueryReactionElement[] | ReactionDTO[];
+  reactions?: Array<ReactionCollectionResult>;
 }

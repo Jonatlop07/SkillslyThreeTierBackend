@@ -27,7 +27,7 @@ export class UpdateServiceOfferService implements UpdateServiceOfferInteractor {
 
   public async execute(input: UpdateServiceOfferInputModel): Promise<UpdateServiceOfferOutputModel> {
     const { service_offer_id, title, service_brief, contact_information, category, owner_id } = input;
-    if (!await this.gateway.existsById(service_offer_id))
+    if (!await this.gateway.exists({ service_offer_id }))
       throw new NonExistentServiceOfferException();
     if (!await this.gateway.belongsServiceOfferToUser(service_offer_id, owner_id))
       throw new ServiceOfferDoesNotBelongToUserException();

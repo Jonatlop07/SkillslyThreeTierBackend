@@ -21,7 +21,9 @@ export class DeleteServiceOfferService implements DeleteServiceOfferInteractor {
 
   public async execute(input: DeleteServiceOfferInputModel): Promise<DeleteServiceOfferOutputModel> {
     const { service_offer_id, owner_id } = input;
-    if (!await this.gateway.existsById(service_offer_id))
+    if (!await this.gateway.exists({
+      service_offer_id
+    }))
       throw new NonExistentServiceOfferException();
     if (!await this.gateway.belongsServiceOfferToUser(service_offer_id, owner_id))
       throw new ServiceOfferDoesNotBelongToUserException();

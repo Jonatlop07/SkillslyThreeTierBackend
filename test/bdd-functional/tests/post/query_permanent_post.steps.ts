@@ -1,23 +1,23 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import { createTestModule } from '@test/bdd-functional/tests/create_test_module';
 import { CreateUserAccountInteractor } from '@core/domain/user/use-case/interactor/create_user_account.interactor';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
-import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
-import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post_collection.interactor';
-import QueryPermanentPostOutputModel from '@core/domain/post/use-case/output-model/query_permanent_post.output_model';
+import { CreatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/create_permanent_post.interactor';
+import { QueryPermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/query_permanent_post.interactor';
+import { QueryPermanentPostCollectionInteractor } from '@core/domain/permanent-post/use-case/interactor/query_permanent_post_collection.interactor';
+import QueryPermanentPostOutputModel from '@core/domain/permanent-post/use-case/output-model/query_permanent_post.output_model';
 import {
   NonExistentPermanentPostException,
   NonExistentUserException,
   PermanentPostException,
-} from '@core/domain/post/use-case/exception/permanent_post.exception';
-import CreatePermanentPostInputModel from '@core/domain/post/use-case/input-model/create_permanent_post.input_model';
-import QueryPermanentPostCollectionOutputModel from '@core/domain/post/use-case/output-model/query_permanent_post_collection.output_model';
-import { PermanentPostContentElement } from '@core/domain/post/entity/type/permanent_post_content_element';
+} from '@core/domain/permanent-post/use-case/exception/permanent_post.exception';
+import CreatePermanentPostInputModel from '@core/domain/permanent-post/use-case/input-model/create_permanent_post.input_model';
+import QueryPermanentPostCollectionOutputModel from '@core/domain/permanent-post/use-case/output-model/query_permanent_post_collection.output_model';
+import { PermanentPostContentElement } from '@core/domain/permanent-post/entity/type/permanent_post_content_element';
 import CreateUserAccountInputModel from '@core/domain/user/use-case/input-model/create_user_account.input_model';
 import { UserDITokens } from '@core/domain/user/di/user_di_tokens';
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
 import * as moment from 'moment';
-import CreatePermanentPostOutputModel from '@core/domain/post/use-case/output-model/create_permanent_post.output_model';
+import CreatePermanentPostOutputModel from '@core/domain/permanent-post/use-case/output-model/create_permanent_post.output_model';
 import { UpdateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/update_user_follow_request.interactor';
 import { CreateUserFollowRequestInteractor } from '@core/domain/user/use-case/interactor/follow_request/create_user_follow_request.interactor';
 import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_mock';
@@ -109,9 +109,8 @@ defineFeature(feature, (test) => {
       async (post_id, post_privacy, post_owner_id, post_content_table) => {
         try {
           created_post = await createPost({
-            id: post_id,
             content: post_content_table,
-            user_id: post_owner_id,
+            owner_id: post_owner_id,
             privacy: post_privacy,
           });
         } catch (e) {
@@ -140,10 +139,10 @@ defineFeature(feature, (test) => {
       /^there exists a collection of posts that belongs to user "([^"]*)"$/,
       async (post_owner_id) => {
         const posts: CreatePermanentPostInputModel[] = [
-          { content: post1_content, user_id: post_owner_id, privacy: 'public' },
+          { content: post1_content, owner_id: post_owner_id, privacy: 'public' },
           {
             content: post2_content,
-            user_id: post_owner_id,
+            owner_id: post_owner_id,
             privacy: 'private',
           },
         ];
@@ -161,13 +160,13 @@ defineFeature(feature, (test) => {
         const posts: CreatePermanentPostInputModel[] = [
           {
             content: post1_content,
-            user_id: user_id,
+            owner_id: user_id,
             group_id: posts_group_id,
             privacy: 'public',
           },
           {
             content: post2_content,
-            user_id: user_id,
+            owner_id: user_id,
             group_id: posts_group_id,
             privacy: 'public',
           },
@@ -195,7 +194,7 @@ defineFeature(feature, (test) => {
       async () => {
         try {
           await create_user_follow_request_interactor.execute({
-            user_id: user_id,
+            user_id,
             user_to_follow_id: owner_id,
           });
           await update_user_follow_request_interactor.execute({
@@ -223,7 +222,7 @@ defineFeature(feature, (test) => {
     when('the user tries to query the post', async () => {
       try {
         output = await query_permanent_post_interactor.execute({
-          user_id: owner_id,
+          owner_id,
           id: existing_post_id,
         });
       } catch (e) {
@@ -258,15 +257,14 @@ defineFeature(feature, (test) => {
       async (group_user_id, group_id) => {
         try {
           group_request_user_id = group_user_id;
-          group_id = group_id;
           await create_join_group_request_interactor.execute({
             user_id: group_request_user_id,
-            group_id: group_id,
+            group_id
           });
           await accept_deny_remove_user_interactor.execute({
             owner_id: owner_id,
             user_id: group_request_user_id,
-            group_id: group_id,
+            group_id,
             action: 'accept',
           });
         } catch (e) {
@@ -364,14 +362,12 @@ defineFeature(feature, (test) => {
     andUserProvidesIdOfThePostAndIdOfTheOwner(and);
     whenUserTriesQueryAPost(when);
     then('the post is then returned', () => {
-      const expected_output: QueryPermanentPostOutputModel = {
-        post_id: created_post.post_id,
-        content: created_post.content,
-        user_id: created_post.user_id,
+      const created_permanent_post = created_post.created_permanent_post;
+      const expected_output: QueryPermanentPostOutputModel ={
+        permanent_post: created_permanent_post
       };
-
       expect(output).toBeDefined();
-      expect(output.content).toEqual(expected_output.content);
+      expect(output.permanent_post.content).toEqual(expected_output.permanent_post.content);
     });
   });
 
@@ -393,7 +389,7 @@ defineFeature(feature, (test) => {
             post_id: '1',
             group_id: '0',
             content: post1_content,
-            user_id: owner_id,
+            owner_id,
             privacy: 'public',
             created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
           },
@@ -401,7 +397,7 @@ defineFeature(feature, (test) => {
             post_id: '2',
             group_id: '0',
             content: post2_content,
-            user_id: owner_id,
+            owner_id,
             privacy: 'private',
             created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
           },
@@ -426,14 +422,13 @@ defineFeature(feature, (test) => {
     whenUserTriesToQueryACollectionOfPosts(when);
 
     then('the collection of all posts is then returned', () => {
-      let user_name;
       const expected_output: QueryPermanentPostCollectionOutputModel = {
         posts: [
           {
             post_id: '1',
             group_id: '0',
             content: post1_content,
-            user_id: owner_id,
+            owner_id,
             privacy: 'public',
             created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
           },
@@ -441,7 +436,7 @@ defineFeature(feature, (test) => {
             post_id: '2',
             group_id: '0',
             content: post2_content,
-            user_id: owner_id,
+            owner_id,
             privacy: 'private',
             created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
           },
@@ -471,7 +466,7 @@ defineFeature(feature, (test) => {
             post_id: '1',
             group_id: '0',
             content: post1_content,
-            user_id: owner_id,
+            owner_id,
             privacy: 'public',
             created_at: moment().format('YYYY/MM/DD HH:mm:ss'),
           },

@@ -1,7 +1,5 @@
+import { CommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment.dto';
+
 export default interface CreateCommentInPermanentPostOutputModel {
-  commentID: string;
-  postID: string;
-  userID: string;
-  comment: string;
-  timestamp: string;
+  created_comment: CommentDTO;
 }

@@ -1,10 +1,5 @@
+import { ProjectDTO } from '@core/domain/project/use-case/persistence-dto/project.dto';
+
 export default interface CreateProjectOutputModel {
-  user_id: string;
-  project_id: string;
-  title: string;
-  members: Array<string>;
-  description: string;
-  reference: string;
-  reference_type: string;
-  annexes: Array<string>;
+  created_project: ProjectDTO;
 }

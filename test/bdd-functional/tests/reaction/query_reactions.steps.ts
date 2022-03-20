@@ -1,5 +1,5 @@
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
+import { CreatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/create_permanent_post.interactor';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { QueryReactionsUnexistingPostException, ReactionException } from '@core/domain/reaction/use_case/exception/reaction.exception';
 import AddReactionInputModel from '@core/domain/reaction/use_case/input-model/add_reaction.input_model';
@@ -16,7 +16,6 @@ import { createUserMock } from '@test/bdd-functional/tests/utils/create_user_moc
 const feature = loadFeature('test/bdd-functional/features/reaction/query_reactions.feature');
 
 defineFeature(feature, (test) => {
-  let user_id: string;
   let post_id: string;
   let create_user_account_interactor: CreateUserAccountInteractor;
   let create_permanent_post_interactor: CreatePermanentPostInteractor;
@@ -46,7 +45,7 @@ defineFeature(feature, (test) => {
 
   function givenAUserExists(given) {
     given('a user exists', async () => {
-      user_id = await createUserAccount(user_1);
+      await createUserAccount(user_1);
     });
   }
 
@@ -55,9 +54,9 @@ defineFeature(feature, (test) => {
       async (post_id, post_owner_id, post_content_table) => {
         try {
           await create_permanent_post_interactor.execute({
-            id: post_id,
             content: post_content_table,
-            user_id: post_owner_id
+            owner_id: post_owner_id,
+            privacy: 'public'
           });
         } catch (e) {
           console.log(e);

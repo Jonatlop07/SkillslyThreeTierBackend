@@ -21,18 +21,14 @@ export class CreateCommentInCommentService implements CreateCommentInCommentInte
     if (input.comment.length === 0 || !isValidTimestamp(input.timestamp)) {
       throw new CommentInvalidDataFormatException();
     }
-    const createdComment = await this.gateway.create({
+    const created_comment = await this.gateway.create({
       comment: input.comment,
       timestamp: input.timestamp,
-      userID: input.userID,
-      ancestorCommentID: input.ancestorCommentID,
+      owner_id: input.owner_id,
+      ancestor_comment_id: input.ancestor_comment_id,
     });
     return {
-      commentID: createdComment.comment_id,
-      ancestorCommentID: createdComment.ancestorCommentID,
-      comment: createdComment.comment,
-      userID: createdComment.userID,
-      timestamp: createdComment.timestamp,
+      created_comment
     };
   }
 }

@@ -1,7 +1,5 @@
+import { CommentOfCommentDTO } from '@core/domain/comment/use-case/persistence-dto/comment_of_comment.dto';
+
 export interface GetCommentsInCommentOutputModel {
-  id: string;
-  comment: string;
-  timestamp: string;
-  email?: string;
-  name?: string;
+  comments: Array<CommentOfCommentDTO>;
 }

@@ -12,6 +12,8 @@ import { UpdateRequestDTO } from '@core/domain/service-request/use-case/persiste
 import { ServiceRequestPhase } from '@core/domain/service-request/entity/type/service_request_phase.enum';
 import { PaginationDTO } from '@core/common/persistence/pagination.dto';
 import { UserDTO } from '@core/domain/user/use-case/persistence-dto/user.dto';
+import CreateServiceRequestPersistenceDTO
+  from '@core/domain/service-request/use-case/persistence-dto/create_service_request.persistence_dto';
 
 @Injectable()
 export class ServiceRequestNeo4jRepositoryAdapter
@@ -33,9 +35,7 @@ implements ServiceRequestRepository {
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(
-    service_request: ServiceRequestDTO
-  ): Promise<ServiceRequestDTO> {
+  public async create(service_request: CreateServiceRequestPersistenceDTO): Promise<ServiceRequestDTO> {
     const {
       owner_id,
       title,
@@ -72,12 +72,7 @@ implements ServiceRequestRepository {
     };
   }
 
-  public async exists(t: ServiceRequestDTO): Promise<boolean> {
-    t;
-    return Promise.resolve(false);
-  }
-
-  public async existsById(id: string): Promise<boolean> {
+  public async exists(params: ServiceRequestQueryModel): Promise<boolean> {
     const exists_service_request_query = `
       MATCH (${this.service_request_key}: ServiceRequest { service_request_id: $service_request_id })
       RETURN ${this.service_request_key}
@@ -85,7 +80,7 @@ implements ServiceRequestRepository {
     const result: QueryResult = await this.neo4j_service.read(
       exists_service_request_query,
       {
-        service_request_id: id
+        service_request_id: params.service_request_id
       }
     );
     return result.records.length > 0;
@@ -131,11 +126,6 @@ implements ServiceRequestRepository {
       service_request_id,
       owner_id
     });
-  }
-
-  deleteById(id: string): Promise<void> {
-    id;
-    throw new Error('Not implemented');
   }
 
   async createApplication(
@@ -316,7 +306,7 @@ implements ServiceRequestRepository {
       applicant_id: applicant.user_id,
       applicant_email: applicant.email,
       applicant_name: applicant.name,
-      request_id: this.neo4j_service.getSingleResultProperty(result, 'request'), 
+      request_id: this.neo4j_service.getSingleResultProperty(result, 'request'),
       request_phase: this.neo4j_service.getSingleResultProperty(result, this.relationship).type
     };
   }
@@ -404,7 +394,7 @@ implements ServiceRequestRepository {
 
   public async completeRequest(params: UpdateRequestDTO,  requestedUpdateStatusIsCompletion: boolean): Promise<UpdateRequestDTO> {
     const { service_request_id, provider_id, requester_id } = params;
-    let phase: string; 
+    let phase: string;
     if (requestedUpdateStatusIsCompletion) {
       phase= ServiceRequestPhase.Finished;
     } else {
@@ -472,7 +462,7 @@ implements ServiceRequestRepository {
       provider_id: this.neo4j_service.getSingleResultProperty(result, this.provider_key),
       request_date: date,
       requester_id: requester.user_id,
-      requester_name: requester.name, 
+      requester_name: requester.name,
     };
   }
 
@@ -505,9 +495,9 @@ implements ServiceRequestRepository {
     }
     let requested_status_update =  this.neo4j_service.getSingleResultProperty(result, this.relationship);
     if (requested_status_update) {
-      requested_status_update = requested_status_update.type
+      requested_status_update = requested_status_update.type;
     } else {
-      requested_status_update = ''; 
+      requested_status_update = '';
     }
     return {
       ...this.neo4j_service.getSingleResultProperties(
@@ -727,10 +717,5 @@ implements ServiceRequestRepository {
             })
         )
     );
-  }
-
-  findAllWithRelation(params: ServiceRequestQueryModel): Promise<any> {
-    params;
-    return Promise.resolve(undefined);
   }
 }

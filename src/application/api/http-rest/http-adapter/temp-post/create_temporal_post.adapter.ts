@@ -1,6 +1,6 @@
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsString } from 'class-validator';
-import CreateTemporalPostInputModel from '@core/domain/temp-post/use-case/input-model/create_temporal_post.input_model';
+import CreateTemporalPostInputModel from '@core/domain/temporal-post/use-case/input-model/create_temporal_post.input_model';
 
 @Exclude()
 export class CreateTemporalPostAdapter {
@@ -18,8 +18,7 @@ export class CreateTemporalPostAdapter {
 
   @Expose()
   @IsString()
-  public user_id: string;
-
+  public owner_id: string;
 
   public static new(payload: CreateTemporalPostInputModel): CreateTemporalPostAdapter {
     return plainToClass(CreateTemporalPostAdapter, payload);

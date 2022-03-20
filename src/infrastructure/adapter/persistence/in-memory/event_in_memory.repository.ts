@@ -5,6 +5,7 @@ import { AssistanceDTO } from '@core/domain/event/use-case/persistence-dto/assis
 import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
 import eventQuery_model from '@core/domain/event/use-case/query-model/event.query_model';
 import { getCurrentDate } from '@core/common/util/date/moment_utils';
+import EventQueryModel from '@core/domain/event/use-case/query-model/event.query_model';
 
 export class EventInMemoryRepository implements EventRepository {
   private currently_available_event_id: string;
@@ -33,8 +34,10 @@ export class EventInMemoryRepository implements EventRepository {
     return Promise.resolve();
   }
 
-  public exists(t: EventDTO): Promise<boolean> {
-    t;
+  public exists(params: EventQueryModel): Promise<boolean> {
+    if (this.currently_available_event_id == params.event_id) {
+      return Promise.resolve(true);
+    }
     return Promise.resolve(false);
   }
 
@@ -45,18 +48,11 @@ export class EventInMemoryRepository implements EventRepository {
     return Promise.resolve(false);
   }
 
-  public existsById(id: string): Promise<boolean> {
-    if (this.currently_available_event_id == id) {
-      return Promise.resolve(true);
-    }
-    return Promise.resolve(false);
-  }
-
   public getEventsOfFriends(id: string, pagination: PaginationDTO): Promise<EventDTO[]> {
     pagination;
     const user_events: EventDTO[] = [];
     for (const event of this.events.values()) {
-      if (id === event['user_id']) {
+      if (id === event.user_id) {
         user_events.push(event);
       }
     }
@@ -67,7 +63,7 @@ export class EventInMemoryRepository implements EventRepository {
     pagination;
     const user_events: EventDTO[] = [];
     for (const event of this.events.values()) {
-      if (id === event['user_id']) {
+      if (id === event.user_id) {
         user_events.push(event);
       }
     }
@@ -94,22 +90,12 @@ export class EventInMemoryRepository implements EventRepository {
     return Promise.resolve(events);
   }
 
-  public findAll(params: eventQuery_model): Promise<EventDTO[]> {
-    params;
-    return Promise.resolve([]);
-  }
-
   public findOne(params: eventQuery_model): Promise<EventDTO> {
     for (const event of this.events.values()) {
       if (Object.keys(params).every((key: string) => params[key] === event[key])) {
         return Promise.resolve(event);
       }
     }
-    return Promise.resolve({});
-  }
-
-  public findAllWithRelation(params: eventQuery_model): Promise<any> {
-    params;
     return Promise.resolve({});
   }
 
@@ -134,15 +120,10 @@ export class EventInMemoryRepository implements EventRepository {
     return Promise.resolve();
   }
 
-  public delete(params: EventDTO): Promise<EventDTO> {
-    params;
-    return Promise.resolve({});
-  }
-
-  public deleteById(event_id: string): Promise<EventDTO> {
+  public delete(params: EventQueryModel): Promise<EventDTO> {
     for (const _event of this.events.values()) {
-      if (_event.event_id === event_id) {
-        this.events.delete(event_id);
+      if (_event.event_id === params.event_id) {
+        this.events.delete(params.event_id);
         return Promise.resolve(_event);
       }
     }

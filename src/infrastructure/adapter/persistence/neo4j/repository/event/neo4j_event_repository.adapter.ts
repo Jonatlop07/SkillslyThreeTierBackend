@@ -10,6 +10,8 @@ import { getCurrentDate } from '@core/common/util/date/moment_utils';
 import { AssistanceDTO } from '@core/domain/event/use-case/persistence-dto/assistance.dto';
 import { SearchedUserDTO } from '@core/domain/user/use-case/persistence-dto/searched_user.dto';
 import eventQuery_model from '@core/domain/event/use-case/query-model/event.query_model';
+import CreateEventPersistenceDTO from '@core/domain/event/use-case/persistence-dto/create_event.persistence_dto';
+import EventQueryModel from '@core/domain/event/use-case/query-model/event.query_model';
 
 @Injectable()
 export class EventNeo4jRepositoryAdapter implements EventRepository {
@@ -21,7 +23,7 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
   constructor(private readonly neo4j_service: Neo4jService) {
   }
 
-  public async create(event: EventDTO): Promise<EventDTO> {
+  public async create(event: CreateEventPersistenceDTO): Promise<EventDTO> {
     const user_key = 'user';
     const create_event_query = `
       MATCH 
@@ -63,9 +65,13 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
     );
   }
 
-  public exists(t: EventDTO): Promise<boolean> {
-    t;
-    return Promise.resolve(false);
+  public async exists(params: EventQueryModel): Promise<boolean> {
+    const exists_event_query = `MATCH (${this.event_key}: Event { event_id: $id }) RETURN ${this.event_key}`;
+    const result: QueryResult = await this.neo4j_service.read(
+      exists_event_query,
+      { id: params.event_id }
+    );
+    return result.records.length > 0;
   }
 
   public async existsEventAssistant(params: AssistanceDTO): Promise<boolean> {
@@ -82,15 +88,6 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
         user_id: params.user_id,
         event_id: params.event_id
       }
-    );
-    return result.records.length > 0;
-  }
-
-  public async existsById(id: string): Promise<boolean> {
-    const exists_event_query = `MATCH (${this.event_key}: Event { event_id: $id }) RETURN ${this.event_key}`;
-    const result: QueryResult = await this.neo4j_service.read(
-      exists_event_query,
-      { id }
     );
     return result.records.length > 0;
   }
@@ -244,18 +241,7 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
         user_id: id
       }
     ).then(map_nodes_properties);
-    const mapped_result_request = result_request.map(map_event_data);
-    return mapped_result_request;
-  }
-
-  public findAll(params: eventQuery_model): Promise<EventDTO[]> {
-    params;
-    return Promise.resolve([]);
-  }
-
-  public findAllWithRelation(params: eventQuery_model): Promise<any> {
-    params;
-    return Promise.resolve();
+    return result_request.map(map_event_data);
   }
 
   public async findOne(params: eventQuery_model): Promise<EventDTO> {
@@ -338,12 +324,7 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
     );
   }
 
-  public async delete(params: EventDTO): Promise<EventDTO> {
-    params;
-    return Promise.resolve(undefined);
-  }
-
-  public async deleteById(id: string): Promise<EventDTO> {
+  public async delete(params: EventQueryModel): Promise<EventDTO> {
     const user_key = 'user';
     const delete_permanent_post_statement = `
       MATCH (${this.event_key}: Event { event_id: $id })
@@ -351,8 +332,7 @@ export class EventNeo4jRepositoryAdapter implements EventRepository {
         -(${user_key}: User)
       DETACH DELETE ${this.event_key}
     `;
-    await this.neo4j_service.write(delete_permanent_post_statement, { id });
+    await this.neo4j_service.write(delete_permanent_post_statement, { id: params.event_id });
     return {};
   }
-
 }

@@ -27,12 +27,12 @@ export class CreateProfileService implements CreateProfileInteractor {
       }
     }
     const createdProfile: ProfileDTO = await this.gateway.create({
-      resume: input['resume'],
-      talents: input['talents'],
-      activities: input['activities'],
-      interests: input['interests'],
-      knowledge: input['knowledge'],
-      user_id: input['user_id'],
+      resume: input.resume,
+      talents: input.talents,
+      activities: input.activities,
+      interests: input.interests,
+      knowledge: input.knowledge,
+      user_id: input.user_id,
     });
 
     return Promise.resolve({

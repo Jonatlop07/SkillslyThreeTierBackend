@@ -5,7 +5,7 @@ Feature: Delete Service Offer
       | email                | password  | name | date_of_birth |
       | newuser_123@test.com | Abc123_tr | Juan | 01/01/2000    |
     And there exists a service offer with the details being:
-      | user_id | title       | service_brief                        | contact_information | category             |
+      | owner_id | title       | service_brief                        | contact_information | category             |
       | 1       | New service | This is a new service i have created | Cellphone 334234    | Software Development |
     When the user identified by "<UserId>" tries to delete the service offer with id "<ServiceOfferId>"
     Then the service offer is successfully deleted
@@ -29,7 +29,7 @@ Feature: Delete Service Offer
       | newuser_123@test.com  | Abc123_tr | Juan | 01/01/2000    |
       | newuser_1234@test.com | Abc123_tr | John | 01/01/2000    |
     And there exists a service offer with the details being:
-      | user_id | title       | service_brief                        | contact_information | category             |
+      | owner_id | title       | service_brief                        | contact_information | category             |
       | 1       | New service | This is a new service i have created | Cellphone 334234    | Software Development |
     When the user identified by "<UserId>" tries to delete the service offer with id "<ServiceOfferId>"
     Then an error occurs: the service offer does not belong to the user

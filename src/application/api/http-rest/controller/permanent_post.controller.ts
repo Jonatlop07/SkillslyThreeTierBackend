@@ -26,19 +26,19 @@ import { HttpUser } from '@application/api/http-rest/authentication/decorator/ht
 import { HttpUserPayload } from '@application/api/http-rest/authentication/types/http_authentication_types';
 import { Roles } from '@application/api/http-rest/authorization/decorator/roles.decorator';
 import { HttpExceptionMapper } from '@application/api/http-rest/exception/http_exception.mapper';
-import { CreatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/create_permanent_post.interactor';
-import { UpdatePermanentPostInteractor } from '@core/domain/post/use-case/interactor/update_permanent_post.interactor';
-import { PostDITokens } from '@core/domain/post/di/post_di_tokens';
-import { QueryPermanentPostCollectionInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post_collection.interactor';
-import { QueryPermanentPostInteractor } from '@core/domain/post/use-case/interactor/query_permanent_post.interactor';
-import { SharePermanentPostInteractor } from '@core/domain/post/use-case/interactor/share_permanent_post.interactor';
+import { CreatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/create_permanent_post.interactor';
+import { UpdatePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/update_permanent_post.interactor';
+import { PostDITokens } from '@core/domain/permanent-post/di/post_di_tokens';
+import { QueryPermanentPostCollectionInteractor } from '@core/domain/permanent-post/use-case/interactor/query_permanent_post_collection.interactor';
+import { QueryPermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/query_permanent_post.interactor';
+import { SharePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/share_permanent_post.interactor';
 import { ReactionDITokens } from '@core/domain/reaction/di/reaction_di_tokens';
 import { AddReactionInteractor } from '@core/domain/reaction/use_case/interactor/add_reaction.interactor';
 import { QueryReactionsInteractor } from '@core/domain/reaction/use_case/interactor/query_reactions.interactor';
-import { DeletePermanentPostInteractor } from '@core/domain/post/use-case/interactor/delete_permanent_post.interactor';
+import { DeletePermanentPostInteractor } from '@core/domain/permanent-post/use-case/interactor/delete_permanent_post.interactor';
 import { Role } from '@core/domain/user/entity/type/role.enum';
 import { PaginationDTO } from '@application/api/http-rest/http-dto/http_pagination.dto';
-import { GetPermanentPostCollectionOfFriendsInteractor } from '@core/domain/post/use-case/interactor/get_permanent_post_collection_of_friends.interactor';
+import { GetPermanentPostCollectionOfFriendsInteractor } from '@core/domain/permanent-post/use-case/interactor/get_permanent_post_collection_of_friends.interactor';
 import { CreatePermanentPostAdapter } from '@application/api/http-rest/http-adapter/post/create_permanent_post.adapter';
 import { QueryPermanentPostCollectionAdapter } from '@application/api/http-rest/http-adapter/post/query_permanent_post_collection.adapter';
 import { QueryPermanentPostAdapter } from '@application/api/http-rest/http-adapter/post/query_permanent_post.adapter';
@@ -65,7 +65,7 @@ export class PermanentPostController {
   constructor(
     private readonly event_emitter: EventEmitter2,
     @Inject(PostDITokens.CreatePermanentPostInteractor)
-    private readonly create_permanent_post_interactor: CreatePermanentPostInteractor,
+    private readonly create_permanent_post: CreatePermanentPostInteractor,
     @Inject(PostDITokens.UpdatePermanentPostInteractor)
     private readonly update_permanent_post_interactor: UpdatePermanentPostInteractor,
     @Inject(PostDITokens.QueryPermanentPostCollectionInteractor)
@@ -93,14 +93,15 @@ export class PermanentPostController {
     @Body() body
   ) {
     try {
-      return await this.create_permanent_post_interactor.execute(
+      const { created_permanent_post } = await this.create_permanent_post.execute(
         await CreatePermanentPostAdapter.new({
           content: body.content,
-          user_id: http_user.id,
+          owner_id: http_user.id,
           privacy: body.privacy,
           group_id: body.group_id
         })
       );
+      return created_permanent_post;
     } catch (e) {
       throw HttpExceptionMapper.toHttpException(e);
     }
@@ -133,7 +134,7 @@ export class PermanentPostController {
       return await this.update_permanent_post_interactor.execute({
         id: post_id,
         content: body.content,
-        user_id: http_user.id,
+        owner_id: http_user.id,
         privacy: body.privacy
       });
     } catch (e) {
@@ -152,7 +153,7 @@ export class PermanentPostController {
       return await this.query_permanent_post_collection_interactor.execute(
         await QueryPermanentPostCollectionAdapter.new({
           user_id: http_user.id,
-          owner_id: body.user_id,
+          owner_id: body.owner_id,
           group_id: body.group_id,
           limit: body.limit,
           offset: body.offset
@@ -172,7 +173,7 @@ export class PermanentPostController {
     try {
       return await this.query_permanent_post_interactor.execute(
         await QueryPermanentPostAdapter.new({
-          user_id: queryParams.user_id,
+          owner_id: queryParams.owner_id,
           id: post_id
         })
       );

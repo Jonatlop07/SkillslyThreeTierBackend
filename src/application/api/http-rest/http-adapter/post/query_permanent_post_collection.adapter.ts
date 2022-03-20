@@ -1,6 +1,6 @@
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsString } from 'class-validator';
-import QueryPermanentPostCollectionInputModel from '@core/domain/post/use-case/input-model/query_permanent_post_collection.input_model';
+import QueryPermanentPostCollectionInputModel from '@core/domain/permanent-post/use-case/input-model/query_permanent_post_collection.input_model';
 
 @Exclude()
 export class QueryPermanentPostCollectionAdapter implements QueryPermanentPostCollectionInputModel{
